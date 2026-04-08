@@ -86,8 +86,11 @@ export default function POS() {
   }, []);
 
 
+  const [visibleCount, setVisibleCount] = useState(24);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const displayedProducts = useMemo(() => {
-    return products.filter(p => {
+    const filtered = products.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.barcode || "").toLowerCase().includes(search.toLowerCase());
 
@@ -99,7 +102,22 @@ export default function POS() {
           : p.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [products, search, selectedCategory]);
+    return filtered.slice(0, visibleCount);
+  }, [products, search, selectedCategory, visibleCount]);
+
+  // Reset visibility when searching or changing categories
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [search, selectedCategory]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight + 100) {
+      if (visibleCount < products.length) {
+        setVisibleCount(prev => prev + 24);
+      }
+    }
+  };
 
   const handleCategoryClick = (cat: string) => {
     setSelectedCategory(cat);
@@ -305,7 +323,9 @@ export default function POS() {
           </div>
 
           {/* Product Grid */}
-          <div className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 content-start pb-4">
+          <div 
+            onScroll={handleScroll}
+            className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 content-start pb-4">
             {loading ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <ShoppingCart size={32} className="mx-auto mb-2 animate-bounce" />

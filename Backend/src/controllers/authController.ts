@@ -152,19 +152,34 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const user = await User.findOne({ email: normalizedEmail }).populate("businessObjectId");
 
     if (!user) {
-      res.status(401).json({ message: "Account not found. Please communicate with SuperAdmin." });
+      res.status(401).json({ message: "CREDENTIAL_MISMATCH: Identity not found in Nexus registry." });
       return;
     }
 
     if (!user.isActive) {
-      res.status(401).json({ message: "Account suspended. Please contact SuperAdmin." });
+      res.status(401).json({ message: "ACCOUNT_SUSPENDED: Administrative access decommissioned." });
       return;
     }
 
-    // Secondary Verification: Name and Business ID (Unique Workspace Node) - Case-Insensitive
-    if (user.name.toLowerCase() !== cleanName.toLowerCase() || 
-        (user.businessId || "").toLowerCase() !== cleanNode.toLowerCase()) {
-      res.status(401).json({ message: "Invalid credentials: Full Name or Workspace ID mismatch." });
+    // ── IDENTITY AUDIT: Robust Character & Case Matching ───────────────────
+    const dbName = (user.name || "").toLowerCase().replace(/\s+/g, ' ').trim();
+    const inputName = cleanName.toLowerCase().replace(/\s+/g, ' ').trim();
+    const isNameMatch = dbName === inputName;
+
+    const businessDoc = user.businessObjectId as any;
+    const dbCompany = (businessDoc?.businessName || "").toLowerCase().replace(/\s+/g, ' ').trim();
+    const inputCompany = cleanCompany.toLowerCase().replace(/\s+/g, ' ').trim();
+    const isCompanyMatch = dbCompany === inputCompany;
+
+    const dbWorkspace = (user.businessId || "").toLowerCase().trim();
+    const inputWorkspace = cleanNode.toLowerCase().trim();
+    const isWorkspaceMatch = dbWorkspace === inputWorkspace;
+
+    if (!isNameMatch || !isCompanyMatch || !isWorkspaceMatch) {
+      res.status(401).json({ 
+        message: "VALIDATION_FAILURE: Identity node drift detected.",
+        diagnostic: !isNameMatch ? "NAME_DRIFT" : !isCompanyMatch ? "COMPANY_DRIFT" : "WORKSPACE_ID_DRIFT"
+      });
       return;
     }
 
@@ -172,15 +187,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!allowedBusinessRoles.includes(user.role)) {
       res.status(401).json({ 
         success: false, 
-        message: "Access Denied: This portal is exclusively for Business Workspace users. SuperAdmins must use the Master Portal." 
+        message: "Access Denied: This portal is exclusively for Business Workspace users." 
       });
-      return;
-    }
-
-    // Tertiary Verification: Company Name check - Case-Insensitive
-    const business: any = user.businessObjectId;
-    if (!business || business.businessName.toLowerCase() !== cleanCompany.toLowerCase()) {
-      res.status(401).json({ message: "Security Mismatch: Wrong Company Name for this workspace node." });
       return;
     }
 
@@ -190,9 +198,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const businessDoc: any = user.businessObjectId;
     const businessObjectId = businessDoc?._id?.toString() || businessDoc?.toString() || null;
-    const shortBizId = user.businessId || null; // 5-char reference stored on User
+    const shortBizId = user.businessId || null; // e.g., BB-XXXX-0000 
 
     const businessAdminId = user.businessAdminId?.toString()
       || (user.role === 'businessAdmin' ? user._id.toString() : null);

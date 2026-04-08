@@ -35,9 +35,9 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     }).lean();
 
     // 🏗️ Enforce Monetization Protocol: Invoice Limit Check
-    const biz = await Business.findOne({ businessId });
+    const biz = await Business.findById(businessId);
     if (!biz) {
-      res.status(404).json({ success: false, message: "Business node not found." });
+      res.status(404).json({ success: false, message: "Business node not found. Invoice generation blocked." });
       return;
     }
 
@@ -193,7 +193,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     session.endSession();
 
     // Increment absolute counter for the business node
-    await Business.findOneAndUpdate({ businessId }, { $inc: { currentInvoiceCount: 1 } });
+    await Business.findByIdAndUpdate(businessId, { $inc: { currentInvoiceCount: 1 } });
 
     await Transaction.create({
       businessId: businessId as any,

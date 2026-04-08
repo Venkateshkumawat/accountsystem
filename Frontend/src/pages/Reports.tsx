@@ -13,20 +13,20 @@ import {
 import api from '../services/api';
 import socketService from '../services/socket';
 
-function ChartWrapper({ data, children }: any) {
+function ChartWrapper({ data, children, height = 250 }: any) {
   if (!data || data.length === 0) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+      <div style={{ minHeight: `${height}px`, height: `${height}px` }} className="w-full flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
         <Box size={24} className="text-slate-300 mb-2" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NODATA_SYNC</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">No Data Available</p>
       </div>
     );
   }
 
   return (
-    <ResponsiveContainer width="99%" height="100%">
+    <div style={{ height: `${height}px`, minHeight: `${height}px` }} className="relative w-full min-w-0 flex-1">
       {children}
-    </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -209,9 +209,9 @@ export default function Reports() {
               <span className="text-[9px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded">LIVE_FEED</span>
             </div>
           </div>
-          <div className="h-[250px] w-full min-h-[250px]">
-            <ChartWrapper data={salesData?.dailySales}>
-              <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[250px] w-full min-w-0 relative">
+            <ChartWrapper data={salesData?.dailySales} height={250}>
+              <ResponsiveContainer width="100%" height={250}>
                 <AreaChart data={salesData?.dailySales || []}>
                   <defs>
                     <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -438,9 +438,9 @@ export default function Reports() {
                  <CreditCard size={14} className="text-indigo-600" /> Sector-Wise Settlement Logic
               </h3>
            </div>
-           <div className="flex-1 w-full min-h-[200px]">
-              <ChartWrapper data={salesData?.paymentMetrics}>
-                <ResponsiveContainer width="100%" height="100%">
+           <div className="flex-1 w-full min-w-0 h-[200px] relative">
+              <ChartWrapper data={salesData?.paymentMetrics} height={200}>
+                <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
                         data={salesData?.paymentMetrics || []}
@@ -479,9 +479,9 @@ export default function Reports() {
                  <Box size={14} className="text-amber-500" /> Category-wise Inventory Hub
               </h3>
            </div>
-           <div className="flex-1 w-full min-w-0 min-h-[200px]">
-              <ChartWrapper data={inventoryData?.categoryDistribution}>
-                 <ResponsiveContainer width="100%" height="100%">
+           <div className="flex-1 w-full min-w-0 h-[200px] relative">
+              <ChartWrapper data={inventoryData?.categoryDistribution} height={200}>
+                 <ResponsiveContainer width="100%" height={200}>
                    <BarChart data={inventoryData?.categoryDistribution || []}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                       <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
@@ -504,9 +504,9 @@ export default function Reports() {
                  <Zap size={14} className="text-indigo-600" /> Unit Velocity Flux
               </h3>
            </div>
-           <div className="flex-1 w-full min-w-0 min-h-[200px]">
-              <ChartWrapper data={salesData?.dailySales}>
-                 <ResponsiveContainer width="100%" height="100%">
+           <div className="flex-1 w-full min-w-0 h-[200px] relative">
+              <ChartWrapper data={salesData?.dailySales} height={200}>
+                 <ResponsiveContainer width="100%" height={200}>
                    <LineChart data={salesData?.dailySales || []}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                       <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 7, fill: "#cbd5e1", fontWeight: 900 }} interval="preserveStartEnd" />
@@ -527,9 +527,9 @@ export default function Reports() {
                  <TrendingUp size={14} className="text-emerald-500" /> High-Velocity Node Performance Audit (Qty)
               </h3>
            </div>
-           <div className="flex-1 w-full min-w-0 min-h-[200px]">
-              <ChartWrapper data={salesData?.topSoldItems}>
-                 <ResponsiveContainer width="100%" height="100%">
+           <div className="flex-1 w-full min-w-0 h-[200px] relative">
+              <ChartWrapper data={salesData?.topSoldItems} height={200}>
+                 <ResponsiveContainer width="100%" height={200}>
                    <BarChart data={salesData?.topSoldItems || []}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                       <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />

@@ -1,18 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  ShieldCheck, 
-  ShieldAlert, 
-  Edit3, 
-  Trash2, 
-  RefreshCcw, 
-  Zap,
-  ToggleLeft,
-  ToggleRight,
-  Settings
-} from 'lucide-react';
+import { Edit3, Zap, Lock, Filter, Search, ShieldCheck, ShieldAlert, Settings, Package, FileText, RefreshCcw } from 'lucide-react';
 import api from '../../services/api';
+import socketService from '../../services/socket';
 import { useNotify } from '../../context/NotificationContext';
+
+const CountdownTimer: React.FC<{ endDate: string }> = ({ endDate }) => {
+  const calculateTimeLeft = () => {
+    const difference = new Date(endDate).getTime() - new Date().getTime();
+    if (difference <= 0) return null;
+    return {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+    };
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 60000); // 1-minute interval for performance
+    return () => clearInterval(timer);
+  }, [endDate]);
+
+  if (!timeLeft) return <span className="text-rose-600 font-black animate-pulse">EXPIRED 00:00:00</span>;
+
+  const isLow = timeLeft.days === 0 && timeLeft.hours < 24;
+
+  return (
+    <span className={`font-black tracking-tighter ${isLow ? 'text-rose-500 animate-pulse' : 'text-indigo-500'}`}>
+      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
+    </span>
+  );
+};
 
 const MasterAccount: React.FC = () => {
   const { notifySuccess, notifyInfo, fetchNotifications: syncRegistry } = useNotify();
@@ -63,7 +84,21 @@ const MasterAccount: React.FC = () => {
     } catch { alert('Protocol sync failed.'); }
   };
 
-  useEffect(() => { fetchBusinesses(); }, []);
+  useEffect(() => { 
+    fetchBusinesses(); 
+
+    const handleSkuUpdate = (payload: any) => {
+      setBusinesses(prev => prev.map(biz => {
+        if (biz.businessId === payload.businessId || biz._id === payload.businessId) {
+          return { ...biz, currentSkuCount: payload.usedSku };
+        }
+        return biz;
+      }));
+    };
+
+    socketService.on('skuUpdated', handleSkuUpdate);
+    return () => { socketService.off('skuUpdated', handleSkuUpdate); };
+  }, []);
 
   const filtered = businesses.filter(b => {
     if (search && !b.businessName.toLowerCase().includes(search.toLowerCase()) && !b.businessId.toLowerCase().includes(search.toLowerCase())) return false;
@@ -137,7 +172,9 @@ const MasterAccount: React.FC = () => {
                   </td>
                   <td className="px-4 py-3">
                     <p className={`text-[9px] font-black uppercase tracking-tighter mb-0.5 ${biz.plan === 'enterprise' ? 'text-violet-600' : biz.plan === 'pro' ? 'text-indigo-600' : 'text-slate-400'}`}>{biz.plan}</p>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase leading-none">EXP: {biz.planEndDate}</p>
+                    <p className="text-[8px] font-bold text-slate-400 uppercase leading-none mt-1">
+                      EXP: <CountdownTimer endDate={biz.planEndDate} />
+                    </p>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button onClick={() => setShowFeatureModal(biz)} className="p-2 bg-slate-50 text-slate-400 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-slate-100">
@@ -145,16 +182,31 @@ const MasterAccount: React.FC = () => {
                     </button>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[7px] font-black uppercase text-slate-400">
-                        <span>INV</span>
-                        <span className="text-slate-900">{biz.currentInvoiceCount || 0} / {biz.invoiceLimit}</span>
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[7px] font-black uppercase text-slate-400">
+                          <span className="flex items-center gap-1"><FileText size={8} /> INV</span>
+                          <span className="text-slate-900">{biz.currentInvoiceCount || 0} / {biz.invoiceLimit}</span>
+                        </div>
+                        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all ${((biz.currentInvoiceCount || 0) / biz.invoiceLimit) > 0.9 ? 'bg-rose-500' : 'bg-indigo-500'}`}
+                            style={{ width: `${Math.min(100, ((biz.currentInvoiceCount || 0) / biz.invoiceLimit) * 100)}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full transition-all ${((biz.currentInvoiceCount || 0) / biz.invoiceLimit) > 0.9 ? 'bg-rose-500' : 'bg-indigo-500'}`}
-                          style={{ width: `${Math.min(100, ((biz.currentInvoiceCount || 0) / biz.invoiceLimit) * 100)}%` }}
-                        />
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[7px] font-black uppercase text-slate-400">
+                          <span className="flex items-center gap-1"><Package size={8} /> SKU</span>
+                          <span className="text-slate-900">{biz.currentSkuCount || 0} / {biz.skuLimit || '∞'}</span>
+                        </div>
+                        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all ${((biz.currentSkuCount || 0) / (biz.skuLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                            style={{ width: `${Math.min(100, ((biz.currentSkuCount || 0) / (biz.skuLimit || 1)) * 100)}%` }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -210,7 +262,9 @@ const MasterAccount: React.FC = () => {
                    </div>
 
                    <div className="flex items-center justify-between pt-1">
-                      <div className="text-[9px] font-bold text-slate-400 uppercase">EXP: {biz.planEndDate}</div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+                        EXP: <CountdownTimer endDate={biz.planEndDate} />
+                      </div>
                       <div className="flex gap-2">
                         <button onClick={() => setShowFeatureModal(biz)} className="p-2 bg-white border border-slate-200 rounded-lg text-slate-400"> <Settings size={14} /> </button>
                         <button onClick={() => handleToggleStatus(biz)} className={`p-2 rounded-lg ${biz.status === 'active' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}> {biz.status === 'active' ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />} </button>
@@ -275,8 +329,9 @@ const MasterAccount: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center border-t border-slate-50 pt-2 text-[9px]">
                      <span className="font-black uppercase text-slate-400">DEADLINE</span>
-                     <div className="text-right text-indigo-600 font-black">
-                        {new Date(showFeatureModal.planEndDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                     <div className="text-right font-black flex items-center gap-1.5 justify-end">
+                        <span className="text-slate-300 text-[8px]">{new Date(showFeatureModal.planEndDate).toLocaleDateString('en-IN')}</span>
+                        <CountdownTimer endDate={showFeatureModal.planEndDate} />
                      </div>
                   </div>
                </div>

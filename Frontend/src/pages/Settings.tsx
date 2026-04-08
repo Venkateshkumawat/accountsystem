@@ -8,6 +8,8 @@ import {
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useRazorpay } from '../hooks/useRazorpay';
+import { INDIAN_STATES } from '../constants/indianStates';
+import { validateGSTIN, validateMobile, validatePincode } from '../utils/validation';
 
 const PLAN_PRICES: Record<string, number> = {
   'free': 0,
@@ -507,8 +509,17 @@ export default function Settings() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <SI label="GSTIN" placeholder="22AAAAA0000A1Z5" value={profile.gstin}
-                    onChange={(v: string) => setProfile({ ...profile, gstin: v })} />
+                  <div className="space-y-1.5">
+                    <SI 
+                      label="GSTIN" 
+                      placeholder="22AAAAA0000A1Z5" 
+                      value={profile.gstin}
+                      onChange={(v: string) => setProfile({ ...profile, gstin: v.toUpperCase() })} 
+                    />
+                    {profile.gstin && !validateGSTIN(profile.gstin) && (
+                      <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter">Invalid GSTIN Pattern</p>
+                    )}
+                  </div>
                   <SI
                     label="Mobile Number"
                     placeholder="9876543210"
@@ -522,8 +533,31 @@ export default function Settings() {
                     title="Mobile must be exactly 10 digits"
                   />
                   <SI label="City" value={profile.city} onChange={(v: string) => setProfile({ ...profile, city: v })} />
-                  <SI label="State" value={profile.state} onChange={(v: string) => setProfile({ ...profile, state: v })} />
-                  <SI label="Pincode" value={profile.pincode} onChange={(v: string) => setProfile({ ...profile, pincode: v })} />
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">State</label>
+                    <select 
+                      value={profile.state} 
+                      onChange={e => setProfile({ ...profile, state: e.target.value })}
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 focus:bg-white transition appearance-none"
+                    >
+                      <option value="">Select State</option>
+                      {INDIAN_STATES.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <SI 
+                      label="Pincode" 
+                      value={profile.pincode} 
+                      onChange={(v: string) => setProfile({ ...profile, pincode: v.replace(/\D/g, '').slice(0, 6) })} 
+                    />
+                    {profile.pincode && !validatePincode(profile.pincode) && (
+                      <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter">Must be 6 digits</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">

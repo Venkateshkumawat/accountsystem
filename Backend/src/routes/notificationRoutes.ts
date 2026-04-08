@@ -15,26 +15,31 @@ const router = Router();
 router.use(protect);
 router.use(tenantHandler);
 
+// ── Static Master Routes (Must be first to avoid :id collisions) ────────────
+
 // @route   GET /api/notifications
 router.get("/", getNotifications);
 
 // @route   GET /api/notifications/unread-count
 router.get("/unread-count", getUnreadCount);
 
-// @route   PATCH /api/notifications/:id/read
-// @desc    Mark a specific notification as read
-router.patch("/:id/read", markAsRead);
-
 // @route   PATCH /api/notifications/read-all
 router.patch("/read-all", markAllAsRead);
-router.put("/", markAllAsRead);
 
-// @route   PUT /api/notifications/:id
+// @route   DELETE /api/notifications/delete-all
+router.delete("/delete-all", deleteAllNotifications);
+
+
+// ── Dynamic ID-based Routes ────────────────────────────────────────────────
+
+// @route   PATCH /api/notifications/:id/read
+router.patch("/:id/read", markAsRead);
+
+// @route   PUT /api/notifications/:id 
+// (Legacy support/Alternative)
 router.put("/:id", markAsRead);
 
 // @route   DELETE /api/notifications/:id
-// @desc    Permanently delete a specific notification node
-router.delete("/delete-all", deleteAllNotifications);
 router.delete("/:id", deleteNotification);
 
 export default router;

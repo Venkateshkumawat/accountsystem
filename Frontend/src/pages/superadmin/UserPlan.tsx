@@ -6,6 +6,22 @@ import {
   Info
 } from 'lucide-react';
 import api from '../../services/api';
+import { INDIAN_STATES } from '../../constants/indianStates';
+import { validateGSTIN, validatePincode } from '../../utils/validation';
+
+// Internal Input Block - Defined outside to prevent focus loss on re-render
+const IB = ({ label, icon: Icon, type = "text", placeholder, value, onChange, required = false, autoComplete = "off" }: any) => (
+  <div className="space-y-1">
+    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+    <div className="relative group">
+      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors pointer-events-none">
+        <Icon size={12} />
+      </div>
+      <input type={type} placeholder={placeholder} autoComplete={autoComplete} value={value} onChange={(e) => onChange(e.target.value)} required={required}
+        className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border-none rounded-xl text-[10px] font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300 h-9" />
+    </div>
+  </div>
+);
 
 const UserPlan: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -135,8 +151,8 @@ const UserPlan: React.FC = () => {
                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Administrative Identity</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                   <IB label="Admin Name" icon={Users} placeholder="Full Name" value={formData.ownerFullName} onChange={(v) => setFormData({...formData, ownerFullName: v})} required />
-                   <IB label="Sync Email" icon={Mail} type="email" placeholder="email@nexus.com" value={formData.email} onChange={(v) => setFormData({...formData, email: v})} required autoComplete="off" />
+                   <IB label="Admin Name" icon={Users} placeholder="Full Name" value={formData.ownerFullName} onChange={(v: string) => setFormData({...formData, ownerFullName: v})} required />
+                   <IB label="Sync Email" icon={Mail} type="email" placeholder="email@nexus.com" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} required autoComplete="off" />
                    <div className="space-y-1">
                       <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile</label>
                       <div className="relative group">
@@ -144,7 +160,7 @@ const UserPlan: React.FC = () => {
                           <Phone size={12} />
                         </div>
                         <input type="text" placeholder="10 Digits" value={formData.mobileNumber} 
-                          onChange={(e) => {
+                          onChange={(e: any) => {
                             const v = e.target.value.replace(/\D/g, '').slice(0, 10);
                             setFormData({...formData, mobileNumber: v});
                           }} 
@@ -152,7 +168,7 @@ const UserPlan: React.FC = () => {
                           className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border-none rounded-xl text-[10px] font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300 h-9" />
                       </div>
                    </div>
-                   <IB label="Password" icon={ShieldCheck} type="password" placeholder="••••••••" value={formData.password} onChange={(v) => setFormData({...formData, password: v})} required autoComplete="new-password" />
+                   <IB label="Password" icon={ShieldCheck} type="password" placeholder="••••••••" value={formData.password} onChange={(v: string) => setFormData({...formData, password: v})} required autoComplete="new-password" />
                 </div>
               </div>
 
@@ -163,14 +179,37 @@ const UserPlan: React.FC = () => {
                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Business Entity</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                   <IB label="Entity Name" icon={Briefcase} placeholder="Nexus Corp" value={formData.businessName} onChange={(v) => setFormData({...formData, businessName: v})} required />
-                   <IB label="Tax ID (GSTIN)" icon={Info} placeholder="GSTIN (Opt)" value={formData.gstin} onChange={(v) => setFormData({...formData, gstin: v})} />
-                   <IB label="City" icon={MapPin} placeholder="Mumbai" value={formData.location.city} onChange={(v) => setFormData({...formData, location: {...formData.location, city: v}})} required />
-                   <div className="grid grid-cols-2 gap-2">
-                     <IB label="State" icon={MapPin} placeholder="MH" value={formData.location.state} onChange={(v) => setFormData({...formData, location: {...formData.location, state: v}})} required />
-                     <IB label="Zip" icon={MapPin} placeholder="400001" value={formData.location.pincode} onChange={(v) => setFormData({...formData, location: {...formData.location, pincode: v}})} required />
+                   <IB label="Entity Name" icon={Briefcase} placeholder="Nexus Corp" value={formData.businessName} onChange={(v: string) => setFormData({...formData, businessName: v})} required />
+                   <div className="space-y-1">
+                      <IB label="Tax ID (GSTIN)" icon={Info} placeholder="GSTIN (Opt)" value={formData.gstin} onChange={(v: string) => setFormData({...formData, gstin: v.toUpperCase()})} />
+                      {formData.gstin && !validateGSTIN(formData.gstin) && (
+                        <p className="text-[7px] font-black text-rose-500 uppercase tracking-tighter ml-1">Invalid Pattern</p>
+                      )}
                    </div>
-                </div>
+                   <IB label="City" icon={MapPin} placeholder="Mumbai" value={formData.location.city} onChange={(v: string) => setFormData({...formData, location: {...formData.location, city: v}})} required />
+                   <div className="grid grid-cols-2 gap-2">
+                     <div className="space-y-1">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">State</label>
+                        <select 
+                          value={formData.location.state} 
+                          onChange={e => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
+                          className="w-full px-3 py-2 bg-slate-50 border-none rounded-xl text-[10px] font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20 transition-all appearance-none h-9"
+                          required
+                        >
+                          <option value="">Select State</option>
+                          {INDIAN_STATES.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                     </div>
+                     <div className="space-y-1">
+                        <IB label="Zip" icon={MapPin} placeholder="400001" value={formData.location.pincode} onChange={(v: string) => setFormData({...formData, location: {...formData.location, pincode: v.replace(/\D/g, '').slice(0, 6)}})} required />
+                        {formData.location.pincode && !validatePincode(formData.location.pincode) && (
+                          <p className="text-[7px] font-black text-rose-500 uppercase tracking-tighter ml-1">6 Digits Req.</p>
+                        )}
+                     </div>
+                   </div>
+                 </div>
               </div>
 
               {/* Subscription Node */}
@@ -193,8 +232,8 @@ const UserPlan: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <IB label="Manual Price (₹)" icon={CreditCard} type="number" placeholder="0" value={formData.price.toString()} onChange={(v) => { setFormData({...formData, price: parseInt(v) || 0, plan: 'custom'}); setPaymentStatus('none'); }} />
-                    <IB label="Duration (Days)" icon={Clock} type="number" placeholder="30" value={formData.customDuration.toString()} onChange={(v) => setFormData({...formData, customDuration: parseInt(v) || 0, plan: 'custom'})} />
+                    <IB label="Manual Price (₹)" icon={CreditCard} type="number" placeholder="0" value={formData.price.toString()} onChange={(v: string) => { setFormData({...formData, price: parseInt(v) || 0, plan: 'custom'}); setPaymentStatus('none'); }} />
+                    <IB label="Duration (Days)" icon={Clock} type="number" placeholder="30" value={formData.customDuration.toString()} onChange={(v: string) => setFormData({...formData, customDuration: parseInt(v) || 0, plan: 'custom'})} />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-900 rounded-xl p-5 text-white">
@@ -215,8 +254,8 @@ const UserPlan: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                   <IB type="datetime-local" label="Activation" icon={Clock} value={formData.planStartDate} placeholder="Select" onChange={(v) => setFormData({...formData, planStartDate: v})} />
-                   <IB type="datetime-local" label="Expiry" icon={Clock} value={formData.planEndDate} placeholder="Select" onChange={(v) => setFormData({...formData, planEndDate: v})} />
+                   <IB type="datetime-local" label="Activation" icon={Clock} value={formData.planStartDate} placeholder="Select" onChange={(v: string) => setFormData({...formData, planStartDate: v})} />
+                   <IB type="datetime-local" label="Expiry" icon={Clock} value={formData.planEndDate} placeholder="Select" onChange={(v: string) => setFormData({...formData, planEndDate: v})} />
                    <div className="space-y-1">
                       <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Payment</label>
                       <button type="button" onClick={handlePayment} disabled={loading}
@@ -275,22 +314,6 @@ const UserPlan: React.FC = () => {
     </div>
   );
 };
-
-// Internal Input Block
-const IB = ({ label, icon: Icon, type = "text", placeholder, value, onChange, required = false, autoComplete = "off" }: {
-  label: string; icon: any; type?: string; placeholder: string; value: string; onChange: (v: string) => void; required?: boolean; autoComplete?: string;
-}) => (
-  <div className="space-y-1">
-    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-    <div className="relative group">
-      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors pointer-events-none">
-        <Icon size={12} />
-      </div>
-      <input type={type} placeholder={placeholder} autoComplete={autoComplete} value={value} onChange={(e) => onChange(e.target.value)} required={required}
-        className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border-none rounded-xl text-[10px] font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300 h-9" />
-    </div>
-  </div>
-);
 
 // Post-Deployment Manifest Overlay
 const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose: () => void }) => (

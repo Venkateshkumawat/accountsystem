@@ -56,6 +56,14 @@ export const loginSuperAdmin = async (req: Request, res: Response): Promise<void
       return;
     }
 
+    // Record login timestamp and IP in config node
+    const config = await SuperAdminConfig.findOne();
+    if (config) {
+      config.lastLoginAt = new Date();
+      config.lastLoginIP = req.ip || req.socket.remoteAddress;
+      await config.save();
+    }
+
     const token = generateToken({
       userId: 'SUPER_ADMIN_MASTER',
       name: 'Nexus Master',
@@ -135,6 +143,7 @@ export const createBusinessAdmin = async (req: Request, res: Response): Promise<
       return;
     }
 
+    // 1. Prepare Business Identity (BB-XXXX-0000)
     const businessId = await generateBusinessId();
     const startDate = validatedData.planStartDate ? new Date(validatedData.planStartDate) : new Date();
     let endDate = validatedData.planEndDate ? new Date(validatedData.planEndDate) : null;
@@ -145,24 +154,24 @@ export const createBusinessAdmin = async (req: Request, res: Response): Promise<
       endDate.setDate(endDate.getDate() + daysToAdd);
     }
 
+    // 2. Initialize User Node (Do NOT save yet)
     const newUser = new User({
-      name: validatedData.ownerFullName,
-      email: validatedData.email.toLowerCase(),
+      name: validatedData.ownerFullName.trim(),
+      email: validatedData.email.toLowerCase().trim(),
       password: validatedData.password,
       role: 'businessAdmin',
       businessId: businessId,
       isActive: true
     });
 
-    await newUser.save({ session });
-
+    // 3. Initialize Business Node
     const newBusiness = new Business({
       businessId: businessId,
-      shortId: businessId.split('-').slice(1).join('-'), // e.g., KRTX-7291
+      shortId: businessId.split('-').slice(1).join('-'),
       businessAdminId: newUser._id,
-      ownerFullName: validatedData.ownerFullName,
-      businessName: validatedData.businessName,
-      email: validatedData.email.toLowerCase(),
+      ownerFullName: validatedData.ownerFullName.trim(),
+      businessName: validatedData.businessName.trim(),
+      email: validatedData.email.toLowerCase().trim(),
       mobileNumber: validatedData.mobileNumber,
       location: validatedData.location,
       gstin: validatedData.gstin,
@@ -179,21 +188,15 @@ export const createBusinessAdmin = async (req: Request, res: Response): Promise<
         assignedBy: 'superadmin',
         assignedAt: new Date()
       }],
-      features: {
-        pos: true,
-        inventory: true,
-        purchases: true,
-        accounting: true,
-        reports: true
-      },
       skuLimit: validatedData.skuLimit,
       invoiceLimit: validatedData.invoiceLimit
     });
 
-    await newBusiness.save({ session });
+    // 4. Atomic Linkage & Persistence
+    newUser.businessAdminId = newUser._id;
+    newUser.businessObjectId = newBusiness._id;
 
-    newUser.businessAdminId = newUser._id as mongoose.Types.ObjectId;
-    newUser.businessObjectId = newBusiness._id as mongoose.Types.ObjectId;
+    await newBusiness.save({ session });
     await newUser.save({ session });
 
     await createNotification(
@@ -242,7 +245,7 @@ export const updateBusinessFeatures = async (req: Request, res: Response): Promi
       "info",
       "superadmin",
       "/superadmin/accounts",
-      "settings"
+      // "settings"
     );
 
     res.status(200).json({ success: true, message: `Node features updated`, features: biz.features });
@@ -399,7 +402,7 @@ export const updateBusinessDetails = async (req: Request, res: Response): Promis
       "info",
       "superadmin",
       "/superadmin/accounts",
-      "settings"
+      // "settings"
     );
 
     // Notify Affected Business Node
@@ -433,7 +436,7 @@ export const resetBusinessPassword = async (req: Request, res: Response): Promis
       "warning",
       "superadmin",
       "/superadmin/accounts",
-      "settings"
+      // "settings"
     );
 
     res.status(200).json({ success: true, message: "Password reset", newPassword });

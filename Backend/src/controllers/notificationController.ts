@@ -208,7 +208,7 @@ export const createNotification = async (
   type: "success" | "error" | "info" | "warning" = "info",
   role: 'superadmin' | 'businessAdmin' | 'manager' | 'cashier' | 'accountant' = 'businessAdmin',
   link?: string,
-  category: "product" | "invoice" | "payment" | "alert" | "staff" = "alert"
+  category: "product" | "invoice" | "payment" | "alert" | "staff" | "users" = "alert"
 ) => {
   try {
     const normalizedRole = role || 'businessAdmin';

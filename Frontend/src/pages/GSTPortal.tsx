@@ -21,9 +21,11 @@ function ChartWrapper({ data, children }: any) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      {children}
-    </ResponsiveContainer>
+    <div className="w-full h-[280px] min-h-[280px] min-w-[200px] relative">
+      <ResponsiveContainer width="100%" height={280}>
+        {children}
+      </ResponsiveContainer>
+    </div>
   );
 }
 

@@ -5,7 +5,7 @@ export interface INotification extends Document {
   role: 'superadmin' | 'businessAdmin' | 'manager' | 'cashier' | 'accountant' | 'staff';
   message: string;
   type: "success" | "error" | "info" | "warning";
-  category: "product" | "invoice" | "payment" | "alert" | "staff";
+  category: "product" | "invoice" | "payment" | "alert" | "staff" | "users";
   isRead: boolean;
   link?: string;
   createdAt: Date;
@@ -38,7 +38,7 @@ const notificationSchema = new Schema<INotification>(
     },
     category: {
       type: String,
-      enum: ["product", "invoice", "payment", "alert", "staff"],
+      enum: ["product", "invoice", "payment", "alert", "staff", "users"],
       default: "alert",
     },
     isRead: {

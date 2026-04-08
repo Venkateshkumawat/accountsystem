@@ -61,11 +61,16 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
       .limit(limit)
       .lean();
 
+    const biz = await Business.findById(req.user?.businessId);
+
     res.status(200).json({
       success: true,
       total,
       page,
       limit,
+      skuLimit: biz?.skuLimit || 0,
+      usedSku: biz?.currentSkuCount || 0,
+      remainingSku: (biz?.skuLimit || 0) - (biz?.currentSkuCount || 0),
       data: products
     });
   } catch (error: any) {
@@ -214,22 +219,11 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
     const finalSKU = (sku && sku.trim().toUpperCase()) || await generateSKU(name, category || 'GEN', businessAdminId);
 
     // 🏗️ Enforce Monetization Protocol: SKU Limit Check
-    const biz = await Business.findOne({ businessId });
+    const biz = await Business.findById(businessId);
     if (biz && biz.currentSkuCount >= biz.skuLimit) {
-       // Auto-suspend protocol
-       biz.status = 'suspended';
-       biz.isActive = false;
-       biz.suspendedAt = new Date();
-       biz.suspendReason = "OPERATIONAL SURGE: Absolute SKU limit reached.";
-       await biz.save();
-
-       // De-authorize all users for this node
-       const User = (Product.db as any).model("User");
-       await User.updateMany({ businessId }, { isActive: false });
-
        res.status(403).json({ 
          success: false, 
-         message: `Infrastructure Lock: SKU Limit Reached (${biz.skuLimit}). Node suspended. Please contact Nexus Master to authorize additional data partitions.` 
+         message: "Plan limit reached. Upgrade required." 
        });
        return;
     }
@@ -244,7 +238,7 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
     });
 
     // Increment absolute counter for the business node
-    await Business.findOneAndUpdate({ businessId }, { $inc: { currentSkuCount: 1 } });
+    const updatedBiz = await Business.findByIdAndUpdate(businessId, { $inc: { currentSkuCount: 1 } }, { new: true });
 
     await logActivity(req, "CREATE", "PRODUCT", `Initialized New SKU: ${product.name}`, (product._id as any).toString());
 
@@ -260,6 +254,16 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
     // 📡 Nexus Protocol: Real-time Data Sync Signal
     if (businessId) {
       getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
+      if (updatedBiz) {
+         const payload = {
+            businessAdminId: businessAdminId.toString(),
+            businessId: businessId.toString(),
+            usedSku: updatedBiz.currentSkuCount,
+            remainingSku: updatedBiz.skuLimit - updatedBiz.currentSkuCount
+         };
+         getIO()?.to(businessId.toString()).emit('skuUpdated', payload);
+         getIO()?.emit('skuUpdated', payload); // Global sync for SuperAdmin
+      }
     }
 
     res.status(201).json({ success: true, data: product });
@@ -371,7 +375,22 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
 
     if (product) {
       // Decrement absolute counter for the business node
-      await Business.findOneAndUpdate({ businessId: product.businessId }, { $inc: { currentSkuCount: -1 } });
+      const updatedBiz = await Business.findByIdAndUpdate(
+         product.businessObjectId || req.user?.businessId, 
+         { $inc: { currentSkuCount: -1 } },
+         { new: true }
+      );
+
+      if (updatedBiz && req.user?.businessId) {
+         const payload = {
+            businessAdminId: businessAdminId.toString(),
+            businessId: updatedBiz._id.toString(),
+            usedSku: updatedBiz.currentSkuCount,
+            remainingSku: updatedBiz.skuLimit - updatedBiz.currentSkuCount
+         };
+         getIO()?.to(req.user.businessId.toString()).emit('skuUpdated', payload);
+         getIO()?.emit('skuUpdated', payload); // Global sync for SuperAdmin
+      }
     }
 
     if (!product) {
@@ -392,7 +411,7 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
 
     // 📡 Nexus Protocol: Real-time Data Sync Signal
     if (req.user?.businessId) {
-      getIO().to(req.user.businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
+      getIO()?.to(req.user.businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
     }
 
     res.status(200).json({ success: true, message: "Product marked as inactive" });

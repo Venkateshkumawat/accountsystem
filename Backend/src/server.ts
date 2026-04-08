@@ -24,6 +24,7 @@ import offerRoutes from "./routes/offerRoutes.js";
 import { seedSuperAdmin } from "./utils/seedSuperAdmin.js";
 import { seedPlans } from "./utils/seedPlans.js";
 import { initializeExistingProducts } from "./utils/productUtils.js";
+import { healRegistry } from "./utils/healRegistry.js";
 import mongoose from "mongoose";
 import cron from "node-cron";
 import Business from "./models/Business.js";
@@ -35,6 +36,7 @@ import { initSocket } from "./socket.js";
 const bootstrap = async () => {
   try {
     await connectDB();
+    await healRegistry();
     await seedSuperAdmin();
     await seedPlans();
     await initializeExistingProducts();
@@ -76,7 +78,7 @@ app.use(express.json());
 app.use(cors({
   origin: true, // Dynamically allow the requesting origin
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
 

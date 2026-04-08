@@ -26,6 +26,9 @@ interface ProductContextType {
   fetchProducts: (query?: string, category?: string) => Promise<void>;
   fetchCategories: () => Promise<void>;
   refreshAll: () => Promise<void>;
+  skuLimit: number;
+  usedSku: number;
+  remainingSku: number;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -34,6 +37,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [skuLimit, setSkuLimit] = useState(0);
+  const [usedSku, setUsedSku] = useState(0);
+  const [remainingSku, setRemainingSku] = useState(0);
 
   // Cross-tab synchronization node
   const syncChannel = React.useMemo(() => new BroadcastChannel('nexus_sync'), []);
@@ -56,6 +62,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const res = await api.get(`/products?name=${query}${catParam}&limit=1000`);
       const payload = res.data?.data || res.data;
       setProducts(Array.isArray(payload) ? payload : []);
+      if (res.data?.skuLimit !== undefined) {
+         setSkuLimit(res.data.skuLimit);
+         setUsedSku(res.data.usedSku);
+         setRemainingSku(res.data.remainingSku);
+      }
     } catch (error) {
       console.error('Failed to fetch products:', error);
     } finally {
@@ -97,11 +108,21 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
     syncChannel.addEventListener('message', handleSync);
 
-    // Background Poll (Fall-through): Every 30s to catch server-side external changes
-    const pollId = setInterval(() => refreshAll(false), 30000);
+    // Smart Fetch: Only refresh if last fetch was more than 2 minutes ago or explicitly requested
+    const lastFetchRef = { current: 0 };
+    const smartRefresh = () => {
+      const now = Date.now();
+      if (now - lastFetchRef.current > 120000) { // 2 minutes
+        lastFetchRef.current = now;
+        refreshAll(false);
+      }
+    };
+
+    // Background Poll: Every 60s to catch server-side external changes
+    const pollId = setInterval(smartRefresh, 60000);
 
     // Focus-based Sync: Refresh when user returns to tab
-    const handleFocus = () => refreshAll(false);
+    const handleFocus = () => smartRefresh();
     window.addEventListener('focus', handleFocus);
 
     return () => {
@@ -117,8 +138,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     loading,
     fetchProducts,
     fetchCategories,
-    refreshAll
-  }), [products, categories, loading, fetchProducts, fetchCategories, refreshAll]);
+    refreshAll,
+    skuLimit,
+    usedSku,
+    remainingSku
+  }), [products, categories, loading, fetchProducts, fetchCategories, refreshAll, skuLimit, usedSku, remainingSku]);
 
   return (
     <ProductContext.Provider value={contextValue}>

@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { Phone, Mail, ArrowUpRight, ArrowDownLeft, MoreVertical, Filter, UserPlus, Users, X, Edit2, Trash2, ShieldCheck, Activity, MapPin, Globe, CreditCard, Search, SearchCode } from 'lucide-react';
 import api from '../services/api';
 import { useNotify } from '../context/NotificationContext';
+import { INDIAN_STATES } from '../constants/indianStates';
+import { validateGSTIN, validatePincode } from '../utils/validation';
+import { Layout } from 'lucide-react';
 
 export default function Parties() {
     const [parties, setParties] = useState<any[]>([]);
@@ -215,7 +218,18 @@ export default function Parties() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <SI label="Tax Registry (GSTIN)" icon={ShieldCheck} placeholder="GSTIN Number" value={formData.gstin} onChange={(v: string) => setFormData({...formData, gstin: v})} />
+                                        <div className="space-y-1.5">
+                                            <SI 
+                                                label="Tax Registry (GSTIN)" 
+                                                icon={ShieldCheck} 
+                                                placeholder="GSTIN Number" 
+                                                value={formData.gstin} 
+                                                onChange={(v: string) => setFormData({...formData, gstin: v.toUpperCase()})} 
+                                            />
+                                            {formData.gstin && !validateGSTIN(formData.gstin) && (
+                                                <p className="text-[8px] font-black text-rose-500 uppercase tracking-tighter ml-1">Invalid GSTIN Pattern</p>
+                                            )}
+                                        </div>
                                         <SI label="Opening Pulse (₹)" icon={CreditCard} type="number" value={formData.openingBalance.toString()} onChange={(v: string) => setFormData({...formData, openingBalance: parseInt(v) || 0})} placeholder="0.00" />
                                         
                                         <div className="md:col-span-2 space-y-1.5">
@@ -253,9 +267,35 @@ export default function Parties() {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="md:col-span-2"> <SI label="Physical Address" value={formData.address.street} onChange={(v: string) => setFormData({...formData, address: {...formData.address, street: v}})} placeholder="Street / Area" required /> </div>
-                                        <SI label="Zip Code" value={formData.address.pincode} onChange={(v: string) => setFormData({...formData, address: {...formData.address, pincode: v}})} placeholder="400001" required maxLength={6} />
+                                        <div className="space-y-1.5">
+                                            <SI 
+                                                label="Zip Code" 
+                                                value={formData.address.pincode} 
+                                                onChange={(v: string) => setFormData({...formData, address: {...formData.address, pincode: v.replace(/\D/g, '').slice(0, 6)}})} 
+                                                placeholder="400001" 
+                                                required 
+                                                maxLength={6} 
+                                            />
+                                            {formData.address.pincode && !validatePincode(formData.address.pincode) && (
+                                                <p className="text-[8px] font-black text-rose-500 uppercase tracking-tighter ml-1">Must be 6 digits</p>
+                                            )}
+                                        </div>
                                         <SI label="City Node" value={formData.address.city} onChange={(v: string) => setFormData({...formData, address: {...formData.address, city: v}})} placeholder="Mumbai" required />
-                                        <SI label="State Territory" value={formData.address.state} onChange={(v: string) => setFormData({...formData, address: {...formData.address, state: v}})} placeholder="Maharashtra" required />
+                                        
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2"> <MapPin size={12} className="text-indigo-500" /> State Territory </label>
+                                            <select 
+                                                value={formData.address.state} 
+                                                onChange={(e) => setFormData({...formData, address: {...formData.address, state: e.target.value}})}
+                                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-black outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none"
+                                                required
+                                            >
+                                                <option value="">Select State</option>
+                                                {INDIAN_STATES.map(s => (
+                                                    <option key={s} value={s}>{s}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
                                 </section>
                             </div>

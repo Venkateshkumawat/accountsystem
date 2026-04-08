@@ -108,8 +108,9 @@ export default function Accounting() {
         {/* Revenue Chart */}
         <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col h-[320px]">
           <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Revenue Projection Trend</h3>
-          {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
+          {chartData.length > 0 && !loading ? (
+            <div className="flex-1 w-full h-[250px] min-h-[250px] min-w-[200px] relative">
+              <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                 <XAxis dataKey="date" tick={{ fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
@@ -118,6 +119,7 @@ export default function Accounting() {
                 <Line type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#fff" }} />
               </LineChart>
             </ResponsiveContainer>
+            </div>
           ) : (
             <div className="h-[160px] flex items-center justify-center text-slate-200 text-[10px] font-black uppercase">No data yet</div>
           )}
@@ -126,8 +128,9 @@ export default function Accounting() {
         {/* Payment Methods */}
         <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col h-[320px]">
           <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Collection Mix</h3>
-          {methodData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
+          {methodData.length > 0 && !loading ? (
+             <div className="flex-1 w-full h-[250px] min-h-[250px] min-w-[200px] relative">
+              <ResponsiveContainer width="100%" height={250}>
               <BarChart data={methodData} barSize={20}>
                 <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
                 <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, '']} contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
@@ -138,6 +141,7 @@ export default function Accounting() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           ) : (
             <div className="h-[160px] flex items-center justify-center text-slate-200 text-[10px] font-black uppercase">No data yet</div>
           )}

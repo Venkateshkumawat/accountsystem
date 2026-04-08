@@ -23,6 +23,7 @@ const SuperAdminLogin = () => {
     setError("");
 
     try {
+      // 📡 Nexus Master Handshake: Only secretKey required (ENV auth)
       const response = await api.post("/superadmin/auth/login", { secretKey });
       const { token, user } = response.data;
       
@@ -31,7 +32,7 @@ const SuperAdminLogin = () => {
 
       navigate("/superadmin/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Rejection: Invalid Key.");
+      setError(err.response?.data?.message || "Rejection: Invalid Secret Key.");
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,7 @@ const SuperAdminLogin = () => {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-1 opacity-60 italic">Encryption Key</label>
+            <label className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-1 opacity-60 italic">Master Secret Key</label>
             <div className="relative group">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors pointer-events-none">
                 <Lock size={14} />
@@ -76,10 +77,11 @@ const SuperAdminLogin = () => {
               <input 
                 type="password"
                 placeholder="ENTER SECRET KEY"
-                className="w-full pl-12 pr-6 py-4 bg-slate-950 border border-slate-800 rounded-xl text-[10px] font-black text-white focus:outline-none focus:border-indigo-600 transition-all placeholder:text-slate-800 uppercase h-12"
+                className="w-full h-12 pl-12 pr-6 py-4 bg-slate-950 border border-slate-800 rounded-xl text-[10px] font-black text-white focus:outline-none focus:border-indigo-600 transition-all placeholder:text-slate-800 uppercase"
                 value={secretKey}
                 onChange={(e) => setSecretKey(e.target.value)}
                 required
+                autoComplete="off"
               />
             </div>
           </div>
@@ -87,7 +89,7 @@ const SuperAdminLogin = () => {
           <button 
             type="submit"
             disabled={loading}
-            className={`w-full h-12 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.3em] h-12 italic flex items-center justify-center gap-2 hover:bg-indigo-500 active:scale-95 transition-all mt-6 shadow-xl shadow-indigo-600/10 ${loading ? 'opacity-50 grayscale' : ''}`}
+            className={`w-full h-12 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.3em] italic flex items-center justify-center gap-2 hover:bg-indigo-500 active:scale-95 transition-all mt-6 shadow-xl shadow-indigo-600/10 ${loading ? 'opacity-50 grayscale' : ''}`}
           >
             {loading ? 'VALIDATING...' : 'INITIATE OVERRIDE'}
             {!loading && <ArrowRight size={14} />}
@@ -106,7 +108,7 @@ const SuperAdminLogin = () => {
 
       <div className="fixed bottom-6 flex flex-col items-center gap-1 opacity-10 pointer-events-none">
           <ShieldCheck size={14} className="text-slate-500" />
-          <p className="text-[8px] font-bold text-slate-700 uppercase tracking-[0.5em] leading-none italic">Secure Restricted Session</p>
+          <p className="text-[8px] font-bold text-slate-700 uppercase tracking-[0.5em] leading-none italic">Secure Master Session</p>
       </div>
     </div>
   );

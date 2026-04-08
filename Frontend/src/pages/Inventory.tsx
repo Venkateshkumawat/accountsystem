@@ -16,7 +16,7 @@ import { useProducts } from '../context/ProductContext';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Inventory() {
-  const { products, categories, refreshAll } = useProducts();
+  const { products, categories, refreshAll, remainingSku } = useProducts();
   const { role } = useAuth();
   const isAuthorized = role === 'businessAdmin' || role === 'manager';
   const [showForm, setShowForm] = useState(false);
@@ -207,11 +207,22 @@ export default function Inventory() {
             <p className="text-slate-500 font-bold text-[10px] mt-0.5 uppercase tracking-widest">Real-time stock & distribution nodes.</p>
           </div>
           <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest"
+            onClick={() => {
+              if (remainingSku <= 0) {
+                 alert("Plan limit reached. Upgrade required to provision more SKU nodes.");
+                 return;
+              }
+              setShowForm(true);
+            }}
+            disabled={remainingSku <= 0}
+            className={`flex items-center gap-2 px-6 py-2.5 text-white rounded-xl text-xs font-black shadow-lg transition-all uppercase tracking-widest ${
+              remainingSku <= 0 
+                ? 'bg-slate-400 opacity-60 cursor-not-allowed border-none' 
+                : 'bg-indigo-600 shadow-indigo-100 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95'
+            }`}
           >
             <Plus size={16} />
-            Add SKU Node
+            {remainingSku <= 0 ? "Limit Reached" : "Add SKU Node"}
           </button>
         </div>
       </div>

@@ -33,6 +33,9 @@ interface DashboardData {
   lowStockProducts: any[];
   staffCount: number;
   productCount: number;
+  skuLimit?: number;
+  usedSku?: number;
+  remainingSku?: number;
 }
 
 const ACTIVITY_LIMIT = 3;
@@ -85,7 +88,18 @@ export default function Dashboard() {
       fetchDashboard(true);
     };
 
+    const handleSkuSync = (payload: any) => {
+      console.log("📡 SKU Sync Received:", payload);
+      setData(prev => prev ? {
+        ...prev,
+        usedSku: payload.usedSku,
+        remainingSku: payload.remainingSku,
+        productCount: payload.usedSku
+      } : prev);
+    };
+
     socketService.on('DATA_SYNC', handleDataSync);
+    socketService.on('skuUpdated', handleSkuSync);
 
     // ── Cross-Tab Sync ──
     const syncChannel = new BroadcastChannel('nexus_sync');
@@ -97,6 +111,7 @@ export default function Dashboard() {
 
     return () => {
       socketService.off('DATA_SYNC', handleDataSync);
+      socketService.off('skuUpdated', handleSkuSync);
       syncChannel.close();
     };
   }, [fetchDashboard]);
@@ -204,13 +219,13 @@ export default function Dashboard() {
             </div>
             <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 shadow-sm uppercase tracking-widest">Global Protocol</span>
           </div>
-          <div className="h-[250px] w-full min-h-[250px] mt-2">
+          <div className="flex-1 w-full h-[250px] min-h-[250px] min-w-[200px] relative mt-2">
             {(!chartData || chartData.length === 0) ? (
               <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NODATA_SYNC</p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={chartData} barCategoryGap="20%">
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 8, fontWeight: 900 }} dy={5} />
@@ -243,17 +258,47 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Mini stats grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm transition-all hover:bg-indigo-50/30 group">
-              <Users className="text-indigo-600 mb-1.5 group-hover:scale-110 transition-transform" size={14} />
-              <p className="text-slate-400 text-[7px] font-black uppercase tracking-widest mb-0.5">Personnel Nodes</p>
-              <h3 className="text-lg font-black text-slate-900 leading-none">{data?.staffCount ?? '—'}</h3>
-            </div>
-            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm transition-all hover:bg-emerald-50/30 group">
-              <Package className="text-emerald-600 mb-1.5 group-hover:scale-110 transition-transform" size={14} />
-              <p className="text-slate-400 text-[7px] font-black uppercase tracking-widest mb-0.5">Product SKU Nodes</p>
-              <h3 className="text-lg font-black text-slate-900 leading-none">{data?.productCount ?? '—'}</h3>
+          {/* SKU Usage Telemetry Box */}
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2 relative overflow-hidden group">
+             <div className="flex justify-between items-end relative z-10">
+               <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                     <Package size={12} className="text-emerald-500" />
+                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Node Capacity (SKU)</p>
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900 leading-none">
+                     {data?.usedSku ?? 0} <span className="text-slate-300 text-sm">/ {data?.skuLimit || '∞'}</span>
+                  </h3>
+               </div>
+               <div className="text-right">
+                  <p className="text-[8px] font-black uppercase text-slate-400">Remaining</p>
+                  <p className={`text-xs font-black ${((data?.remainingSku ?? 10) < 10) ? 'text-rose-500' : 'text-emerald-500'}`}>
+                     {data?.remainingSku ?? 'Stable'}
+                  </p>
+               </div>
+             </div>
+             
+             {/* Progress Bar */}
+             <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 relative z-10">
+               {data?.skuLimit && (
+                 <div 
+                   className={`h-full rounded-full transition-all duration-1000 ${
+                     ((data?.usedSku || 0) / (data?.skuLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'
+                   }`}
+                   style={{ width: `${Math.min(((data?.usedSku || 0) / (data?.skuLimit || 1)) * 100, 100)}%` }}
+                 />
+               )}
+             </div>
+             <Package size={80} className="absolute -right-4 -bottom-4 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-700 text-emerald-500" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm transition-all hover:bg-indigo-50/30 group flex justify-between items-center">
+              <div>
+                 <Users className="text-indigo-600 mb-1.5 group-hover:scale-110 transition-transform" size={14} />
+                 <p className="text-slate-400 text-[7px] font-black uppercase tracking-widest mb-0.5">Personnel Nodes</p>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 leading-none">{data?.staffCount ?? '—'}</h3>
             </div>
           </div>
 

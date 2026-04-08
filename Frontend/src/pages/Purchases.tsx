@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, RefreshCcw, Package, X, Truck, CheckCircle, IndianRupee, Zap } from 'lucide-react';
 import api from '../services/api';
+import { INDIAN_STATES } from '../constants/indianStates';
+import { validateGSTIN, validateMobile } from '../utils/validation';
 
 interface Product { _id: string; name: string; purchasePrice: number; sellingPrice: number; stock: number; barcode: string; }
 interface PurchaseItem { productId: string; name: string; qty: number; purchasePrice: number; total: number; }
@@ -16,7 +18,7 @@ export default function Purchases() {
   const [search, setSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
   const [cartItems, setCartItems] = useState<PurchaseItem[]>([]);
-  const [vendor, setVendor] = useState({ name: '', phone: '', gstin: '' });
+  const [vendor, setVendor] = useState({ name: '', phone: '', gstin: '', state: '' });
   const [payment, setPayment] = useState({ method: 'cash', status: 'paid' });
   const [submitting, setSubmitting] = useState(false);
 
@@ -93,7 +95,7 @@ export default function Purchases() {
       });
       setShowForm(false);
       setCartItems([]);
-      setVendor({ name: '', phone: '', gstin: '' });
+      setVendor({ name: '', phone: '', gstin: '', state: '' });
       fetchAll();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Purchase failed');
@@ -218,13 +220,36 @@ export default function Purchases() {
             </div>
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               {/* Vendor Details */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input required placeholder="Vendor Name *" value={vendor.name} onChange={e => setVendor({ ...vendor, name: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-indigo-600 transition-all" />
-                <input placeholder="Phone" value={vendor.phone} onChange={e => setVendor({ ...vendor, phone: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-indigo-600 transition-all" />
-                <input placeholder="GSTIN (optional)" value={vendor.gstin} onChange={e => setVendor({ ...vendor, gstin: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-indigo-600 transition-all" />
+                
+                <div className="space-y-1">
+                  <input placeholder="Phone" value={vendor.phone} onChange={e => setVendor({ ...vendor, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-indigo-600 transition-all" />
+                  {vendor.phone && !validateMobile(vendor.phone) && (
+                    <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter ml-1">Invalid Mobile Number</p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <input placeholder="GSTIN (optional)" value={vendor.gstin} onChange={e => setVendor({ ...vendor, gstin: e.target.value.toUpperCase() })}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-indigo-600 transition-all" />
+                  {vendor.gstin && !validateGSTIN(vendor.gstin) && (
+                    <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter ml-1">Invalid GSTIN Pattern</p>
+                  )}
+                </div>
+
+                <select 
+                  value={vendor.state} 
+                  onChange={e => setVendor({ ...vendor, state: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 transition appearance-none"
+                >
+                  <option value="">Select Vendor State</option>
+                  {INDIAN_STATES.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Product Search */}

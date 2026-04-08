@@ -129,6 +129,8 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
     const purchases = purchaseStats[0] || { totalPurchases: 0, purchaseCount: 0 };
     const inventory = inventoryStats[0] || { totalProducts: 0, inventoryValue: 0, lowStockCount: 0 };
 
+    const bizDoc = await mongoose.model("Business").findById(req.user?.businessId);
+
     res.status(200).json({
       success: true,
       data: {
@@ -151,7 +153,10 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
         recentInvoices,
         lowStockProducts,
         staffCount,
-        productCount: inventory.totalProducts
+        productCount: inventory.totalProducts,
+        skuLimit: bizDoc?.skuLimit || 0,
+        usedSku: bizDoc?.currentSkuCount || 0,
+        remainingSku: (bizDoc?.skuLimit || 0) - (bizDoc?.currentSkuCount || 0)
       }
     });
 
