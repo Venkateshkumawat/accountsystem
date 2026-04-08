@@ -221,11 +221,11 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
     // 🏗️ Enforce Monetization Protocol: SKU Limit Check
     const biz = await Business.findById(businessId);
     if (biz && biz.currentSkuCount >= biz.skuLimit) {
-       res.status(403).json({ 
-         success: false, 
-         message: "Plan limit reached. Upgrade required." 
-       });
-       return;
+      res.status(403).json({
+        success: false,
+        message: "Plan limit reached. Upgrade required."
+      });
+      return;
     }
 
     const product = await Product.create({
@@ -255,14 +255,14 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
     if (businessId) {
       getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
       if (updatedBiz) {
-         const payload = {
-            businessAdminId: businessAdminId.toString(),
-            businessId: businessId.toString(),
-            usedSku: updatedBiz.currentSkuCount,
-            remainingSku: updatedBiz.skuLimit - updatedBiz.currentSkuCount
-         };
-         getIO()?.to(businessId.toString()).emit('skuUpdated', payload);
-         getIO()?.emit('skuUpdated', payload); // Global sync for SuperAdmin
+        const payload = {
+          businessAdminId: businessAdminId.toString(),
+          businessId: businessId.toString(),
+          usedSku: updatedBiz.currentSkuCount,
+          remainingSku: updatedBiz.skuLimit - updatedBiz.currentSkuCount
+        };
+        getIO()?.to(businessId.toString()).emit('skuUpdated', payload);
+        getIO()?.emit('skuUpdated', payload); // Global sync for SuperAdmin
       }
     }
 
@@ -376,20 +376,20 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
     if (product) {
       // Decrement absolute counter for the business node
       const updatedBiz = await Business.findByIdAndUpdate(
-         product.businessObjectId || req.user?.businessId, 
-         { $inc: { currentSkuCount: -1 } },
-         { new: true }
+        product.businessObjectId || req.user?.businessId,
+        { $inc: { currentSkuCount: -1 } },
+        { new: true }
       );
 
       if (updatedBiz && req.user?.businessId) {
-         const payload = {
-            businessAdminId: businessAdminId.toString(),
-            businessId: updatedBiz._id.toString(),
-            usedSku: updatedBiz.currentSkuCount,
-            remainingSku: updatedBiz.skuLimit - updatedBiz.currentSkuCount
-         };
-         getIO()?.to(req.user.businessId.toString()).emit('skuUpdated', payload);
-         getIO()?.emit('skuUpdated', payload); // Global sync for SuperAdmin
+        const payload = {
+          businessAdminId: businessAdminId.toString(),
+          businessId: updatedBiz._id.toString(),
+          usedSku: updatedBiz.currentSkuCount,
+          remainingSku: updatedBiz.skuLimit - updatedBiz.currentSkuCount
+        };
+        getIO()?.to(req.user.businessId.toString()).emit('skuUpdated', payload);
+        getIO()?.emit('skuUpdated', payload); // Global sync for SuperAdmin
       }
     }
 

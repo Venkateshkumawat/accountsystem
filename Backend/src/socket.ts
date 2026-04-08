@@ -6,12 +6,11 @@ let io: Server;
 export const initSocket = (server: HttpServer) => {
     io = new Server(server, {
     cors: {
-      origin: "*", 
+      origin: "http://localhost:5173", 
       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
       credentials: true
     },
-    transports: ["websocket", "polling"],
-    allowEIO3: true
+    transports: ["websocket"]
   });
 
   io.on("connection", (socket) => {

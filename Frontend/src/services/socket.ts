@@ -9,7 +9,7 @@ class SocketService {
     if (this.socket) return;
 
     this.socket = io(SOCKET_URL, {
-      transports: ["websocket", "polling"],
+      transports: ["websocket"],
       withCredentials: true,
     });
 

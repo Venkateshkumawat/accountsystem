@@ -56,7 +56,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // 🛡️ Nexus Master Guard: SuperAdmin has no business-scoped items
     if (getRole() === 'superadmin') return;
 
-    setLoading(true);
+    if (products.length === 0) setLoading(true);
     try {
       const catParam = category !== 'All' ? `&category=${category}` : '';
       const res = await api.get(`/products?name=${query}${catParam}&limit=1000`);

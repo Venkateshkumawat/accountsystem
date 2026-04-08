@@ -11,12 +11,18 @@ import {
   X
 } from 'lucide-react';
 import { useNotify } from '../../context/NotificationContext';
+import socketService from '../../services/socket';
 
 const SuperAdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useNotify();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // -- Global Socket Connection --
+  useEffect(() => {
+    socketService.connect();
+  }, []);
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
