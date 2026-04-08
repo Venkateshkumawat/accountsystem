@@ -1,0 +1,449 @@
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.js";
+import { getBusinessAdminId } from "../utils/businessUtils.js";
+import mongoose from "mongoose";
+
+/**
+ * @desc    Get complete audit log for a business
+ * @route   GET /api/reports/activity
+ */
+export const getActivityLog = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.tenantModels) {
+      res.status(500).json({ success: false, message: "Workspace node offline." });
+      return;
+    }
+    const { Activity } = req.tenantModels;
+    const adminIdStr = getBusinessAdminId(req);
+    const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+    const action   = req.query.action   ? String(req.query.action)   : undefined;
+    const resource = req.query.resource ? String(req.query.resource) : undefined;
+    const page     = Number(req.query.page  || 1);
+    const limit    = Number(req.query.limit || 50);
+
+    const query: any = { businessAdminId: businessAdminId as any };
+    if (action)   query.action   = action;
+    if (resource) query.resource = resource;
+
+    const total      = await Activity.countDocuments(query);
+    const activities = await Activity.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.status(200).json({ success: true, total, data: activities });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+/**
+ * @desc    Detailed Sales Report with Dynamic Filtering
+ * @route   GET /api/reports/sales
+ */
+export const getSalesReport = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.tenantModels) {
+      res.status(500).json({ success: false, message: "Workspace node offline." });
+      return;
+    }
+    const { Invoice, Product, Purchase, Activity } = req.tenantModels;
+    const adminIdStr = getBusinessAdminId(req);
+    const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+
+    // 0. Parse Filter Params
+    const { startDate, endDate, paymentMethod, customerName } = req.query;
+    
+    // Default: Last 30 Days if no dates provided
+    let dateFilter: any = {};
+    if (startDate || endDate) {
+       dateFilter.createdAt = {};
+       const parsedStart = startDate ? new Date(String(startDate)) : null;
+       const parsedEnd = endDate ? new Date(String(endDate)) : null;
+       
+       if (parsedStart && !isNaN(parsedStart.getTime())) {
+         dateFilter.createdAt.$gte = parsedStart;
+       }
+       if (parsedEnd && !isNaN(parsedEnd.getTime())) {
+          parsedEnd.setHours(23, 59, 59, 999);
+          dateFilter.createdAt.$lte = parsedEnd;
+       }
+       // If invalid dates were provided but couldn't be parsed, fallback to 30 days
+       if (Object.keys(dateFilter.createdAt).length === 0) {
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          dateFilter.createdAt = { $gte: thirtyDaysAgo };
+       }
+    } else {
+       const thirtyDaysAgo = new Date();
+       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+       dateFilter.createdAt = { $gte: thirtyDaysAgo };
+    }
+
+    // Dynamic Match Object
+    const salesMatch: any = { ...dateFilter, businessAdminId: businessAdminId as any };
+    if (paymentMethod) salesMatch.paymentMethod = String(paymentMethod).toLowerCase();
+    
+    if (customerName) {
+      salesMatch.$or = [
+        { customerName: { $regex: String(customerName), $options: 'i' } },
+        { customerPhone: { $regex: String(customerName), $options: 'i' } }
+      ];
+    }
+
+    const purchaseMatch: any = { ...dateFilter, businessAdminId: businessAdminId as any };
+
+    const [dailySales, dailyPurchases, topSoldItems, leastSoldItems, topPurchasedItems, leastPurchasedItems, paymentMetrics, gstLiability, totalSalesAllTime, lowStockItems, activities, totalDiscounts] = await Promise.all([
+      // ... previous 11 promises ...
+      // 1. Daily Sales Trend
+      Invoice.aggregate([
+        { $match: salesMatch },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            totalSales: { $sum: "$grandTotal" },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+
+      // 2. Daily Purchase Trend
+      Purchase.aggregate([
+        { $match: purchaseMatch },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            totalPurchases: { $sum: "$grandTotal" },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+
+      // 3. Top Sold Items
+      Invoice.aggregate([
+        { $match: salesMatch },
+        { $unwind: "$items" },
+        { 
+          $group: { 
+            _id: "$items.name", 
+            totalQty: { $sum: "$items.qty" }, 
+            revenue: { $sum: "$items.total" } 
+          } 
+        },
+        { $sort: { totalQty: -1 } },
+        { $limit: 10 }
+      ]),
+
+      // 4. Least Sold Items
+      Invoice.aggregate([
+        { $match: salesMatch },
+        { $unwind: "$items" },
+        { 
+          $group: { 
+            _id: "$items.name", 
+            totalQty: { $sum: "$items.qty" }, 
+            revenue: { $sum: "$items.total" } 
+          } 
+        },
+        { $sort: { totalQty: 1 } },
+        { $limit: 10 }
+      ]),
+
+      // 5. Top Purchased Items
+      Purchase.aggregate([
+        { $match: purchaseMatch },
+        { $unwind: "$items" },
+        { 
+          $group: { 
+            _id: "$items.name", 
+            totalQty: { $sum: "$items.qty" }, 
+            investment: { $sum: "$items.total" } 
+          } 
+        },
+        { $sort: { totalQty: -1 } },
+        { $limit: 10 }
+      ]),
+
+      // 6. Least Purchased Items
+      Purchase.aggregate([
+        { $match: purchaseMatch },
+        { $unwind: "$items" },
+        { 
+          $group: { 
+            _id: "$items.name", 
+            totalQty: { $sum: "$items.qty" }, 
+            investment: { $sum: "$items.total" } 
+          } 
+        },
+        { $sort: { totalQty: 1 } },
+        { $limit: 10 }
+      ]),
+
+      // 7. Payment Distribution (Filtered)
+      Invoice.aggregate([
+        { $match: salesMatch },
+        {
+          $group: {
+            _id: "$paymentMethod",
+            amount: { $sum: "$grandTotal" },
+            count: { $sum: 1 }
+          }
+        }
+      ]),
+
+      // 8. Detailed GST Breakdown (Slab-wise / Filtered)
+      Invoice.aggregate([
+        { $match: salesMatch },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.gstRate",
+            totalTax: { $sum: "$items.gstAmount" },
+            taxableValue: { $sum: { $subtract: ["$items.total", "$items.gstAmount"] } }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+
+      // 9. Total Sales (All Time for context)
+      Invoice.aggregate([
+        { $match: { businessAdminId: businessAdminId as any } },
+        { $group: { _id: null, total: { $sum: "$grandTotal" } } }
+      ]),
+
+      // 10. Low Stock Items
+      Product.find({ 
+        businessAdminId: businessAdminId as any,
+        isActive: true, 
+        $expr: { $lte: ["$stock", "$lowStockThreshold"] } 
+      }).limit(5).select('name stock'),
+
+      // 11. Recent Audit Logs
+      Activity.find({ businessAdminId: businessAdminId as any })
+        .sort({ createdAt: -1 })
+        .limit(10),
+
+      // 12. Total Discounts Yield (Filtered)
+      Invoice.aggregate([
+        { $match: salesMatch },
+        { $group: { _id: null, total: { $sum: "$totalDiscount" } } }
+      ])
+    ]);
+
+    res.status(200).json({ 
+      success: true, 
+      data: { 
+        dailySales, 
+        dailyPurchases, 
+        topSoldItems, 
+        leastSoldItems,
+        topPurchasedItems, 
+        leastPurchasedItems,
+        paymentMetrics,
+        gstSlabs: gstLiability,
+        totalGST: (gstLiability as any[]).reduce((s, c) => s + c.totalTax, 0),
+        totalSalesAllTime: totalSalesAllTime[0]?.total || 0,
+        totalDiscounts: totalDiscounts[0]?.total || 0,
+        lowStockItems,
+        activities
+      } 
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Inventory Valuation and Health Report
+ * @route   GET /api/reports/inventory
+ */
+export const getInventoryReport = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.tenantModels) {
+      res.status(500).json({ success: false, message: "Workspace node offline." });
+      return;
+    }
+    const { Product } = req.tenantModels;
+    const adminIdStr = getBusinessAdminId(req);
+    const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+
+    const stats = await Product.aggregate([
+      { $match: { businessAdminId: businessAdminId as any, isActive: true } },
+      {
+        $group: {
+          _id: null,
+          totalSKUs: { $sum: 1 },
+          totalStock: { $sum: "$stock" },
+          totalValuation: { $sum: { $multiply: ["$stock", "$purchasePrice"] } },
+          averagePrice: { $avg: "$sellingPrice" }
+        }
+      }
+    ]);
+
+    const categoryDistribution = await Product.aggregate([
+      { $match: { businessAdminId: businessAdminId as any, isActive: true } },
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 },
+          value: { $sum: { $multiply: ["$stock", "$purchasePrice"] } }
+        }
+      }
+    ]);
+
+    res.status(200).json({ 
+      success: true, 
+      data: { stats: stats[0] || {}, categoryDistribution } 
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Detailed Transaction Ledger Report
+ * @route   GET /api/reports/transactions
+ */
+export const getTransactionReport = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.tenantModels) {
+      res.status(500).json({ success: false, message: "Workspace node offline." });
+      return;
+    }
+    const { Transaction } = req.tenantModels;
+    const adminIdStr = getBusinessAdminId(req);
+    const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+    const { type, startDate, endDate } = req.query;
+
+    let query: any = { businessAdminId: businessAdminId as any };
+    if (type) query.type = type;
+
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) query.createdAt.$gte = new Date(String(startDate));
+      if (endDate) {
+        const d = new Date(String(endDate));
+        d.setHours(23, 59, 59, 999);
+        query.createdAt.$lte = d;
+      }
+    }
+
+    const [transactions, summary] = await Promise.all([
+      Transaction.find(query).sort({ createdAt: -1 }).limit(100),
+      Transaction.aggregate([
+        { $match: { businessAdminId: businessAdminId as any } },
+        {
+          $group: {
+            _id: "$type",
+            total: { $sum: "$amount" },
+            count: { $sum: 1 }
+          }
+        }
+      ])
+    ]);
+
+    res.status(200).json({ success: true, data: { transactions, summary } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Dedicated GST Liability Report
+ * @route   GET /api/reports/gst
+ */
+export const getGSTReport = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.tenantModels) {
+      res.status(500).json({ success: false, message: "Workspace node offline." });
+      return;
+    }
+    const { Invoice } = req.tenantModels;
+    const adminIdStr = getBusinessAdminId(req);
+    const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+    const { startDate, endDate } = req.query;
+
+    let match: any = { businessAdminId: businessAdminId as any };
+    if (startDate || endDate) {
+      match.createdAt = {};
+      if (startDate) match.createdAt.$gte = new Date(String(startDate));
+      if (endDate) {
+        const d = new Date(String(endDate));
+        d.setHours(23, 59, 59, 999);
+        match.createdAt.$lte = d;
+      }
+    }
+
+    const slabs = await Invoice.aggregate([
+      { $match: match },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.gstRate",
+          totalGST: { $sum: "$items.gstAmount" },
+          taxableValue: { $sum: { $subtract: ["$items.total", "$items.gstAmount"] } },
+          itemCount: { $sum: "$items.qty" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.status(200).json({ success: true, data: { slabs } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Detailed Purchase / Procurement Report
+ * @route   GET /api/reports/purchase
+ */
+export const getPurchaseReport = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.tenantModels) {
+      res.status(500).json({ success: false, message: "Workspace node offline." });
+      return;
+    }
+    const { Purchase } = req.tenantModels;
+    const adminIdStr = getBusinessAdminId(req);
+    const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+    const { startDate, endDate, vendorName } = req.query;
+
+    let match: any = { businessAdminId: businessAdminId as any };
+    if (vendorName) match.vendorName = { $regex: String(vendorName), $options: 'i' };
+
+    if (startDate || endDate) {
+      match.purchaseDate = {};
+      if (startDate) match.purchaseDate.$gte = new Date(String(startDate));
+      if (endDate) {
+        const d = new Date(String(endDate));
+        d.setHours(23, 59, 59, 999);
+        match.purchaseDate.$lte = d;
+      }
+    }
+
+    const [purchases, vendorStats] = await Promise.all([
+      Purchase.find(match).sort({ purchaseDate: -1 }).limit(100),
+      Purchase.aggregate([
+        { $match: { businessAdminId: businessAdminId as any } },
+        {
+          $group: {
+            _id: "$vendorName",
+            totalValue: { $sum: "$grandTotal" },
+            orderCount: { $sum: 1 }
+          }
+        },
+        { $sort: { totalValue: -1 } }
+      ])
+    ]);
+
+    res.status(200).json({ success: true, data: { purchases, vendorStats } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+

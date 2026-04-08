@@ -1,0 +1,487 @@
+import { Request, Response } from 'express';
+import { z } from 'zod';
+import mongoose from 'mongoose';
+import User from '../models/User.js';
+import Business from '../models/Business.js';
+import Activity from '../models/Activity.js';
+import Plan from '../models/Plan.js';
+import SuperAdminConfig from '../models/SuperAdminConfig.js';
+import { generateBusinessId } from '../utils/generateBusinessId.js';
+import { createNotification } from './notificationController.js';
+import { generateToken } from '../utils/jwt.js';
+
+// --- VALIDATION SCHEMAS ---
+
+const createBusinessAdminSchema = z.object({
+  ownerFullName: z.string().min(2, "Owner name must be at least 2 characters"),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  businessName: z.string().min(2, "Business name must be at least 2 characters"),
+  mobileNumber: z.string().regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+  location: z.object({
+    address: z.string().optional(),
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    pincode: z.string().regex(/^\d{6}$/, "Pincode must be exactly 6 digits"),
+  }),
+  plan: z.enum(['free', 'pro', 'enterprise']).optional().default('free'),
+  planStartDate: z.string().optional(),
+  planEndDate: z.string().optional(),
+  gstin: z.string().optional(),
+  skuLimit: z.number().optional().default(100),
+  invoiceLimit: z.number().optional().default(500),
+});
+
+// --- CONTROLLERS ---
+
+/**
+ * SuperAdmin Login Protocol
+ */
+export const loginSuperAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { secretKey } = req.body;
+    if (!secretKey) {
+      res.status(400).json({ success: false, message: 'Secret key is required' });
+      return;
+    }
+
+    const envSecretKey = process.env.SUPER_ADMIN_SECRET_KEY;
+    if (!envSecretKey) {
+      res.status(500).json({ success: false, message: 'SuperAdmin ENV secret key not configured.' });
+      return;
+    }
+
+    if (secretKey !== envSecretKey) {
+      res.status(401).json({ success: false, message: 'Invalid secret key' });
+      return;
+    }
+
+    const token = generateToken({
+      userId: 'SUPER_ADMIN_MASTER',
+      name: 'Nexus Master',
+      role: 'superadmin',
+      businessId: null,
+      shortBusinessId: null,
+      businessAdminId: null,
+      permissions: []
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Nexus Intelligence Hub Authorized',
+      token,
+      user: {
+        userId: 'SUPER_ADMIN_MASTER',
+        role: 'superadmin',
+        name: 'Nexus Master',
+      },
+      expiresIn: '12h'
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * SuperAdmin Token Verification
+ */
+export const verifySuperAdminToken = async (req: Request, res: Response): Promise<void> => {
+  res.status(200).json({ success: true, message: 'Nexus Connection Stable' });
+};
+
+/**
+ * Master Stats Retrieval (Telemetry)
+ */
+export const getSuperAdminStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const businessCount = await Business.countDocuments();
+    const userCount = await User.countDocuments({ role: { $ne: 'superadmin' } });
+    const activeSubscriptions = await Business.countDocuments({ status: 'active' });
+    const expiredCount = await Business.countDocuments({ planEndDate: { $lt: new Date() } });
+
+    res.status(200).json({
+      success: true,
+      stats: { businessCount, userCount, activeSubscriptions, securityAlert: 0, expiredCount }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Global Activity Log Auditing
+ */
+export const getGlobalActivityLogs = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const logs = await Activity.find().sort({ createdAt: -1 }).limit(100);
+    res.status(200).json({ success: true, logs });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Provisions a New Business Admin with Atomicity
+ */
+export const createBusinessAdmin = async (req: Request, res: Response): Promise<void> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const validatedData = createBusinessAdminSchema.parse(req.body);
+
+    if (await User.findOne({ email: validatedData.email.toLowerCase() })) {
+      res.status(409).json({ success: false, message: "Email already exists in Nexus Registry." });
+      return;
+    }
+
+    const businessId = await generateBusinessId();
+    const startDate = validatedData.planStartDate ? new Date(validatedData.planStartDate) : new Date();
+    let endDate = validatedData.planEndDate ? new Date(validatedData.planEndDate) : null;
+
+    if (!endDate) {
+      const daysToAdd = validatedData.plan === 'enterprise' ? 365 : 30;
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + daysToAdd);
+    }
+
+    const newUser = new User({
+      name: validatedData.ownerFullName,
+      email: validatedData.email.toLowerCase(),
+      password: validatedData.password,
+      role: 'businessAdmin',
+      businessId: businessId,
+      isActive: true
+    });
+
+    await newUser.save({ session });
+
+    const newBusiness = new Business({
+      businessId: businessId,
+      shortId: businessId.split('-').slice(1).join('-'), // e.g., KRTX-7291
+      businessAdminId: newUser._id,
+      ownerFullName: validatedData.ownerFullName,
+      businessName: validatedData.businessName,
+      email: validatedData.email.toLowerCase(),
+      mobileNumber: validatedData.mobileNumber,
+      location: validatedData.location,
+      gstin: validatedData.gstin,
+      plan: validatedData.plan,
+      planStartDate: startDate,
+      planEndDate: endDate,
+      status: 'active',
+      isActive: true,
+      createdBySuperAdmin: true,
+      planHistory: [{
+        plan: validatedData.plan,
+        startDate: startDate,
+        endDate: endDate,
+        assignedBy: 'superadmin',
+        assignedAt: new Date()
+      }],
+      features: {
+        pos: true,
+        inventory: true,
+        purchases: true,
+        accounting: true,
+        reports: true
+      },
+      skuLimit: validatedData.skuLimit,
+      invoiceLimit: validatedData.invoiceLimit
+    });
+
+    await newBusiness.save({ session });
+
+    newUser.businessAdminId = newUser._id as mongoose.Types.ObjectId;
+    newUser.businessObjectId = newBusiness._id as mongoose.Types.ObjectId;
+    await newUser.save({ session });
+
+    await createNotification(
+      null,
+      `New Node Provisioned: ${validatedData.businessName} initialized under ID ${businessId}.`,
+      "success",
+      "superadmin",
+      "/superadmin/accounts",
+      "users"
+    );
+
+    await session.commitTransaction();
+
+    res.status(201).json({
+      success: true,
+      message: "BusinessAdmin created successfully",
+      data: {
+        businessId, email: validatedData.email, businessName: validatedData.businessName,
+        plan: validatedData.plan, planEndDate: endDate,
+        loginCredentials: { email: validatedData.email.toLowerCase(), password: validatedData.password, note: "Raw password transmitted once." }
+      }
+    });
+
+  } catch (error: any) {
+    await session.abortTransaction();
+    res.status(error instanceof z.ZodError ? 400 : 500).json({ success: false, message: error.message });
+  } finally { session.endSession(); }
+};
+
+/**
+ * Managed Feature Toggling
+ */
+export const updateBusinessFeatures = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { businessId } = req.params;
+    const { features } = req.body;
+    const biz = await Business.findOne({ businessId });
+    if (!biz) { res.status(404).json({ message: "Node not found." }); return; }
+
+    biz.features = { ...biz.features, ...features };
+    await biz.save();
+
+    await createNotification(
+      null,
+      `Master Protocol Update: Capability matrix modified for node ${businessId}.`,
+      "info",
+      "superadmin",
+      "/superadmin/accounts",
+      "settings"
+    );
+
+    res.status(200).json({ success: true, message: `Node features updated`, features: biz.features });
+  } catch (error: any) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+/**
+ * Master Business Registry Retrieval
+ */
+export const getAllBusinesses = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const businesses = await Business.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, businesses });
+  } catch (error: any) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+/**
+ * Managed Status Shifting
+ */
+export const updateBusinessStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { businessId } = req.params;
+    const { action, reason } = req.body;
+    const biz = await Business.findOne({ businessId });
+    if (!biz) { res.status(404).json({ message: "Node not found." }); return; }
+
+    if (action === 'activate') {
+      biz.isActive = true; biz.status = 'active'; biz.activatedAt = new Date();
+      await User.updateMany({ businessId }, { isActive: true });
+    } else {
+      biz.isActive = false; biz.status = action === 'suspend' ? 'suspended' : 'inactive';
+      if (action === 'suspend') { biz.suspendedAt = new Date(); biz.suspendReason = reason; }
+      await User.updateMany({ businessId }, { isActive: false });
+    }
+    await biz.save();
+
+    // 📡 Nexus Protocol: Multi-node Synchronization
+    const io = (await import('../socket.js')).getIO();
+    if (io) {
+      io.to(businessId.toString()).emit('DATA_SYNC', { type: 'PLAN_UPDATE' });
+    }
+
+    await createNotification(
+      null,
+      `Operational Shift: Node ${businessId} status shifted to ${action.toUpperCase()}.`,
+      action === 'activate' ? "success" : "warning",
+      "superadmin",
+      "/superadmin/accounts",
+      "alert"
+    );
+
+    await createNotification(
+      businessId,
+      `Governance Alert: Your workspace node has been ${action.toUpperCase()} by Nexus Master. ${reason ? `Reason: ${reason}` : ''}`,
+      action === 'activate' ? "success" : "error",
+      "businessAdmin",
+      "/settings",
+      "alert"
+    );
+
+    res.status(200).json({ success: true, message: `Node state shifted to ${action}` });
+  } catch (error: any) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+/**
+ * Protocol Subscription Override
+ */
+export const updateBusinessPlan = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { businessId } = req.params;
+    const { plan, planStartDate, planEndDate } = req.body;
+    const start = new Date(planStartDate); const end = new Date(planEndDate);
+    if (end <= start) { res.status(400).json({ message: "Expiry must be after activation." }); return; }
+
+    const biz = await Business.findOne({ businessId });
+    if (!biz) { res.status(404).json({ message: "Node not found." }); return; }
+
+    biz.plan = plan; biz.planStartDate = start; biz.planEndDate = end; biz.status = 'active'; biz.isActive = true;
+    biz.planHistory.push({ plan, startDate: start, endDate: end, assignedBy: 'superadmin', assignedAt: new Date() });
+    await biz.save();
+    await User.updateOne({ businessId, role: 'businessAdmin' }, { isActive: true });
+
+    // 📡 Nexus Protocol: Multi-node Synchronization
+    const io = (await import('../socket.js')).getIO();
+    if (io) {
+      io.to(businessId.toString()).emit('DATA_SYNC', { type: 'PLAN_UPDATE' });
+    }
+
+    await createNotification(
+      null,
+      `Subscription Override: Node ${businessId} upgraded/modified to ${plan.toUpperCase()} protocol.`,
+      "success",
+      "superadmin",
+      "/superadmin/accounts",
+      "invoice"
+    );
+
+    await createNotification(
+      businessId,
+      `Subscription Synchronized: Your workspace node has been upgraded to ${plan.toUpperCase()}. Expiry: ${end.toLocaleDateString()}.`,
+      "success",
+      "businessAdmin",
+      "/settings",
+      "payment"
+    );
+
+    res.status(200).json({ success: true, message: `Plan updated to ${plan}` });
+  } catch (error: any) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+/**
+ * Global Node Configuration Override
+ */
+export const updateBusinessDetails = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { businessId } = req.params;
+    const {
+      businessName,
+      ownerFullName,
+      plan,
+      skuLimit,
+      invoiceLimit,
+      planEndDate,
+      status
+    } = req.body;
+
+    const biz = await Business.findOne({ businessId });
+    if (!biz) { res.status(404).json({ message: "Node not found." }); return; }
+
+    if (businessName) biz.businessName = businessName;
+    if (ownerFullName) biz.ownerFullName = ownerFullName;
+    if (plan) biz.plan = plan;
+    if (skuLimit !== undefined) biz.skuLimit = skuLimit;
+    if (invoiceLimit !== undefined) biz.invoiceLimit = invoiceLimit;
+    if (planEndDate) biz.planEndDate = new Date(planEndDate);
+    if (status) {
+      biz.status = status;
+      biz.isActive = status === 'active';
+      await User.updateMany({ businessId }, { isActive: biz.isActive });
+    }
+
+    await biz.save();
+
+    // 📡 Nexus Protocol: Multi-node Synchronization
+    const io = (await import('../socket.js')).getIO();
+    if (io) {
+      io.to(businessId.toString()).emit('DATA_SYNC', { type: 'PLAN_UPDATE' });
+    }
+
+    // Notify SuperAdmin Audit Log
+    await createNotification(
+      null,
+      `Master Protocol Sync: Configuration override executed for Node ${businessId}.`,
+      "info",
+      "superadmin",
+      "/superadmin/accounts",
+      "settings"
+    );
+
+    // Notify Affected Business Node
+    await createNotification(
+      businessId,
+      `Infrastructure Update: Your operational plan/limits have been synchronized by Nexus Master. SKU: ${biz.skuLimit}, Invoice: ${biz.invoiceLimit}.`,
+      "info",
+      "businessAdmin",
+      "/settings",
+      "alert"
+    );
+
+    res.status(200).json({ success: true, message: "Node configuration synchronized." });
+  } catch (error: any) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+/**
+ * Master Password Override
+ */
+export const resetBusinessPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { businessId } = req.params;
+    const { newPassword } = req.body;
+    const user = await User.findOne({ businessId, role: 'businessAdmin' });
+    if (!user) { res.status(404).json({ message: "Primary Admin not found." }); return; }
+    user.password = newPassword; await user.save();
+
+    await createNotification(
+      null,
+      `Security Override: Administrative credentials reset for node ${businessId}.`,
+      "warning",
+      "superadmin",
+      "/superadmin/accounts",
+      "settings"
+    );
+
+    res.status(200).json({ success: true, message: "Password reset", newPassword });
+  } catch (error: any) { res.status(500).json({ success: false, message: error.message }); }
+};
+
+/**
+ * Nuclear Deletion Protocol
+ */
+export const deleteBusinessPermanently = async (req: Request, res: Response): Promise<void> => {
+  const session = await mongoose.startSession(); session.startTransaction();
+  try {
+    const { businessId } = req.params;
+    await User.deleteMany({ businessId }).session(session);
+    await Business.deleteOne({ businessId }).session(session);
+    await session.commitTransaction();
+
+    await createNotification(
+      null,
+      `Decommissioning Protocol: Node ${businessId} and its telemetry purged permanently.`,
+      "error",
+      "superadmin",
+      "/superadmin/accounts",
+      "alert"
+    );
+
+    res.status(200).json({ success: true, message: "Node and telemetry purged permanently." });
+  } catch (error: any) { await session.abortTransaction(); res.status(500).json({ message: error.message }); }
+  finally { session.endSession(); }
+};
+
+// Plan Management CRUD
+export const getAllPlans = async (req: Request, res: Response) => {
+  try { const plans = await Plan.find().sort({ priceMonthly: 1 }); res.json({ success: true, plans }); }
+  catch (e: any) { res.status(500).json({ message: e.message }); }
+};
+
+export const createPlan = async (req: Request, res: Response) => {
+  try { const n = new Plan(req.body); await n.save(); res.status(201).json({ success: true, plan: n }); }
+  catch (e: any) { res.status(500).json({ message: e.message }); }
+};
+
+export const updatePlan = async (req: Request, res: Response) => {
+  try { const u = await Plan.findByIdAndUpdate(req.params.id, req.body, { new: true }); res.json({ success: true, plan: u }); }
+  catch (e: any) { res.status(500).json({ message: e.message }); }
+};
+
+export const deletePlan = async (req: Request, res: Response) => {
+  try { await Plan.findByIdAndDelete(req.params.id); res.json({ success: true, message: "Plan archived." }); }
+  catch (e: any) { res.status(500).json({ message: e.message }); }
+};
