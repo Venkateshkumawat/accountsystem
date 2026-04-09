@@ -101,8 +101,10 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
       "businessAdmin"
     );
 
-    getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PURCHASE' });
-    getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
+    if (businessId) {
+      getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PURCHASE' });
+      getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
+    }
 
     res.status(201).json({ success: true, data: purchaseDocs[0] });
   } catch (error: any) {

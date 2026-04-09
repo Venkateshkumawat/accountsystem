@@ -30,6 +30,10 @@ export interface IBusiness extends Document {
     endDate: Date;
     assignedBy: string;
     assignedAt: Date;
+    amountPaid?: number;
+    razorpayPaymentId?: string;
+    razorpayOrderId?: string;
+    razorpaySignature?: string;
   }>;
   features: {
     pos: boolean;
@@ -131,7 +135,11 @@ const businessSchema = new Schema<IBusiness>(
         startDate: Date,
         endDate: Date,
         assignedBy: String,
-        assignedAt: { type: Date, default: Date.now }
+        assignedAt: { type: Date, default: Date.now },
+        amountPaid: Number,
+        razorpayPaymentId: String,
+        razorpayOrderId: String,
+        razorpaySignature: String
       }
     ],
     features: {

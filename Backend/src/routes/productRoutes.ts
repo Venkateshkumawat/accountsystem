@@ -1,10 +1,10 @@
 import express from "express";
-import { 
-  getProducts, 
-  getProductByBarcode, 
-  getProductById, 
-  createProduct, 
-  updateProduct, 
+import {
+  getProducts,
+  getProductByBarcode,
+  getProductById,
+  createProduct,
+  updateProduct,
   deleteProduct,
   getLowStockProducts,
   adjustStock,

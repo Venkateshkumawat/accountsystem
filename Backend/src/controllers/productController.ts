@@ -376,7 +376,7 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
     if (product) {
       // Decrement absolute counter for the business node
       const updatedBiz = await Business.findByIdAndUpdate(
-        product.businessObjectId || req.user?.businessId,
+        product.businessId || req.user?.businessId,
         { $inc: { currentSkuCount: -1 } },
         { new: true }
       );

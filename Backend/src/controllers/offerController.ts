@@ -53,15 +53,17 @@ export const createOffer = async (req: AuthRequest, res: Response): Promise<void
     await logActivity(req, "CREATE", "BUSINESS", `Launched new offer node: ${name} (${type})`, newOffer._id.toString());
     
     await createNotification(
-       businessId,
+       businessId as any,
        `Campaign Pulse: New promotional node '${name}' is now active across the grid.`,
        "info",
        "businessAdmin",
        "/settings",
-       "gift"
+       "alert"
     );
 
-    getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'OFFER_UPDATE' });
+    if (businessId) {
+       getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'OFFER_UPDATE' });
+    }
 
     res.status(201).json({ success: true, data: newOffer });
   } catch (error: any) {
@@ -87,7 +89,9 @@ export const deleteOffer = async (req: AuthRequest, res: Response): Promise<void
     }
 
     await logActivity(req, "DELETE", "BUSINESS", `Decommissioned offer node: ${offer.name}`, offer._id.toString());
-    getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'OFFER_UPDATE' });
+    if (businessId) {
+       getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'OFFER_UPDATE' });
+    }
 
     res.status(200).json({ success: true, message: "Offer node purged." });
   } catch (error: any) {
@@ -118,7 +122,9 @@ export const updateOffer = async (req: AuthRequest, res: Response): Promise<void
     }
 
     await logActivity(req, "UPDATE", "BUSINESS", `Refined offer node: ${updatedOffer.name}`, updatedOffer._id.toString());
-    getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'OFFER_UPDATE' });
+    if (businessId) {
+      getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'OFFER_UPDATE' });
+    }
 
     res.status(200).json({ success: true, data: updatedOffer });
   } catch (error: any) {
