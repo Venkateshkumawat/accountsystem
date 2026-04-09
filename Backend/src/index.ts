@@ -74,9 +74,13 @@ app.use(helmet({
 app.use(morgan("dev"));
 app.use(express.json());
 
-// High-Performance CORS Registry
+// High-Performance CORS Registry: Supports Vercel Previews and Production Nodes
 app.use(cors({
-  origin: ["https://account-billing-system.vercel.app", "http://localhost:5173"], // Allow production and local dev
+  origin: [
+    /^https:\/\/account-billing-system.*\.vercel\.app$/, // Trust all Vercel subdomains
+    "https://account-billing-system.vercel.app",        // Primary Production
+    "http://localhost:5173"                             // Local Dev
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]

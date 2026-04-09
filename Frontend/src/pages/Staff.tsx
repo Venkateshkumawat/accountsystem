@@ -35,7 +35,7 @@ const ROLE_META: Record<string, { icon: any; color: string; bg: string; text: st
 
 const ALL_PERMISSIONS = [
   'POS', 'INVENTORY', 'PURCHASES', 'REPORTS',
-  'ACCOUNTING', 'GST_PORTAL', 'CUSTOMERS', 'SETTINGS'
+  'ACCOUNTING', 'GST_PORTAL', 'CUSTOMERS', 'AUDIT_LOGS', 'SETTINGS'
 ];
 
 // ─── Toast component ───────────────────────────────────────────────────────────

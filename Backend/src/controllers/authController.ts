@@ -209,13 +209,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     let permissions: string[] = [];
     if (!['businessAdmin', 'superadmin'].includes(user.role)) {
       try {
-        const bizIdStr = shortBizId || (businessDoc?._id?.toString());
-        if (bizIdStr) {
-          const conn = await getTenantConnection(bizIdStr);
-          const { Staff: TenantStaff } = getTenantModels(conn);
-          const staffDoc = await TenantStaff.findOne({ userId: user._id }).select('permissions').lean();
+          // Nexus Protocol: Query the shared Staff registry directly
+          const staffDoc = await Staff.findOne({ userId: user._id }).select('permissions').lean();
           permissions = (staffDoc?.permissions as string[]) || [];
-        }
       } catch (err) {
         console.error("🌊 Security Node Permissions Offline:", err);
         // Default to safe empty permissions if node is offline
