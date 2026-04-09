@@ -51,7 +51,7 @@ body {
     @apply min-h-[44px]; /* Standard touch target height */
   }
   .text-xs { font-size: 0.7rem; }
-  .text-[10px] { font-size: 0.65rem; }
+  .text-\[10px\] { font-size: 0.65rem; }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
