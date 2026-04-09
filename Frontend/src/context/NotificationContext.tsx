@@ -125,7 +125,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     // 📡 Nexus Protocol: Initialize Real-time Telemetry Node
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://account-billing-system.onrender.com/api';
     const socketUrl = apiBase.replace(/\/api$/, '');
-    const newSocket = io(socketUrl); 
+    const newSocket = io(socketUrl, {
+      transports: ["websocket"],
+      withCredentials: true
+    }); 
 
     const checkAuthAndSubscribe = () => {
       const token = localStorage.getItem('token');
