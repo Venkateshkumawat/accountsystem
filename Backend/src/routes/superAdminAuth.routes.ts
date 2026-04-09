@@ -36,7 +36,7 @@ const loginLimiter = rateLimit({
 });
 
 // @route   POST /api/superadmin/auth/login
-router.post('/login', loginLimiter, loginSuperAdmin);
+router.post('/login', loginSuperAdmin);
 
 // All routes below require superadmin protection
 router.use(protect, authorizeRoles('superadmin'));
