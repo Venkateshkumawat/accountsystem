@@ -2,10 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   Shield, 
-  Users, 
   Mail, 
   Lock, 
-  Briefcase, 
   Zap, 
   ArrowRight,
   Fingerprint,
@@ -17,9 +15,7 @@ import api from "../services/api";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    fullname: "",
     email: "",
-    companyName: "",
     uniqueId: "",
     password: "",
   });
@@ -53,7 +49,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F5F9] font-['Outfit'] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F1F5F9]  flex items-center justify-center p-4">
       <div className="w-full max-w-[340px] bg-white border border-slate-100 rounded-2xl shadow-xl p-6 animate-in fade-in zoom-in duration-500">
         <div className="flex flex-col items-center mb-6">
           <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg mb-4 rotate-3 group scale-150 transform transition-transform hover:rotate-0 relative">
@@ -63,7 +59,7 @@ const Login = () => {
           <div className="px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full mb-3">
             <p className="text-[7px] font-black text-indigo-600 uppercase tracking-[0.2em] leading-none">Authentication Required</p>
           </div>
-          <h1 className="text-lg font-black text-slate-900 tracking-tighter uppercase italic leading-none mb-1">Nexus Terminal</h1>
+          <h1 className="text-lg font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">Nexus Terminal</h1>
           <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-1.5 opacity-60">
             <Zap size={8} fill="currentColor" className="text-indigo-600" /> Secure Node Access
           </p>
@@ -77,34 +73,35 @@ const Login = () => {
         )}
 
         <form onSubmit={handleLogin} className="space-y-2.5" autoComplete="off">
-          <div className="grid grid-cols-2 gap-2">
-            <CompactInput icon={Users} name="fullname" placeholder="NAME" value={formData.fullname} onChange={handleChange} />
-            <CompactInput icon={Fingerprint} name="uniqueId" placeholder="ID" value={formData.uniqueId} onChange={handleChange} autoComplete="new-password" />
-          </div>
+          <CompactInput icon={Fingerprint} name="uniqueId" placeholder="ID" value={formData.uniqueId} onChange={handleChange} autoComplete="new-password" />
           
-          <CompactInput icon={Briefcase} name="companyName" placeholder="COMPANY" value={formData.companyName} onChange={handleChange} />
           <CompactInput icon={Mail} name="email" type="email" placeholder="EMAIL" value={formData.email} onChange={handleChange} />
           <CompactInput icon={Lock} name="password" type="password" placeholder="PASSWORD" value={formData.password} onChange={handleChange} autoComplete="new-password" />
 
           <button 
             type="submit"
             disabled={loading}
-            className={`w-full h-11 bg-slate-900 text-white rounded-xl font-black text-[9px] uppercase tracking-[0.3em] italic flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-95 transition-all mt-4 border border-slate-700 ${loading ? 'opacity-50 grayscale' : ''}`}
+            className={`w-full h-12 bg-slate-900 text-white rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-[0.98] transition-all mt-6 shadow-lg shadow-slate-900/10 border border-slate-700 ${loading ? 'opacity-50 grayscale' : ''}`}
           >
             {loading ? 'SYNCING...' : 'LOGIN NODE'}
-            {!loading && <ArrowRight size={12} />}
+            {!loading && <ArrowRight size={14} />}
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-slate-50 flex flex-col items-center gap-4 text-center">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
-               <Info size={10} className="text-slate-400" />
-               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tight">Verified access only</p>
+        <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-5 text-center">
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-slate-50/50 rounded-full border border-slate-100/50">
+               <ShieldCheck size={10} className="text-slate-400" />
+               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Verified Security Node</p>
             </div>
             
-            <div className="flex items-center gap-4">
-               <Link to="/superadmin-login" className="text-[9px] font-black text-indigo-600 uppercase underline decoration-indigo-200 hover:text-indigo-700 transition-colors">SuperAdmin Portal</Link>
-               <span className="text-[9px] font-black text-slate-300 uppercase underline decoration-slate-100 cursor-not-allowed">Forgot Password</span>
+            <div className="flex items-center gap-6">
+               <Link to="/superadmin-login" className="text-[10px] font-bold text-slate-600 uppercase tracking-wider hover:text-indigo-600 transition-all duration-300 relative group">
+                  SuperAdmin Portal
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+               </Link>
+               <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider cursor-not-allowed transition-colors">
+                  Forgot Password
+               </span>
             </div>
         </div>
       </div>
@@ -127,7 +124,7 @@ const CompactInput = ({ icon: Icon, name, type = "text", placeholder, value, onC
       type={type}
       placeholder={placeholder}
       autoComplete={autoComplete}
-      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-900 focus:outline-none focus:border-slate-900 transition-all placeholder:text-slate-300 uppercase h-10`}
+      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white transition-all placeholder:text-slate-300 uppercase h-11`}
       value={value}
       onChange={onChange}
       required

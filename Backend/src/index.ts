@@ -32,21 +32,8 @@ import Business from "./models/Business.js";
 import { createServer } from "http";
 import { initSocket } from "./socket.js";
 
-// Connect to Database and Seed Nexus Configs
-const bootstrap = async () => {
-  try {
-    await connectDB();
-    await healRegistry();
-    await seedSuperAdmin();
-    await seedPlans();
-    await initializeExistingProducts();
-  } catch (err) {
-    console.error('🌊 Nexus Bootstrap Failure:', err);
-    process.exit(1);
-  }
-};
-
-await bootstrap();
+// Connect and start server immediately
+await connectDB();
 
 // -- Nightly Plan Cycle (12:00 AM) ---------------------------------------------
 cron.schedule('0 0 * * *', async () => {
@@ -79,7 +66,8 @@ app.use(cors({
   origin: [
     /^https:\/\/account-billing-system.*\.vercel\.app$/, // Trust all Vercel subdomains
     "https://account-billing-system.vercel.app",        // Primary Production
-    "http://localhost:5173"                             // Local Dev
+    "http://localhost:5173",                            // Local Dev
+    "http://127.0.0.1:5173"                             // Local Dev IP
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -134,3 +122,17 @@ const startServer = (p: number) => {
 };
 
 startServer(port);
+
+// ── Background Nexus Initialization ──────────────────────────────────────────
+(async () => {
+    try {
+        console.log('📡 Nexus Engine: Initializing Background Registry Audit...');
+        await healRegistry();
+        await seedSuperAdmin();
+        await seedPlans();
+        await initializeExistingProducts();
+        console.log('✅ Nexus Registry: All nodes successfully re-synchronized.');
+    } catch (err) {
+        console.error('🌊 Nexus Background Tasks Failure:', err);
+    }
+})();

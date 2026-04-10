@@ -68,9 +68,9 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
       total,
       page,
       limit,
-      skuLimit: biz?.skuLimit || 0,
-      usedSku: biz?.currentSkuCount || 0,
-      remainingSku: (biz?.skuLimit || 0) - (biz?.currentSkuCount || 0),
+      productLimit: biz?.skuLimit || 0,
+      usedProducts: biz?.currentSkuCount || 0,
+      remainingProduct: (biz?.skuLimit || 0) - (biz?.currentSkuCount || 0),
       data: products
     });
   } catch (error: any) {

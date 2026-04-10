@@ -325,7 +325,7 @@ const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose
               <h2 className="text-xl font-black text-slate-900 uppercase leading-none">Manifest Confirmed</h2>
               <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">NODE_ID: <span className="text-indigo-600">{data.businessId}</span></p>
           </div>
-          <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl font-black italic text-lg flex items-center justify-center shadow-lg">NX</div>
+          <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl font-black text-lg flex items-center justify-center shadow-lg">NX</div>
       </div>
       <div className="p-8 grid grid-cols-2 gap-8 text-[10px]">
           <div className="space-y-4">

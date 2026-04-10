@@ -144,7 +144,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#E8EDF5]  select-none font-sans">
+    <div className="flex h-screen overflow-hidden bg-[#E8EDF5] select-none ">
       {/* ── MOBILE BACKDROP ────────────────────────────────────────────────── */}
       {(isSidebarOpen || isMobileSearchOpen) && (
         <div 

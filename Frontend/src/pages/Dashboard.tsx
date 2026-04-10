@@ -33,9 +33,9 @@ interface DashboardData {
   lowStockProducts: any[];
   staffCount: number;
   productCount: number;
-  skuLimit?: number;
-  usedSku?: number;
-  remainingSku?: number;
+  ProductLimit?: number;
+  usedProduct?: number;
+  remainingProduct?: number;
 }
 
 const ACTIVITY_LIMIT = 3;
@@ -88,18 +88,18 @@ export default function Dashboard() {
       fetchDashboard(true);
     };
 
-    const handleSkuSync = (payload: any) => {
-      console.log("📡 SKU Sync Received:", payload);
+    const handleProductSync = (payload: any) => {
+      console.log("📡 Product Sync Received:", payload);
       setData(prev => prev ? {
         ...prev,
-        usedSku: payload.usedSku,
-        remainingSku: payload.remainingSku,
-        productCount: payload.usedSku
+        usedProduct: payload.usedProduct,
+        remainingProduct: payload.remainingProduct,
+        productCount: payload.usedProduct
       } : prev);
     };
 
     socketService.on('DATA_SYNC', handleDataSync);
-    socketService.on('skuUpdated', handleSkuSync);
+    socketService.on('ProductUpdated', handleProductSync);
 
     // ── Cross-Tab Sync ──
     const syncChannel = new BroadcastChannel('nexus_sync');
@@ -111,7 +111,7 @@ export default function Dashboard() {
 
     return () => {
       socketService.off('DATA_SYNC', handleDataSync);
-      socketService.off('skuUpdated', handleSkuSync);
+      socketService.off('ProductUpdated', handleProductSync);
       syncChannel.close();
     };
   }, [fetchDashboard]);
@@ -203,7 +203,7 @@ export default function Dashboard() {
         <StatCard label="Month Volume" value={`₹${(data?.monthlySales || 0).toLocaleString()}`} sub="Current revenue" icon={TrendingUp} color="emerald" trend="+8%" />
         <StatCard label="Settled Node" value={data?.monthlyCount || 0} sub="This month" icon={FileText} color="amber" />
         <Link to="/inventory?filter=low-stock">
-          <StatCard label="Critical SKU" value={data?.lowStockCount || 0} sub="Needs re-stock" icon={AlertTriangle}
+          <StatCard label="Critical Product" value={data?.lowStockCount || 0} sub="Needs re-stock" icon={AlertTriangle}
             color={data?.lowStockCount && data.lowStockCount > 0 ? 'rose' : 'slate'}
             isAlert={!!(data?.lowStockCount && data.lowStockCount > 0)} />
         </Link>
@@ -228,10 +228,10 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={chartData} barCategoryGap="20%">
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 8, fontWeight: 900 }} dy={5} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 8, fontWeight: 900 }} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#94A3B8', fontSize: 8, fontWeight: 900 }} dy={5} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#94A3B8', fontSize: 8, fontWeight: 900 }} />
                   <Tooltip cursor={{ fill: '#F8FAFC' }}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 900, fontSize: 10, background: '#fff' }} />
+                    contentStyle={{ fontFamily: "Inter", borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 900, fontSize: 10, background: '#fff' }} />
                   <Bar dataKey="revenue" radius={[6, 6, 0, 0]} barSize={32}>
                     {chartData.map((_e, i) => (
                       <Cell key={i} fill={i === 3 ? '#4F46E5' : '#e2e8f0'} />
@@ -258,34 +258,34 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* SKU Usage Telemetry Box */}
+          {/* Product Usage Telemetry Box */}
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2 relative overflow-hidden group">
              <div className="flex justify-between items-end relative z-10">
                <div>
                   <div className="flex items-center gap-1.5 mb-1">
                      <Package size={12} className="text-emerald-500" />
-                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Node Capacity (SKU)</p>
+                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Node Capacity (Product)</p>
                   </div>
                   <h3 className="text-xl font-black text-slate-900 leading-none">
-                     {data?.usedSku ?? 0} <span className="text-slate-300 text-sm">/ {data?.skuLimit || '∞'}</span>
+                     {data?.usedProduct ?? 0} <span className="text-slate-300 text-sm">/ {data?.ProductLimit || '∞'}</span>
                   </h3>
                </div>
                <div className="text-right">
                   <p className="text-[8px] font-black uppercase text-slate-400">Remaining</p>
-                  <p className={`text-xs font-black ${((data?.remainingSku ?? 10) < 10) ? 'text-rose-500' : 'text-emerald-500'}`}>
-                     {data?.remainingSku ?? 'Stable'}
+                  <p className={`text-xs font-black ${((data?.remainingProduct ?? 10) < 10) ? 'text-rose-500' : 'text-emerald-500'}`}>
+                     {data?.remainingProduct ?? 'Stable'}
                   </p>
                </div>
              </div>
              
              {/* Progress Bar */}
              <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 relative z-10">
-               {data?.skuLimit && (
+               {data?.ProductLimit && (
                  <div 
                    className={`h-full rounded-full transition-all duration-1000 ${
-                     ((data?.usedSku || 0) / (data?.skuLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'
+                     ((data?.usedProduct || 0) / (data?.ProductLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'
                    }`}
-                   style={{ width: `${Math.min(((data?.usedSku || 0) / (data?.skuLimit || 1)) * 100, 100)}%` }}
+                   style={{ width: `${Math.min(((data?.usedProduct || 0) / (data?.ProductLimit || 1)) * 100, 100)}%` }}
                  />
                )}
              </div>

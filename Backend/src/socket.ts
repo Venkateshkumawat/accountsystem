@@ -9,12 +9,17 @@ export const initSocket = (server: HttpServer) => {
       origin: [
         /^https:\/\/account-billing-system.*\.vercel\.app$/,
         "https://account-billing-system.vercel.app", 
-        "http://localhost:5173"
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174"
       ], 
       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
       credentials: true
     },
-    transports: ["websocket"]
+    connectTimeout: 45000,
+    pingTimeout: 30000,
+    pingInterval: 25000
   });
 
   io.on("connection", (socket) => {

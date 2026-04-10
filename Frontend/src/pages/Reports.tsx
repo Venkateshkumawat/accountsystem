@@ -220,9 +220,9 @@ export default function Reports() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                  <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 7, fill: "#cbd5e1", fontWeight: 900 }} interval="preserveStartEnd" />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
-                  <Tooltip contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                  <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 7, fill: "#cbd5e1", fontWeight: 900 }} interval="preserveStartEnd" />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
+                  <Tooltip contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                   <Area type="monotone" dataKey="totalSales" stroke="#6366f1" fillOpacity={1} fill="url(#colorSales)" strokeWidth={4} dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff' }} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -457,7 +457,7 @@ export default function Reports() {
                           return <Cell key={`cell-${index}`} fill={color} />;
                         })}
                     </Pie>
-                    <Tooltip contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                    <Tooltip contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </ChartWrapper>
@@ -484,9 +484,9 @@ export default function Reports() {
                  <ResponsiveContainer width="100%" height={200}>
                    <BarChart data={inventoryData?.categoryDistribution || []}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                      <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
-                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                      <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
+                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                       <Bar dataKey="value" fill="#f59e0b" radius={[10, 10, 0, 0]} barSize={30} />
                    </BarChart>
                  </ResponsiveContainer>
@@ -509,9 +509,9 @@ export default function Reports() {
                  <ResponsiveContainer width="100%" height={200}>
                    <LineChart data={salesData?.dailySales || []}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                      <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 7, fill: "#cbd5e1", fontWeight: 900 }} interval="preserveStartEnd" />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
-                      <Tooltip contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                      <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 7, fill: "#cbd5e1", fontWeight: 900 }} interval="preserveStartEnd" />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
+                      <Tooltip contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                        <Line type="monotone" dataKey="count" name="TXN Count" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }} />
                    </LineChart>
                  </ResponsiveContainer>
@@ -532,10 +532,10 @@ export default function Reports() {
                  <ResponsiveContainer width="100%" height={200}>
                    <BarChart data={salesData?.topSoldItems || []}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                      <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
-                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                      <Legend iconType="circle" wrapperStyle={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', marginTop: '10px' }} />
+                      <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94A3B8', fontWeight: 900 }} />
+                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                      <Legend iconType="circle" wrapperStyle={{ fontFamily: "Inter", fontSize: 8, fontWeight: 900, textTransform: 'uppercase', marginTop: '10px' }} />
                       <Bar dataKey="totalQty" name="Units Sold" fill="#6366f1" radius={[5, 5, 0, 0]} />
                    </BarChart>
                  </ResponsiveContainer>

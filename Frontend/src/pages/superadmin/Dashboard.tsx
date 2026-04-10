@@ -75,7 +75,7 @@ const SuperAdminDashboard: React.FC = () => {
             
             <div>
               <p className="text-xs font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 leading-none">{s.label}</p>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight italic leading-none">
+              <h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">
                 {typeof s.value === 'number' ? s.value.toLocaleString('en-IN') : s.value}
               </h2>
               <p className="text-xs font-bold text-slate-300 mt-1 transition-opacity group-hover:opacity-100 opacity-60 font-medium">{s.sub}</p>
@@ -131,7 +131,7 @@ const SuperAdminDashboard: React.FC = () => {
                 }`}></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] font-black text-white/90 leading-tight uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{n.message}</p>
-                  <p className="text-[8px] font-bold text-white/30 lowercase mt-1 italic">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                  <p className="text-[8px] font-bold text-white/30 lowercase mt-1">{new Date(n.createdAt).toLocaleTimeString()}</p>
                 </div>
               </div>
             ))}

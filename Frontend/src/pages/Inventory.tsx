@@ -16,7 +16,7 @@ import { useProducts } from '../context/ProductContext';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Inventory() {
-  const { products, categories, refreshAll, remainingSku } = useProducts();
+  const { products, categories, refreshAll, remainingProduct } = useProducts();
   const { role } = useAuth();
   const isAuthorized = role === 'businessAdmin' || role === 'manager';
   const [showForm, setShowForm] = useState(false);
@@ -92,7 +92,7 @@ export default function Inventory() {
       sync.close();
 
     } catch (err: any) {
-      alert(err.response?.data?.message || "Protocol Error: SKU Sync Failed");
+      alert(err.response?.data?.message || "Protocol Error: Product Sync Failed");
     } finally {
       setFormLoading(false);
     }
@@ -140,7 +140,7 @@ export default function Inventory() {
 
 
   const deleteProduct = async (id: string) => {
-    if (!confirm("Are you sure you want to decommission this SKU node?")) return;
+    if (!confirm("Are you sure you want to decommission this Product node?")) return;
     try {
       await api.delete(`/products/${id}`);
       refreshAll();
@@ -208,21 +208,20 @@ export default function Inventory() {
           </div>
           <button
             onClick={() => {
-              if (remainingSku <= 0) {
-                 alert("Plan limit reached. Upgrade required to provision more SKU nodes.");
-                 return;
+              if (remainingProduct <= 0) {
+                alert("Plan limit reached. Upgrade required to provision more Product nodes.");
+                return;
               }
               setShowForm(true);
             }}
-            disabled={remainingSku <= 0}
-            className={`flex items-center gap-2 px-6 py-2.5 text-white rounded-xl text-xs font-black shadow-lg transition-all uppercase tracking-widest ${
-              remainingSku <= 0 
-                ? 'bg-slate-400 opacity-60 cursor-not-allowed border-none' 
-                : 'bg-indigo-600 shadow-indigo-100 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95'
-            }`}
+            disabled={remainingProduct <= 0}
+            className={`flex items-center gap-2 px-6 py-2.5 text-white rounded-xl text-xs font-black shadow-lg transition-all uppercase tracking-widest ${remainingProduct <= 0
+              ? 'bg-slate-400 opacity-60 cursor-not-allowed border-none'
+              : 'bg-indigo-600 shadow-indigo-100 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95'
+              }`}
           >
             <Plus size={16} />
-            {remainingSku <= 0 ? "Limit Reached" : "Add SKU Node"}
+            {remainingProduct <= 0 ? "Limit Reached" : "Add Product Node"}
           </button>
         </div>
       </div>
@@ -230,7 +229,7 @@ export default function Inventory() {
 
       {/* Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <InventoryStat label="Total SKU" value={products.length} icon={Box} color="indigo" />
+        <InventoryStat label="Total Product" value={products.length} icon={Box} color="indigo" />
         <InventoryStat label="Low Stock" value={lowStockCount} icon={AlertTriangle} color="amber" />
         <InventoryStat label="Active Node" value={products.filter(p => p.isActive).length} icon={Layout} color="emerald" />
         <InventoryStat label="Valuation" value={`₹${totalValuation.toLocaleString()}`} icon={BarChart3} color="emerald" />
@@ -257,7 +256,7 @@ export default function Inventory() {
                   </h2>
                 </div>
                 <span className="text-[9px] font-black text-slate-400 uppercase">
-                  {groupedProducts[category].length} SKU Active
+                  {groupedProducts[category].length} Product Active
                 </span>
               </div>
 
@@ -368,7 +367,7 @@ export default function Inventory() {
           <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col">
             <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-xl font-black tracking-tighter uppercase">{editId ? 'Update SKU' : 'Product Entry'}</h3>
+                <h3 className="text-xl font-black tracking-tighter uppercase">{editId ? 'Update Product' : 'Product Entry'}</h3>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-70">Diagnostic ID: {editId || 'NEW_NODE'}</p>
               </div>
               <button onClick={closeModal} className="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-white"><X size={18} /></button>
@@ -392,7 +391,7 @@ export default function Inventory() {
                     value={formData.image}
                     onChange={e => setFormData({ ...formData, image: e.target.value })}
                     placeholder="https://example.com/item.jpg"
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-mono outline-none shadow-sm focus:bg-white focus:border-indigo-600"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs  outline-none shadow-sm focus:bg-white focus:border-indigo-600"
                   />
                   <p className="text-[7px] text-slate-400 font-bold uppercase tracking-wider ml-1">
                     Tip: Right-click image &gt; "Copy image address" for direct link.
@@ -519,7 +518,7 @@ export default function Inventory() {
                   disabled={formLoading}
                   className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black text-sm shadow-xl uppercase tracking-widest hover:bg-slate-800 transition-all disabled:opacity-50"
                 >
-                  {formLoading ? "Synchronizing SKU..." : "Initialize SKU Protocol"}
+                  {formLoading ? "Synchronizing Product..." : "Initialize Product Protocol"}
                 </button>
               </div>
             </form>

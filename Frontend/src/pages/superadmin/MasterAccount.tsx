@@ -109,7 +109,7 @@ const MasterAccount: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6 pb-20 relative font-sans">
+    <div className="space-y-6 pb-20 relative ">
       <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <div className="relative group">
@@ -168,7 +168,7 @@ const MasterAccount: React.FC = () => {
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-[11px] font-black text-slate-900 leading-none">{biz.ownerFullName}</p>
-                    <p className="text-[9px] font-bold text-slate-400 lowercase mt-0.5 italic leading-none">{biz.email}</p>
+                    <p className="text-[9px] font-bold text-slate-400 lowercase mt-0.5 leading-none">{biz.email}</p>
                   </td>
                   <td className="px-4 py-3">
                     <p className={`text-[9px] font-black uppercase tracking-tighter mb-0.5 ${biz.plan === 'enterprise' ? 'text-violet-600' : biz.plan === 'pro' ? 'text-indigo-600' : 'text-slate-400'}`}>{biz.plan}</p>
@@ -282,7 +282,7 @@ const MasterAccount: React.FC = () => {
             <div className="p-4 bg-slate-900 text-white flex justify-between items-center relative overflow-hidden shrink-0">
               <Zap className="absolute -right-4 -top-4 opacity-10 rotate-12" size={60} />
               <div className="relative z-10">
-                <h3 className="text-sm font-black italic tracking-tighter uppercase leading-none">Capability Matrix</h3>
+                <h3 className="text-sm font-black tracking-tighter uppercase leading-none">Capability Matrix</h3>
                 <p className="text-indigo-400 text-[9px] uppercase font-black tracking-widest mt-1">{showFeatureModal.businessName}</p>
               </div>
               <button onClick={() => setShowFeatureModal(null)} className="p-1.5 text-white/40 hover:text-white transition-colors relative z-10"><Trash2 size={16} className="rotate-45" /></button>
@@ -300,7 +300,7 @@ const MasterAccount: React.FC = () => {
                   const isActive = showFeatureModal.features?.[feat.key] !== false;
                   return (
                     <div key={feat.key} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 hover:border-indigo-100 transition-all group">
-                      <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest italic">{feat.name}</span>
+                      <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">{feat.name}</span>
                       <button
                         onClick={() => handleUpdateFeatures({ ...showFeatureModal.features, [feat.key]: !isActive })}
                         className={`transition-all duration-300 ${isActive ? 'text-indigo-600' : 'text-slate-300'}`}
@@ -337,7 +337,7 @@ const MasterAccount: React.FC = () => {
               </div>
 
               <div className="p-2.5 bg-indigo-50/50 rounded-lg border border-indigo-100/50">
-                <p className="text-[8px] font-bold text-indigo-700 leading-tight italic uppercase tracking-tighter">Deactivating modules will freeze node access immediately.</p>
+                <p className="text-[8px] font-bold text-indigo-700 leading-tight uppercase tracking-tighter">Deactivating modules will freeze node access immediately.</p>
               </div>
             </div>
           </div>
@@ -348,7 +348,7 @@ const MasterAccount: React.FC = () => {
           <div className="bg-white w-full max-w-[400px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[95vh]">
             <div className="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-sm font-black italic tracking-tighter uppercase leading-none">Edit Node Configuration</h3>
+                <h3 className="text-sm font-black tracking-tighter uppercase leading-none">Edit Node Configuration</h3>
                 <p className="text-indigo-400 text-[9px] uppercase font-black tracking-widest mt-1">ID: {editModal.businessId}</p>
               </div>
               <button onClick={() => setEditModal(null)} className="p-1.5 text-white/40 hover:text-white"><Trash2 size={16} className="rotate-45" /></button>

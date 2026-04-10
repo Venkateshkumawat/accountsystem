@@ -13,8 +13,9 @@
 
 body {
   @apply bg-slate-50 text-slate-900;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif !important;
   letter-spacing: -0.02em;
+  font-style: normal !important;
 }
 
 .card {
@@ -43,23 +44,36 @@ body {
 
 /* 📱 Mobile Optimized Utilities */
 .mobile-safe-padding {
-  @apply pb-24 lg:pb-0; /* Extra bottom padding for mobile floating actions */
+  @apply pb-24 lg:pb-0;
+  /* Extra bottom padding for mobile floating actions */
 }
 
 @media (max-width: 640px) {
-  input, button, select {
-    @apply min-h-[44px]; /* Standard touch target height */
+
+  input,
+  button,
+  select {
+    @apply min-h-[44px];
+    /* Standard touch target height */
   }
-  .text-xs { font-size: 0.7rem; }
-  .text-\[10px\] { font-size: 0.65rem; }
+
+  .text-xs {
+    font-size: 0.7rem;
+  }
+
+  .text-\[10px\] {
+    font-size: 0.65rem;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   @apply bg-transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   @apply bg-slate-200 rounded-full;
 }
@@ -70,9 +84,17 @@ body {
 
 /* 🖨️ Professional Audit Print Protocol */
 @media print {
+
   /* Hide UI elements non-relevant to data audit */
-  nav, .sidebar, header, button, .no-print, 
-  aside, .btn, .refresh-node, .filter-registry {
+  nav,
+  .sidebar,
+  header,
+  button,
+  .no-print,
+  aside,
+  .btn,
+  .refresh-node,
+  .filter-registry {
     display: none !important;
   }
 
@@ -83,7 +105,9 @@ body {
   }
 
   /* Reset layout constraints for full page usage */
-  .main-content, .container, main {
+  .main-content,
+  .container,
+  main {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -91,7 +115,9 @@ body {
   }
 
   /* Ensure cards look clean on paper */
-  .card, div[class*="rounded-"], div[class*="shadow-"] {
+  .card,
+  div[class*="rounded-"],
+  div[class*="shadow-"] {
     box-shadow: none !important;
     border: 1px solid #eee !important;
     background: white !important;
@@ -106,11 +132,14 @@ body {
     width: 100% !important;
     border-collapse: collapse !important;
   }
-  th, td {
+
+  th,
+  td {
     border: 1px solid #f1f5f9 !important;
     padding: 8px !important;
     color: black !important;
   }
+
   th {
     background: #f8fafc !important;
     -webkit-print-color-adjust: exact;
@@ -123,12 +152,15 @@ body {
   }
 
   /* Specific color adjustments for print-ready legibility */
-  .text-indigo-600, .text-emerald-600, .text-rose-600 {
+  .text-indigo-600,
+  .text-emerald-600,
+  .text-rose-600 {
     color: black !important;
     font-weight: bold !important;
   }
-  
-  .bg-slate-900, .bg-slate-950 {
+
+  .bg-slate-900,
+  .bg-slate-950 {
     background: #f8fafc !important;
     color: black !important;
     border: 1px solid #ddd !important;
@@ -143,5 +175,3 @@ body {
     page-break-before: always;
   }
 }
-
-

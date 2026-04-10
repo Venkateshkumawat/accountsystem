@@ -8,6 +8,7 @@ import { logActivity } from "../utils/activityLogger.js";
 import { createNotification } from "./notificationController.js";
 import { getTenantConnection } from "../config/tenantConnection.js";
 import { getTenantModels } from "../config/tenantModels.js";
+import { generateBusinessId } from "../utils/generateBusinessId.js";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -40,7 +41,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const generatedBusinessId = await (Business as any).generateBusinessId();
+    const generatedBusinessId = await generateBusinessId();
 
     const newUser = await User.create({
       name: ownerName,
@@ -143,10 +144,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { fullname, companyName, email, uniqueId, password } = req.body;
+    const { email, uniqueId, password } = req.body;
     const normalizedEmail = email.toLowerCase().trim();
-    const cleanName = fullname.trim();
-    const cleanCompany = companyName.trim();
     const cleanNode = uniqueId.trim();
 
     const user = await User.findOne({ email: normalizedEmail }).populate("businessObjectId");
@@ -161,24 +160,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // ── IDENTITY AUDIT: Robust Character & Case Matching ───────────────────
-    const dbName = (user.name || "").toLowerCase().replace(/\s+/g, ' ').trim();
-    const inputName = cleanName.toLowerCase().replace(/\s+/g, ' ').trim();
-    const isNameMatch = dbName === inputName;
-
-    const businessDoc = user.businessObjectId as any;
-    const dbCompany = (businessDoc?.businessName || "").toLowerCase().replace(/\s+/g, ' ').trim();
-    const inputCompany = cleanCompany.toLowerCase().replace(/\s+/g, ' ').trim();
-    const isCompanyMatch = dbCompany === inputCompany;
-
+    // ── IDENTITY AUDIT: Workspace Node Verification ───────────────────
     const dbWorkspace = (user.businessId || "").toLowerCase().trim();
     const inputWorkspace = cleanNode.toLowerCase().trim();
     const isWorkspaceMatch = dbWorkspace === inputWorkspace;
 
-    if (!isNameMatch || !isCompanyMatch || !isWorkspaceMatch) {
+    if (!isWorkspaceMatch) {
       res.status(401).json({ 
-        message: "VALIDATION_FAILURE: Identity node drift detected.",
-        diagnostic: !isNameMatch ? "NAME_DRIFT" : !isCompanyMatch ? "COMPANY_DRIFT" : "WORKSPACE_ID_DRIFT"
+        message: "VALIDATION_FAILURE: Workspace node mismatch.",
+        diagnostic: "WORKSPACE_ID_DRIFT"
       });
       return;
     }
@@ -198,6 +188,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const businessDoc = user.businessObjectId as any;
     const businessObjectId = businessDoc?._id?.toString() || businessDoc?.toString() || null;
     const shortBizId = user.businessId || null; // e.g., BB-XXXX-0000 
 

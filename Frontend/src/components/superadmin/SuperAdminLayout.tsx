@@ -43,7 +43,7 @@ const SuperAdminLayout: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-[#F1F5F9] font-sans overflow-hidden relative">
+    <div className="flex h-screen bg-[#F1F5F9]  overflow-hidden relative">
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
         <div 
@@ -64,7 +64,7 @@ const SuperAdminLayout: React.FC = () => {
               N
             </div>
             <span className="font-bold text-lg tracking-tight uppercase text-slate-900 leading-none">
-              Nexus <br /> <span className="text-indigo-600 text-xs tracking-wider not-italic">Master</span>
+              Nexus <br /> <span className="text-indigo-600 text-xs tracking-wider not-">Master</span>
             </span>
           </div>
           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
@@ -139,9 +139,9 @@ const SuperAdminLayout: React.FC = () => {
             <div className="flex items-center gap-3 pl-3 lg:pl-6 border-l border-slate-100">
               <div className="hidden xs:block text-right">
                 <p className="text-[10px] font-black text-slate-900 uppercase leading-none">Nexus Master</p>
-                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 italic">Authority Authority</p>
+                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Authority Authority</p>
               </div>
-              <div className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black italic border border-slate-900 shadow-lg text-[10px]">
+              <div className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black border border-slate-900 shadow-lg text-[10px]">
                 NM
               </div>
             </div>

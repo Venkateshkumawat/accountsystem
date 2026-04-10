@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import api from '../services/api';
+import socketService from '../services/socket';
 
 interface Product {
   _id: string;
@@ -26,9 +27,9 @@ interface ProductContextType {
   fetchProducts: (query?: string, category?: string) => Promise<void>;
   fetchCategories: () => Promise<void>;
   refreshAll: () => Promise<void>;
-  skuLimit: number;
-  usedSku: number;
-  remainingSku: number;
+  productLimit: number;
+  usedProducts: number;
+  remainingProduct: number;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -37,9 +38,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [skuLimit, setSkuLimit] = useState(0);
-  const [usedSku, setUsedSku] = useState(0);
-  const [remainingSku, setRemainingSku] = useState(0);
+  const [productLimit, setProductLimit] = useState(0);
+  const [usedProducts, setUsedProducts] = useState(0);
+  const [remainingProduct, setRemainingProduct] = useState(0);
 
   // Cross-tab synchronization node
   const syncChannel = React.useMemo(() => new BroadcastChannel('nexus_sync'), []);
@@ -62,10 +63,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const res = await api.get(`/products?name=${query}${catParam}&limit=1000`);
       const payload = res.data?.data || res.data;
       setProducts(Array.isArray(payload) ? payload : []);
-      if (res.data?.skuLimit !== undefined) {
-         setSkuLimit(res.data.skuLimit);
-         setUsedSku(res.data.usedSku);
-         setRemainingSku(res.data.remainingSku);
+      if (res.data?.productLimit !== undefined) {
+         setProductLimit(res.data.productLimit);
+         setUsedProducts(res.data.usedProducts);
+         setRemainingProduct(res.data.remainingProduct);
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -107,6 +108,14 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     };
     syncChannel.addEventListener('message', handleSync);
+    
+    // 📡 Global Telemetry: Listen for server-side push notifications
+    const handleServerSync = (payload: any) => {
+      console.log('📡 [NexusSocket] Product Sync Received:', payload);
+      refreshAll(false);
+    };
+    socketService.on('DATA_SYNC', handleServerSync);
+    socketService.connect(); // Ensure socket is active
 
     // Smart Fetch: Only refresh if last fetch was more than 2 minutes ago or explicitly requested
     const lastFetchRef = { current: 0 };
@@ -127,6 +136,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     return () => {
       syncChannel.removeEventListener('message', handleSync);
+      socketService.off('DATA_SYNC', handleServerSync);
       clearInterval(pollId);
       window.removeEventListener('focus', handleFocus);
     };
@@ -139,10 +149,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     fetchProducts,
     fetchCategories,
     refreshAll,
-    skuLimit,
-    usedSku,
-    remainingSku
-  }), [products, categories, loading, fetchProducts, fetchCategories, refreshAll, skuLimit, usedSku, remainingSku]);
+    productLimit,
+    usedProducts,
+    remainingProduct
+  }), [products, categories, loading, fetchProducts, fetchCategories, refreshAll, productLimit, usedProducts, remainingProduct]);
 
   return (
     <ProductContext.Provider value={contextValue}>

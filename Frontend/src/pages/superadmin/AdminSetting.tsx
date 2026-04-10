@@ -29,7 +29,7 @@ const AdminSetting: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-20 relative font-sans">
+    <div className="space-y-6 pb-20 relative ">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
           <h1 className="text-xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">Admin Configuration</h1>
@@ -109,7 +109,7 @@ const AdminSetting: React.FC = () => {
             <button 
               onClick={handleSave}
               disabled={loading}
-              className="w-full sm:w-auto px-10 py-3.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] italic hover:bg-indigo-600 transition-all shadow-xl flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-10 py-3.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl flex items-center justify-center gap-2 group"
             >
               {loading ? 'Committing Gateway State...' : 'Commit Changes'}
               {!loading && <ArrowRight size={14} className="group-hover:translate-x-1" />}
@@ -125,11 +125,11 @@ const AdminSetting: React.FC = () => {
           <div className="space-y-4">
             <div className="flex gap-3">
                <div className="w-1 h-1 bg-indigo-500 rounded-full mt-1.5 shrink-0 opacity-50"></div>
-               <p className="text-xs font-bold text-white/70 leading-relaxed italic">Last master login authenticated from: IPv4 121.242.xx.xx</p>
+               <p className="text-xs font-bold text-white/70 leading-relaxed">Last master login authenticated from: IPv4 121.242.xx.xx</p>
             </div>
             <div className="flex gap-3">
                <div className="w-1 h-1 bg-white/20 rounded-full mt-1.5 shrink-0"></div>
-               <p className="text-xs font-bold text-white/30 leading-relaxed italic">Security protocol updated: 04-03-2026 11:21:13</p>
+               <p className="text-xs font-bold text-white/30 leading-relaxed">Security protocol updated: 04-03-2026 11:21:13</p>
             </div>
           </div>
         </div>
@@ -137,10 +137,10 @@ const AdminSetting: React.FC = () => {
         <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-8 rounded-[1.5rem] flex flex-col justify-between items-start group shadow-xl">
            <div>
               <RefreshCcw className="mb-4 text-indigo-200 group-hover:rotate-180 transition-transform duration-1000" size={24} />
-              <h4 className="text-lg font-black tracking-tighter leading-none mb-1 uppercase italic">System Pulse</h4>
+              <h4 className="text-lg font-black tracking-tighter leading-none mb-1 uppercase">System Pulse</h4>
               <p className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">Global nexus sync: Steady</p>
            </div>
-           <button className="mt-8 text-[9px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-white/20 px-6 py-2.5 rounded-xl transition-all border border-white/10 italic leading-none">Force Re-Sync Protocol</button>
+           <button className="mt-8 text-[9px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-white/20 px-6 py-2.5 rounded-xl transition-all border border-white/10 leading-none">Force Re-Sync Protocol</button>
         </div>
       </div>
     </div>

@@ -113,9 +113,9 @@ export default function Accounting() {
               <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                <XAxis dataKey="date" tick={{ fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+                <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                 <Line type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#fff" }} />
               </LineChart>
             </ResponsiveContainer>
@@ -132,8 +132,8 @@ export default function Accounting() {
              <div className="flex-1 w-full h-[250px] min-h-[250px] min-w-[200px] relative">
               <ResponsiveContainer width="100%" height={250}>
               <BarChart data={methodData} barSize={20}>
-                <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, '']} contentStyle={{ fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
+                <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, '']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {methodData.map((entry) => (
                     <Cell key={entry.name} fill={METHOD_COLORS[entry.name] || '#6366f1'} />

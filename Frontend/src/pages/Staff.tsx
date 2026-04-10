@@ -240,7 +240,7 @@ export default function Staff() {
           </div>
           <h1 className="text-xl font-black text-slate-900 tracking-tighter leading-none">Staff Management</h1>
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-            {staff.length} active nodes managing operations.
+            {staff.length} active staff managing operations.
           </p>
         </div>
 
@@ -253,7 +253,7 @@ export default function Staff() {
           {isBusinessAdmin && (
             <button onClick={() => setShowAdd(true)}
               className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest">
-              <UserPlus size={16} /> Add Node
+              <UserPlus size={16} /> Add Staff
             </button>
           )}
         </div>
@@ -430,7 +430,7 @@ export default function Staff() {
             {/* Header */}
             <div className="p-5 bg-gradient-to-r from-slate-900 to-indigo-900 text-white flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-xl font-black tracking-tight uppercase">New Team Node</h3>
+                <h3 className="text-xl font-black tracking-tight uppercase">New Staff Member</h3>
                 <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mt-0.5">Authorizing New Staff Authorization</p>
               </div>
               <button onClick={() => { setShowAdd(false); setForm(defaultForm); }}
@@ -446,7 +446,7 @@ export default function Staff() {
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldCheck size={15} className="text-amber-600" />
                   <label className="text-xs font-black text-amber-700 uppercase tracking-widest">
-                    Business Node ID *
+                    Business ID *
                   </label>
                 </div>
                 <input
@@ -457,7 +457,7 @@ export default function Staff() {
                   className="w-full px-4 py-3 bg-white border border-amber-300 rounded-xl text-[10px] font-bold tracking-normal focus:outline-none focus:border-amber-500 transition"
                 />
                 <p className="text-[10px] text-amber-600 font-medium mt-1.5">
-                  Confirm authorization by entering your unique Business Node ID.
+                  Confirm authorization by entering your unique Business ID.
                 </p>
               </div>
 
@@ -534,7 +534,7 @@ export default function Staff() {
 
             <div className="p-5 bg-slate-900 text-white flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-lg font-black tracking-tight uppercase">Update Node</h3>
+                <h3 className="text-lg font-black tracking-tight uppercase">Update Staff</h3>
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{editTarget.email}</p>
               </div>
               <button onClick={() => setEditTarget(null)}

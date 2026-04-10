@@ -155,12 +155,12 @@ export default function GSTPortal() {
                      <ChartWrapper data={gstData?.gstSlabs}>
                         <BarChart data={gstData?.gstSlabs || []}>
                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                           <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 900 }} tickFormatter={v => `GST ${v}%`} />
-                           <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 900 }} />
+                           <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 900 }} tickFormatter={v => `GST ${v}%`} />
+                           <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 900 }} />
                            <Tooltip
                               cursor={{ fill: '#f8fafc' }}
-                              contentStyle={{ borderRadius: 20, border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: 16 }}
-                              itemStyle={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}
+                              contentStyle={{ fontFamily: "Inter", borderRadius: 20, border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: 16 }}
+                              itemStyle={{ fontFamily: "Inter", fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}
                            />
                            <Bar dataKey="totalTax" name="GST Node" fill="#10b981" radius={[12, 12, 0, 0]} barSize={40} />
                         </BarChart>

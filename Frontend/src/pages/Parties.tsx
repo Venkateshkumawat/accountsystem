@@ -94,13 +94,13 @@ export default function Parties() {
                         <Activity size={10} className="text-indigo-600" />
                         <span className="text-[9px] font-black text-indigo-900/60 uppercase tracking-[0.2em]">Contact Records Management</span>
                     </div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">Parties & NEXUS Nodes</h1>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">Parties</h1>
                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
-                        <ShieldCheck size={12} className="text-emerald-500" /> Digital address book for ecosystem ledger.
+                        <ShieldCheck size={12} className="text-emerald-500" /> Digital address book for business ledger.
                     </p>
                 </div>
                 <button onClick={() => { resetForm(); setEditingNode(null); setShowModal(true); }} className="flex items-center gap-3 px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black shadow-2xl hover:bg-slate-800 transition-all uppercase tracking-widest active:scale-95">
-                    <UserPlus size={18} /> Initialize New Node
+                    <UserPlus size={18} /> New Party
                 </button>
             </div>
 
@@ -122,7 +122,7 @@ export default function Parties() {
                 <div className="relative group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={14} />
                     <input
-                        type="text" placeholder="SEARCH NODES..." value={search} onChange={e => setSearch(e.target.value)}
+                        type="text" placeholder="SEARCH PARTIES..." value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-indigo-500/20 transition-all shadow-sm placeholder:text-slate-200"
                     />
                 </div>
@@ -194,8 +194,8 @@ export default function Parties() {
                                     <UserPlus size={20} />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tighter">{editingNode ? 'Configure Node' : 'Initialize Node'}</h2>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Protocol V2.0 Registry Update</p>
+                                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tighter">{editingNode ? 'Edit Party' : 'New Party'}</h2>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Party Registry Update</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowModal(false)} className="p-3 bg-white text-slate-400 hover:text-rose-500 rounded-2xl border border-slate-100 transition-all shadow-sm active:scale-90"> <X size={18} /> </button>
@@ -301,9 +301,9 @@ export default function Parties() {
                             </div>
 
                             <footer className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4 shrink-0">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:bg-slate-100 transition-all"> Abort Mission </button>
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:bg-slate-100 transition-all"> Cancel </button>
                                 <button type="submit" className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 active:scale-95">
-                                    {editingNode ? 'Execute Modification' : 'Confirm Initialization'} <ShieldCheck size={18} />
+                                    {editingNode ? 'Update Party' : 'Add Party'} <ShieldCheck size={18} />
                                 </button>
                             </footer>
                         </form>

@@ -36,8 +36,8 @@ export default function Purchases() {
       ]);
       setPurchases(pRes.data?.data || []);
       setStats(sRes.data || {});
-    } catch (e: any) { 
-      console.error('Purchase fetch error:', e); 
+    } catch (e: any) {
+      console.error('Purchase fetch error:', e);
       setPurchases([]);
       setError(e.response?.data?.message || 'Failed to sync with procurement node.');
     }
@@ -49,9 +49,9 @@ export default function Purchases() {
       const pUrl = q ? `/products?search=${q}&limit=8` : '/products?limit=8';
       const res = await api.get(pUrl);
       setProducts(res.data?.data || []);
-    } catch (e: any) { 
-      console.error('Products fetch error:', e); 
-      setProducts([]); 
+    } catch (e: any) {
+      console.error('Products fetch error:', e);
+      setProducts([]);
     }
   };
 
@@ -121,7 +121,7 @@ export default function Purchases() {
           <div className="flex gap-2">
             <button onClick={fetchAll} className="p-2.5 bg-white border border-slate-100 text-slate-300 rounded-xl hover:text-indigo-600 transition-all shadow-sm active:scale-95"><RefreshCcw size={14} /></button>
             <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest">
-              <Plus size={16} /> Procure Node
+              <Plus size={16} /> New Purchase
             </button>
           </div>
         </div>
@@ -190,7 +190,7 @@ export default function Purchases() {
                   <tr key={p._id} className="hover:bg-slate-50/50 transition-colors border-b border-slate-50 leading-none">
                     <td className="px-6 py-2.5 text-[10px] font-black text-indigo-600 uppercase tracking-tighter">{p.billNumber}</td>
                     <td className="px-6 py-2.5 text-[10px] font-black text-slate-800 uppercase truncate max-w-[120px]">{p.vendorName}</td>
-                    <td className="px-6 py-2.5 text-[10px] font-bold text-slate-400 uppercase">{p.items?.length || 0} Skus In</td>
+                    <td className="px-6 py-2.5 text-[10px] font-bold text-slate-400 uppercase">{p.items?.length || 0} Products In</td>
                     <td className="px-6 py-2.5"><span className="px-1.5 py-0.5 bg-slate-50 border border-slate-100 text-[8px] font-black uppercase rounded text-slate-500">{p.paymentMethod}</span></td>
                     <td className="px-6 py-2.5">
                       <span className={`flex items-center gap-1 w-fit px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase border ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
@@ -223,7 +223,7 @@ export default function Purchases() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input required placeholder="Vendor Name *" value={vendor.name} onChange={e => setVendor({ ...vendor, name: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-indigo-600 transition-all" />
-                
+
                 <div className="space-y-1">
                   <input placeholder="Phone" value={vendor.phone} onChange={e => setVendor({ ...vendor, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-indigo-600 transition-all" />
@@ -240,8 +240,8 @@ export default function Purchases() {
                   )}
                 </div>
 
-                <select 
-                  value={vendor.state} 
+                <select
+                  value={vendor.state}
                   onChange={e => setVendor({ ...vendor, state: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 transition appearance-none"
                 >
@@ -278,7 +278,7 @@ export default function Purchases() {
                   <div className="overflow-x-auto custom-scrollbar">
                     <div className="min-w-[500px]">
                       <div className="grid grid-cols-12 gap-2 px-6 py-4 bg-slate-900 text-[10px] font-black text-white uppercase tracking-[0.2em]">
-                        <span className="col-span-4">SKU / Identifier</span>
+                        <span className="col-span-4">Product / Identifier</span>
                         <span className="col-span-3 text-center">Unit Price</span>
                         <span className="col-span-2 text-center">Qty</span>
                         <span className="col-span-2 text-right">Ext. Total</span>

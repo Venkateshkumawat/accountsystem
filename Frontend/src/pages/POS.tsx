@@ -139,10 +139,10 @@ export default function POS() {
         handleAddItem(res.data.data);
         setBarcodeInput('');
       } else {
-        alert('SKU not found in local registry');
+        alert('Product not found in local registry');
       }
     } catch (err) {
-      alert('SKU not found or network node failure');
+      alert('Product not found or network node failure');
     }
   };
 
@@ -277,7 +277,7 @@ export default function POS() {
             <form onSubmit={handleBarcodeSearch}>
               <input ref={barcodeRef} value={barcodeInput}
                 onChange={e => setBarcodeInput(e.target.value)}
-                placeholder="Scan barcode SKU…"
+                placeholder="Scan barcode Product…"
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:outline-none focus:border-indigo-500 shadow-sm transition placeholder:text-slate-300"
               />
             </form>
@@ -313,7 +313,7 @@ export default function POS() {
                 <AlertTriangle size={16} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">Critical Alert: Low SKU Nodes</p>
+                <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">Critical Alert: Low Product Nodes</p>
                 <p className="text-[9px] font-bold text-amber-600 mt-0.5">Some items in this category are crossing the safety threshold.</p>
               </div>
             </div>
@@ -415,7 +415,7 @@ export default function POS() {
                       {product.name}
                     </h3>
                     <p className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-1 rounded-sm border border-slate-100 mt-1 truncate w-full max-w-[50px]">
-                      {product.barcode || 'NO-SKU'}
+                      {product.barcode || 'NO-Product'}
                     </p>
                   </div>
 
@@ -619,7 +619,7 @@ export default function POS() {
               <h2 className="text-lg font-black text-slate-900">Invoice Generated!</h2>
               <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{lastInvoice.invoiceNumber}</p>
             </div>
-            <div className="p-6 space-y-3 text-sm font-['Courier_New'] max-h-64 overflow-y-auto">
+            <div className="p-6 space-y-3 text-sm  max-h-64 overflow-y-auto">
               <div className="text-center text-xs font-bold text-slate-600 border-b border-dashed pb-3">
                 <p className="font-black">NexusBill</p>
                 <p>{new Date(lastInvoice.createdAt).toLocaleString('en-IN')}</p>

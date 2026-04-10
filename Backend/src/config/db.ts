@@ -16,7 +16,7 @@ const connectDB = async () => {
 
     const uri = process.env.MONGO_URI || "mongodb://localhost:27017/nexusbill";
     const conn = await mongoose.connect(uri);
-    // Silent Uplink Protocol: No success console logs to keep terminal clean.
+    console.log(`✅ Nexus Registry Online: Connected to ${conn.connection.host}`);
   } catch (error: any) {
     console.error(`❌ Connection Failure: ${error.message}`);
     

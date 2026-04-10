@@ -417,7 +417,7 @@ export default function Settings() {
               </div>
               <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase">Initialize Global Reset?</h3>
               <p className="text-slate-500 text-xs font-bold mt-2 uppercase tracking-wide px-4">
-                This will permanently purge ALL SKU data and Transactions. This cannot be undone.
+                This will permanently purge ALL Product data and Transactions. This cannot be undone.
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -885,18 +885,18 @@ export default function Settings() {
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
                         <div className="flex items-center gap-2 text-slate-400 mb-2">
                            <ShieldCheck size={14} />
-                           <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Inventory Hub (SKUs)</span>
+                           <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Inventory Hub (Products)</span>
                         </div>
-                        <p className="text-xl font-black">{Math.max(0, (planData?.skuLimit || 0) - (planData?.currentSkuCount || 0))} Nodes Left</p>
+                        <p className="text-xl font-black">{Math.max(0, (planData?.ProductLimit || 0) - (planData?.currentProductCount || 0))} Nodes Left</p>
                         <div className="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
                            <div 
                             className="h-full bg-indigo-500 transition-all duration-1000" 
-                            style={{ width: `${Math.min(100, ((planData?.currentSkuCount || 0) / (planData?.skuLimit || 1)) * 100)}%` }}
+                            style={{ width: `${Math.min(100, ((planData?.currentProductCount || 0) / (planData?.ProductLimit || 1)) * 100)}%` }}
                            />
                         </div>
                         <div className="mt-2 flex justify-between text-[8px] font-bold text-slate-500 uppercase">
                           <span>Usage</span>
-                          <span>{planData?.currentSkuCount} / {planData?.skuLimit}</span>
+                          <span>{planData?.currentProductCount} / {planData?.ProductLimit}</span>
                         </div>
                       </div>
 
@@ -926,7 +926,7 @@ export default function Settings() {
                         <p className={`text-xl font-black uppercase ${planData?.status === 'active' ? 'text-emerald-400' : 'text-rose-400 animate-pulse'}`}>
                            {planData?.status || '—'}
                         </p>
-                        <div className="mt-2 text-[8px] font-bold text-slate-500 uppercase tracking-widest italic">{planData?.status === 'suspended' ? 'Infrastructure Locked' : 'Nodes operational'}</div>
+                        <div className="mt-2 text-[8px] font-bold text-slate-500 uppercase tracking-widest">{planData?.status === 'suspended' ? 'Infrastructure Locked' : 'Nodes operational'}</div>
                       </div>
                     </div>
                   </div>
@@ -1066,7 +1066,7 @@ export default function Settings() {
                     <div className="flex-1">
                       <h4 className="font-black text-slate-900 mb-1">Global Workspace Reset</h4>
                       <p className="text-slate-500 text-[11px] font-medium leading-relaxed">
-                        Decommission all active SKU nodes, Invoices, Staff records, and Sales history.
+                        Decommission all active Product nodes, Invoices, Staff records, and Sales history.
                         Your business profile and subscription remain active, but all industrial data will be permanently purged.
                       </p>
                     </div>
@@ -1305,12 +1305,12 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Product SKU</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Product Product</label>
                     <select className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-[11px] font-black outline-none"
                       value={offerForm.productId} onChange={e => setOfferForm({ ...offerForm, productId: e.target.value })} required>
                       <option value="">Choose Node...</option>
                       {productsForOffers.filter(p => selectedOfferCategory === 'All' || p.category === selectedOfferCategory).map(p => (
-                        <option key={p._id} value={p._id}>{p.name} ({p.barcode || 'NO-SKU'})</option>
+                        <option key={p._id} value={p._id}>{p.name} ({p.barcode || 'NO-Product'})</option>
                       ))}
                     </select>
                   </div>

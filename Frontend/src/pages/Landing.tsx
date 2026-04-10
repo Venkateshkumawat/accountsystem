@@ -208,7 +208,7 @@ const Landing = () => {
                   <div className="absolute bottom-6 right-6 bg-slate-900/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl flex flex-col gap-1 translate-y-2 group-hover:translate-y-0 transition-transform">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Active Nodes</p>
                     <div className="flex items-center gap-2">
-                       <p className="text-2xl font-black text-white tracking-tighter italic">1,248+</p>
+                       <p className="text-2xl font-black text-white tracking-tighter">1,248+</p>
                        <Zap size={14} className="text-indigo-400 fill-indigo-400" />
                     </div>
                   </div>
