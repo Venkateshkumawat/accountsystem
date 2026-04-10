@@ -16,7 +16,7 @@ import { useNotify } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 
 const NotificationCenter: React.FC = () => {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, loading } = useNotify();
+  const { notifications, unreadCount, markAsRead, deleteAllNotifications, deleteNotification, loading } = useNotify();
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,11 +67,15 @@ const NotificationCenter: React.FC = () => {
             </div>
             <div className="flex gap-2">
               <button 
-                onClick={markAllAsRead} 
-                title="Mark all as read"
-                className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all text-white"
+                onClick={() => {
+                  if (confirm("Permanently clear all notifications?")) {
+                    deleteAllNotifications();
+                  }
+                }} 
+                title="Clear all notifications"
+                className="p-2.5 bg-white/10 hover:bg-rose-500/20 hover:text-rose-200 rounded-xl transition-all text-white"
               >
-                <CheckCircle size={18} />
+                <Trash2 size={18} />
               </button>
               <button 
                 onClick={() => setIsOpen(false)} 
@@ -110,6 +114,10 @@ const NotificationCenter: React.FC = () => {
                      n={n} 
                      onMarkAsRead={() => markAsRead(n._id)}
                      onDelete={() => deleteNotification(n._id)}
+                     onViewTrace={() => {
+                       navigate('/notifications');
+                       setIsOpen(false);
+                     }}
                      formatShortDate={formatShortDate}
                    />
                  ))}
@@ -131,7 +139,7 @@ const NotificationCenter: React.FC = () => {
   );
 };
 
-const NotificationItem = ({ n, onMarkAsRead, onDelete, formatShortDate }: any) => {
+const NotificationItem = ({ n, onMarkAsRead, onDelete, onViewTrace, formatShortDate }: any) => {
   const [expanded, setExpanded] = useState(false);
 
   const getCategoryIcon = () => {
@@ -182,7 +190,13 @@ const NotificationItem = ({ n, onMarkAsRead, onDelete, formatShortDate }: any) =
         </p>
         
         {expanded && n.link && (
-          <button className="mt-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:underline">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewTrace();
+            }}
+            className="mt-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:underline cursor-pointer"
+          >
             View Protocol Trace <ArrowRight size={10} />
           </button>
         )}

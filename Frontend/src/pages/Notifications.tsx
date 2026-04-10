@@ -12,7 +12,7 @@ import { useNotify } from '../context/NotificationContext';
 import toast from 'react-hot-toast';
 
 export default function Notifications() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, loading } = useNotify();
+  const { notifications, unreadCount, markAsRead, deleteAllNotifications, deleteNotification, loading } = useNotify();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'success' | 'info' | 'error' | 'warning'>('all');
   const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
@@ -50,10 +50,10 @@ export default function Notifications() {
     return result;
   }, [notifications, search, typeFilter, timeFilter]);
 
-  const handleMarkAll = () => {
-    if (confirm("Mark all as read? (Registry entries will remain in history)")) {
-      markAllAsRead();
-      toast.success("Audit Registry Synchronized");
+  const handleClearRegistry = () => {
+    if (confirm("Are you sure you want to permanently clear the entire event registry? This action cannot be undone.")) {
+      deleteAllNotifications();
+      toast.success("Audit Registry Purged");
     }
   };
 
@@ -90,7 +90,7 @@ export default function Notifications() {
             <span className="text-sm font-semibold text-indigo-700">{unreadCount} Pending Nodes</span>
           </div>
           <button
-            onClick={handleMarkAll}
+            onClick={handleClearRegistry}
             className="btn-primary shadow-xl shadow-indigo-200"
           >
             Clear Registry

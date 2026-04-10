@@ -124,7 +124,10 @@ export const markAllAsRead = async (req: AuthRequest, res: Response): Promise<vo
       Notification = req.tenantModels.Notification;
     }
 
-    const query = isSuperAdmin ? { businessId: null, isRead: false } : { businessId, isRead: false };
+    let query: any = isSuperAdmin ? { businessId: null, isRead: false } : { businessId, isRead: false };
+    if (!isSuperAdmin && userRole !== 'businessAdmin') {
+      query.role = userRole;
+    }
 
     await Notification.updateMany(query, { isRead: true });
 
@@ -190,7 +193,10 @@ export const deleteAllNotifications = async (req: AuthRequest, res: Response): P
       Notification = req.tenantModels.Notification;
     }
 
-    const query = isSuperAdmin ? { businessId: null, role: 'superadmin' } : { businessId };
+    let query: any = isSuperAdmin ? { businessId: null, role: 'superadmin' } : { businessId };
+    if (!isSuperAdmin && userRole !== 'businessAdmin') {
+      query.role = userRole;
+    }
     await Notification.deleteMany(query);
 
     res.status(200).json({ success: true, message: "Registry purged permanently." });
