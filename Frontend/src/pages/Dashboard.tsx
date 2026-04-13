@@ -319,7 +319,7 @@ export default function Dashboard() {
         {/* Invoices with filter */}
         <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-slate-800">Recent Invoices</h2>
+            <h2 className="text-xl font-semibold text-slate-900 tracking-tight">Recent Invoices</h2>
             <div className="flex items-center gap-1.5">
               {['all', 'paid', 'unpaid'].map(f => (
                 <button key={f} onClick={() => setInvoiceFilter(f)}
@@ -352,14 +352,30 @@ export default function Dashboard() {
                     <tr 
                       key={inv._id} 
                       onClick={() => setSelectedInvoice(inv)}
-                      className="hover:bg-indigo-50/50 transition-colors cursor-pointer group"
+                      className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0"
                     >
-                      <td className="px-5 py-2 font-black text-indigo-600 text-[10px] tracking-tighter group-hover:underline">{inv.invoiceNumber}</td>
-                      <td className="px-5 py-2 font-black text-slate-400 text-[10px] truncate max-w-[100px]">{inv.customerName || 'Node'}</td>
-                      <td className="px-5 py-2 font-black text-slate-900 text-[10px]">₹{inv.grandTotal}</td>
-                      <td className="px-5 py-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase border ${inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-500 border-emerald-100' : 'bg-rose-50 text-rose-500 border-rose-100'
-                          }`}>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
+                            {inv.customerName || 'Walk-in Client'}
+                          </span>
+                          <span className="text-[10px] font-medium text-slate-400 mt-0.5 whitespace-nowrap">
+                            ID: {inv.invoiceNumber}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                           <span className="text-xs font-bold text-slate-900">₹{inv.grandTotal.toLocaleString()}</span>
+                           <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Grand Total</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${
+                          inv.paymentStatus === 'paid' 
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-sm shadow-emerald-50' 
+                            : 'bg-rose-50 text-rose-600 border-rose-100 shadow-sm shadow-rose-50'
+                        }`}>
                           {inv.paymentStatus}
                         </span>
                       </td>
@@ -395,7 +411,7 @@ export default function Dashboard() {
 
         {/* Top Products */}
         <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h2 className="text-2xl font-semibold text-slate-800 mb-5">Top Selling Products</h2>
+          <h2 className="text-xl font-semibold text-slate-900 tracking-tight mb-5">Top Selling Products</h2>
           {(data?.topProducts?.length || 0) === 0 ? (
             <div className="py-8 text-center">
               <Package size={28} className="text-slate-200 mx-auto mb-2" />
@@ -408,10 +424,16 @@ export default function Dashboard() {
                   const max = data!.topProducts[0]?.totalRevenue || 1;
                   const pct = (prod.totalRevenue / max) * 100;
                   return (
-                    <div key={i} className="space-y-1.5 group">
-                      <div className="flex justify-between text-[10px]">
-                        <span className="font-black text-slate-700 truncate group-hover:text-indigo-600 transition-colors uppercase">{prod.name}</span>
-                        <span className="font-semibold text-slate-900 ml-2 tracking-tighter text-xl">₹{prod.totalRevenue?.toLocaleString()}</span>
+                    <div key={i} className="space-y-2 group p-2 hover:bg-slate-50 rounded-xl transition-all">
+                      <div className="flex justify-between items-end">
+                        <div className="flex flex-col min-w-0 pr-2">
+                           <span className="text-sm font-semibold text-slate-900 truncate uppercase tracking-tight">{prod.name}</span>
+                           <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Top-Sell Item</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                           <span className="text-xs font-bold text-slate-900 tracking-tight">₹{prod.totalRevenue?.toLocaleString()}</span>
+                           <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">Total Nodes</span>
+                        </div>
                       </div>
                       <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                         <div className="h-full bg-slate-900 group-hover:bg-indigo-600 rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
@@ -446,7 +468,7 @@ export default function Dashboard() {
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-800">Recent Activity</h2>
+            <h2 className="text-xl font-semibold text-slate-900 tracking-tight">Recent Activity</h2>
             <p className="text-[8px] text-slate-400 font-medium mt-0.5">
               Showing {filteredActivities.length} of {totalActivityCount} events
             </p>
@@ -482,22 +504,24 @@ export default function Dashboard() {
                 const Icon = ACTION_ICONS[act.action] || Settings;
                 const colorClass = ACTION_COLORS[act.action] || 'bg-slate-100 text-slate-500';
                 return (
-                  <div key={act._id} className="flex items-center gap-4 p-4 hover:bg-slate-50/60 transition-all group">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
-                      <Icon size={14} />
+                  <div key={act._id} className="flex items-center gap-3 p-2.5 hover:bg-slate-50/80 transition-all group border-b border-slate-50 last:border-0 leading-none">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${colorClass} shadow-sm border border-current/10`}>
+                      <Icon size={12} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-black text-slate-900 truncate">{act.description}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Users size={9} className="text-slate-400 shrink-0" />
-                        <span className="text-[9px] font-semibold text-slate-400">{act.userName}</span>
-                        <span className="text-slate-200">·</span>
-                        <span className="text-[9px] font-semibold text-slate-400">
+                      <p className="text-xs font-semibold text-slate-900 truncate tracking-tight mb-0.5">{act.description}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Users size={9} className="text-slate-400" />
+                          <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wide">{act.userName}</span>
+                        </div>
+                        <span className="text-slate-200 text-[8px]">·</span>
+                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wide">
                           {new Date(act.createdAt).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     </div>
-                    <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${colorClass} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                    <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${colorClass} shadow-sm border border-current/10`}>
                       {act.action}
                     </span>
                   </div>
@@ -542,7 +566,7 @@ export default function Dashboard() {
 }
 
 // ── StatCard ──────────────────────────────────────────────────────────────────
- const StatCard = React.memo(({ label, value, sub, icon: Icon, color, isAlert, trend, trendColor = 'text-emerald-500', border }: any) => {
+  const StatCard = React.memo(({ label, value, sub, icon: Icon, color, isAlert, trend, trendColor = 'text-emerald-500', border }: any) => {
   const colorMap: Record<string, { bg: string; text: string; accent: string }> = {
     indigo: { bg: 'bg-indigo-50/50', text: 'text-indigo-600', accent: 'border-l-indigo-500' },
     emerald: { bg: 'bg-emerald-50/50', text: 'text-emerald-600', accent: 'border-l-emerald-500' },
@@ -552,23 +576,21 @@ export default function Dashboard() {
   };
   const s = colorMap[color] || colorMap.indigo;
   return (
-    <div className={`bg-white p-5 rounded-2xl border ${isAlert ? 'border-rose-200' : 'border-slate-100'} ${border ? s.accent + ' border-l-4' : ''} shadow-sm group hover:shadow-md transition-all relative overflow-hidden`}>
-      <div className="flex justify-between items-start mb-4">
-        <p className="stat-label">{label}</p>
-        <div className={`p-2 rounded-xl ${s.bg} ${s.text}`}>
-          <Icon size={16} />
+    <div className={`bg-white p-4 rounded-3xl border ${isAlert ? 'border-rose-200 shadow-rose-50' : 'border-slate-100'} ${border ? s.accent + ' border-l-4' : ''} shadow-sm group hover:shadow-md transition-all flex items-center gap-4`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 ${s.bg} ${s.text} border border-white shadow-sm ring-1 ring-slate-100`}>
+          <Icon size={20} />
         </div>
-      </div>
-      <div className="space-y-1">
-        <h3 className="stat-value">{value}</h3>
-        <div className="flex items-center gap-2">
-          {trend ? (
-            <span className={`text-[10px] font-semibold ${trendColor}`}>{trend} <span className="text-slate-400">vs last month</span></span>
-          ) : (
-            <p className="text-[10px] font-semibold text-slate-400">{sub}</p>
-          )}
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p>
+          <div className="flex flex-col">
+            <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-none truncate">{value}</h3>
+            {trend ? (
+              <span className={`text-[9px] font-semibold ${trendColor} mt-1`}>{trend} <span className="text-slate-400 font-medium">vs prev</span></span>
+            ) : sub && (
+              <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-tighter mt-1 truncate">{sub}</p>
+            )}
+           </div>
         </div>
-      </div>
     </div>
   );
 });

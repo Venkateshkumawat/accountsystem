@@ -184,23 +184,42 @@ export default function Accounting() {
                 {displayedLedger.length === 0 ? (
                   <tr><td colSpan={6} className="py-20 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest">No transactions filed</td></tr>
                 ) : displayedLedger.map(inv => (
-                  <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50/50 transition-all cursor-pointer group">
-                    <td className="px-6 py-4 text-xs font-black text-indigo-600 tracking-tighter group-hover:underline">{inv.invoiceNumber || '—'}</td>
-                    <td className="px-6 py-4 text-xs font-semibold text-slate-500">{inv.customerName || 'Walk-in'}</td>
+                  <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
                     <td className="px-6 py-4">
-                      <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
-                        {inv.paymentMethod}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
+                          {inv.invoiceNumber || '—'}
+                        </span>
+                        <span className="text-[10px] font-medium text-slate-400 mt-0.5">
+                          Method: {inv.paymentMethod.toUpperCase()}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-slate-700">{inv.customerName || 'Walk-in'}</span>
+                        <span className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-widest">Customer Entity</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${
+                        inv.paymentStatus === 'paid' 
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                          : 'bg-rose-50 text-rose-600 border-rose-100'
+                      }`}>
                         {inv.paymentStatus}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-[10px] font-semibold text-slate-400">
-                      {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    <td className="px-6 py-4">
+                       <p className="text-[10px] font-bold text-slate-900">
+                         {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                       </p>
+                       <p className="text-[9px] font-medium text-slate-400 uppercase">Registered</p>
                     </td>
-                    <td className="px-6 py-4 text-right text-sm font-black text-slate-900">₹{inv.grandTotal.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right">
+                       <p className="text-xs font-bold text-slate-900 tracking-tight">₹{inv.grandTotal.toLocaleString()}</p>
+                       <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Settled Amt</p>
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -20,9 +20,12 @@ export interface IPurchase extends Document {
   subtotal: number;
   totalGST: number;
   grandTotal: number;
-  paymentMethod: 'cash' | 'upi' | 'card' | 'credit';
+  paymentMethod: 'cash' | 'upi' | 'card' | 'credit' | 'razorpay';
   paymentStatus: 'paid' | 'pending' | 'partial';
   note?: string;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
+  razorpaySignature?: string;
   purchaseDate: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -51,7 +54,7 @@ const purchaseSchema = new Schema<IPurchase>(
     grandTotal: { type: Number, required: true },
     paymentMethod: {
       type: String,
-      enum: ['cash', 'upi', 'card', 'credit'],
+      enum: ['cash', 'upi', 'card', 'credit', 'razorpay'],
       default: 'cash',
     },
     paymentStatus: {
@@ -60,6 +63,9 @@ const purchaseSchema = new Schema<IPurchase>(
       default: 'paid',
     },
     note: { type: String },
+    razorpayPaymentId: { type: String },
+    razorpayOrderId: { type: String },
+    razorpaySignature: { type: String },
     purchaseDate: { type: Date, default: Date.now },
   },
   { timestamps: true }

@@ -48,9 +48,23 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 text-slate-900">
             <div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-none mb-1">Nexus Electronics</h1>
-              <p className="text-[9px] sm:text-[10px] font-semibold text-slate-400 tracking-tight uppercase">Strategic Technology Partner</p>
-              <div className={`h-1 w-8 ${themeBg} mt-2 rounded-full`} />
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-none mb-1">
+                {invoice.businessDetails?.name || 'Nexus Electronics'}
+              </h1>
+              <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 uppercase tracking-tight space-y-0.5">
+                {invoice.businessDetails ? (
+                  <>
+                    <p>{invoice.businessDetails.address}</p>
+                    <p>{invoice.businessDetails.city}, {invoice.businessDetails.state} - {invoice.businessDetails.pincode}</p>
+                    {invoice.businessDetails.gstin && <p className="text-indigo-600 font-bold">GSTIN: {invoice.businessDetails.gstin}</p>}
+                  </>
+                ) : (
+                  <p>Strategic Technology Partner</p>
+                )}
+              </div>
+              <div className={`h-1 w-8 ${themeBg} mt-3 rounded-full`} />
+            </div>
             </div>
             
             <div className="grid grid-cols-2 md:flex md:flex-col gap-3 md:gap-2 w-full md:w-auto md:text-right">
@@ -82,16 +96,17 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
                 <div className="text-[10px] sm:text-xs font-semibold text-slate-500 space-y-0.5">
                   <p>Phone: {invoice.customerPhone || 'N/A'}</p>
                   <p>Email: {invoice.customerEmail || 'nexus@terminal.com'}</p>
-                  <p className="leading-relaxed opacity-70">Client Node Location Registered</p>
+                  {invoice.customerAddress ? (
+                    <p className="leading-relaxed font-bold text-slate-900 mt-1 uppercase">Location: {invoice.customerAddress}</p>
+                  ) : (
+                    <p className="leading-relaxed opacity-70">Client Node Location Registered</p>
+                  )}
                 </div>
               </div>
             </div>
             
             <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0">
-              <h2 className={`text-3xl sm:text-4xl font-black ${themeText} tracking-tighter opacity-90 leading-none`}>
-                {isSale ? 'SALE' : 'PURCHASE'}
-              </h2>
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1 leading-none">{isSale ? 'GSTIN: 27AAAAA0000A1Z5' : 'VENDOR REG: ACTIVE'}</p>
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1 leading-none">{isSale ? (invoice.businessDetails?.gstin ? '' : 'GSTIN: 27AAAAA0000A1Z5') : 'VENDOR REG: ACTIVE'}</p>
             </div>
           </div>
 

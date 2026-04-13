@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, RefreshCcw, Package, X, Truck, CheckCircle, IndianRupee, Zap } from 'lucide-react';
+import { Plus, RefreshCcw, Package, X, Truck, CheckCircle, IndianRupee, Zap, CreditCard } from 'lucide-react';
 import api from '../services/api';
+import { useRazorpay } from '../hooks/useRazorpay';
 import { INDIAN_STATES } from '../constants/indianStates';
 import { validateGSTIN, validateMobile } from '../utils/validation';
+import socketService from '../services/socket';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid
@@ -27,24 +29,42 @@ export default function Purchases() {
   const [vendor, setVendor] = useState({ name: '', phone: '', gstin: '', state: '' });
   const [payment, setPayment] = useState({ method: 'cash', status: 'paid' });
   const [submitting, setSubmitting] = useState(false);
+  const { handlePayment } = useRazorpay();
 
   useEffect(() => { 
     fetchAll(); 
     
-    // ── Cross-Tab Sync ──
+    // ── Real-time Socket Listener ──
+    const handleSync = (payload: any) => {
+      if (payload.type === 'PURCHASE' || payload.type === 'PRODUCT') {
+        fetchAll();
+      }
+    };
+    socketService.on('DATA_SYNC', handleSync);
+
+    // ── Cross-Tab Sync (Nexus Local) ──
     const syncChannel = new BroadcastChannel('nexus_sync');
-    const handleSync = (event: any) => {
+    const handleLocalSync = (event: any) => {
       if (event.data === 'FETCH_DASHBOARD' || event.data === 'SYNC_PURCHASES') {
         fetchAll();
       }
     };
-    syncChannel.addEventListener('message', handleSync);
+    syncChannel.addEventListener('message', handleLocalSync);
 
     return () => {
-      syncChannel.removeEventListener('message', handleSync);
+      socketService.off('DATA_SYNC', handleSync);
+      syncChannel.removeEventListener('message', handleLocalSync);
       syncChannel.close();
     };
   }, []);
+
+  // Debounced Table Search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchAll();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
   useEffect(() => { if (productSearch.length > 1) fetchProducts(productSearch); }, [productSearch]);
 
   const fetchAll = async () => {
@@ -105,34 +125,56 @@ export default function Purchases() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!vendor.name || cartItems.length === 0) return;
-    setSubmitting(true);
-    try {
-      await api.post('/purchases', {
-        vendorName: vendor.name,
-        vendorPhone: vendor.phone,
-        vendorGstin: vendor.gstin,
-        items: cartItems,
-        paymentMethod: payment.method,
-        paymentStatus: payment.status,
-        grandTotal,
-        subtotal: grandTotal,
-      });
-      setShowForm(false);
-      setCartItems([]);
-      setVendor({ name: '', phone: '', gstin: '', state: '' });
-      fetchAll();
+    if (!vendor.name || cartItems.length === 0 || submitting) return;
 
-      // Notify other tabs
-      const sync = new BroadcastChannel('nexus_sync');
-      sync.postMessage('FETCH_DASHBOARD');
-      sync.postMessage('FETCH_PRODUCTS');
-      sync.postMessage('SYNC_PURCHASES');
-      sync.close();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Purchase failed');
-    } finally {
-      setSubmitting(false);
+    const processPurchase = async (razorpayDetails?: any) => {
+      setSubmitting(true);
+      try {
+        await api.post('/purchases', {
+          vendorName: vendor.name,
+          vendorPhone: vendor.phone,
+          vendorGstin: vendor.gstin,
+          items: cartItems,
+          paymentMethod: payment.method,
+          paymentStatus: razorpayDetails ? 'paid' : payment.status,
+          grandTotal,
+          subtotal: grandTotal,
+          razorpayPaymentId: razorpayDetails?.razorpay_payment_id || null,
+          razorpayOrderId: razorpayDetails?.razorpay_order_id || null,
+          razorpaySignature: razorpayDetails?.razorpay_signature || null,
+          note: razorpayDetails ? `Razorpay: ${razorpayDetails.razorpay_payment_id}` : ''
+        });
+        setShowForm(false);
+        setCartItems([]);
+        setVendor({ name: '', phone: '', gstin: '', state: '' });
+        fetchAll();
+
+        const sync = new BroadcastChannel('nexus_sync');
+        sync.postMessage('FETCH_DASHBOARD');
+        sync.postMessage('FETCH_PRODUCTS');
+        sync.postMessage('SYNC_PURCHASES');
+        sync.close();
+      } catch (err: any) {
+        alert(err.response?.data?.message || 'Purchase failed');
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    if (payment.method === 'razorpay') {
+      try {
+        await handlePayment({
+          amount: Math.round(grandTotal),
+          name: 'Nexus Procurement',
+          description: `Payment to ${vendor.name}`,
+          onSuccess: (details) => processPurchase(details),
+          onError: (err) => alert(err.message || 'Payment Cancelled or Failed')
+        });
+      } catch (err: any) {
+        alert(err.message || 'Integrated Gateway Error');
+      }
+    } else {
+      processPurchase();
     }
   };
 
@@ -168,13 +210,13 @@ export default function Purchases() {
             { label: 'Purchases Volume', value: stats.monthCount?.toString() || '0', icon: Package, color: 'amber' },
             { label: 'Order Registry', value: stats.totalCount?.toString() || '0', icon: CheckCircle, color: 'rose' },
           ].map(s => (
-            <div key={s.label} className="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex flex-col justify-between group relative overflow-hidden transition-all hover:shadow-md">
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-3 transition-transform duration-500 group-hover:scale-110 ${s.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : s.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : s.color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'} border border-white shadow-sm ring-1 ring-slate-100`}>
-                <s.icon size={14} />
+            <div key={s.label} className="bg-white border border-slate-100 p-4 rounded-3xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md group">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 ${s.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : s.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : s.color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'} border border-white shadow-sm ring-1 ring-slate-100`}>
+                <s.icon size={22} />
               </div>
-              <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">{s.label}</p>
-                <h3 className="text-xl font-semibold text-slate-900 tracking-tight leading-none">{s.value}</h3>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1 truncate">{s.label}</p>
+                <h3 className="text-xl font-semibold text-slate-900 tracking-tight leading-none truncate">{s.value}</h3>
               </div>
             </div>
           ))}
@@ -231,8 +273,14 @@ export default function Purchases() {
       </div>
 
       <div className="px-2">
-        <input value={search} onChange={e => { setSearch(e.target.value); }} onKeyDown={e => e.key === 'Enter' && fetchAll()}
-          placeholder="Lookup Vendor Node..." className="w-full px-6 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-indigo-600 transition-all shadow-sm placeholder:text-slate-300" />
+        <div className="relative group">
+          <input value={search} onChange={e => { setSearch(e.target.value); }}
+            placeholder="Lookup Vendor Node..." className="w-full px-6 py-3 bg-white border border-slate-100 rounded-2xl text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-indigo-600 transition-all shadow-sm placeholder:text-slate-300" />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            {loading && <RefreshCcw size={12} className="animate-spin text-slate-300" />}
+            <Zap size={12} className="text-slate-200" />
+          </div>
+        </div>
       </div>
 
       <div className="h-4" />
@@ -274,7 +322,10 @@ export default function Purchases() {
                     <td className="px-6 py-2.5 text-[10px] font-black text-indigo-600 uppercase tracking-tighter">{p.billNumber}</td>
                     <td className="px-6 py-2.5 text-[10px] font-black text-slate-800 uppercase truncate max-w-[120px]">{p.vendorName}</td>
                     <td className="px-6 py-2.5 text-[10px] font-semibold text-slate-400 uppercase">{p.items?.length || 0} Products In</td>
-                    <td className="px-6 py-2.5"><span className="px-1.5 py-0.5 bg-slate-50 border border-slate-100 text-[8px] font-black uppercase rounded text-slate-500">{p.paymentMethod}</span></td>
+                    <td className="px-6 py-2.5"><span className="px-1.5 py-0.5 bg-slate-50 border border-slate-100 text-[8px] font-black uppercase rounded text-slate-500 whitespace-nowrap flex items-center gap-1 w-fit">
+                      {p.paymentMethod === 'razorpay' && <CreditCard size={8} className="text-indigo-600" />}
+                      {p.paymentMethod}
+                    </span></td>
                     <td className="px-6 py-2.5">
                       <span className={`flex items-center gap-1 w-fit px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase border ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                         <div className={`w-1 h-1 rounded-full ${p.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} /> {p.paymentStatus}
@@ -367,14 +418,31 @@ export default function Purchases() {
                     placeholder="Search product to add..." className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all" />
                 </div>
                 {products.length > 0 && (
-                  <div className="absolute z-10 w-full bg-white border border-slate-100 rounded-2xl shadow-xl mt-2 overflow-hidden">
-                    {products.map(p => (
-                      <button key={p._id} type="button" onClick={() => addToCart(p)}
-                        className="w-full flex items-center justify-between px-5 py-3 hover:bg-indigo-50 hover:text-indigo-600 transition-all text-left">
-                        <span className="text-sm font-black">{p.name}</span>
-                        <span className="text-xs font-semibold text-slate-400">Stock: {p.stock}</span>
-                      </button>
-                    ))}
+                  <div className="absolute z-10 w-full bg-white border border-slate-100 rounded-[1.5rem] shadow-2xl mt-2 overflow-hidden animate-in slide-in-from-top-2">
+                    <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                      {products.map(p => (
+                        <button key={p._id} type="button" onClick={() => addToCart(p)}
+                          className="w-full flex items-center gap-4 px-4 py-3 hover:bg-slate-50 transition-all text-left border-b border-slate-50 last:border-0 group">
+                          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border border-slate-200 group-hover:border-indigo-300">
+                             {p.image ? (
+                               <img src={p.image} className="w-full h-full object-cover" />
+                             ) : (
+                               <Package size={16} className="text-slate-400 group-hover:text-indigo-500" />
+                             )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-black text-slate-800 truncate uppercase leading-none mb-1">{p.name}</p>
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                               Barcode: {p.barcode || 'N/A'} · Current Stock: <span className={p.stock < 10 ? 'text-rose-500' : 'text-emerald-500'}>{p.stock}</span>
+                            </p>
+                          </div>
+                          <div className="text-right">
+                             <p className="text-xs font-black text-slate-900 leading-none mb-1">₹{p.purchasePrice?.toLocaleString()}</p>
+                             <p className="text-[8px] font-bold text-slate-400 uppercase">Unit Cost</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -436,7 +504,8 @@ export default function Purchases() {
                     <option value="cash">Cash</option>
                     <option value="upi">UPI</option>
                     <option value="card">Card</option>
-                    <option value="credit">Credit</option>
+                    <option value="razorpay">Razorpay Checkout</option>
+                    <option value="credit">Credit / Letter of Credit</option>
                   </select>
                 </div>
                 <div>

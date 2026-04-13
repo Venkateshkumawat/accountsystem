@@ -22,7 +22,19 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
     const { businessId, userId, shortBusinessId } = req.user!;
     const adminId = req.user?.businessAdminId || userId;
 
-    const { vendorName, vendorPhone, vendorGstin, items, paymentMethod, paymentStatus, note, purchaseDate } = req.body;
+    const { 
+      vendorName, 
+      vendorPhone, 
+      vendorGstin, 
+      items, 
+      paymentMethod, 
+      paymentStatus, 
+      note, 
+      purchaseDate,
+      razorpayPaymentId,
+      razorpayOrderId,
+      razorpaySignature
+    } = req.body;
 
     if (!items || items.length === 0) {
       res.status(400).json({ success: false, message: "At least one item is required" });
@@ -59,6 +71,9 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
     const grandTotal = subtotal + totalGST;
     const billNumber = `PUR-${shortBusinessId || 'NODE'}-${Date.now()}`;
 
+    // Auto-set paid for razorpay
+    const finalStatus = (paymentMethod === 'razorpay' && razorpayPaymentId) ? 'paid' : (paymentStatus || 'paid');
+
     const purchaseDocs = await Purchase.create([{
       businessId: businessId as any,
       businessAdminId: adminId as any,
@@ -72,8 +87,11 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
       totalGST,
       grandTotal,
       paymentMethod: paymentMethod || 'cash',
-      paymentStatus: paymentStatus || 'paid',
+      paymentStatus: finalStatus,
       note,
+      razorpayPaymentId,
+      razorpayOrderId,
+      razorpaySignature,
       purchaseDate: purchaseDate ? new Date(purchaseDate) : new Date(),
     }] as any, { session });
 

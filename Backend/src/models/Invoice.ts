@@ -22,6 +22,7 @@ export interface IInvoice extends Document {
   customerId?: mongoose.Types.ObjectId;
   customerName?: string;
   customerPhone?: string;
+  customerAddress?: string;
   items: IInvoiceItem[];
   subtotal: number;
   totalGST: number;
@@ -32,6 +33,14 @@ export interface IInvoice extends Document {
   note?: string;
   razorpayPaymentId?: string;
   razorpayOrderId?: string;
+  businessDetails?: {
+    name: string;
+    address?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    gstin?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +74,9 @@ const invoiceSchema = new Schema<IInvoice>(
       type: String,
     },
     customerPhone: {
+      type: String,
+    },
+    customerAddress: {
       type: String,
     },
     items: [
@@ -118,6 +130,14 @@ const invoiceSchema = new Schema<IInvoice>(
     razorpayOrderId: {
       type: String,
       trim: true,
+    },
+    businessDetails: {
+      name: String,
+      address: String,
+      city: String,
+      state: String,
+      pincode: String,
+      gstin: String,
     },
   },
   { 

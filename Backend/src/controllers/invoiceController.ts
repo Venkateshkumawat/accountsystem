@@ -62,6 +62,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     const { 
       customerName, 
       customerPhone, 
+      customerAddress,
       items, 
       paymentMethod, 
       note, 
@@ -160,6 +161,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       invoiceNumber,
       customerName,
       customerPhone,
+      customerAddress,
       items: detailedItems,
       subtotal,
       totalGST,
@@ -169,7 +171,15 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       paymentStatus: finalPaymentStatus,
       note,
       razorpayPaymentId,
-      razorpayOrderId
+      razorpayOrderId,
+      businessDetails: {
+        name: biz.businessName,
+        address: biz.location.address,
+        city: biz.location.city,
+        state: biz.location.state,
+        pincode: biz.location.pincode,
+        gstin: biz.gstin
+      }
     }] as any, { session });
     const invoice = invoiceDocs[0];
 
