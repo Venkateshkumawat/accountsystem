@@ -31,9 +31,9 @@ export default function Purchases() {
   const [submitting, setSubmitting] = useState(false);
   const { handlePayment } = useRazorpay();
 
-  useEffect(() => { 
-    fetchAll(); 
-    
+  useEffect(() => {
+    fetchAll();
+
     // ── Real-time Socket Listener ──
     const handleSync = (payload: any) => {
       if (payload.type === 'PURCHASE' || payload.type === 'PRODUCT') {
@@ -78,8 +78,8 @@ export default function Purchases() {
       ]);
       setPurchases(pRes.data?.data || []);
       setStats({
-         ...sRes.data,
-         dailySpend: sRes.data?.dailySpend || []
+        ...sRes.data,
+        dailySpend: sRes.data?.dailySpend || []
       });
     } catch (e: any) {
       console.error('Purchase fetch error:', e);
@@ -224,51 +224,51 @@ export default function Purchases() {
 
         {/* Procurement Trend Node */}
         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden min-h-[160px] flex flex-col">
-           <div className="flex items-center justify-between mb-4">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Procurement Flux</p>
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-           </div>
-           <div className="flex-1 w-full min-h-[100px]">
-              {stats.dailySpend?.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                   <AreaChart data={stats.dailySpend}>
-                      <defs>
-                        <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="date" hide />
-                      <YAxis hide />
-                      <Tooltip 
-                        contentStyle={{ 
-                          borderRadius: '12px', 
-                          border: 'none', 
-                          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                          fontSize: '10px',
-                          fontWeight: '900',
-                          textTransform: 'uppercase'
-                        }}
-                        labelStyle={{ display: 'none' }}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="total" 
-                        stroke="#6366f1" 
-                        strokeWidth={2}
-                        fillOpacity={1} 
-                        fill="url(#colorSpend)" 
-                      />
-                   </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center opacity-20">
-                   <RefreshCcw size={20} className="animate-spin mb-2" />
-                   <p className="text-[9px] font-black uppercase">Syncing_Nodes</p>
-                </div>
-              )}
-           </div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Procurement Flux</p>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          </div>
+          <div className="flex-1 w-full min-h-[100px]">
+            {stats.dailySpend?.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={stats.dailySpend}>
+                  <defs>
+                    <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="date" hide />
+                  <YAxis hide />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '12px',
+                      border: 'none',
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                      fontSize: '10px',
+                      fontWeight: '900',
+                      textTransform: 'uppercase'
+                    }}
+                    labelStyle={{ display: 'none' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#6366f1"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorSpend)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center opacity-20">
+                <RefreshCcw size={20} className="animate-spin mb-2" />
+                <p className="text-[9px] font-black uppercase">Syncing_Nodes</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -340,24 +340,24 @@ export default function Purchases() {
 
             {/* Pagination / Show More node */}
             {!showAllPurchases && purchases.length > PURCHASE_LIMIT && (
-               <div className="p-6 text-center bg-slate-50/30 border-t border-slate-50">
-                  <button 
-                    onClick={() => setShowAllPurchases(true)}
-                    className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center"
-                  >
-                    See {purchases.length - PURCHASE_LIMIT} More Procurement Nodes
-                  </button>
-               </div>
+              <div className="p-6 text-center bg-slate-50/30 border-t border-slate-50">
+                <button
+                  onClick={() => setShowAllPurchases(true)}
+                  className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center"
+                >
+                  See {purchases.length - PURCHASE_LIMIT} More Procurement Nodes
+                </button>
+              </div>
             )}
             {showAllPurchases && (
-               <div className="p-6 text-center bg-slate-50/30 border-t border-slate-50">
-                  <button 
-                    onClick={() => setShowAllPurchases(false)}
-                    className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all justify-center"
-                  >
-                    Collapse Procurement Registry
-                  </button>
-               </div>
+              <div className="p-6 text-center bg-slate-50/30 border-t border-slate-50">
+                <button
+                  onClick={() => setShowAllPurchases(false)}
+                  className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all justify-center"
+                >
+                  Collapse Procurement Registry
+                </button>
+              </div>
             )}
           </div>
         )}
@@ -424,21 +424,21 @@ export default function Purchases() {
                         <button key={p._id} type="button" onClick={() => addToCart(p)}
                           className="w-full flex items-center gap-4 px-4 py-3 hover:bg-slate-50 transition-all text-left border-b border-slate-50 last:border-0 group">
                           <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border border-slate-200 group-hover:border-indigo-300">
-                             {p.image ? (
-                               <img src={p.image} className="w-full h-full object-cover" />
-                             ) : (
-                               <Package size={16} className="text-slate-400 group-hover:text-indigo-500" />
-                             )}
+                            {p.image ? (
+                              <img src={p.image} className="w-full h-full object-cover" />
+                            ) : (
+                              <Package size={16} className="text-slate-400 group-hover:text-indigo-500" />
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-black text-slate-800 truncate uppercase leading-none mb-1">{p.name}</p>
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                               Barcode: {p.barcode || 'N/A'} · Current Stock: <span className={p.stock < 10 ? 'text-rose-500' : 'text-emerald-500'}>{p.stock}</span>
+                              Barcode: {p.barcode || 'N/A'} · Current Stock: <span className={p.stock < 10 ? 'text-rose-500' : 'text-emerald-500'}>{p.stock}</span>
                             </p>
                           </div>
                           <div className="text-right">
-                             <p className="text-xs font-black text-slate-900 leading-none mb-1">₹{p.purchasePrice?.toLocaleString()}</p>
-                             <p className="text-[8px] font-bold text-slate-400 uppercase">Unit Cost</p>
+                            <p className="text-xs font-black text-slate-900 leading-none mb-1">₹{p.purchasePrice?.toLocaleString()}</p>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase">Unit Cost</p>
                           </div>
                         </button>
                       ))}
@@ -520,8 +520,8 @@ export default function Purchases() {
               </div>
 
               <footer className="pt-4 border-t border-slate-100 flex gap-3 shrink-0">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest"> 
-                  Cancel 
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest">
+                  Cancel
                 </button>
                 <button type="submit" disabled={submitting || cartItems.length === 0 || !vendor.name} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-40 flex items-center justify-center gap-2">
                   {submitting ? "Recording..." : `Record — ₹${grandTotal.toFixed(2)}`}
