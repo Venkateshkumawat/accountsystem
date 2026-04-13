@@ -17,7 +17,7 @@ const notificationSchema = new Schema<INotification>(
     businessId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Business",
-      required: function(this: any) { return this.role !== 'superadmin'; },
+      required: function (this: any) { return this.role !== 'superadmin'; },
       index: true,
     },
     role: {
