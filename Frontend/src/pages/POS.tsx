@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ShoppingCart, Plus, Minus, X, CreditCard, Box,
   Printer, CheckCircle, Trash2, Package2, AlertTriangle, Zap,
-  Banknote, ArrowLeft, Camera, RefreshCcw
+  Banknote, ArrowLeft, Camera, RefreshCcw, Search as SearchIcon
 } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useCart } from '../hooks/useCart';
@@ -61,6 +61,7 @@ export default function POS() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [isInvoiceConfirmed, setIsInvoiceConfirmed] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isMobileSearchVisible, setIsMobileSearchVisible] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function POS() {
   useEffect(() => {
     const syncChannel = new BroadcastChannel('nexus_sync');
     const handleSync = () => {
-       fetchProducts();
+      fetchProducts();
     };
     syncChannel.addEventListener('message', handleSync);
 
@@ -86,7 +87,7 @@ export default function POS() {
 
 
   useEffect(() => {
-    api.get('/auth/me').catch(() => {});
+    api.get('/auth/me').catch(() => { });
   }, []);
 
 
@@ -179,7 +180,7 @@ export default function POS() {
               stopScanner();
             }
           },
-          () => {}
+          () => { }
         );
       } catch (err) {
         console.error("Scanner start error:", err);
@@ -278,26 +279,34 @@ export default function POS() {
             </div>
             <div>
               <p className="text-[10px] font-black text-slate-900 uppercase">Cart Check</p>
-              <p className="text-[8px] font-bold text-slate-400 uppercase">{cart.length} Nodes Loaded</p>
+              <p className="text-[8px] font-semibold text-slate-400 uppercase">{cart.length} Nodes Loaded</p>
             </div>
           </div>
-          <button
-            onClick={() => setIsMobileCartOpen(!isMobileCartOpen)}
-            className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2"
-          >
-            {isMobileCartOpen ? 'Back to Shop' : 'Review Bill'}
-            <Zap size={10} className="text-amber-400 fill-amber-400" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsMobileSearchVisible(!isMobileSearchVisible)}
+              className={`p-2 rounded-xl transition-all ${isMobileSearchVisible ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-500'}`}
+            >
+              <SearchIcon size={18} />
+            </button>
+            <button
+              onClick={() => setIsMobileCartOpen(!isMobileCartOpen)}
+              className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2"
+            >
+              {isMobileCartOpen ? 'Back to Shop' : 'Review Bill'}
+              <Zap size={10} className="text-amber-400 fill-amber-400" />
+            </button>
+          </div>
         </div>
 
         {/* ── LEFT: Product Discovery ─────────────────────────────────────── */}
         <div className={`flex-[3] flex flex-col p-3 lg:p-5 border-r border-slate-100 overflow-hidden min-w-0 ${isMobileCartOpen ? 'hidden lg:flex' : 'flex'}`}>
 
           {/* Header */}
-          <header className="flex items-center justify-between gap-2 mb-4 p-0.5">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full shadow-sm max-w-[60%] sm:max-w-none">
-              <Zap size={10} className="text-amber-500 fill-amber-500 shrink-0" />
-              <span className="text-sm sm:text-2xl font-bold text-indigo-900 uppercase tracking-tight truncate">Nexus Terminal Protocol</span>
+          <header className="flex items-center justify-between gap-4 mb-8 p-1">
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight">Point of Sale</h1>
+              <p className="hidden sm:block text-sm font-normal text-slate-500 mt-1">Checkout point & real-time billing center</p>
             </div>
 
             <button
@@ -307,7 +316,7 @@ export default function POS() {
                 : 'bg-rose-50 text-rose-500 border-rose-100 hover:border-rose-300'
                 }`}
             >
-              <Zap size={10} className="inline mr-1" /> Flash
+              <Zap size={10} className="inline mr-1" /> Super Sale
             </button>
 
             <div className="hidden sm:flex items-center gap-1.5 ml-auto">
@@ -322,8 +331,8 @@ export default function POS() {
             </div>
           </header>
 
-          {/* Search & Barcode — NO ICONS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 shrink-0">
+          {/* Search & Barcode — Adaptive Visibility */}
+          <div className={`${isMobileSearchVisible ? 'grid' : 'hidden'} sm:grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 shrink-0`}>
             <div className="relative group">
               <form onSubmit={handleBarcodeSearch} className="flex gap-2">
                 <div className="relative flex-1">
@@ -352,7 +361,7 @@ export default function POS() {
             />
           </div>
 
-          <div className="flex items-center gap-1.5 mb-5 overflow-x-auto no-scrollbar py-0.5 shrink-0">
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar py-1 shrink-0 px-0.5">
             {['All', ...categories].map(cat => (
               <button
                 key={cat}
@@ -367,26 +376,11 @@ export default function POS() {
             ))}
           </div>
 
-          {/* Low Stock Alert Banner */}
-          <div className="mb-6 px-4 sm:px-5 py-3 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse shadow-sm min-h-[60px]">
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
-                <AlertTriangle size={18} />
-              </div>
-              <div>
-                <p className="text-sm sm:text-base font-bold text-amber-900 uppercase tracking-tight">Low Stock Alerts</p>
-                <p className="text-[10px] sm:text-[9px] font-bold text-amber-600 mt-0.5">Critical thresholds reached in this category.</p>
-              </div>
-            </div>
-            <button onClick={() => fetchProducts('', 'All')} className="w-full sm:w-auto px-6 py-2 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition shadow-sm whitespace-nowrap">
-              Check Inventory
-            </button>
-          </div>
 
-          {/* Product Grid */}
-          <div 
+          {/* Product Grid — Fluid Scroller */}
+          <div
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 content-start pb-4">
+            className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 content-start pb-24 lg:pb-8">
             {loading ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <ShoppingCart size={32} className="mx-auto mb-2 animate-bounce" />
@@ -404,7 +398,7 @@ export default function POS() {
               return (
                 <div key={product._id}
                   onClick={() => handleAddItem(product)}
-                  className={`bg-white p-1.5 rounded-lg border transition-all cursor-pointer active:scale-95 flex flex-col items-center text-center relative overflow-hidden h-[120px] justify-between
+                  className={`bg-white p-2 rounded-xl border transition-all cursor-pointer active:scale-95 flex flex-col items-center text-center relative overflow-hidden h-[145px] justify-between
                     ${outOfStock ? 'opacity-50 cursor-not-allowed border-slate-100' :
                       product.stock <= (product.lowStockThreshold || 5) ? 'border-amber-400 bg-amber-50/10' :
                         isFlash ? 'border-indigo-500 scale-95 shadow-inner shadow-indigo-100' :
@@ -457,9 +451,9 @@ export default function POS() {
                   <div className="flex flex-col items-center w-full min-h-0 pt-0.5">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 transition-all overflow-hidden border ${inCart ? 'bg-indigo-600 border-indigo-500 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
                       {product.image ? (
-                        <img 
-                          src={product.image} 
-                          alt={product.name} 
+                        <img
+                          src={product.image}
+                          alt={product.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
@@ -467,16 +461,16 @@ export default function POS() {
                           }}
                         />
                       ) : null}
-                      <Package2 
-                        size={16} 
-                        className={`${inCart ? 'text-white/40' : 'text-slate-300'} ${product.image ? 'hidden' : ''}`} 
+                      <Package2
+                        size={16}
+                        className={`${inCart ? 'text-white/40' : 'text-slate-300'} ${product.image ? 'hidden' : ''}`}
                       />
                     </div>
-                    <h3 className="text-slate-900 font-semibold text-sm uppercase leading-none line-clamp-2 w-full px-0.5 min-h-[18px]">
+                    <h3 className="text-slate-900 font-semibold text-[10px] uppercase leading-tight line-clamp-2 w-full px-0.5 min-h-[22px] mt-1">
                       {product.name}
                     </h3>
-                    <p className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-1 rounded-sm border border-slate-100 mt-1 truncate w-full max-w-[50px]">
-                      {product.barcode || 'NO-Product'}
+                    <p className="text-[7.5px] font-black text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 mt-1.5 w-full text-center">
+                      {product.barcode || 'NO-SCAN'}
                     </p>
                   </div>
 
@@ -493,16 +487,16 @@ export default function POS() {
                               <span className="text-[7px] text-slate-400 line-through leading-none mb-0.5">₹{product.sellingPrice}</span>
                               <span className="text-[6px] font-black text-rose-500 bg-rose-50 px-1 rounded-sm uppercase tracking-tighter shadow-sm border border-rose-100">Sale Node</span>
                             </div>
-                            <div className="font-bold text-emerald-600 text-base leading-none mb-1">
-                              <span className="text-[7px] font-bold mr-0.5">₹</span>
+                            <div className="font-semibold text-emerald-600 text-base leading-none mb-1">
+                              <span className="text-[7px] font-semibold mr-0.5">₹</span>
                               {product.sellingPrice - (product.discount || 0)}
                             </div>
                           </div>
                         );
                       } else {
                         return (
-                          <div className="font-bold text-slate-900 text-base leading-none mb-1">
-                            <span className="text-[7px] text-slate-400 font-bold mr-0.5">₹</span>
+                          <div className="font-semibold text-slate-800 text-base leading-none mb-1">
+                            <span className="text-[8px] text-slate-400 font-semibold mr-0.5">₹</span>
                             {product.sellingPrice}
                           </div>
                         );
@@ -558,15 +552,15 @@ export default function POS() {
                   {/* Top: Name and Unit Details (Small Font) */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0 pr-2">
-                      <p className="text-sm font-semibold text-slate-900 uppercase truncate leading-none">{item.name}</p>
+                      <p className="text-xs font-semibold text-slate-900 uppercase truncate leading-none">{item.name}</p>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2 mt-1">
                           {item.discount > 0 && (!item.saleEndDate || new Date(item.saleEndDate).setHours(23, 59, 59, 999) > Date.now()) ? (
-                            <span className="text-[7px] font-bold uppercase tracking-tighter text-slate-400">
-                              MRP: <span className="line-through">₹{item.sellingPrice}</span> · Sale Rate: ₹{(item.sellingPrice - item.discount).toFixed(1)}
+                            <span className="text-[7px] font-semibold uppercase tracking-tighter text-slate-400">
+                              MRP: <span className="line-through">₹{item.sellingPrice}</span> · Sale Rate: <span className="text-slate-900">₹{(item.sellingPrice - item.discount).toFixed(1)}</span>
                             </span>
                           ) : (
-                            <span className="text-[7px] font-bold uppercase tracking-tighter text-slate-400">Rate: ₹{item.sellingPrice}</span>
+                            <span className="text-[9px] font-semibold uppercase tracking-tight text-slate-500">Rate: ₹{item.sellingPrice}</span>
                           )}
                           {item.gstRate > 0 && <span className="text-[7px] font-black text-indigo-500 bg-indigo-50 px-1 rounded-sm">GST: {item.gstRate}%</span>}
                         </div>
@@ -587,16 +581,16 @@ export default function POS() {
                   {/* Promotion Signals */}
                   {(item.qty >= 25 || item.qty >= 3) && (
                     <div className="flex flex-wrap gap-1 mb-1">
-                       {item.qty >= 25 && (
-                         <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[7px] font-black rounded-sm uppercase tracking-tighter shadow-sm animate-pulse">
-                           BULK SLAB ACTIVE
-                         </span>
-                       )}
-                       {item.qty >= 3 && (
-                         <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[7px] font-black rounded-sm uppercase tracking-tighter shadow-sm">
-                           B2G1 ELIGIBLE
-                         </span>
-                       )}
+                      {item.qty >= 25 && (
+                        <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[7px] font-black rounded-sm uppercase tracking-tighter shadow-sm animate-pulse">
+                          BULK SLAB ACTIVE
+                        </span>
+                      )}
+                      {item.qty >= 3 && (
+                        <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[7px] font-black rounded-sm uppercase tracking-tighter shadow-sm">
+                          B2G1 ELIGIBLE
+                        </span>
+                      )}
                     </div>
                   )}
 
@@ -607,8 +601,8 @@ export default function POS() {
                         className="w-6 h-6 flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors">
                         <Minus size={9} strokeWidth={3} />
                       </button>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         step="1"
                         min="1"
                         value={item.qty}
@@ -621,7 +615,7 @@ export default function POS() {
                       </button>
                     </div>
                     <div className="relative flex-1 max-w-[80px]">
-                      <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[7px] font-bold text-slate-400">₹disc</span>
+                      <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[7px] font-semibold text-slate-400">₹disc</span>
                       <input type="number" min={0} max={item.sellingPrice}
                         value={item.discount || ''}
                         onChange={e => applyDiscount(item.productId, Number(e.target.value))}
@@ -629,8 +623,8 @@ export default function POS() {
                       />
                     </div>
                     <div className="ml-auto text-right">
-                      <span className="block text-base font-bold text-slate-900 leading-none">₹{lineTotal.toFixed(0)}</span>
-                      {lineGST > 0 && <span className="block text-[7px] font-bold text-indigo-400 opacity-70">tax +₹{lineGST.toFixed(1)}</span>}
+                      <span className="block text-base font-semibold text-slate-900 leading-none">₹{lineTotal.toFixed(0)}</span>
+                      {lineGST > 0 && <span className="block text-[7px] font-semibold text-indigo-400 opacity-70">tax +₹{lineGST.toFixed(1)}</span>}
                     </div>
                   </div>
                 </div>
@@ -657,7 +651,7 @@ export default function POS() {
 
                 <div className="flex justify-between items-center pt-1.5 border-t border-slate-100">
                   <span className="text-xs font-medium text-slate-500 uppercase tracking-widest">Grand Total</span>
-                  <span className="text-lg font-bold text-slate-900 tracking-tighter">₹{Math.round(cartTotal)}</span>
+                  <span className="text-lg font-semibold text-slate-900 tracking-tighter">₹{Math.round(cartTotal)}</span>
                 </div>
               </div>
             )}
@@ -671,13 +665,13 @@ export default function POS() {
       </div>
 
       {showReceipt && lastInvoice && (
-        <InvoiceModal 
-          invoice={lastInvoice} 
+        <InvoiceModal
+          invoice={lastInvoice}
           onClose={() => {
             setShowReceipt(false);
             setLastInvoice(null);
             clearCart();
-          }} 
+          }}
         />
       )}
       {/* ── CHECKOUT MODAL: Finalize Hub ─────────────────────────────── */}
@@ -691,7 +685,7 @@ export default function POS() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight leading-none">Checkout Hub</h3>
-                  <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">FINALIZE TRANSACTION NODE</p>
+                  <p className="text-[7px] font-semibold text-slate-400 mt-0.5 uppercase tracking-tighter">FINALIZE TRANSACTION NODE</p>
                 </div>
               </div>
               <button
@@ -709,7 +703,7 @@ export default function POS() {
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Payable</span>
                   <span className="text-xl font-black text-slate-900 tracking-tighter">₹{Math.round(cartTotal)}</span>
                 </div>
-                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{cart.length} Nodes Indexed</p>
+                <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">{cart.length} Nodes Indexed</p>
               </div>
 
               {/* Customer Info */}
@@ -784,7 +778,7 @@ export default function POS() {
                   </div>
                   <div>
                     <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest leading-none">Authorization Hub</p>
-                    <p className="text-[7px] font-bold text-slate-400 mt-1 uppercase leading-snug">Confirm payment method and customer hub connection is authenticated.</p>
+                    <p className="text-[7px] font-semibold text-slate-400 mt-1 uppercase leading-snug">Confirm payment method and customer hub connection is authenticated.</p>
                   </div>
                 </label>
               </div>
@@ -825,7 +819,7 @@ export default function POS() {
                 </div>
                 <div>
                   <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest leading-none">Scanning Node</h3>
-                  <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Align barcode within frame</p>
+                  <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Align barcode within frame</p>
                 </div>
               </div>
               <button
@@ -837,24 +831,24 @@ export default function POS() {
             </header>
 
             <div className="p-6 w-full flex flex-col items-center">
-              <div 
-                id="scanner-region" 
+              <div
+                id="scanner-region"
                 className="w-full aspect-square bg-slate-100 rounded-2xl overflow-hidden border-2 border-dashed border-indigo-200 shadow-inner relative"
               >
                 <div className="absolute inset-0 z-10 pointer-events-none border-[30px] border-white/20">
-                    <div className="w-full h-full border-2 border-indigo-500 rounded-lg shadow-[0_0_0_1000px_rgba(0,0,0,0.3)]"></div>
+                  <div className="w-full h-full border-2 border-indigo-500 rounded-lg shadow-[0_0_0_1000px_rgba(0,0,0,0.3)]"></div>
                 </div>
                 {/* Scan Animation Line */}
                 <div className="absolute left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] z-20 animate-[scan_2s_ease-in-out_infinite]"></div>
               </div>
-              
+
               <div className="mt-8 flex flex-col items-center gap-4 w-full">
                 <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100 animate-bounce">
                   <Zap size={14} className="fill-indigo-600" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Active Search Protocol</span>
                 </div>
-                
-                <button 
+
+                <button
                   onClick={stopScanner}
                   className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] shadow-xl hover:bg-slate-800 transition-all uppercase tracking-[0.2em] active:scale-95 flex items-center justify-center gap-3"
                 >
@@ -862,9 +856,9 @@ export default function POS() {
                 </button>
               </div>
             </div>
-            
+
             <footer className="w-full p-4 bg-slate-50 border-t border-slate-100 text-center">
-               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Nexus Optical Interface v2.4.0</p>
+              <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">Nexus Optical Interface v2.4.0</p>
             </footer>
           </div>
         </div>

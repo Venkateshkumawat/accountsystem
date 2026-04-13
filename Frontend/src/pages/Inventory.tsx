@@ -197,11 +197,11 @@ export default function Inventory() {
       {/* Header Context */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Inventory Management</h1>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight">Inventory Management</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">Track stock levels, warehouses, and product catalog</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition-all uppercase tracking-widest shadow-sm">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+          <button className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] sm:text-sm font-medium hover:bg-slate-50 transition-all uppercase tracking-widest shadow-sm shrink-0">
               <Layout size={16} /> Warehouses
           </button>
           <button
@@ -213,7 +213,7 @@ export default function Inventory() {
                setShowForm(true);
              }}
              disabled={remainingProduct <= 0}
-             className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50"
+             className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] sm:text-sm font-medium shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50 shrink-0"
           >
             <Plus size={16} /> Add Product
           </button>
@@ -234,18 +234,18 @@ export default function Inventory() {
       {/* Dynamic Display / Sectionized Rendering */}
       <div className="space-y-8 px-2 pb-24 md:pb-12">
         {products.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-100 py-32 text-center">
+          <div className="bg-white rounded-2xl border border-slate-100 py-24 sm:py-32 text-center">
             <Box size={40} className="mx-auto text-slate-200 mb-4" />
-            <h2 className="text-2xl font-semibold text-slate-400">No Inventory Found</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold text-slate-400">No Inventory Found</h2>
             <p className="text-sm font-normal text-slate-300">Start by adding your first product node.</p>
           </div>
         ) : (
           Object.keys(groupedProducts).sort().map((category) => (
             <div key={category} className="space-y-6">
               <div className="flex items-center gap-4 px-2">
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">{category}</h2>
+                <h2 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight">{category}</h2>
                 <div className="h-px flex-1 bg-slate-100" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                   {groupedProducts[category].length} Nodes
                 </span>
               </div>
@@ -278,11 +278,11 @@ export default function Inventory() {
                       <div className="flex-1 min-w-0 flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between items-start mb-0.5">
-                            <span className="font-bold text-slate-900 text-[13px] leading-tight truncate pr-4">
+                            <span className="font-semibold text-slate-900 text-[13px] leading-tight truncate pr-4">
                               {product.name}
                             </span>
                           </div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                          <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
                             {product.barcode || 'NB-NODE-' + product._id.slice(-6)}
                           </div>
                           <div className="text-[10px] font-medium text-slate-400 mt-1">
@@ -291,7 +291,7 @@ export default function Inventory() {
                         </div>
                         <div className="flex items-end justify-between mt-2">
                            <div>
-                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">MEMBER PRICE</p>
+                              <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1">MEMBER PRICE</p>
                               <div className="flex items-center gap-2">
                                 <span className="font-black text-slate-900 text-lg tracking-tight">₹{product.sellingPrice - product.discount}</span>
                                 {product.discount > 0 && (
@@ -315,7 +315,7 @@ export default function Inventory() {
                 ))}
               </div>
 
-              <div className="hidden md:block overflow-x-auto custom-scrollbar">
+              <div className="hidden md:block overflow-x-auto custom-scrollbar max-h-[calc(100vh-280px)] overflow-y-auto">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead className="bg-slate-50/50">
                     <tr className="text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
@@ -350,23 +350,23 @@ export default function Inventory() {
                               />
                             </div>
                             <div>
-                              <div className="font-bold text-slate-900 text-sm leading-tight transition-colors">
+                              <div className="font-semibold text-slate-900 text-sm leading-tight transition-colors">
                                 {product.name}
                               </div>
-                              <div className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
+                              <div className="text-[10px] font-semibold text-slate-400 uppercase mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
                             </div>
 
                           </div>
                         </td>
                         <td className="px-6 py-3 text-center">
                           <div className="flex flex-col items-center">
-                            <span className="font-bold text-slate-900 text-sm">{product.stock} pcs</span>
-                            <span className="text-[10px] font-bold text-emerald-500">+8%</span>
+                            <span className="font-semibold text-slate-900 text-sm">{product.stock} pcs</span>
+                            <span className="text-[10px] font-semibold text-emerald-500">+8%</span>
                           </div>
                         </td>
-                        <td className="px-6 py-3 text-center font-bold text-slate-900 text-sm">₹{product.sellingPrice}</td>
+                        <td className="px-6 py-3 text-center font-semibold text-slate-900 text-sm">₹{product.sellingPrice}</td>
                         <td className="px-6 py-3 text-center">
-                          <span className={`${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} px-3 py-1 rounded-full text-[10px] font-bold uppercase`}>
+                          <span className={`${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} px-3 py-1 rounded-full text-[10px] font-semibold uppercase`}>
                             {product.stock > (product.lowStockThreshold || 10) ? 'IN STOCK' : 'LOW STOCK'}
                           </span>
                         </td>
@@ -404,17 +404,19 @@ export default function Inventory() {
 
       {/* FORM MODAL */}
       {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col">
-            <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300 pt-20 pb-20 p-2 sm:p-4">
+          <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-full sm:max-h-[95vh] flex flex-col">
+            <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
               <div>
-                <h3 className="text-xl font-bold tracking-tight uppercase">{editId ? 'Update Product' : 'Product Entry'}</h3>
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-70">Diagnostic ID: {editId || 'NEW_NODE'}</p>
+                <h3 className="text-xl font-semibold tracking-tight uppercase">{editId ? 'Update Product Node' : 'Product Node Initialization'}</h3>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Diagnostic ID: {editId || 'NEW_NODE'}</p>
               </div>
-              <button onClick={closeModal} className="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-white"><X size={18} /></button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={closeModal} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">Back</button>
+              </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 no-scrollbar">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
@@ -434,7 +436,7 @@ export default function Inventory() {
                     placeholder="https://example.com/item.jpg"
                     className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs  outline-none shadow-sm focus:bg-white focus:border-indigo-600"
                   />
-                  <p className="text-[7px] text-slate-400 font-bold uppercase tracking-wider ml-1">
+                  <p className="text-[7px] text-slate-400 font-semibold uppercase tracking-wider ml-1">
                     Tip: Right-click image &gt; "Copy image address" for direct link.
                   </p>
                 </div>
@@ -553,15 +555,14 @@ export default function Inventory() {
               </div>
 
 
-              <div className="pt-2 sticky bottom-0 bg-white">
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-medium text-sm shadow-xl uppercase tracking-widest hover:bg-slate-800 transition-all disabled:opacity-50"
-                >
-                  {formLoading ? "Synchronizing Product..." : "Initialize Product Protocol"}
+              <footer className="pt-4 border-t border-slate-100 bg-white flex gap-3 shrink-0">
+                <button type="button" onClick={closeModal} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest"> 
+                  Cancel 
                 </button>
-              </div>
+                <button type="submit" disabled={formLoading} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 flex items-center justify-center gap-2">
+                  {formLoading ? "Synchronizing..." : editId ? 'Update Hardware' : 'Provision Hardware'}
+                </button>
+              </footer>
             </form>
           </div>
         </div>
@@ -573,21 +574,21 @@ export default function Inventory() {
 
 function InventoryStat({ label, value, icon: Icon, color }: any) {
   const colorMap: any = {
-    indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600' },
-    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
-    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
-    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
-    slate: { bg: 'bg-slate-50', text: 'text-slate-600' }
+    indigo: { bg: 'bg-indigo-50/50', text: 'text-indigo-600' },
+    amber: { bg: 'bg-amber-50/50', text: 'text-amber-600' },
+    rose: { bg: 'bg-rose-50/50', text: 'text-rose-600' },
+    emerald: { bg: 'bg-emerald-50/50', text: 'text-emerald-600' },
+    slate: { bg: 'bg-slate-50/50', text: 'text-slate-600' }
   };
   const s = colorMap[color] || colorMap.indigo;
   return (
-    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
-        <Icon size={24} />
+    <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 transition-all hover:shadow-md">
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
+        <Icon size={14} />
       </div>
       <div>
-        <p className="text-sm font-medium text-slate-500 uppercase tracking-tight mb-0.5">{label}</p>
-        <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
+        <p className="text-[9px] font-black tracking-widest uppercase text-slate-400 mb-0.5">{label}</p>
+        <h3 className="text-sm font-semibold text-slate-900 leading-none">{value}</h3>
       </div>
     </div>
   );

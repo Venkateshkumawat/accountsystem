@@ -59,7 +59,7 @@ const Login = () => {
           <div className="px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full mb-3">
             <p className="text-[7px] font-black text-indigo-600 uppercase tracking-[0.2em] leading-none">Authentication Required</p>
           </div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight uppercase leading-none mb-1">Nexus Terminal</h1>
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight uppercase leading-none mb-1">Nexus Terminal</h1>
           <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-1.5 opacity-60">
             <Zap size={8} fill="currentColor" className="text-indigo-600" /> Secure Node Access
           </p>
@@ -91,15 +91,11 @@ const Login = () => {
         <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-5 text-center">
             <div className="flex items-center gap-2 px-4 py-1.5 bg-slate-50/50 rounded-full border border-slate-100/50">
                <ShieldCheck size={10} className="text-slate-400" />
-               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Verified Security Node</p>
+               <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Verified Security Node</p>
             </div>
             
-            <div className="flex items-center gap-6">
-               <Link to="/superadmin-login" className="text-[10px] font-bold text-slate-600 uppercase tracking-wider hover:text-indigo-600 transition-all duration-300 relative group">
-                  SuperAdmin Portal
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-               </Link>
-               <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider cursor-not-allowed transition-colors">
+            <div className="flex items-center justify-center">
+               <span className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider cursor-not-allowed transition-colors">
                   Forgot Password
                </span>
             </div>
@@ -108,7 +104,7 @@ const Login = () => {
 
       <div className="fixed bottom-6 flex flex-col items-center gap-1 opacity-20 pointer-events-none">
           <ShieldCheck size={14} className="text-slate-900" />
-          <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.5em] leading-none">Powered by qna technologies</p>
+          <p className="text-[8px] font-semibold text-slate-500 uppercase tracking-[0.5em] leading-none">Powered by qna technologies</p>
       </div>
     </div>
   );
@@ -124,7 +120,7 @@ const CompactInput = ({ icon: Icon, name, type = "text", placeholder, value, onC
       type={type}
       placeholder={placeholder}
       autoComplete={autoComplete}
-      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white transition-all placeholder:text-slate-300 uppercase h-11`}
+      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white transition-all placeholder:text-slate-300 h-11`}
       value={value}
       onChange={onChange}
       required

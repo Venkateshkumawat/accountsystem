@@ -64,10 +64,10 @@ const SuperAdminLayout: React.FC = () => {
               N
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight text-slate-900 leading-none">
+              <span className="font-semibold text-lg tracking-tight text-slate-900 leading-none">
                 NexusBill
               </span>
-              <span className="text-indigo-600 text-[10px] font-bold uppercase tracking-widest mt-1">
+              <span className="text-indigo-600 text-[10px] font-semibold uppercase tracking-widest mt-1">
                 SuperAdmin
               </span>
             </div>
@@ -98,7 +98,7 @@ const SuperAdminLayout: React.FC = () => {
         <div className="p-4 mt-auto border-t border-slate-50">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all"
+            className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all"
           >
             <LogOut size={14} />
             Logout
@@ -140,10 +140,10 @@ const SuperAdminLayout: React.FC = () => {
             </button>
             <div className="flex items-center gap-3 pl-3 lg:pl-6 border-l border-slate-100">
                <div className="hidden xs:block text-right">
-                <p className="text-[10px] font-bold text-slate-900 uppercase">SuperAdmin</p>
+                <p className="text-[10px] font-semibold text-slate-900 uppercase">SuperAdmin</p>
                 <p className="text-[10px] font-medium text-slate-400 uppercase mt-0.5 tracking-widest">Platform Root</p>
               </div>
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs">
+              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-semibold text-xs">
                 SA
               </div>
             </div>
@@ -152,7 +152,7 @@ const SuperAdminLayout: React.FC = () => {
 
         {/* Dynamic Content */}
         <div className="flex-1 overflow-y-auto no-scrollbar bg-[#F1F5F9]/50">
-          <div className="p-4 lg:p-10">
+          <div className="px-4 pb-4 lg:px-10 lg:pb-10 pt-0">
             <Outlet />
           </div>
         </div>

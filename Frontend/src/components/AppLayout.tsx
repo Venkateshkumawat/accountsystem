@@ -164,7 +164,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                 <span className="text-xl font-black">N</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-slate-900">
+              <span className="text-xl font-semibold tracking-tight text-slate-900">
                 NexusBill
               </span>
             </Link>
@@ -186,12 +186,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
           <div className="p-4 shrink-0 mt-auto border-t border-slate-50">
             <div className="px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3 transition-all hover:border-indigo-100">
-              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center font-bold text-xs text-indigo-600 shrink-0">
+              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center font-semibold text-xs text-indigo-600 shrink-0">
                 {getInitials(user?.name || 'BB')}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-900 truncate">{user?.name || 'Admin User'}</p>
-                <p className="text-[10px] font-bold text-slate-500 truncate uppercase tracking-widest">{user?.role || 'Authority'}</p>
+                <p className="text-[10px] font-semibold text-slate-500 truncate uppercase tracking-widest">{user?.role || 'Authority'}</p>
               </div>
               <button 
                 onClick={handleLogout}
@@ -273,7 +273,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                             </div>
                             <div className="text-left flex-1 min-w-0">
                               <p className="text-[13px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase truncate">{s.label}</p>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{s.sub}</p>
+                              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">{s.sub}</p>
                             </div>
                             <ArrowRight size={14} className="ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                           </button>
@@ -287,14 +287,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
             <div className="flex items-center gap-3 lg:gap-5">
               <div className="hidden sm:flex flex-col items-end">
-                 <span className="text-sm font-bold text-slate-900 max-w-[150px] truncate">{user?.businessName || 'Nexus Node'}</span>
+                 <span className="text-sm font-semibold text-slate-900 max-w-[150px] truncate">{user?.businessName || 'Nexus Node'}</span>
                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">Verified GST</span>
               </div>
               <NotificationCenter />
             </div>
           </header>
 
-          <div className="p-4 lg:p-8 relative">
+          <div className="pt-0 pb-6 px-4 lg:px-8 relative">
             {isBusinessAdmin && planStatus && (planStatus.isNearExpiry || planStatus.status === 'expired') && (
               <div className={`mb-6 p-6 rounded-[2rem] border-2 flex items-center gap-6 animate-in slide-in-from-top-4 duration-500 shadow-xl ${
                 planStatus.status === 'expired' ? 'bg-rose-600 border-rose-500 text-white' : 'bg-amber-400 border-amber-300 text-slate-900'
@@ -308,7 +308,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   <h3 className="text-lg font-semibold uppercase tracking-tight leading-none">
                     {planStatus.status === 'expired' ? 'Infrastructure Suspended' : 'Subscription Ending Soon'}
                   </h3>
-                  <p className="text-sm font-bold opacity-90 mt-1.5">
+                  <p className="text-sm font-semibold opacity-90 mt-1.5">
                     {planStatus.status === 'expired' 
                       ? 'Critical failure: Nexus protocol halted. Restore billing to resume operations.'
                       : `Sync anomaly: Your plan expires in ${planStatus.remainingDays} days. Visit settings to renew.`

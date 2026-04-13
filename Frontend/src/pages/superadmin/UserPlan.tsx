@@ -272,7 +272,7 @@ const UserPlan: React.FC = () => {
                 <div>
                    {success && <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-100 text-emerald-600 rounded-lg font-black text-[9px] uppercase"><CheckCircle size={12}/> DEPLOYED</div>}
                 </div>
-                <button disabled={loading || (formData.price > 0 && paymentStatus !== 'completed')} className={`w-full sm:w-auto px-10 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 ${loading || (formData.price > 0 && paymentStatus !== 'completed') ? 'opacity-50' : 'hover:-translate-y-0.5'}`}>
+                <button disabled={loading || (formData.price > 0 && paymentStatus !== 'completed')} className={`w-full sm:w-auto px-10 py-4 bg-indigo-600 text-white rounded-2xl font-semibold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 ${loading || (formData.price > 0 && paymentStatus !== 'completed') ? 'opacity-50' : 'hover:-translate-y-0.5'}`}>
                   {loading ? 'Processing...' : 'Create Business Account'}
                   {!loading && <ArrowRight size={16} />}
                 </button>
@@ -282,7 +282,7 @@ const UserPlan: React.FC = () => {
 
           <div className="space-y-4">
              <div className="bg-slate-950 p-6 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-6 border-b border-white/5 pb-4">Platform Security</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-6 border-b border-white/5 pb-4">Platform Security</h4>
                 <ul className="space-y-6 relative z-10">
                    {[
                      { icon: Layers, color: 'indigo', title: 'Data Isolation', text: 'Secure multi-tenant architecture.' },
@@ -301,7 +301,7 @@ const UserPlan: React.FC = () => {
              </div>
              <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm space-y-4">
                 <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0"> <Zap size={24} /> </div>
-                <h4 className="text-sm font-bold text-slate-800 tracking-tight">Quick Provisioning</h4>
+                <h4 className="text-sm font-semibold text-slate-800 tracking-tight">Quick Provisioning</h4>
                 <p className="text-xs font-medium text-slate-500 leading-relaxed">Accounts are usually activated instantly. You can manage limits in the Master Account registry.</p>
              </div>
           </div>
@@ -322,8 +322,8 @@ const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose
       <div className="p-8 border-b-2 border-dashed border-slate-100 flex justify-between items-start bg-slate-50/50">
           <div>
               <p className="text-[8px] font-black text-indigo-500 uppercase tracking-widest mb-1">Nexus Deployment Receipt</p>
-              <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Manifest Confirmed</h2>
-              <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">NODE_ID: <span className="text-indigo-600">{data.businessId}</span></p>
+              <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Manifest Confirmed</h2>
+              <p className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-tighter">NODE_ID: <span className="text-indigo-600">{data.businessId}</span></p>
           </div>
           <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl font-black text-lg flex items-center justify-center shadow-lg">NX</div>
       </div>
@@ -332,12 +332,12 @@ const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose
               <div>
                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Entity Control</p>
                  <p className="font-black text-slate-900 uppercase leading-none">{form.businessName}</p>
-                 <p className="font-bold text-slate-500 mt-1 uppercase leading-none">{form.ownerFullName}</p>
+                 <p className="font-semibold text-slate-500 mt-1 uppercase leading-none">{form.ownerFullName}</p>
               </div>
               <div>
                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Identity Registry</p>
-                 <p className="font-bold text-slate-700 leading-none">{form.email}</p>
-                 <p className="font-bold text-slate-700 mt-1 leading-none">{form.mobileNumber}</p>
+                 <p className="font-semibold text-slate-700 leading-none">{form.email}</p>
+                 <p className="font-semibold text-slate-700 mt-1 leading-none">{form.mobileNumber}</p>
               </div>
           </div>
           <div className="space-y-4 text-right">
@@ -347,11 +347,11 @@ const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose
                      <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[7px] font-black uppercase">{form.plan}</span>
                      <span className="font-black text-slate-900 text-xs">₹{form.price}</span>
                  </div>
-                 <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Omega: {form.planEndDate}</p>
+                 <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase">Omega: {form.planEndDate}</p>
               </div>
               <div>
                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Physical Constraints</p>
-                 <p className="font-bold text-slate-700 uppercase leading-none">{form.skuLimit} SKU / {form.invoiceLimit} INV</p>
+                 <p className="font-semibold text-slate-700 uppercase leading-none">{form.skuLimit} SKU / {form.invoiceLimit} INV</p>
               </div>
           </div>
       </div>
@@ -360,11 +360,11 @@ const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose
              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600"> <ShieldCheck size={16}/> </div>
              <div>
                 <p className="text-[9px] font-black text-slate-900 uppercase">Paid Status: Nominal</p>
-                <p className="text-[7px] font-bold text-slate-400 uppercase mt-0.5 tracking-widest">TXN: NX_PROV_{data.businessId}</p>
+                <p className="text-[7px] font-semibold text-slate-400 uppercase mt-0.5 tracking-widest">TXN: NX_PROV_{data.businessId}</p>
              </div>
           </div>
           <div className="flex gap-2">
-              <button onClick={() => window.print()} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-[8px] uppercase tracking-widest hover:bg-slate-50">Local Print</button>
+              <button onClick={() => window.print()} className="px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-semibold text-[8px] uppercase tracking-widest hover:bg-slate-50">Local Print</button>
               <button onClick={() => { onClose(); window.location.reload(); }} className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-indigo-600 shadow-lg">Finalize Access</button>
           </div>
       </div>

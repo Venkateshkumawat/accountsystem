@@ -28,17 +28,23 @@ api.interceptors.response.use(
 
     // Check for Stale/Expired Session (401 Unauthorized)
     if (response && response.status === 401) {
-      console.error("🔐 Nexus Identity Expired: Re-authentication Required.");
-      localStorage.clear();
-      window.location.href = '/login';
+      const isLoginPage = window.location.pathname.includes('/login') || window.location.pathname.includes('/superadmin-login');
+      if (!isLoginPage) {
+         console.error("🔐 Nexus Identity Expired: Re-authentication Required.");
+         localStorage.clear();
+         window.location.href = '/login';
+      }
       return Promise.reject(error);
     }
 
     // Check for Decommissioned Business Nodes (404 - Stale Session)
     if (response && response.status === 404 && response.data?.message?.includes('Enterprise node not found')) {
-      console.error("🚨 Nexus Workspace Purged: Session Decommissioned.");
-      localStorage.clear();
-      window.location.href = '/login';
+      const isLoginPage = window.location.pathname.includes('/login') || window.location.pathname.includes('/superadmin-login');
+      if (!isLoginPage) {
+         console.error("🚨 Nexus Workspace Purged: Session Decommissioned.");
+         localStorage.clear();
+         window.location.href = '/login';
+      }
       return Promise.reject(error);
     }
 

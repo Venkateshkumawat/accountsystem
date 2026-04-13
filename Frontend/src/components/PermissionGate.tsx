@@ -166,7 +166,7 @@ function FullPageDenied({
         <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
           <span className="text-sm font-black text-indigo-600">{count}</span>
         </div>
-        <p className="text-xs font-bold text-slate-500">
+        <p className="text-xs font-semibold text-slate-500">
           Redirecting to dashboard…
         </p>
       </div>
@@ -212,7 +212,7 @@ function PlanExpiredScreen() {
         </button>
       </div>
 
-      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest opacity-60">
+      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest opacity-60">
         Contact support if you believe this is an error
       </p>
     </div>

@@ -38,23 +38,24 @@ interface DashboardData {
   remainingProduct?: number;
 }
 
-const ACTIVITY_LIMIT = 3;
+const ACTIVITY_LIMIT = 8;
+const INVOICE_LIMIT = 5;
+const PRODUCT_LIMIT = 5;
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [businessName, setBusinessName] = useState('');
 
   // Activity & Invoices state
   const [activityFilter, setActivityFilter] = useState<string>('ALL');
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [invoiceFilter, setInvoiceFilter] = useState<string>('all');
   const [showAllInvoices, setShowAllInvoices] = useState(false);
+  const [showAllProducts, setShowAllProducts] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
-  const INVOICE_LIMIT = 10;
 
   const fetchDashboard = useCallback(async (isRefresh = false) => {
     try {
@@ -64,7 +65,6 @@ export default function Dashboard() {
       
       const rawUser = localStorage.getItem('user');
       const user = rawUser && rawUser !== 'undefined' ? JSON.parse(rawUser) : {};
-      if (user.name) setBusinessName(user.name.split(' ')[0]);
 
       // Get current plan from user object
       const fullUserRes = await api.get('/auth/me');
@@ -175,7 +175,7 @@ export default function Dashboard() {
             <Zap size={24} fill="currentColor" className="sm:scale-110" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">Dashboard Overview</h1>
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight leading-tight">Dashboard Overview</h1>
             <p className="text-[11px] sm:text-xs font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">
               Live Business Telemetry
             </p>
@@ -210,7 +210,7 @@ export default function Dashboard() {
         <div className="lg:col-span-6 bg-white p-3 md:p-5 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden group">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-semibold text-slate-800">Revenue Flow</h2>
+              <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Revenue Flow</h2>
               <p className="text-sm font-normal text-slate-500">Weekly revenue trend analysis</p>
             </div>
           </div>
@@ -242,8 +242,8 @@ export default function Dashboard() {
           {/* GST card */}
           <div className="bg-slate-900 p-5 rounded-2xl shadow-xl text-white relative overflow-hidden ring-1 ring-slate-800">
             <div className="relative z-10">
-              <p className="text-indigo-300 text-sm font-medium uppercase tracking-widest mb-2 leading-none">GST Liability</p>
-              <h2 className="text-3xl font-bold tracking-tight">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
+              <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2 leading-none">GST Liability Node</p>
+              <h2 className="text-3xl font-semibold tracking-tight text-white">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
               <p className="text-indigo-200 text-sm font-normal mt-3 opacity-90">Estimated liability this month</p>
             </div>
             <div className="absolute -right-2 -bottom-2 opacity-5 scale-110 rotate-12">
@@ -255,8 +255,8 @@ export default function Dashboard() {
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2 relative overflow-hidden group">
              <div className="flex justify-between items-end relative z-10">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">NODE CAPACITY (PRODUCT)</p>
-                  <h3 className="text-xl font-bold text-slate-900">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">NODE CAPACITY (PRODUCT)</p>
+                  <h3 className="text-xl font-semibold text-slate-900">
                      {data?.usedProduct ?? 0} <span className="text-slate-300 text-lg">/ {data?.ProductLimit || '∞'}</span>
                   </h3>
                 </div>
@@ -285,8 +285,8 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 gap-3">
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group">
               <div>
-                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">PERSONNEL NODES</p>
-                 <h3 className="text-xl font-bold text-slate-900">{data?.staffCount ?? '—'}</h3>
+                 <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-widest mb-1">PERSONNEL NODES</p>
+                 <h3 className="text-xl font-semibold text-slate-900">{data?.staffCount ?? '—'}</h3>
               </div>
               <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
                  <Users size={18} />
@@ -304,7 +304,7 @@ export default function Dashboard() {
               <div className="space-y-1 relative z-10">
                 {data?.lowStockProducts.slice(0, 2).map(p => (
                   <div key={p._id} className="flex justify-between text-[10px] font-black text-rose-800 uppercase tracking-tight">
-                    <span className="truncate max-w-[120px]">{p.name}</span>
+                    <span className="truncate max-w-none">{p.name}</span>
                     <span className="shrink-0 ml-2 font-black">Lvl: {p.stock}</span>
                   </div>
                 ))}
@@ -340,7 +340,7 @@ export default function Dashboard() {
             ) : (
               <table className="w-full text-left">
                 <thead className="bg-slate-50/50">
-                  <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                  <tr className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
                     <th className="px-6 py-3">INVOICE ID</th>
                     <th className="px-6 py-3">CUSTOMER</th>
                     <th className="px-6 py-3">AMOUNT</th>
@@ -395,30 +395,49 @@ export default function Dashboard() {
 
         {/* Top Products */}
         <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-800 mb-5">Top Selling Products</h2>
+          <h2 className="text-2xl font-semibold text-slate-800 mb-5">Top Selling Products</h2>
           {(data?.topProducts?.length || 0) === 0 ? (
             <div className="py-8 text-center">
               <Package size={28} className="text-slate-200 mx-auto mb-2" />
-              <p className="text-slate-400 font-bold text-sm">No sales data yet</p>
+              <p className="text-slate-400 font-semibold text-sm">No sales data yet</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {data?.topProducts.map((prod, i) => {
-                const max = data.topProducts[0]?.totalRevenue || 1;
-                const pct = (prod.totalRevenue / max) * 100;
-                return (
-                  <div key={i} className="space-y-1.5">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="font-bold text-slate-700 truncate">{prod.name}</span>
-                      <span className="font-black text-slate-900 ml-2">₹{prod.totalRevenue?.toLocaleString()}</span>
+            <>
+              <div className="space-y-4">
+                {(showAllProducts ? (data?.topProducts || []) : (data?.topProducts || []).slice(0, PRODUCT_LIMIT)).map((prod, i) => {
+                  const max = data!.topProducts[0]?.totalRevenue || 1;
+                  const pct = (prod.totalRevenue / max) * 100;
+                  return (
+                    <div key={i} className="space-y-1.5 group">
+                      <div className="flex justify-between text-[10px]">
+                        <span className="font-black text-slate-700 truncate group-hover:text-indigo-600 transition-colors uppercase">{prod.name}</span>
+                        <span className="font-semibold text-slate-900 ml-2 tracking-tighter text-xl">₹{prod.totalRevenue?.toLocaleString()}</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-slate-900 group-hover:bg-indigo-600 rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
+                      </div>
                     </div>
-                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+
+              {!showAllProducts && (data?.topProducts?.length || 0) > PRODUCT_LIMIT && (
+                <button 
+                  onClick={() => setShowAllProducts(true)}
+                  className="mt-6 w-full py-2 bg-slate-50 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all border border-transparent hover:border-indigo-100"
+                >
+                  See more performance nodes
+                </button>
+              )}
+              {showAllProducts && (
+                <button 
+                  onClick={() => setShowAllProducts(false)}
+                  className="mt-6 w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all"
+                >
+                  Collapse Performance
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -427,7 +446,7 @@ export default function Dashboard() {
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">Recent Activity</h2>
+            <h2 className="text-2xl font-semibold text-slate-800">Recent Activity</h2>
             <p className="text-[8px] text-slate-400 font-medium mt-0.5">
               Showing {filteredActivities.length} of {totalActivityCount} events
             </p>
@@ -471,9 +490,9 @@ export default function Dashboard() {
                       <p className="text-[11px] font-black text-slate-900 truncate">{act.description}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <Users size={9} className="text-slate-400 shrink-0" />
-                        <span className="text-[9px] font-bold text-slate-400">{act.userName}</span>
+                        <span className="text-[9px] font-semibold text-slate-400">{act.userName}</span>
                         <span className="text-slate-200">·</span>
-                        <span className="text-[9px] font-bold text-slate-400">
+                        <span className="text-[9px] font-semibold text-slate-400">
                           {new Date(act.createdAt).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -544,9 +563,9 @@ export default function Dashboard() {
         <h3 className="stat-value">{value}</h3>
         <div className="flex items-center gap-2">
           {trend ? (
-            <span className={`text-[10px] font-bold ${trendColor}`}>{trend} <span className="text-slate-400">vs last month</span></span>
+            <span className={`text-[10px] font-semibold ${trendColor}`}>{trend} <span className="text-slate-400">vs last month</span></span>
           ) : (
-            <p className="text-[10px] font-bold text-slate-400">{sub}</p>
+            <p className="text-[10px] font-semibold text-slate-400">{sub}</p>
           )}
         </div>
       </div>

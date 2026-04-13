@@ -54,7 +54,7 @@ const SuperAdminLogin = () => {
           <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-xl rotate-6 animate-pulse border-b-2 border-indigo-800">
             <Server size={24} />
           </div>
-          <h1 className="text-lg font-bold text-white uppercase leading-none mb-2 mt-4">Nexus Master</h1>
+          <h1 className="text-lg font-semibold text-white uppercase leading-none mb-2 mt-4">Nexus Master</h1>
           <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.4em] flex items-center gap-1.5 opacity-60">
             <Zap size={8} fill="currentColor" className="text-indigo-400" /> Root Authority
           </p>
@@ -99,7 +99,7 @@ const SuperAdminLogin = () => {
         <div className="mt-8 pt-8 border-t border-slate-800/60 flex flex-col items-center gap-4">
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 rounded-lg border border-slate-800">
             <Terminal size={10} className="text-slate-600" />
-            <p className="text-[8px] font-bold text-slate-700 uppercase tracking-tight">Isolated Environment</p>
+            <p className="text-[8px] font-semibold text-slate-700 uppercase tracking-tight">Isolated Environment</p>
           </div>
 
           <button onClick={() => window.location.href = '/login'} className="text-[9px] font-black text-slate-500 uppercase hover:text-indigo-400 transition-colors tracking-widest">Public Terminal</button>
@@ -108,7 +108,7 @@ const SuperAdminLogin = () => {
 
       <div className="fixed bottom-6 flex flex-col items-center gap-1 opacity-10 pointer-events-none">
         <ShieldCheck size={14} className="text-slate-500" />
-        <p className="text-[8px] font-bold text-slate-700 uppercase tracking-[0.5em] leading-none">Secure Master Session</p>
+        <p className="text-[8px] font-semibold text-slate-700 uppercase tracking-[0.5em] leading-none">Secure Master Session</p>
       </div>
     </div>
   );

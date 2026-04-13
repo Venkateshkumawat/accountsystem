@@ -30,8 +30,6 @@ const NotificationCenter: React.FC = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filtered = notifications.filter(n => filter === 'all' || !n.isRead);
-
   const formatShortDate = (ds: string) => {
     const d = new Date(ds);
     const diff = Math.max(0, Date.now() - d.getTime());
@@ -42,6 +40,15 @@ const NotificationCenter: React.FC = () => {
     if (hrs < 24) return `${hrs}h`;
     return `${Math.floor(hrs / 24)}d`;
   };
+
+  const filtered = notifications.filter(n => {
+    // 🛡️ Nexus Logic: Force absolute isolation in the UI layer
+    const isSuperAdmin = localStorage.getItem('role') === 'superadmin';
+    if (isSuperAdmin && n.businessId) return false;
+    if (!isSuperAdmin && !n.businessId) return false;
+    
+    return filter === 'all' || !n.isRead;
+  });
 
   return (
     <div className="relative " ref={dropdownRef}>
@@ -58,12 +65,15 @@ const NotificationCenter: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-4 w-96 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 overflow-hidden z-[200] animate-in fade-in slide-in-from-top-4 duration-300">
-          {/* Header */}
+        <>
+          {/* Mobile Backdrop */}
+          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-[190] sm:hidden" onClick={() => setIsOpen(false)} />
+          <div className="fixed sm:absolute inset-x-4 top-20 sm:top-auto sm:inset-auto sm:right-0 sm:mt-4 w-auto sm:w-96 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 overflow-hidden z-[200] animate-in fade-in slide-in-from-top-4 duration-300 max-h-[85vh] flex flex-col">
+            {/* Header */}
           <div className="px-8 py-6 bg-slate-900 text-white flex items-center justify-between">
             <div>
               <h3 className="text-xl font-black tracking-tighter uppercase leading-none">Notifications</h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{unreadCount} Pending Nodes</p>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1.5">{unreadCount} Pending Nodes</p>
             </div>
             <div className="flex gap-2">
               <button 
@@ -134,6 +144,7 @@ const NotificationCenter: React.FC = () => {
             )}
           </div>
         </div>
+        </>
       )}
     </div>
   );
@@ -175,7 +186,7 @@ const NotificationItem = ({ n, onMarkAsRead, onDelete, onViewTrace, formatShortD
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
-           <p className={`text-[12px] leading-[1.4] transition-all flex-1 ${expanded ? '' : 'truncate'} ${!n.isRead ? 'font-black text-slate-900 ' : 'font-bold text-slate-500'}`}>
+           <p className={`text-[12px] leading-[1.4] transition-all flex-1 ${expanded ? '' : 'truncate'} ${!n.isRead ? 'font-black text-slate-900 ' : 'font-semibold text-slate-500'}`}>
              {n.message}
            </p>
            <button 

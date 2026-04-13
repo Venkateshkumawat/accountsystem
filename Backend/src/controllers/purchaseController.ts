@@ -168,7 +168,10 @@ export const getPurchaseStats = async (req: AuthRequest, res: Response): Promise
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const [totalResult, monthResult, countResult] = await Promise.all([
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [totalResult, monthResult, countResult, dailyResult] = await Promise.all([
       Purchase.aggregate([
         { $match: { businessAdminId: adminId as any } },
         { $group: { _id: null, total: { $sum: "$grandTotal" } } }
@@ -178,6 +181,16 @@ export const getPurchaseStats = async (req: AuthRequest, res: Response): Promise
         { $group: { _id: null, total: { $sum: "$grandTotal" }, count: { $sum: 1 } } }
       ]),
       Purchase.countDocuments({ businessAdminId: adminId as any }),
+      Purchase.aggregate([
+        { $match: { businessAdminId: adminId as any, createdAt: { $gte: thirtyDaysAgo } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            total: { $sum: "$grandTotal" }
+          }
+        },
+        { $sort: { "_id": 1 } }
+      ])
     ]);
 
     res.status(200).json({
@@ -186,6 +199,7 @@ export const getPurchaseStats = async (req: AuthRequest, res: Response): Promise
       monthSpend: monthResult[0]?.total || 0,
       monthCount: monthResult[0]?.count || 0,
       totalCount: countResult,
+      dailySpend: dailyResult.map(d => ({ date: d._id, total: d.total }))
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

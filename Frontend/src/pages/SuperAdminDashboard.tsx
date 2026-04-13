@@ -222,7 +222,7 @@ export default function SuperAdminDashboard() {
           <div className="flex items-center gap-4 relative z-10">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-violet-600 to-fuchsia-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 rotate-3"><Shield size={24} className="text-white" /></div>
             <div>
-              <h2 className="text-xl font-bold text-white leading-tight">Nexus Master</h2>
+              <h2 className="text-xl font-semibold text-white leading-tight">Nexus Master</h2>
               <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1 block">Global Network</span>
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function SuperAdminDashboard() {
             <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black">SA</div>
             <div className="flex-1 min-w-0">
               <p className="font-extrabold text-[12px] text-white truncate">Nexus Master</p>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">{user?.email}</p>
+              <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest leading-none">{user?.email}</p>
             </div>
             <button onClick={handleLogout} className="p-2.5 bg-white/10 rounded-xl text-slate-400 hover:text-rose-500 transition-all hover:scale-110 active:scale-90 shadow-inner"><LogOut size={16} /></button>
           </div>
@@ -259,8 +259,8 @@ export default function SuperAdminDashboard() {
         <header className="h-[100px] flex items-center gap-6 sticky top-0 z-40 bg-[#F0F4F9]/80 backdrop-blur-md transition-all">
           <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden w-12 h-12 flex items-center justify-center bg-slate-950 text-white rounded-2xl shadow-xl active:scale-90 transition-transform"><Menu size={20} /></button>
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1"><span className="p-1 px-2.5 bg-indigo-600 text-[9px] text-white font-black uppercase rounded-lg tracking-widest shadow-lg shadow-indigo-600/20">Operational</span><h1 className="text-2xl font-bold text-slate-900 leading-tight uppercase">{activeTab}</h1></div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Global Master Protocol • v6.0.0 Stable</p>
+            <div className="flex items-center gap-2 mb-1"><span className="p-1 px-2.5 bg-indigo-600 text-[9px] text-white font-black uppercase rounded-lg tracking-widest shadow-lg shadow-indigo-600/20">Operational</span><h1 className="text-2xl font-semibold text-slate-900 leading-tight uppercase">{activeTab}</h1></div>
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none">Global Master Protocol • v6.0.0 Stable</p>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={refreshAll} className={`w-12 h-12 flex items-center justify-center bg-white border border-slate-200/50 rounded-2xl text-slate-400 hover:text-indigo-600 hover:shadow-xl hover:-translate-y-0.5 transition-all group ${loading ? 'opacity-50 pointer-events-none' : ''}`}><RefreshCcw size={20} className={loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-700'} /></button>
@@ -279,12 +279,12 @@ export default function SuperAdminDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 glass-card overflow-hidden">
-                <div className="p-8 border-b border-white/20 flex items-center justify-between"><div><h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight">Activity Stream</h3><p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Real-time Global Audit</p></div><Database size={20} className="text-indigo-600" /></div>
+                <div className="p-8 border-b border-white/20 flex items-center justify-between"><div><h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight">Activity Stream</h3><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em] mt-1">Real-time Global Audit</p></div><Database size={20} className="text-indigo-600" /></div>
                 <div className="p-6 h-[500px] overflow-y-auto space-y-4">
                   {globalLogs.map((log, idx) => (
                     <div key={idx} className="group flex items-center p-4 bg-slate-50/50 hover:bg-white border border-transparent hover:border-indigo-100 rounded-[2rem] transition-all duration-300">
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${log.action === 'CREATE' ? 'bg-emerald-50 text-emerald-600' : log.action === 'DELETE' ? 'bg-rose-50 text-rose-600' : 'bg-indigo-50 text-indigo-600'}`}><Activity size={18} /></div>
-                      <div className="flex-1 ml-4"><div className="flex items-center gap-2"><span className="text-[9px] font-black bg-slate-800 text-white px-1.5 rounded">{log.resource}</span><h4 className="text-[13px] font-extrabold text-slate-800 tracking-tight">{log.description}</h4></div><p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{log.userName} • {new Date(log.createdAt).toLocaleString()}</p></div>
+                      <div className="flex-1 ml-4"><div className="flex items-center gap-2"><span className="text-[9px] font-black bg-slate-800 text-white px-1.5 rounded">{log.resource}</span><h4 className="text-[13px] font-extrabold text-slate-800 tracking-tight">{log.description}</h4></div><p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">{log.userName} • {new Date(log.createdAt).toLocaleString()}</p></div>
                     </div>
                   ))}
                   {globalLogs.length === 0 && <div className="flex items-center justify-center h-full text-slate-300 uppercase font-black text-xs tracking-widest animate-pulse">-- NO RECENT ACTIVITY --</div>}
@@ -293,7 +293,7 @@ export default function SuperAdminDashboard() {
 
               <div className="space-y-8">
                 <div className="glass-card p-8 group"><h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight mb-8 flex items-center gap-3"><BarChart3 size={20} className="text-indigo-600" /> Load Factor</h3><div className="space-y-6"><SystemPipe label="Node Saturation" percent="34%" color="bg-indigo-500" /><SystemPipe label="Global Traffic" percent="78%" color="bg-violet-500" /><SystemPipe label="API Response" percent="12ms" isValueOnly /><SystemPipe label="Core Uptime" percent="99.9%" isValueOnly /></div></div>
-                <div className="bg-gradient-to-br from-indigo-900 to-slate-950 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"><Globe className="absolute -bottom-8 -right-8 text-indigo-500/10 group-hover:scale-125 transition-transform duration-1000" size={160} /><div className="relative z-10"><h4 className="text-white text-lg font-black uppercase tracking-tighter mb-2">Network Health</h4><p className="text-indigo-300/80 text-[11px] font-bold uppercase tracking-[0.15em] mb-8">All Nexus clusters operational. Proactive shielding active.</p><div className="flex items-center gap-2 group-hover:translate-x-2 transition-transform"><span className="text-[10px] font-black text-white hover:text-indigo-400 cursor-pointer uppercase underline underline-offset-8">Diagnostics</span><ArrowUpRight size={14} className="text-indigo-400" /></div></div></div>
+                <div className="bg-gradient-to-br from-indigo-900 to-slate-950 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"><Globe className="absolute -bottom-8 -right-8 text-indigo-500/10 group-hover:scale-125 transition-transform duration-1000" size={160} /><div className="relative z-10"><h4 className="text-white text-lg font-black uppercase tracking-tighter mb-2">Network Health</h4><p className="text-indigo-300/80 text-[11px] font-semibold uppercase tracking-[0.15em] mb-8">All Nexus clusters operational. Proactive shielding active.</p><div className="flex items-center gap-2 group-hover:translate-x-2 transition-transform"><span className="text-[10px] font-black text-white hover:text-indigo-400 cursor-pointer uppercase underline underline-offset-8">Diagnostics</span><ArrowUpRight size={14} className="text-indigo-400" /></div></div></div>
               </div>
             </div>
           </div>
@@ -302,16 +302,16 @@ export default function SuperAdminDashboard() {
         {activeTab === "Node Registry" && (
           <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
              <div className="glass-card overflow-hidden">
-                <div className="p-8 border-b border-slate-100 flex items-center justify-between"><div><h2 className="text-lg font-semibold text-slate-900 uppercase tracking-tight leading-none mb-1">Workspace Index</h2><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verified Nexus Business Nodes</p></div><div className="relative"><Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" /><input type="text" placeholder="SEARCH NODES..." className="pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase outline-none focus:bg-white w-64 transition-all" /></div></div>
+                <div className="p-8 border-b border-slate-100 flex items-center justify-between"><div><h2 className="text-lg font-semibold text-slate-900 uppercase tracking-tight leading-none mb-1">Workspace Index</h2><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Verified Nexus Business Nodes</p></div><div className="relative"><Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" /><input type="text" placeholder="SEARCH NODES..." className="pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase outline-none focus:bg-white w-64 transition-all" /></div></div>
                 <div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="bg-slate-50 border-b border-slate-100"><th className="p-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Organization</th><th className="p-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Protocol Tier</th><th className="p-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th><th className="p-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Audit Cycle</th><th className="p-6 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Controls</th></tr></thead><tbody className="divide-y divide-slate-50">
                       {businesses.map((biz, i) => (
-                        <tr key={i} className="group hover:bg-slate-50/80 transition-all duration-300"><td className="p-6"><p className="font-black text-slate-900 text-[14px] uppercase group-hover:text-indigo-600 transition-colors">{biz.businessName}</p><span className=" text-[9px] text-slate-400 uppercase tracking-widest">UID: {biz.businessId}</span></td><td className="p-6 text-center"><span className="px-3 py-1 bg-slate-900 text-white text-[9px] font-black rounded-lg uppercase shadow-sm">{biz.plan}</span></td><td className="p-6 text-center"><div className={`inline-flex items-center gap-2 font-black text-[10px] uppercase ${biz.isActive ? 'text-emerald-500' : 'text-rose-500'}`}><span className={`w-2 h-2 rounded-full ${biz.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-rose-500 animate-pulse'}`} />{biz.status?.toUpperCase() || 'OFFLINE'}</div></td><td className="p-6 text-center"><p className="text-[11px] font-black text-slate-600 uppercase tracking-tighter">{new Date(biz.planEndDate).toLocaleDateString()}</p><p className="text-[8px] font-bold text-slate-400 uppercase">Expiry Signal</p></td><td className="p-6 text-right space-x-2">
+                        <tr key={i} className="group hover:bg-slate-50/80 transition-all duration-300"><td className="p-6"><p className="font-black text-slate-900 text-[14px] uppercase group-hover:text-indigo-600 transition-colors">{biz.businessName}</p><span className=" text-[9px] text-slate-400 uppercase tracking-widest">UID: {biz.businessId}</span></td><td className="p-6 text-center"><span className="px-3 py-1 bg-slate-900 text-white text-[9px] font-black rounded-lg uppercase shadow-sm">{biz.plan}</span></td><td className="p-6 text-center"><div className={`inline-flex items-center gap-2 font-black text-[10px] uppercase ${biz.isActive ? 'text-emerald-500' : 'text-rose-500'}`}><span className={`w-2 h-2 rounded-full ${biz.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-rose-500 animate-pulse'}`} />{biz.status?.toUpperCase() || 'OFFLINE'}</div></td><td className="p-6 text-center"><p className="text-[11px] font-black text-slate-600 uppercase tracking-tighter">{new Date(biz.planEndDate).toLocaleDateString()}</p><p className="text-[8px] font-semibold text-slate-400 uppercase">Expiry Signal</p></td><td className="p-6 text-right space-x-2">
                              <button onClick={() => { setShowBusinessModal(biz); setEditFormData({ plan: biz.plan, planStartDate: biz.planStartDate?.split('T')[0], planEndDate: biz.planEndDate?.split('T')[0] }); }} className="w-10 h-10 bg-white text-slate-400 hover:text-indigo-600 border border-slate-100 rounded-xl inline-flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm"><Settings size={16} /></button>
                              <button onClick={() => setShowResetPassword(biz)} className="w-10 h-10 bg-white text-slate-400 hover:text-amber-600 border border-slate-100 rounded-xl inline-flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm"><Key size={16} /></button>
                              <button onClick={() => setShowDeleteConfirm(biz)} className="w-10 h-10 bg-white text-slate-400 hover:text-rose-600 border border-slate-100 rounded-xl inline-flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm"><Trash2 size={16} /></button>
                           </td></tr>
                       ))}
-                      {businesses.length === 0 && <tr><td colSpan={5} className="p-10 text-center text-slate-300 font-bold uppercase text-[10px] tracking-[0.3em] animate-pulse">-- NO MANAGED NODES IN REGISTRY --</td></tr>}
+                      {businesses.length === 0 && <tr><td colSpan={5} className="p-10 text-center text-slate-300 font-semibold uppercase text-[10px] tracking-[0.3em] animate-pulse">-- NO MANAGED NODES IN REGISTRY --</td></tr>}
                 </tbody></table></div>
              </div>
           </div>
@@ -324,8 +324,8 @@ export default function SuperAdminDashboard() {
               <div className="glass-card p-12 bg-emerald-50 border-emerald-100 relative overflow-hidden">
                 <CheckCircle2 className="absolute -top-10 -right-10 text-emerald-500/10" size={300} />
                 <div className="relative z-10">
-                  <h2 className="text-2xl font-bold text-emerald-900 uppercase tracking-tight mb-2 leading-none">Node Provisioned Successfully</h2>
-                  <p className="text-emerald-700 font-bold uppercase tracking-widest text-[12px] mb-12">New Nexus Node [ {provisioningResult.businessId} ] is now ONLINE</p>
+                  <h2 className="text-2xl font-semibold text-emerald-900 uppercase tracking-tight mb-2 leading-none">Node Provisioned Successfully</h2>
+                  <p className="text-emerald-700 font-semibold uppercase tracking-widest text-[12px] mb-12">New Nexus Node [ {provisioningResult.businessId} ] is now ONLINE</p>
                   
                   <div className="bg-white p-8 rounded-[2rem] border border-emerald-200 shadow-xl max-w-2xl">
                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 block">Temporary Access Protocol</h3>
@@ -340,7 +340,7 @@ export default function SuperAdminDashboard() {
                       <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
                         <span className="text-[11px] font-black uppercase text-slate-500">Login Email</span>
                         <div className="flex items-center gap-3">
-                          <span className="font-bold text-[14px] text-slate-900">{provisioningResult.email}</span>
+                          <span className="font-semibold text-[14px] text-slate-900">{provisioningResult.email}</span>
                           <button onClick={() => { navigator.clipboard.writeText(provisioningResult.email); alert("Copied Email"); }} className="p-2 hover:bg-white rounded-lg transition-colors"><Copy size={14} /></button>
                         </div>
                       </div>
@@ -362,8 +362,8 @@ export default function SuperAdminDashboard() {
                 <div className="flex-1 glass-card p-12 relative overflow-hidden group">
                   <Zap className="absolute -top-10 -right-10 text-indigo-500/5 group-hover:scale-150 transition-transform duration-1000" size={240} />
                   <div className="relative z-10 max-w-2xl">
-                    <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight mb-4 leading-none">Rapid Provisioning</h2>
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[12px] mb-12">Authorized Force-Creation of Enterprise Nodes</p>
+                    <h2 className="text-2xl font-semibold text-slate-900 uppercase tracking-tight mb-4 leading-none">Rapid Provisioning</h2>
+                    <p className="text-slate-400 font-semibold uppercase tracking-widest text-[12px] mb-12">Authorized Force-Creation of Enterprise Nodes</p>
                     
                     <form className="space-y-8" onSubmit={handleProvisioning}>
                       <div className="grid grid-cols-2 gap-8">
@@ -402,7 +402,7 @@ export default function SuperAdminDashboard() {
                   <div className="glass-card p-8 bg-indigo-900 text-white relative overflow-hidden">
                     <Shield size={40} className="mb-6 text-indigo-400 relative z-10" />
                     <h4 className="text-xl font-black uppercase tracking-tighter mb-2 relative z-10">Verification Protocol</h4>
-                    <p className="text-indigo-200/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed relative z-10">Manual provisioning bypasses public verification layers. All credentials generated here are master-signed.</p>
+                    <p className="text-indigo-200/60 text-[10px] font-semibold uppercase tracking-widest leading-relaxed relative z-10">Manual provisioning bypasses public verification layers. All credentials generated here are master-signed.</p>
                   </div>
                   <div className="glass-card p-8 bg-slate-50">
                     <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">Service Requirements</h4>
@@ -423,7 +423,7 @@ export default function SuperAdminDashboard() {
 
         {/* SECURITY MATRIX (TELEMETRY) */}
         {activeTab === "Security Matrix" && (
-          <div className="space-y-8 animate-in zoom-in-95 duration-500"><div className="grid grid-cols-1 md:grid-cols-3 gap-8"><div className="glass-card p-10 col-span-2"><div className="flex items-center justify-between mb-12"><div><h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">Security Telemetry</h3><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Live Firewall & Authentication Audit</p></div><Shield size={32} className="text-indigo-600 animate-pulse" /></div><div className="space-y-8"><SecurityNode label="Brute-force Interception" status="Locked" count="124" color="emerald" /><SecurityNode label="Cross-tenant Barrier" status="Stable" count="0 Violations" color="indigo" /><SecurityNode label="Master Key Rotation" status="Required" count="12 days ago" color="rose" /></div></div><div className="space-y-8"><div className="glass-card p-8 bg-slate-900 text-white relative overflow-hidden group"><div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[60px]" /><Activity className="text-indigo-400 mb-6" size={32} /><h4 className="text-lg font-black uppercase tracking-tighter mb-2">Entropy Shield</h4><p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-8">Node integrity is scanned every 60 seconds.</p><button onClick={refreshAll} className="w-full py-4 bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-white/20 transition-all ">FORCE RE-SCAN</button></div></div></div></div>
+          <div className="space-y-8 animate-in zoom-in-95 duration-500"><div className="grid grid-cols-1 md:grid-cols-3 gap-8"><div className="glass-card p-10 col-span-2"><div className="flex items-center justify-between mb-12"><div><h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">Security Telemetry</h3><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Live Firewall & Authentication Audit</p></div><Shield size={32} className="text-indigo-600 animate-pulse" /></div><div className="space-y-8"><SecurityNode label="Brute-force Interception" status="Locked" count="124" color="emerald" /><SecurityNode label="Cross-tenant Barrier" status="Stable" count="0 Violations" color="indigo" /><SecurityNode label="Master Key Rotation" status="Required" count="12 days ago" color="rose" /></div></div><div className="space-y-8"><div className="glass-card p-8 bg-slate-900 text-white relative overflow-hidden group"><div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[60px]" /><Activity className="text-indigo-400 mb-6" size={32} /><h4 className="text-lg font-black uppercase tracking-tighter mb-2">Entropy Shield</h4><p className="text-slate-400 text-[10px] font-semibold uppercase tracking-widest mb-8">Node integrity is scanned every 60 seconds.</p><button onClick={refreshAll} className="w-full py-4 bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-white/20 transition-all ">FORCE RE-SCAN</button></div></div></div></div>
         )}
 
         {/* SYSTEM AUDIT (MASTER LOGS) */}
@@ -434,7 +434,7 @@ export default function SuperAdminDashboard() {
         {/* PLAN REGISTRY */}
         {activeTab === "Plan Protocol" && (
           <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between"><div><h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Monetization Registry</h2><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">SaaS Tier Configurations</p></div><button onClick={() => { setPlanFormData({ name: "", priceMonthly: 0, priceYearly: 0, maxInvoicesPerMonth: 50, maxProducts: 100, maxUsers: 2, features: ["Basic Inventory"] }); setShowPlanModal({ mode: 'create' }); }} className="btn-primary flex items-center gap-2 px-6 py-4 rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"><Plus size={18} /><span className="text-[11px] font-black uppercase tracking-widest">Define Tier</span></button></div>
+            <div className="flex items-center justify-between"><div><h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Monetization Registry</h2><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">SaaS Tier Configurations</p></div><button onClick={() => { setPlanFormData({ name: "", priceMonthly: 0, priceYearly: 0, maxInvoicesPerMonth: 50, maxProducts: 100, maxUsers: 2, features: ["Basic Inventory"] }); setShowPlanModal({ mode: 'create' }); }} className="btn-primary flex items-center gap-2 px-6 py-4 rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"><Plus size={18} /><span className="text-[11px] font-black uppercase tracking-widest">Define Tier</span></button></div>
             <div className="grid grid-cols-3 gap-6">
               {plans.map((plan, i) => (
                 <div key={i} className="glass-card p-10 group relative overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
@@ -445,7 +445,7 @@ export default function SuperAdminDashboard() {
                     <div className="flex items-center justify-between text-[11px] font-black text-slate-600 border-b border-slate-100 pb-3"><span className="uppercase text-slate-400 tracking-widest">Product Quota</span><span className="text-slate-900">{plan.maxProducts} units</span></div>
                     <div className="flex items-center justify-between text-[11px] font-black text-slate-600 border-b border-slate-100 pb-3"><span className="uppercase text-slate-400 tracking-widest">User Slots</span><span className="text-slate-900">{plan.maxUsers} limit</span></div>
                   </div>
-                  <div className="space-y-2 pt-2">{plan.features.map((f: string, idx: number) => (<div key={idx} className="flex items-center gap-2.5 text-[10px] font-bold text-slate-500 uppercase"><CheckCircle2 size={14} className="text-emerald-500" />{f}</div>))}</div>
+                  <div className="space-y-2 pt-2">{plan.features.map((f: string, idx: number) => (<div key={idx} className="flex items-center gap-2.5 text-[10px] font-semibold text-slate-500 uppercase"><CheckCircle2 size={14} className="text-emerald-500" />{f}</div>))}</div>
                 </div>
               ))}
               {plans.length === 0 && <div className="col-span-3 py-20 text-center glass-card border-dashed border-2 border-slate-200 uppercase font-black text-slate-300 text-xs tracking-[0.4em]">-- NO TIERS REGISTERED --</div>}
@@ -459,16 +459,21 @@ export default function SuperAdminDashboard() {
       
       {/* Node Control Modal */}
       {showBusinessModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 border border-white/20">
-            <div className="p-10 border-b border-slate-100 flex justify-between items-start">
-              <div><h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-2">Node Oversight</h3><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{showBusinessModal.businessName} [ {showBusinessModal.businessId} ]</p></div>
-              <button onClick={() => setShowBusinessModal(null)} className="p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"><X size={20} /></button>
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
+            <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
+              <div>
+                <h3 className="text-xl font-semibold tracking-tight uppercase">Node Oversight</h3>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{showBusinessModal.businessName} [ {showBusinessModal.businessId} ]</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setShowBusinessModal(null)} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">Back</button>
+              </div>
             </div>
             
-            <div className="p-10 space-y-8">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar">
               <div className="grid grid-cols-1 gap-4">
-                <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100"><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block leading-none">Security Protocol State</span><div className="flex items-center justify-between">
+                <div className="p-4 sm:p-6 bg-slate-50 rounded-[2rem] border border-slate-100"><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block leading-none">Security Protocol State</span><div className="flex items-center justify-between">
                     <div className="flex items-center gap-3"><div className={`w-3 h-3 rounded-full ${showBusinessModal.isActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-rose-500 shadow-[0_0_8px_#f43f5e]'}`} /><span className="text-[14px] font-black uppercase text-slate-800">{showBusinessModal.status?.toUpperCase()}</span></div>
                     <div className="flex gap-2">
                         {showBusinessModal.status !== 'active' && <button onClick={() => updateNodeStatus(showBusinessModal.businessId, 'activate')} className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-emerald-100">Restore</button>}
@@ -479,14 +484,21 @@ export default function SuperAdminDashboard() {
               </div>
 
               <div className="space-y-6">
-                <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-2">Assigned Hub Tier</label><select value={editFormData.plan} onChange={(e) => setEditFormData({...editFormData, plan: e.target.value})} className="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-black uppercase outline-none focus:ring-4 focus:ring-indigo-500/10 appearance-none cursor-pointer">{plans.map(p => <option key={p.name} value={p.name}>{p.name.toUpperCase()} HUB</option>)}</select></div>
+                <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-2">Assigned Hub Tier</label><select value={editFormData.plan} onChange={(e) => setEditFormData({...editFormData, plan: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[12px] font-black uppercase outline-none focus:ring-4 focus:ring-indigo-500/10 appearance-none cursor-pointer">{plans.map(p => <option key={p.name} value={p.name}>{p.name.toUpperCase()} HUB</option>)}</select></div>
                 <div className="grid grid-cols-2 gap-4">
-                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-2">Uplink Date</label><input type="date" value={editFormData.planStartDate} onChange={(e) => setEditFormData({...editFormData, planStartDate: e.target.value})} className="w-full p-4 bg-slate-50 border-none rounded-xl text-[12px] font-black outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all " /></div>
-                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-2">Protocol Expiry</label><input type="date" value={editFormData.planEndDate} onChange={(e) => setEditFormData({...editFormData, planEndDate: e.target.value})} className="w-full p-4 bg-slate-50 border-none rounded-xl text-[12px] font-black outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all " /></div>
+                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-2">Uplink Date</label><input type="date" value={editFormData.planStartDate} onChange={(e) => setEditFormData({...editFormData, planStartDate: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-[12px] font-black outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all " /></div>
+                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block ml-2">Protocol Expiry</label><input type="date" value={editFormData.planEndDate} onChange={(e) => setEditFormData({...editFormData, planEndDate: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-[12px] font-black outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all " /></div>
                 </div>
               </div>
 
-              <button onClick={() => updateNodePlan(showBusinessModal.businessId)} className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black text-[12px] uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl active:scale-95 group">Execute Master Update <Zap size={16} className="inline ml-2 group-hover:text-amber-400 transition-colors" /></button>
+              <footer className="pt-4 border-t border-slate-100 flex gap-3 shrink-0">
+                <button type="button" onClick={() => setShowBusinessModal(null)} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest">
+                  Cancel
+                </button>
+                <button onClick={() => updateNodePlan(showBusinessModal.businessId)} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 flex items-center justify-center gap-2 group">
+                  Execute Master Update <Zap size={15} className="inline ml-1 group-hover:text-amber-400 transition-colors" />
+                </button>
+              </footer>
             </div>
           </div>
         </div>
@@ -532,7 +544,7 @@ export default function SuperAdminDashboard() {
       {/* Plan Modal (Defining Tiers) */}
       {showPlanModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
-           <form onSubmit={handlePlanSubmit} className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col border border-white/20"><div className="p-10 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10"><div><h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{showPlanModal.mode === 'create' ? 'Define New Tier' : 'Edit Protocol'}</h3><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Master Service Definitions</p></div><button type="button" onClick={() => setShowPlanModal(null)} className="p-3 bg-slate-50 rounded-2xl"><X size={20} /></button></div><div className="p-10 space-y-8 flex-1 overflow-y-auto"><div className="grid grid-cols-2 gap-8"><div className="space-y-6"><NexusInput label="Protocol Designation" value={planFormData.name} onChange={(v: string) => setPlanFormData({...planFormData, name: v})} placeholder="MAXIMA" /><NexusInput label="Monthly Token (₹)" type="number" value={planFormData.priceMonthly} onChange={(v: string) => setPlanFormData({...planFormData, priceMonthly: parseInt(v)})} /></div><div className="space-y-6"><NexusInput label="Product Capacity" type="number" value={planFormData.maxProducts} onChange={(v: string) => setPlanFormData({...planFormData, maxProducts: parseInt(v)})} /><NexusInput label="User Slots" type="number" value={planFormData.maxUsers} onChange={(v: string) => setPlanFormData({...planFormData, maxUsers: parseInt(v)})} /></div></div><div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 ml-2">Feature Set Allocation</label><textarea className="w-full p-6 bg-slate-50 border-none rounded-3xl text-[13px] font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 min-h-[140px] resize-none" placeholder="ONE FEATURE PER LINE..." value={Array.isArray(planFormData.features) ? planFormData.features.join('\n') : planFormData.features} onChange={(e) => setPlanFormData({...planFormData, features: e.target.value.split('\n')})} /></div></div><div className="p-10 pt-0 bg-white"><button type="submit" className="w-full py-6 bg-indigo-600 text-white rounded-[2rem] font-black text-[12px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-xl active:scale-95 group">Publish Protocol Signal {showPlanModal.mode === 'create' ? <Plus size={18} className="inline ml-2 group-hover:rotate-90 transition-transform" /> : <RefreshCcw size={18} className="inline ml-2 group-hover:rotate-180 transition-transform" />}</button></div></form>
+           <form onSubmit={handlePlanSubmit} className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col border border-white/20"><div className="p-10 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10"><div><h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{showPlanModal.mode === 'create' ? 'Define New Tier' : 'Edit Protocol'}</h3><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Master Service Definitions</p></div><button type="button" onClick={() => setShowPlanModal(null)} className="p-3 bg-slate-50 rounded-2xl"><X size={20} /></button></div><div className="p-10 space-y-8 flex-1 overflow-y-auto"><div className="grid grid-cols-2 gap-8"><div className="space-y-6"><NexusInput label="Protocol Designation" value={planFormData.name} onChange={(v: string) => setPlanFormData({...planFormData, name: v})} placeholder="MAXIMA" /><NexusInput label="Monthly Token (₹)" type="number" value={planFormData.priceMonthly} onChange={(v: string) => setPlanFormData({...planFormData, priceMonthly: parseInt(v)})} /></div><div className="space-y-6"><NexusInput label="Product Capacity" type="number" value={planFormData.maxProducts} onChange={(v: string) => setPlanFormData({...planFormData, maxProducts: parseInt(v)})} /><NexusInput label="User Slots" type="number" value={planFormData.maxUsers} onChange={(v: string) => setPlanFormData({...planFormData, maxUsers: parseInt(v)})} /></div></div><div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 ml-2">Feature Set Allocation</label><textarea className="w-full p-6 bg-slate-50 border-none rounded-3xl text-[13px] font-semibold outline-none focus:ring-4 focus:ring-indigo-500/10 min-h-[140px] resize-none" placeholder="ONE FEATURE PER LINE..." value={Array.isArray(planFormData.features) ? planFormData.features.join('\n') : planFormData.features} onChange={(e) => setPlanFormData({...planFormData, features: e.target.value.split('\n')})} /></div></div><div className="p-10 pt-0 bg-white"><button type="submit" className="w-full py-6 bg-indigo-600 text-white rounded-[2rem] font-black text-[12px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-xl active:scale-95 group">Publish Protocol Signal {showPlanModal.mode === 'create' ? <Plus size={18} className="inline ml-2 group-hover:rotate-90 transition-transform" /> : <RefreshCcw size={18} className="inline ml-2 group-hover:rotate-180 transition-transform" />}</button></div></form>
         </div>
       )}
 
@@ -549,7 +561,7 @@ function SecurityNode({ label, status, count, color }: any) {
 
 function NexusStatCard({ label, value, icon: Icon, grow, color, delay }: any) {
   const colorMap: any = { indigo: "bg-indigo-50 text-indigo-600 border-indigo-100", emerald: "bg-emerald-50 text-emerald-600 border-emerald-100", violet: "bg-violet-50 text-violet-600 border-violet-100", rose: "bg-rose-50 text-rose-600 border-rose-100" };
-  return (<div className="glass-card p-10 group relative overflow-hidden animate-in zoom-in-95 duration-500 hover:shadow-2xl hover:scale-[1.02] transition-all" style={{ animationDelay: `${delay}ms` }}><div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-125 transition-transform duration-700"><Icon size={100} /></div><div className="flex items-center justify-between mb-10"><div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-sm group-hover:rotate-[15deg] transition-all duration-500 ${colorMap[color]}`}><Icon size={28} /></div><div className="flex items-center gap-1.5"><span className={`text-[11px] font-black uppercase tracking-widest ${colorMap[color].split(' ')[1]}`}>{grow}</span></div></div><p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">{label}</p><h3 className="text-4xl font-bold text-slate-900 tracking-tight group-hover:scale-105 transition-transform origin-left leading-none">{value}</h3></div>);
+  return (<div className="glass-card p-10 group relative overflow-hidden animate-in zoom-in-95 duration-500 hover:shadow-2xl hover:scale-[1.02] transition-all" style={{ animationDelay: `${delay}ms` }}><div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-125 transition-transform duration-700"><Icon size={100} /></div><div className="flex items-center justify-between mb-10"><div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-sm group-hover:rotate-[15deg] transition-all duration-500 ${colorMap[color]}`}><Icon size={28} /></div><div className="flex items-center gap-1.5"><span className={`text-[11px] font-black uppercase tracking-widest ${colorMap[color].split(' ')[1]}`}>{grow}</span></div></div><p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">{label}</p><h3 className="text-4xl font-semibold text-slate-900 tracking-tight group-hover:scale-105 transition-transform origin-left leading-none">{value}</h3></div>);
 }
 
 function SystemPipe({ label, percent, color, isValueOnly }: any) {

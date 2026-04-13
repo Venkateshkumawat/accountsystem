@@ -133,11 +133,11 @@ export const useCart = () => {
       const finalDiscount = automatedDiscount + manualDiscount;
       
       const itemSubtotal = itemPrice * itemQty;
-      const taxableAmount = itemSubtotal - finalDiscount;
+      const taxableAmount = Math.max(0, itemSubtotal - finalDiscount);
       const itemGST = (taxableAmount * (item.gstRate || 0) / 100);
 
       subtotal += itemSubtotal;
-      totalDiscount += finalDiscount;
+      totalDiscount += Math.min(itemSubtotal, finalDiscount); // Discount can't exceed subtotal for stats
       totalGST += itemGST;
     });
 

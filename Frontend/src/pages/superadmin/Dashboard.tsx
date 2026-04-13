@@ -64,7 +64,7 @@ const SuperAdminDashboard: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-bold rounded-full animate-pulse uppercase">
+                <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-semibold rounded-full animate-pulse uppercase">
                   {unreadCount} New
                 </span>
               )}
@@ -81,7 +81,7 @@ const SuperAdminDashboard: React.FC = () => {
             {notifications.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center opacity-20">
                 <Activity size={32} className="text-slate-500 mb-2" />
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">No Events Found</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">No Events Found</p>
               </div>
             ) : notifications.slice(0, 10).map(n => (
               <div key={n._id} className="flex items-start gap-3 group border-white/5">

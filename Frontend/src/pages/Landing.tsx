@@ -15,7 +15,7 @@ const Landing = () => {
               <div className="absolute inset-0 bg-violet-400 rounded-tr-xl rounded-bl-xl rounded-tl-sm rounded-br-sm -rotate-12 opacity-80 mix-blend-multiply"></div>
               <Layout size={16} className="text-white relative z-10" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">Nexus<span className="text-indigo-600 font-light">Bill</span></span>
+            <span className="text-xl font-semibold tracking-tight text-slate-900">Nexus<span className="text-indigo-600 font-light">Bill</span></span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -43,7 +43,7 @@ const Landing = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm font-bold bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:-translate-y-0.5">
+            <Link to="/login" className="text-sm font-semibold bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all duration-300 hover:-translate-y-0.5">
               Portal Access
             </Link>
           </div>
@@ -56,7 +56,7 @@ const Landing = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-full -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/60 via-white to-white blur-3xl"></div>
 
         <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-bold uppercase tracking-widest mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold uppercase tracking-widest mb-8">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -70,10 +70,10 @@ const Landing = () => {
             Unify your POS, inventory alerts, multi-tenant billing, payment tracking, and GST compliance in one beautifully crafted architecture.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-sm hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-600/20 transition-all duration-300">
+            <Link to="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-semibold text-sm hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-600/20 transition-all duration-300">
               Request Platform Access <ArrowRight size={18} />
             </Link>
-            <a href="#about" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-all duration-300">
+            <a href="#about" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-2xl font-semibold text-sm hover:bg-slate-50 transition-all duration-300">
               Read Our Vision
             </a>
           </div>
@@ -93,7 +93,7 @@ const Landing = () => {
               <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-6">
                 <Zap size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-2">Lightning Fast POS</h3>
+              <h3 className="text-xl font-semibold mb-2">Lightning Fast POS</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Execute transactions instantly with our keyboard-first optimized point of sale system.</p>
             </div>
 
@@ -101,7 +101,7 @@ const Landing = () => {
               <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6">
                 <BellRing size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-2">Smart Stock Alerts</h3>
+              <h3 className="text-xl font-semibold mb-2">Smart Stock Alerts</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Never run out of inventory. Get automated low-stock warnings and real-time updates.</p>
             </div>
 
@@ -109,7 +109,7 @@ const Landing = () => {
               <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-6">
                 <Truck size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-2">B2B Wholesale & Supply</h3>
+              <h3 className="text-xl font-semibold mb-2">B2B Wholesale & Supply</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Simplify bulk orders, wholesale rates, and specific client discounts automatically.</p>
             </div>
           </div>
@@ -119,7 +119,7 @@ const Landing = () => {
               <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 mb-6">
                 <Shield size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-2">Fast Payment Security</h3>
+              <h3 className="text-xl font-semibold mb-2">Fast Payment Security</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Enterprise-grade encryption protecting your transactions data 24/7 securely.</p>
             </div>
 
@@ -127,7 +127,7 @@ const Landing = () => {
               <div className="w-12 h-12 bg-violet-50 rounded-2xl flex items-center justify-center text-violet-600 mb-6">
                 <Activity size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-2">Payment Tracking</h3>
+              <h3 className="text-xl font-semibold mb-2">Payment Tracking</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Track pending payments, partial dues, and total ledgers for B2B & B2C clients flawlessly.</p>
             </div>
 
@@ -135,7 +135,7 @@ const Landing = () => {
               <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 mb-6">
                 <BarChart3 size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-2">Real-time Accounting</h3>
+              <h3 className="text-xl font-semibold mb-2">Real-time Accounting</h3>
               <p className="text-slate-500 text-sm leading-relaxed">GST compliant invoices, dynamic ledgers, and comprehensive financial reports.</p>
             </div>
           </div>
@@ -147,7 +147,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center gap-16">
             <div className="flex-1 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-sm font-bold tracking-wide">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-sm font-semibold tracking-wide">
                 Seamless Operations
               </div>
               <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
@@ -161,28 +161,28 @@ const Landing = () => {
                 <li className="flex items-start gap-4">
                   <CheckCircle className="text-indigo-500 shrink-0" size={24} />
                   <div>
-                    <strong className="text-slate-800 block text-lg font-bold">Effortless Billing</strong>
+                    <strong className="text-slate-800 block text-lg font-semibold">Effortless Billing</strong>
                     <span className="text-slate-500 text-sm">Create professional, GST-ready invoices instantly.</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <CheckCircle className="text-indigo-500 shrink-0" size={24} />
                   <div>
-                    <strong className="text-slate-800 block text-lg font-bold">Never Run Out of Stock</strong>
+                    <strong className="text-slate-800 block text-lg font-semibold">Never Run Out of Stock</strong>
                     <span className="text-slate-500 text-sm">Our system automatically warns you before your best-selling items sell out.</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <CheckCircle className="text-indigo-500 shrink-0" size={24} />
                   <div>
-                    <strong className="text-slate-800 block text-lg font-bold">Know Who Owes You</strong>
+                    <strong className="text-slate-800 block text-lg font-semibold">Know Who Owes You</strong>
                     <span className="text-slate-500 text-sm">A centralized list of all pending payments from your clients.</span>
                   </div>
                 </li>
               </ul>
 
               <div className="pt-4">
-                <Link to="/login" className="text-indigo-600 font-bold hover:text-indigo-800 transition-colors inline-flex items-center gap-2">
+                <Link to="/login" className="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors inline-flex items-center gap-2">
                   Get Started Now <ArrowRight size={16} />
                 </Link>
               </div>
@@ -206,7 +206,7 @@ const Landing = () => {
                   </div>
 
                   <div className="absolute bottom-6 right-6 bg-slate-900/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl flex flex-col gap-1 translate-y-2 group-hover:translate-y-0 transition-transform">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Active Nodes</p>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Active Nodes</p>
                     <div className="flex items-center gap-2">
                        <p className="text-2xl font-black text-white tracking-tighter">1,248+</p>
                        <Zap size={14} className="text-indigo-400 fill-indigo-400" />
@@ -234,7 +234,7 @@ const Landing = () => {
                 <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
                   <Globe size={20} />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Our Motive</h3>
+                <h3 className="text-xl font-semibold text-slate-900">Our Motive</h3>
               </div>
               <p className="text-slate-500 leading-relaxed">
                 Our core motive is to democratize institutional-grade billing software for small to medium enterprises.
@@ -247,7 +247,7 @@ const Landing = () => {
                 <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600">
                   <Layers size={20} />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Our Vision</h3>
+                <h3 className="text-xl font-semibold text-slate-900">Our Vision</h3>
               </div>
               <p className="text-slate-500 leading-relaxed">
                 To become the unified financial operating system bridging retail POS, B2B wholesale, and digital
@@ -256,7 +256,7 @@ const Landing = () => {
             </div>
 
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-              <h3 className="text-xl font-bold mb-4 text-slate-900">Usages & Application</h3>
+              <h3 className="text-xl font-semibold mb-4 text-slate-900">Usages & Application</h3>
               <ul className="space-y-4 text-slate-500">
                 <li className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-indigo-400"></div> Retail Supermarkets & POS Shops
@@ -274,7 +274,7 @@ const Landing = () => {
             </div>
 
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Our Information</h3>
+              <h3 className="text-xl font-semibold text-slate-900 mb-4">Our Information</h3>
               <div className="space-y-3 text-slate-500">
                 <p><strong>Headquarters:</strong> Tech Park, Tower A, Bangalore, IN</p>
                 <p><strong>Support Mail:</strong> support@nexusbill.enterprise</p>
@@ -303,7 +303,7 @@ const Landing = () => {
             Built by engineers who care about design and performance. Join NexusBill to take control of your financial infrastructure instantly.
           </p>
           <div className="pt-6">
-            <Link to="/login" className="inline-flex items-center gap-2 bg-white text-indigo-600 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 shadow-[0_8px_30px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1">
+            <Link to="/login" className="inline-flex items-center gap-2 bg-white text-indigo-600 px-8 py-4 rounded-2xl font-semibold hover:bg-slate-50 shadow-[0_8px_30px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1">
               Login to Workspace <ArrowRight size={18} />
             </Link>
           </div>

@@ -166,19 +166,19 @@ const MasterAccount: React.FC = () => {
               ) : filtered.map(biz => (
                 <tr key={biz._id} className="hover:bg-slate-50/50 transition-colors group">
                   <td className="px-6 py-4">
-                    <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors mb-1">{biz.businessName}</p>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">ID: {biz.businessId}</span>
+                    <p className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors mb-1">{biz.businessName}</p>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">ID: {biz.businessId}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-sm font-bold text-slate-900">{biz.ownerFullName}</p>
+                    <p className="text-sm font-semibold text-slate-900">{biz.ownerFullName}</p>
                     <p className="text-xs font-medium text-slate-400 mt-1">{biz.email}</p>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 mb-1.5">
-                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase ${biz.plan === 'enterprise' ? 'bg-violet-50 text-violet-600' : biz.plan === 'pro' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-500'}`}>{biz.plan}</span>
-                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase ${biz.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>{biz.status}</span>
+                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold uppercase ${biz.plan === 'enterprise' ? 'bg-violet-50 text-violet-600' : biz.plan === 'pro' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-500'}`}>{biz.plan}</span>
+                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold uppercase ${biz.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>{biz.status}</span>
                     </div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase">
                       Expires in: <CountdownTimer endDate={biz.planEndDate} />
                     </p>
                   </td>
@@ -190,7 +190,7 @@ const MasterAccount: React.FC = () => {
                   <td className="px-6 py-4">
                     <div className="space-y-3 w-40">
                       <div className="space-y-1">
-                        <div className="flex justify-between items-center text-[10px] font-bold uppercase text-slate-400">
+                        <div className="flex justify-between items-center text-[10px] font-semibold uppercase text-slate-400">
                           <span className="flex items-center gap-1">Invoices</span>
                           <span className="text-slate-900">{biz.currentInvoiceCount} / {biz.invoiceLimit}</span>
                         </div>
@@ -202,7 +202,7 @@ const MasterAccount: React.FC = () => {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <div className="flex justify-between items-center text-[10px] font-bold uppercase text-slate-400">
+                        <div className="flex justify-between items-center text-[10px] font-semibold uppercase text-slate-400">
                           <span className="flex items-center gap-1">Products</span>
                           <span className="text-slate-900">{biz.currentSkuCount} / {biz.skuLimit || '∞'}</span>
                         </div>
@@ -263,7 +263,7 @@ const MasterAccount: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <div className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+                <div className="text-[9px] font-semibold text-slate-400 uppercase flex items-center gap-1">
                   EXP: <CountdownTimer endDate={biz.planEndDate} />
                 </div>
                 <div className="flex gap-2">
@@ -282,8 +282,8 @@ const MasterAccount: React.FC = () => {
           <div className="bg-white w-full max-w-[340px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
                <div>
-                <h3 className="text-base font-bold text-white uppercase tracking-widest">Privilege Settings</h3>
-                <p className="text-indigo-400 text-[10px] font-bold mt-1 uppercase">{showFeatureModal.businessName}</p>
+                <h3 className="text-base font-semibold text-white uppercase tracking-widest">Privilege Settings</h3>
+                <p className="text-indigo-400 text-[10px] font-semibold mt-1 uppercase">{showFeatureModal.businessName}</p>
               </div>
               <button onClick={() => setShowFeatureModal(null)} className="p-2 text-white/40 hover:text-white transition-colors"><Trash2 size={18} className="rotate-45" /></button>
             </div>
@@ -300,7 +300,7 @@ const MasterAccount: React.FC = () => {
                   const isActive = showFeatureModal.features?.[feat.key] !== false;
                   return (
                     <div key={feat.name} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-400 transition-all">
-                      <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">{feat.name}</span>
+                      <span className="text-xs font-semibold text-slate-700 uppercase tracking-widest">{feat.name}</span>
                       <button
                         onClick={() => handleUpdateFeatures({ ...showFeatureModal.features, [feat.key]: !isActive })}
                         className={`transition-all duration-300 ${isActive ? 'text-indigo-600' : 'text-slate-300'}`}
@@ -317,14 +317,14 @@ const MasterAccount: React.FC = () => {
                   <span className="font-black uppercase text-slate-400">SKU REMAINING</span>
                   <div className="text-right">
                     <span className="font-black text-slate-900">{Math.max(0, (showFeatureModal.skuLimit || 0) - (showFeatureModal.currentSkuCount || 0))}</span>
-                    <span className="text-[7px] font-bold text-slate-300 uppercase ml-1">/ {showFeatureModal.skuLimit}</span>
+                    <span className="text-[7px] font-semibold text-slate-300 uppercase ml-1">/ {showFeatureModal.skuLimit}</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center text-[9px]">
                   <span className="font-black uppercase text-slate-400">INVOICE REMAINING</span>
                   <div className="text-right">
                     <span className="font-black text-rose-600">{Math.max(0, (showFeatureModal.invoiceLimit || 0) - (showFeatureModal.currentInvoiceCount || 0))}</span>
-                    <span className="text-[7px] font-bold text-slate-300 uppercase ml-1">/ {showFeatureModal.invoiceLimit}</span>
+                    <span className="text-[7px] font-semibold text-slate-300 uppercase ml-1">/ {showFeatureModal.invoiceLimit}</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center border-t border-slate-50 pt-2 text-[9px]">
@@ -337,7 +337,7 @@ const MasterAccount: React.FC = () => {
               </div>
 
               <div className="p-2.5 bg-indigo-50/50 rounded-lg border border-indigo-100/50">
-                <p className="text-[8px] font-bold text-indigo-700 leading-tight uppercase tracking-tighter">Deactivating modules will freeze node access immediately.</p>
+                <p className="text-[8px] font-semibold text-indigo-700 leading-tight uppercase tracking-tighter">Deactivating modules will freeze node access immediately.</p>
               </div>
             </div>
           </div>
@@ -348,8 +348,8 @@ const MasterAccount: React.FC = () => {
           <div className="bg-white w-full max-w-[400px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[95vh]">
             <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-base font-bold text-white uppercase tracking-widest">Account Details</h3>
-                <p className="text-indigo-400 text-[10px] font-bold mt-1 uppercase">SYNCING DATA NODE</p>
+                <h3 className="text-base font-semibold text-white uppercase tracking-widest">Account Details</h3>
+                <p className="text-indigo-400 text-[10px] font-semibold mt-1 uppercase">SYNCING DATA NODE</p>
               </div>
               <button onClick={() => setEditModal(null)} className="p-2 text-white/40 hover:text-white"><Trash2 size={18} className="rotate-45" /></button>
             </div>
@@ -359,7 +359,7 @@ const MasterAccount: React.FC = () => {
                 <div className="space-y-1">
                   <label className="text-[9px] font-black uppercase text-slate-400">Business Name</label>
                   <input
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold focus:bg-white outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold focus:bg-white outline-none"
                     value={editFormData.businessName}
                     onChange={e => setEditFormData({ ...editFormData, businessName: e.target.value })}
                   />
@@ -367,7 +367,7 @@ const MasterAccount: React.FC = () => {
                 <div className="space-y-1">
                   <label className="text-[9px] font-black uppercase text-slate-400">Admin Name</label>
                   <input
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold focus:bg-white outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold focus:bg-white outline-none"
                     value={editFormData.ownerFullName}
                     onChange={e => setEditFormData({ ...editFormData, ownerFullName: e.target.value })}
                   />
@@ -378,7 +378,7 @@ const MasterAccount: React.FC = () => {
                 <div className="space-y-1">
                   <label className="text-[9px] font-black uppercase text-slate-400">Subscription Plan</label>
                   <select
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold outline-none"
                     value={editFormData.plan}
                     onChange={e => setEditFormData({ ...editFormData, plan: e.target.value })}
                   >
@@ -391,7 +391,7 @@ const MasterAccount: React.FC = () => {
                   <label className="text-[9px] font-black uppercase text-slate-400">Expiration Date & Time</label>
                   <input
                     type="datetime-local"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold outline-none"
                     value={editFormData.planEndDate}
                     onChange={e => setEditFormData({ ...editFormData, planEndDate: e.target.value })}
                   />
@@ -403,7 +403,7 @@ const MasterAccount: React.FC = () => {
                   <label className="text-[9px] font-black uppercase text-slate-400">SKU Limit</label>
                   <input
                     type="number"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold outline-none"
                     value={editFormData.skuLimit}
                     onChange={e => setEditFormData({ ...editFormData, skuLimit: parseInt(e.target.value) })}
                   />
@@ -412,7 +412,7 @@ const MasterAccount: React.FC = () => {
                   <label className="text-[9px] font-black uppercase text-slate-400">Invoice Limit</label>
                   <input
                     type="number"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold outline-none"
                     value={editFormData.invoiceLimit}
                     onChange={e => setEditFormData({ ...editFormData, invoiceLimit: parseInt(e.target.value) })}
                   />
@@ -422,7 +422,7 @@ const MasterAccount: React.FC = () => {
               <div className="space-y-1">
                 <label className="text-[9px] font-black uppercase text-slate-400">Node Status</label>
                 <select
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-bold outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold outline-none"
                   value={editFormData.status}
                   onChange={e => setEditFormData({ ...editFormData, status: e.target.value })}
                 >
@@ -433,7 +433,7 @@ const MasterAccount: React.FC = () => {
 
                <button
                 type="submit"
-                className="w-full py-4 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 mt-6"
+                className="w-full py-4 bg-indigo-600 text-white rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 mt-6"
               >
                 Sync Account Changes
               </button>

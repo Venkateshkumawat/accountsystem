@@ -45,7 +45,7 @@ function Toast({ message, type, onClose }: { message: string; type: 'success' | 
     return () => clearTimeout(t);
   }, [onClose]);
   return (
-    <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl text-white text-sm font-bold transition-all animate-bounce-in ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+    <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl text-white text-sm font-semibold transition-all animate-bounce-in ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
       {type === 'success' ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
       {message}
       <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100"><X size={14} /></button>
@@ -62,12 +62,12 @@ function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onCo
           <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center">
             <AlertTriangle size={20} className="text-rose-600" />
           </div>
-          <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">Confirm Action</h3>
+          <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Confirm Action</h3>
         </div>
         <p className="text-slate-600 text-sm font-medium mb-6">{message}</p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition">Cancel</button>
-          <button onClick={onConfirm} className="flex-1 py-3 rounded-2xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition">Delete</button>
+          <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition">Cancel</button>
+          <button onClick={onConfirm} className="flex-1 py-3 rounded-2xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition">Delete</button>
         </div>
       </div>
     </div>
@@ -112,7 +112,23 @@ export default function Staff() {
     }
   }, []);
 
-  useEffect(() => { fetchStaff(); }, [fetchStaff]);
+  useEffect(() => { 
+    fetchStaff(); 
+    
+    // ── Cross-Tab Sync ──
+    const syncChannel = new BroadcastChannel('nexus_sync');
+    const handleSync = (event: any) => {
+      if (event.data === 'FETCH_DASHBOARD' || event.data === 'SYNC_STAFF') {
+        fetchStaff();
+      }
+    };
+    syncChannel.addEventListener('message', handleSync);
+
+    return () => {
+      syncChannel.removeEventListener('message', handleSync);
+      syncChannel.close();
+    };
+  }, [fetchStaff]);
 
   // ── Filtered staff list ────────────────────────────────────────────────────
   const filtered = staff.filter(s => {
@@ -153,6 +169,12 @@ export default function Staff() {
       setShowAdd(false);
       setForm(defaultForm);
       fetchStaff();
+
+      // Notify other tabs
+      const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('FETCH_DASHBOARD');
+      sync.postMessage('SYNC_STAFF');
+      sync.close();
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Staff creation failed', 'error');
     } finally {
@@ -181,6 +203,11 @@ export default function Staff() {
       showToast('Staff details updated!');
       setEditTarget(null);
       fetchStaff();
+
+      // Notify other tabs
+      const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('SYNC_STAFF');
+      sync.close();
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Update failed', 'error');
     } finally {
@@ -194,6 +221,11 @@ export default function Staff() {
       const res = await api.put(`/staff/${id}/status`);
       showToast(res.data.message || 'Status updated');
       fetchStaff();
+
+      // Notify other tabs
+      const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('SYNC_STAFF');
+      sync.close();
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Status update failed', 'error');
     }
@@ -207,6 +239,11 @@ export default function Staff() {
       showToast('Staff member removed successfully!');
       setDeleteTarget(null);
       fetchStaff();
+
+      // Notify other tabs
+      const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('SYNC_STAFF');
+      sync.close();
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Delete failed', 'error');
     }
@@ -270,7 +307,7 @@ export default function Staff() {
               <Icon size={16} className={m.text} />
               <div>
                 <p className={`text-xs font-semibold uppercase tracking-widest ${m.text}`}>{role}</p>
-                <p className="text-xl font-bold tracking-tight text-slate-900">{count}</p>
+                <p className="text-xl font-semibold tracking-tight text-slate-900">{count}</p>
               </div>
             </div>
           );
@@ -279,7 +316,7 @@ export default function Staff() {
           <CheckCircle size={16} className="text-emerald-700" />
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Active</p>
-            <p className="text-lg font-bold tracking-tight text-slate-900">{activeCount}</p>
+            <p className="text-lg font-semibold tracking-tight text-slate-900">{activeCount}</p>
           </div>
         </div>
       </div>
@@ -296,7 +333,7 @@ export default function Staff() {
         <div className="relative">
           <Filter size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
-            className="pl-10 pr-8 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 transition appearance-none">
+            className="pl-10 pr-8 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:border-indigo-500 transition appearance-none">
             <option value="all">All Roles</option>
             <option value="manager">Manager</option>
             <option value="accountant">Accountant</option>
@@ -309,12 +346,12 @@ export default function Staff() {
       {loading ? (
         <div className="py-24 text-center">
           <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-400 font-bold">Loading staff members…</p>
+          <p className="text-slate-400 font-semibold">Loading staff members…</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="py-24 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl text-center">
           <Users size={48} className="text-slate-200 mb-4" />
-          <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight text-slate-400">
+          <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight text-slate-400">
             {staff.length === 0 ? 'No Staff Yet' : 'No Results Found'}
           </h3>
           <p className="text-slate-400 text-sm font-medium mt-1 mb-6">
@@ -424,22 +461,23 @@ export default function Staff() {
 
       {/* ──────────────────────────────────────────── ADD STAFF MODAL ─── */}
       {showAdd && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
 
             {/* Header */}
-            <div className="p-5 bg-gradient-to-r from-slate-900 to-indigo-900 text-white flex items-center justify-between shrink-0">
+            <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
               <div>
-                <h3 className="text-lg font-semibold text-white tracking-tight">New Staff Member</h3>
-                <p className="text-xs font-normal text-indigo-300 mt-1">Authorizing new staff access node</p>
+                <h3 className="text-xl font-semibold tracking-tight uppercase">New Staff Member</h3>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Authorizing new staff access node</p>
               </div>
-              <button onClick={() => { setShowAdd(false); setForm(defaultForm); }}
-                className="p-3 text-slate-400 hover:text-white bg-white/10 rounded-xl transition-all">
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => { setShowAdd(false); setForm(defaultForm); }} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">
+                  Back
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleAddStaff} className="p-6 space-y-5 overflow-y-auto no-scrollbar flex-1">
+            <form onSubmit={handleAddStaff} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 custom-scrollbar">
 
               {/* Reference ID – highlighted */}
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
@@ -454,7 +492,7 @@ export default function Staff() {
                   placeholder={`e.g. ${user?.businessId || 'BB-XXXX-0000'} (Your Active Node ID)`}
                   value={form.referenceId}
                   onChange={e => setForm({ ...form, referenceId: e.target.value })}
-                  className="w-full px-4 py-3 bg-white border border-amber-300 rounded-xl text-[10px] font-bold tracking-normal focus:outline-none focus:border-amber-500 transition"
+                  className="w-full px-4 py-3 bg-white border border-amber-300 rounded-xl text-[10px] font-semibold tracking-normal focus:outline-none focus:border-amber-500 transition"
                 />
                 <p className="text-[10px] text-amber-600 font-medium mt-1.5">
                   Confirm authorization by entering your unique Business ID.
@@ -513,15 +551,14 @@ export default function Staff() {
                 </div>
               </div>
 
-              <button type="submit" disabled={submitting}
-                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest hover:from-indigo-700 hover:to-indigo-800 disabled:opacity-50 active:scale-[.99] transition-all shadow-lg shadow-indigo-200">
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Creating Account…
-                  </span>
-                ) : 'Create Staff Account'}
-              </button>
+              <footer className="pt-4 border-t border-slate-100 flex gap-3 shrink-0">
+                <button type="button" onClick={() => { setShowAdd(false); setForm(defaultForm); }} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest">
+                  Cancel
+                </button>
+                <button type="submit" disabled={submitting} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                  {submitting ? "Creating Account..." : "Create Staff Account"}
+                </button>
+              </footer>
             </form>
           </div>
         </div>
@@ -529,21 +566,22 @@ export default function Staff() {
 
       {/* ──────────────────────────────────────────── EDIT STAFF MODAL ─── */}
       {editTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-lg rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
 
-            <div className="p-5 bg-slate-900 text-white flex items-center justify-between shrink-0">
+            <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
               <div>
-                <h3 className="text-base font-bold text-white uppercase tracking-tight">Update Staff</h3>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{editTarget.email}</p>
+                <h3 className="text-xl font-semibold tracking-tight uppercase">Update Staff</h3>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">{editTarget.email}</p>
               </div>
-              <button onClick={() => setEditTarget(null)}
-                className="p-3 text-slate-400 hover:text-white bg-white/10 rounded-xl transition-all">
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setEditTarget(null)} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">
+                  Back
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="p-6 space-y-5 overflow-y-auto no-scrollbar flex-1">
+            <form onSubmit={handleSaveEdit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 custom-scrollbar">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput label="Full Name" required
                   value={editForm.name} onChange={v => setEditForm({ ...editForm, name: v })} />
@@ -574,16 +612,14 @@ export default function Staff() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setEditTarget(null)}
-                  className="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition">
+              <footer className="pt-4 border-t border-slate-100 flex gap-3 shrink-0">
+                <button type="button" onClick={() => setEditTarget(null)} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest">
                   Cancel
                 </button>
-                <button type="submit" disabled={saving}
-                  className="flex-1 py-3 rounded-2xl bg-indigo-600 text-white font-black hover:bg-indigo-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
-                  {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Saving…</> : <><Save size={15} />Save Changes</>}
+                <button type="submit" disabled={saving} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                  {saving ? "Saving..." : "Save Changes"}
                 </button>
-              </div>
+              </footer>
             </form>
           </div>
         </div>

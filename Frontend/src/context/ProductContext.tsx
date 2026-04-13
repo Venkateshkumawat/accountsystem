@@ -37,7 +37,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [productLimit, setProductLimit] = useState(0);
   const [usedProducts, setUsedProducts] = useState(0);
   const [remainingProduct, setRemainingProduct] = useState(0);
@@ -53,11 +53,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch { return null; }
   }, []);
 
-  const fetchProducts = useCallback(async (query = '', category = 'All') => {
+  const fetchProducts = useCallback(async (query = '', category = 'All', showLoader = false) => {
     // 🛡️ Nexus Master Guard: SuperAdmin has no business-scoped items
     if (getRole() === 'superadmin') return;
 
-    if (products.length === 0) setLoading(true);
+    if (showLoader) setLoading(true);
     try {
       const catParam = category !== 'All' ? `&category=${category}` : '';
       const res = await api.get(`/products?name=${query}${catParam}&limit=1000`);

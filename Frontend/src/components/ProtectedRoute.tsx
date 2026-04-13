@@ -96,7 +96,7 @@ function AccessDeniedScreen({
       {/* Redirect hint */}
       <div className="flex items-center gap-2 px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl">
         <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-        <p className="text-xs font-bold text-slate-500">
+        <p className="text-xs font-semibold text-slate-500">
           Redirecting to dashboard…
         </p>
       </div>

@@ -76,12 +76,8 @@ export default function Notifications() {
       {/* ── HEADER ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Zap size={10} className="text-indigo-500" />
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Infrastructure Monitoring</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Event Registry</h1>
-          <p className="text-slate-500 text-sm mt-1 opacity-70">Auditing active node signals across the platform.</p>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight">Event Registry</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">Auditing active node signals across the platform</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -151,8 +147,8 @@ export default function Notifications() {
             <div className="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner shadow-indigo-100/50">
               <Bell size={40} />
             </div>
-            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">No {typeFilter === 'all' ? 'Event' : typeFilter} Match</h3>
-            <p className="text-slate-400 text-xs font-bold mt-2 uppercase tracking-wide">
+            <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight">No {typeFilter === 'all' ? 'Event' : typeFilter} Match</h3>
+            <p className="text-slate-400 text-xs font-semibold mt-2 uppercase tracking-wide">
               {typeFilter === 'error' ? 'Registry is clear of critical infrastructure anomalies.' : 'Registry is clean or the filter returned void nodes.'}
             </p>
           </div>

@@ -25,7 +25,7 @@ export default function B2BSales() {
                             <Zap size={10} className="text-amber-500 fill-amber-500" />
                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">B2B Command Node</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-slate-900 leading-tight">Business Terminal</h1>
+                        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight leading-tight">Business Terminal</h1>
                     </div>
                 </div>
 
@@ -63,17 +63,17 @@ export default function B2BSales() {
                 {/* Recent B2B Log */}
                 <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
                     <div className="px-5 py-3 border-b border-slate-50 flex items-center justify-between">
-                        <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">Recent Node Transactions</h3>
+                        <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Recent Node Transactions</h3>
                         <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase">Real-time sync active</span>
                     </div>
                     <div className="p-0 overflow-x-auto min-h-[180px] flex flex-col">
                         <table className="w-full text-left flex-1">
                             <thead className="bg-slate-50/50">
-                                <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
-                                    <th className="px-5 py-3">Client SKU</th>
-                                    <th className="px-5 py-3">Audit ID</th>
-                                    <th className="px-5 py-3">Value</th>
-                                    <th className="px-5 py-3">Status</th>
+                                <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                                    <th className="px-5 py-4">Client SKU</th>
+                                    <th className="px-5 py-4">Audit ID</th>
+                                    <th className="px-5 py-4">Value</th>
+                                    <th className="px-5 py-4 text-right">Status</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -99,7 +99,7 @@ export default function B2BSales() {
                             <div>
                                 <p className="text-indigo-400 text-[8px] font-black uppercase tracking-[0.2em] mb-2 leading-none">Automation Node</p>
                                 <h3 className="text-lg font-semibold text-white tracking-tight leading-none mb-3">Optimize Bulk Settlements</h3>
-                                <p className="text-slate-400 text-[10px] font-bold uppercase leading-relaxed max-w-[200px]">Accelerate wholesale flow with automated GST reconciliation and nodal tracking.</p>
+                                <p className="text-slate-400 text-[10px] font-semibold uppercase leading-relaxed max-w-[200px]">Accelerate wholesale flow with automated GST reconciliation and nodal tracking.</p>
                             </div>
                             <button className="mt-8 px-5 py-3 bg-white text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all w-fit shadow-xl">
                                 Enable Auto-Sync
@@ -113,7 +113,7 @@ export default function B2BSales() {
                     <div className="bg-indigo-600 p-5 rounded-2xl shadow-lg flex items-center justify-between border border-indigo-500">
                         <div>
                             <p className="text-white font-black text-xs uppercase tracking-tighter leading-none mb-1">Nodal Support</p>
-                            <p className="text-indigo-100 text-[8px] font-bold uppercase tracking-widest">Protocol Version 4.0.2</p>
+                            <p className="text-indigo-100 text-[8px] font-semibold uppercase tracking-widest">Protocol Version 4.0.2</p>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
                             <ArrowRight size={14} />
@@ -143,7 +143,7 @@ function MetricCard({ label, value, sub, icon: Icon, color }: any) {
                 <span className="text-[7px] font-black text-slate-300 uppercase tracking-widest">{label}</span>
             </div>
             <div className="relative z-10">
-                <h3 className="text-lg font-semibold text-slate-900 leading-none mb-1">{value}</h3>
+                <h3 className="text-xl font-semibold text-slate-900 leading-none mb-1.5">{value}</h3>
                 <p className={`text-[8px] font-black uppercase tracking-tight ${color === 'rose' ? 'text-rose-500' : 'text-emerald-500'}`}>{sub}</p>
             </div>
             <div className="absolute right-0 bottom-0 p-2 opacity-[0.03] scale-150 group-hover:scale-[1.8] group-hover:rotate-12 transition-all duration-700">

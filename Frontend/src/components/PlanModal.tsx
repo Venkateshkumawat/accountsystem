@@ -164,7 +164,7 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, currentPlan }) =
                         <div className={`w-3 h-3 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${colorClasses[plan.color]}`}>
                           <Check size={8} strokeWidth={4} />
                         </div>
-                        <span className="text-[9px] font-bold text-slate-600 leading-none">{feature}</span>
+                        <span className="text-[9px] font-semibold text-slate-600 leading-none">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -193,7 +193,7 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, currentPlan }) =
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-center md:text-left">
                 <h4 className="text-slate-900 font-black text-sm mb-1 uppercase tracking-tighter leading-none">Manual Provisioning Required</h4>
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-tight">Contact Nexus Network SuperAdmin for final payment settlement and node activation.</p>
+                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-tight">Contact Nexus Network SuperAdmin for final payment settlement and node activation.</p>
               </div>
               <button className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all active:scale-95">
                 Dispatch Request →

@@ -94,7 +94,7 @@ export default function Reports() {
       {/* 🖨️ Print-Only Audit Header */}
       <div className="hidden print:block mb-8 border-b-2 border-slate-900 pb-4">
         <h1 className="text-2xl font-black uppercase tracking-tighter">Nexus Node Audit Report</h1>
-        <div className="grid grid-cols-2 gap-4 mt-4 text-[10px] uppercase font-bold text-slate-600">
+        <div className="grid grid-cols-2 gap-4 mt-4 text-[10px] uppercase font-semibold text-slate-600">
           <div>
             <p>Protocol: Strategic Fiscal Audit</p>
             <p>Registry Node ID: {localStorage.getItem('businessId') || 'GLOBAL_ROOT'}</p>
@@ -113,8 +113,8 @@ export default function Reports() {
             <Activity size={20} className="animate-pulse" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 leading-tight">Business Intelligence</h1>
-            <p className="text-slate-400 font-bold text-[9px] uppercase tracking-widest mt-1">Real-time Performance Node</p>
+            <h1 className="text-2xl font-semibold text-slate-900 leading-tight">Business Intelligence</h1>
+            <p className="text-slate-400 font-semibold text-[9px] uppercase tracking-widest mt-1">Real-time Performance Node</p>
           </div>
         </div>
         <button onClick={fetchAllData} className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200">
@@ -126,7 +126,7 @@ export default function Reports() {
       <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
          <div className="flex items-center gap-2 px-1">
             <Activity size={14} className="text-indigo-600" />
-            <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Diagnostic Filter Registry</h2>
+            <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Diagnostic Filter Registry</h2>
          </div>
          <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[140px] space-y-1.5">
@@ -202,8 +202,8 @@ export default function Reports() {
         <div className="lg:col-span-8 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight leading-none">Revenue Growth Delta</h3>
-              <p className="text-[8px] text-slate-400 font-bold uppercase mt-1">7-Day Sales Synchronization</p>
+              <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight leading-none">Revenue Growth Delta</h3>
+              <p className="text-[8px] text-slate-400 font-semibold uppercase mt-1">7-Day Sales Synchronization</p>
             </div>
             <div className="flex gap-2">
               <span className="text-[9px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded">LIVE_FEED</span>
@@ -233,7 +233,7 @@ export default function Reports() {
         {/* Small Stats / Velocity Ranking */}
         <div className="lg:col-span-4 space-y-4">
           <div className="bg-slate-950 p-5 rounded-3xl shadow-2xl relative overflow-hidden border border-slate-800">
-            <h3 className="text-base font-bold text-indigo-400 mb-4 uppercase tracking-tight flex items-center gap-2">
+            <h3 className="text-base font-semibold text-indigo-400 mb-4 uppercase tracking-tight flex items-center gap-2">
               <ArrowUpRight size={14} /> High Velocity Items
             </h3>
             <div className="space-y-3 relative z-10">
@@ -250,7 +250,7 @@ export default function Reports() {
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="text-base font-bold text-rose-500 mb-4 uppercase tracking-tight flex items-center gap-2">
+            <h3 className="text-base font-semibold text-rose-500 mb-4 uppercase tracking-tight flex items-center gap-2">
               <TrendingDown size={14} /> Critical Low Stock
             </h3>
             <div className="space-y-3">
@@ -269,14 +269,14 @@ export default function Reports() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
-            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+            <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
               <ShoppingCart size={14} className="text-indigo-600" /> Recent Purchase Acquisitions
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
                   <th className="py-3 px-2">Item Node</th>
                   <th className="py-3 px-2">Quantity</th>
                   <th className="py-3 px-2">Investment</th>
@@ -300,7 +300,7 @@ export default function Reports() {
         {/* Real-time Activity Ledger */}
         <div className="bg-slate-900 p-5 rounded-3xl shadow-xl border border-slate-800">
           <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
-            <h3 className="text-base font-bold text-indigo-400 uppercase tracking-tight flex items-center gap-2">
+            <h3 className="text-base font-semibold text-indigo-400 uppercase tracking-tight flex items-center gap-2">
               <Activity size={14} /> Master Audit Sequence
             </h3>
             <span className="text-[8px] font-black text-white/20 uppercase">Real-time Feed</span>
@@ -308,11 +308,11 @@ export default function Reports() {
           <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
             {salesData?.activities?.length > 0 ? salesData.activities.map((act: any, i: number) => (
               <div key={i} className="flex flex-col gap-1 py-2 border-b border-white/5 last:border-b-0">
-                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                  <span className={act.action === 'CREATE' ? 'text-indigo-400' : 'text-amber-400'}>{act.resource}</span>
-                  <span className="text-white/20 text-[8px]">{new Date(act.createdAt).toLocaleTimeString()}</span>
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest leading-none">
+                  <span className={act.action === 'CREATE' ? 'text-indigo-400' : 'text-amber-400'}>{act.resource} Node</span>
+                  <span className="text-white/20 text-[8px] font-black">{new Date(act.createdAt).toLocaleTimeString()}</span>
                 </div>
-                <p className="text-[9px] text-white/60 font-bold tracking-tight uppercase leading-none">{act.description}</p>
+                <p className="text-[9px] text-white/50 font-black tracking-tight uppercase leading-none mt-1">{act.description}</p>
               </div>
             )) : <p className="py-10 text-center text-white/10 font-black text-[10px] tracking-widest">NO_LOGS_RECORDED</p>}
           </div>
@@ -382,7 +382,7 @@ export default function Reports() {
                    </div>
                 </div>
                 <h3 className="text-lg font-semibold tracking-tight text-slate-900 leading-none z-10">₹{(metric?.amount || 0).toLocaleString()}</h3>
-                <p className="text-[8px] font-bold text-slate-400 mt-2 uppercase z-10">Settlement Count: <span className="text-slate-900">{metric?.count || 0} Nodes</span></p>
+                <p className="text-[8px] font-semibold text-slate-400 mt-2 uppercase z-10">Settlement Count: <span className="text-slate-900">{metric?.count || 0} Nodes</span></p>
                 <div className="absolute top-0 right-0 p-1 opacity-10 rotate-12"> <Zap size={40} /> </div>
              </div>
            );
@@ -392,7 +392,7 @@ export default function Reports() {
       {/* Fiscal Settlement Matrix (GST Slab Breakdown) */}
       <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm mt-4">
          <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
-            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+            <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                <ShieldCheck size={14} className="text-amber-500" /> Fiscal Settlement Matrix (GST Slabs)
             </h3>
          </div>
@@ -434,7 +434,7 @@ export default function Reports() {
         {/* Payment Logic Distribution */}
         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[350px]">
            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+              <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <CreditCard size={14} className="text-indigo-600" /> Sector-Wise Settlement Logic
               </h3>
            </div>
@@ -475,7 +475,7 @@ export default function Reports() {
         {/* Category Concentration Audit */}
         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+              <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <Box size={14} className="text-amber-500" /> Category-wise Inventory Hub
               </h3>
            </div>
@@ -500,7 +500,7 @@ export default function Reports() {
         {/* Unit Velocity Flux (Sales Count) */}
         <div className="lg:col-span-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+              <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <Zap size={14} className="text-indigo-600" /> Unit Velocity Flux
               </h3>
            </div>
@@ -523,7 +523,7 @@ export default function Reports() {
         {/* Stock vs Sales (Comparative Audit) */}
         <div className="lg:col-span-8 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
            <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+            <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <TrendingUp size={14} className="text-emerald-500" /> High-Velocity Node Performance Audit (Qty)
               </h3>
            </div>
@@ -564,7 +564,7 @@ function MetricCard({ label, value, icon: Icon, color, sub }: any) {
       </div>
       <div className="relative z-10">
         <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-0.5 text-slate-500">{label}</p>
-        <h3 className="text-xl font-bold tracking-tight text-slate-900 leading-none">{value}</h3>
+        <h3 className="text-xl font-semibold tracking-tight text-slate-900 leading-none">{value}</h3>
       </div>
       <Icon size={50} className={`absolute -right-4 -bottom-4 opacity-5 scale-150 rotate-12 transition-transform duration-700 group-hover:rotate-45 ${themes[color].split(' ')[2]}`} />
     </div>

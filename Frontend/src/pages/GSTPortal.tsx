@@ -90,30 +90,30 @@ export default function GSTPortal() {
    );
 
    return (
-      <div className="p-6 space-y-6  bg-[#fcfcfd] min-h-screen">
+      <div className="p-2 sm:p-4 space-y-4  bg-[#fcfcfd] min-h-screen">
          {/* Header — Compliance Protocol */}
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
             <div className="space-y-1">
-               <h1 className="text-3xl font-semibold text-slate-900 tracking-tight flex items-center gap-3">
-                  GST Compliance Dashboard
+               <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight flex items-center gap-3">
+                  GST Compliance
                </h1>
                <p className="text-sm font-normal text-slate-500">
                    Track your Input Tax Credit (ITC) and GST liabilities
                </p>
             </div>
-            <div className="flex items-center gap-3">
-                <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex gap-1 shadow-sm">
+            <div className="flex flex-wrap items-center gap-3">
+                <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex gap-1 shadow-sm shrink-0">
                   {(['month', 'quarter', 'year'] as const).map(p => (
                      <button
                         key={p}
                         onClick={() => setPeriod(p)}
-                        className={`px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${period === p ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
+                        className={`px-3 sm:px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-semibold uppercase tracking-widest transition-all ${period === p ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
                      >
                         {p}
                      </button>
                   ))}
                </div>
-               <button onClick={handleExport} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-100 transition-all uppercase tracking-widest">
+               <button onClick={handleExport} className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] sm:text-xs font-semibold shadow-lg shadow-indigo-100 transition-all uppercase tracking-widest shrink-0">
                   <Download size={14} /> Export Report
                </button>
             </div>
@@ -128,16 +128,16 @@ export default function GSTPortal() {
          </div>
 
          {/* Main Analytical Grid */}
-         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             {/* Slab Flux Chart */}
-            <div className="lg:col-span-8 bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+            <div className="lg:col-span-8 bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-8 opacity-[0.03] -mr-4 -mt-4">
                   <ShieldCheck size={180} className="text-slate-900 rotate-12" />
                </div>
                <div className="relative z-10">
                   <div className="flex items-center justify-between mb-8">
                      <div>
-                        <h2 className="text-2xl font-semibold text-slate-800">GST Distribution</h2>
+                        <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">GST Distribution</h2>
                         <p className="text-sm font-normal text-slate-500">Slab-wise tax aggregation</p>
                      </div>
                   </div>
@@ -161,14 +161,14 @@ export default function GSTPortal() {
 
             {/* Narrative Performance — GSTR assistant */}
             <div className="lg:col-span-4 space-y-4">
-               <div className="bg-slate-900 p-6 rounded-[2.5rem] shadow-2xl relative overflow-hidden h-full">
+               <div className="bg-slate-900 p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl relative overflow-hidden h-full">
                   <div className="absolute top-0 right-0 p-8 opacity-10">
                      <Zap size={100} className="text-white rotate-12" />
                   </div>
                   <div className="relative z-10 space-y-6">
                      <div>
-                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">COMPLIANCE ASSISTANT</p>
-                        <h4 className="text-white text-lg font-bold tracking-tight leading-tight">Tax Insights & Recommendations</h4>
+                        <p className="text-[10px] font-semibold text-indigo-400 uppercase tracking-widest mb-2">COMPLIANCE ASSISTANT</p>
+                        <h4 className="text-white text-lg font-semibold tracking-tight leading-tight">Tax Insights & Recommendations</h4>
                         <p className="text-slate-400 text-sm font-medium leading-relaxed mt-4">
                            {gstData?.totalGST > 0
                               ? `Detected peak tax throughput in the GST ${gstData.gstSlabs[0]?._id || "scanning"}% slab. Ensure all reference invoices are archived for this bracket before the end of month.`
@@ -179,14 +179,14 @@ export default function GSTPortal() {
                      <div className="pt-6 border-t border-white/10 space-y-4">
                         <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
                            <div>
-                              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">TAX SYSTEM</p>
-                              <p className="text-sm font-bold text-white">CGST + SGST</p>
+                              <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">TAX SYSTEM</p>
+                              <p className="text-sm font-semibold text-white">CGST + SGST</p>
                            </div>
                            <div className="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl">
                               <CheckCircle size={20} />
                            </div>
                         </div>
-                        <button onClick={handleExport} className="w-full py-4 bg-indigo-600 hover:bg-white text-white hover:text-indigo-600 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all">
+                        <button onClick={handleExport} className="w-full py-4 bg-indigo-600 hover:bg-white text-white hover:text-indigo-600 rounded-2xl text-xs font-semibold uppercase tracking-widest transition-all">
                            Generate GSTR-1 Report
                         </button>
                      </div>
@@ -196,10 +196,10 @@ export default function GSTPortal() {
          </div>
 
          {/* Fiscal Settlement Matrix (The Heart of the Portal) */}
-          <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+          <div className="bg-white p-4 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-50">
                <div>
-                  <h2 className="text-lg font-bold text-slate-800">GST Settlement Matrix</h2>
+                  <h2 className="text-base font-semibold text-slate-800 uppercase tracking-tight">GST Settlement Matrix</h2>
                   <p className="text-xs font-medium text-slate-500 mt-1">Slab-wise reconciliation details</p>
                </div>
                <div className="flex gap-4">
@@ -213,7 +213,7 @@ export default function GSTPortal() {
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                     <tr className="text-xs font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                     <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
                         <th className="py-4 px-4 w-1/4">TAX SLAB</th>
                         <th className="py-4 px-4 text-right">TAXABLE SUPPLY</th>
                         <th className="py-4 px-4 text-right">CGST</th>
@@ -252,7 +252,7 @@ export default function GSTPortal() {
                            <td className="py-6 px-4 text-right">₹{gstData.gstSlabs.reduce((s: number, c: any) => s + c.taxableValue, 0).toLocaleString()}</td>
                            <td className="py-6 px-4 text-right text-indigo-400">₹{(gstData.totalGST / 2).toLocaleString()}</td>
                            <td className="py-6 px-4 text-right text-indigo-400">₹{(gstData.totalGST / 2).toLocaleString()}</td>
-                           <td className="py-6 px-4 text-right text-indigo-400 text-sm tracking-tighter">₹{gstData.totalGST.toLocaleString()}</td>
+                           <td className="py-6 px-4 text-right text-indigo-400 text-xl font-semibold tracking-tighter">₹{gstData.totalGST.toLocaleString()}</td>
                         </tr>
                      </tfoot>
                   )}
@@ -266,7 +266,7 @@ export default function GSTPortal() {
                <AlertCircle size={28} />
             </div>
             <div>
-               <h4 className="text-sm font-bold text-amber-900 uppercase tracking-wider">GSTR-1 Compliance Directive</h4>
+               <h4 className="text-sm font-semibold text-amber-900 uppercase tracking-wider">GSTR-1 Compliance Directive</h4>
                <p className="text-xs font-medium text-amber-900/70 leading-relaxed mt-1 max-w-2xl">
                   All fiscal values in this portal are auto-reconciled from your authenticated invoice nodes.
                   Ensure centralized IGST/CGST parity before the 10th of every rolling period. NexusBill is currently operating on Protocol NK4A2 (Live).

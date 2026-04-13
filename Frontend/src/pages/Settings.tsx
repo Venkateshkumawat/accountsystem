@@ -21,7 +21,7 @@ const PLAN_PRICES: Record<string, number> = {
 function Toast({ msg, type, close }: { msg: string; type: 'success' | 'error'; close: () => void }) {
   useEffect(() => { const t = setTimeout(close, 4500); return () => clearTimeout(t); }, [close]);
   return (
-    <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl text-white text-sm font-bold ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+    <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl text-white text-sm font-semibold ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
       {type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
       {msg}
       <button onClick={close} className="ml-2 opacity-70 hover:opacity-100"><X size={13} /></button>
@@ -212,6 +212,11 @@ export default function Settings() {
       // Also update user name
       showToast('Profile updated successfully!');
       fetchData();
+
+      // Notify other tabs
+      const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('FETCH_DASHBOARD');
+      sync.close();
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Update failed', 'error');
     } finally { setLoading(false); }
@@ -261,6 +266,8 @@ export default function Settings() {
       fetchData();
 
       const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('FETCH_DASHBOARD');
+      sync.postMessage('SYNC_STAFF');
       sync.postMessage({ type: 'SYNC_NOTIFICATIONS' });
       sync.close();
 
@@ -286,6 +293,7 @@ export default function Settings() {
       fetchData();
 
       const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('SYNC_STAFF');
       sync.postMessage({ type: 'SYNC_NOTIFICATIONS' });
       sync.close();
     } catch (err: any) {
@@ -303,6 +311,7 @@ export default function Settings() {
       fetchData();
 
       const sync = new BroadcastChannel('nexus_sync');
+      sync.postMessage('SYNC_STAFF');
       sync.postMessage({ type: 'SYNC_NOTIFICATIONS' });
       sync.close();
     } catch (err: any) {
@@ -416,7 +425,7 @@ export default function Settings() {
                 <AlertTriangle size={32} className="text-rose-600" />
               </div>
               <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase">Initialize Global Reset?</h3>
-              <p className="text-slate-500 text-xs font-bold mt-2 uppercase tracking-wide px-4">
+              <p className="text-slate-500 text-xs font-semibold mt-2 uppercase tracking-wide px-4">
                 This will permanently purge ALL Product data and Transactions. This cannot be undone.
               </p>
             </div>
@@ -449,7 +458,7 @@ export default function Settings() {
         {user?.businessId && (
           <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-2xl w-fit">
             <Building2 size={14} className="text-indigo-600" />
-            <span className="text-xs font-bold text-indigo-700 tracking-tight">BUSINESS ID: {user.businessId}</span>
+            <span className="text-xs font-semibold text-indigo-700 tracking-tight">BUSINESS ID: {user.businessId}</span>
           </div>
         )}
       </div>
@@ -486,20 +495,20 @@ export default function Settings() {
                 {/* Admin info (read-only) */}
                 <div className="p-5 bg-slate-50/80 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Account Owner</p>
-                    <p className="text-sm font-bold text-slate-800">{user?.name || '—'}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Account Owner</p>
+                    <p className="text-sm font-semibold text-slate-800">{user?.name || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Registration Email</p>
-                    <p className="text-sm font-bold text-slate-800 break-all">{user?.email || '—'}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Registration Email</p>
+                    <p className="text-sm font-semibold text-slate-800 break-all">{user?.email || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Business Name</p>
-                    <p className="text-sm font-bold text-slate-800">{business?.businessName || '—'}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Business Name</p>
+                    <p className="text-sm font-semibold text-slate-800">{business?.businessName || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Business ID</p>
-                    <p className="text-sm font-bold text-indigo-600 font-mono">{user?.businessId || '—'}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Business ID</p>
+                    <p className="text-sm font-semibold text-indigo-600 font-mono">{user?.businessId || '—'}</p>
                   </div>
                 </div>
 
@@ -534,7 +543,7 @@ export default function Settings() {
                     <select 
                       value={profile.state} 
                       onChange={e => setProfile({ ...profile, state: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 focus:bg-white transition appearance-none"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:border-indigo-500 focus:bg-white transition appearance-none"
                     >
                       <option value="">Select State</option>
                       {INDIAN_STATES.map(s => (
@@ -577,7 +586,7 @@ export default function Settings() {
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm">
                 <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Team Members</h2>
+                    <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Team Members</h2>
                     <p className="text-slate-500 text-sm font-medium">{staff.length} staff · {staff.filter(s => s.isActive).length} active</p>
                   </div>
                   <div className="flex gap-2">
@@ -594,7 +603,7 @@ export default function Settings() {
                 {staff.length === 0 ? (
                   <div className="py-16 text-center">
                     <Users size={40} className="text-slate-200 mx-auto mb-3" />
-                    <p className="text-slate-400 font-bold">No staff added yet</p>
+                    <p className="text-slate-400 font-semibold">No staff added yet</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-50">
@@ -642,7 +651,7 @@ export default function Settings() {
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Offers & Campaigns</h2>
+                    <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Offers & Campaigns</h2>
                     <p className="text-slate-500 text-sm font-medium">Manage seasonal discounts, BOGO offers and customer pricing</p>
                   </div>
                   <button onClick={() => setShowOfferForm(true)}
@@ -654,7 +663,7 @@ export default function Settings() {
                 {offers.length === 0 ? (
                   <div className="py-20 text-center">
                     <Zap size={40} className="text-slate-100 mx-auto mb-4" />
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No active offers found</p>
+                    <p className="text-slate-400 font-semibold uppercase tracking-widest text-xs">No active offers found</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-50">
@@ -669,7 +678,7 @@ export default function Settings() {
                               <h3 className={`text-sm font-black uppercase tracking-tighter ${o.isActive ? 'text-slate-900' : 'text-slate-400'}`}>{o.name}</h3>
                               {!o.isActive && <span className="text-[8px] font-black bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded uppercase">Inactive</span>}
                             </div>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mt-0.5">
                               {o.type} • {o.type === 'BUY_X_GET_Y' ? `Buy ${o.buyQty || '?'} Get ${o.getQty || '?'}` : o.type === 'BULK_DISCOUNT' ? `${o.discountPercentage || '0'}% off (min ${o.minQty || '1'})` : `Value: ${o.value || '0'}${o.type === 'PERCENTAGE' ? '%' : '₹'}`}
                             </p>
                           </div>
@@ -687,7 +696,7 @@ export default function Settings() {
                                 await api.put(`/offers/${o._id}`, { isActive: !o.isActive });
                                 fetchData();
                                 showToast(`Offer ${!o.isActive ? 'activated' : 'paused'}!`);
-                                const sync = new BroadcastChannel('bb_sync');
+                                const sync = new BroadcastChannel('nexus_sync');
                                 sync.postMessage('FETCH_PRODUCTS');
                                 sync.close();
                               } catch { }
@@ -710,8 +719,8 @@ export default function Settings() {
               <div className="p-6 bg-slate-900 rounded-3xl flex items-center justify-between gap-6 overflow-hidden relative">
                 <div className="relative z-10">
                   <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2">Nexus Fiscal Optimization</p>
-                  <h3 className="text-white text-base font-bold uppercase tracking-tight">Bulk Pricing Logic Active</h3>
-                  <p className="text-slate-400 text-xs mt-1 font-bold">POS Terminal automatically evaluates best savings for every transaction.</p>
+                  <h3 className="text-white text-base font-semibold uppercase tracking-tight">Bulk Pricing Logic Active</h3>
+                  <p className="text-slate-400 text-xs mt-1 font-semibold">POS Terminal automatically evaluates best savings for every transaction.</p>
                 </div>
                 <Zap size={100} className="text-white/5 absolute -right-4 rotate-12" />
               </div>
@@ -874,7 +883,7 @@ export default function Settings() {
                            <span className="text-[10px] font-black uppercase tracking-widest">Protocol Deadline</span>
                         </div>
                         <p className="text-xl font-black">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m</p>
-                        <div className="mt-2 text-[8px] font-bold text-slate-500 uppercase tracking-widest">{planData?.expiryDate ? new Date(planData.expiryDate).toLocaleDateString() : '—'}</div>
+                        <div className="mt-2 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">{planData?.expiryDate ? new Date(planData.expiryDate).toLocaleDateString() : '—'}</div>
                       </div>
 
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
@@ -889,7 +898,7 @@ export default function Settings() {
                             style={{ width: `${Math.min(100, ((planData?.currentProductCount || 0) / (planData?.ProductLimit || 1)) * 100)}%` }}
                            />
                         </div>
-                        <div className="mt-2 flex justify-between text-[8px] font-bold text-slate-500 uppercase">
+                        <div className="mt-2 flex justify-between text-[8px] font-semibold text-slate-500 uppercase">
                           <span>Usage</span>
                           <span>{planData?.currentProductCount} / {planData?.ProductLimit}</span>
                         </div>
@@ -907,7 +916,7 @@ export default function Settings() {
                             style={{ width: `${Math.min(100, ((planData?.currentInvoiceCount || 0) / (planData?.invoiceLimit || 1)) * 100)}%` }}
                            />
                         </div>
-                        <div className="mt-2 flex justify-between text-[8px] font-bold text-slate-500 uppercase">
+                        <div className="mt-2 flex justify-between text-[8px] font-semibold text-slate-500 uppercase">
                           <span>Units Synthesized</span>
                           <span>{planData?.currentInvoiceCount} / {planData?.invoiceLimit}</span>
                         </div>
@@ -921,7 +930,7 @@ export default function Settings() {
                         <p className={`text-xl font-black uppercase ${planData?.status === 'active' ? 'text-emerald-400' : 'text-rose-400 animate-pulse'}`}>
                            {planData?.status || '—'}
                         </p>
-                        <div className="mt-2 text-[8px] font-bold text-slate-500 uppercase tracking-widest">{planData?.status === 'suspended' ? 'Infrastructure Locked' : 'Nodes operational'}</div>
+                        <div className="mt-2 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">{planData?.status === 'suspended' ? 'Infrastructure Locked' : 'Nodes operational'}</div>
                       </div>
                     </div>
                   </div>
@@ -1020,13 +1029,13 @@ export default function Settings() {
                               <span className="px-2.5 py-1 bg-slate-100 text-slate-900 rounded-lg text-[10px] font-black uppercase tracking-tighter">
                                 {h.plan}
                               </span>
-                              <div className="text-[9px] text-slate-400 font-bold mt-1 uppercase">ID: NODE-REG-{i + 1}</div>
+                              <div className="text-[9px] text-slate-400 font-semibold mt-1 uppercase">ID: NODE-REG-{i + 1}</div>
                             </td>
                             <td className="p-4">
                               <div className="text-xs font-black text-slate-700">
                                 {new Date(h.startDate).toLocaleDateString()} — {new Date(h.endDate).toLocaleDateString()}
                               </div>
-                              <div className="text-[10px] text-indigo-500 font-bold mt-0.5 uppercase tracking-widest">#{h.assignedBy?.replace('_', ' ') || 'SYSTEM'}</div>
+                              <div className="text-[10px] text-indigo-500 font-semibold mt-0.5 uppercase tracking-widest">#{h.assignedBy?.replace('_', ' ') || 'SYSTEM'}</div>
                             </td>
                             <td className="p-4 text-xs font-black text-emerald-600 text-right">
                               {h.amountPaid ? `₹${h.amountPaid}` : '₹0 (Trial/Free)'}
@@ -1075,7 +1084,7 @@ export default function Settings() {
                 </div>
                 <div className="px-6 py-4 bg-slate-900 flex items-center gap-3">
                   <Info size={14} className="text-slate-400 shrink-0" />
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Nexus Platform Authority required for these operations</p>
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Nexus Platform Authority required for these operations</p>
                 </div>
               </div>
             </div>
@@ -1087,8 +1096,8 @@ export default function Settings() {
 
       {/* ──── ADD STAFF MODAL (from Settings) ──── */}
       {showStaffForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm pt-20 pb-20 sm:p-4">
+          <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden max-h-full sm:max-h-[95vh] flex flex-col">
             <div className="p-6 bg-gradient-to-r from-slate-900 to-indigo-900 text-white flex items-center justify-between shrink-0">
               <div>
                 <h3 className="font-black text-lg tracking-tight">Add Staff Member</h3>
@@ -1112,7 +1121,7 @@ export default function Settings() {
                   placeholder={`e.g. ${user?.businessId || 'BB-XXXX-0000'} (Your Active Node ID)`}
                   value={staffForm.referenceId}
                   onChange={e => setStaffForm({ ...staffForm, referenceId: e.target.value })}
-                  className="w-full px-4 py-3 bg-white border border-amber-300 rounded-xl text-[10px] font-bold tracking-normal focus:outline-none focus:border-amber-500 transition"
+                  className="w-full px-4 py-3 bg-white border border-amber-300 rounded-xl text-[10px] font-semibold tracking-normal focus:outline-none focus:border-amber-500 transition"
                 />
                 <p className="text-[10px] text-amber-600 font-medium mt-1.5 leading-none">
                   Confirm authorization by entering your unique Business Node ID.
@@ -1125,7 +1134,7 @@ export default function Settings() {
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role *</label>
                   <select value={staffForm.role} onChange={e => setStaffForm({ ...staffForm, role: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 transition">
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:border-indigo-500 transition">
                     <option value="cashier">Cashier</option>
                     <option value="accountant">Accountant</option>
                     <option value="manager">Manager</option>
@@ -1175,7 +1184,7 @@ export default function Settings() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</label>
                 <select value={editStaff.role} onChange={e => setEditStaff({ ...editStaff, role: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 transition">
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:border-indigo-500 transition">
                   <option value="cashier">Cashier</option>
                   <option value="accountant">Accountant</option>
                   <option value="manager">Manager</option>
@@ -1202,7 +1211,7 @@ export default function Settings() {
               </div>
               <div className="flex gap-3">
                 <button type="button" onClick={() => setEditStaff(null)}
-                  className="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition">Cancel</button>
+                  className="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition">Cancel</button>
                 <button type="submit" disabled={staffSubmitting}
                   className="flex-1 py-3 rounded-2xl bg-indigo-600 text-white font-black hover:bg-indigo-700 disabled:opacity-50 transition">
                   {staffSubmitting ? 'Saving…' : 'Save Changes'}
@@ -1215,17 +1224,19 @@ export default function Settings() {
 
       {/* ──── OFFER CREATE TERMINAL (CLEAN FOCUSED VERSION) ──── */}
       {showOfferForm && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-300">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-indigo-100 overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 bg-indigo-600 text-white flex items-center justify-between shrink-0">
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
+            <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
               <div>
-                <h3 className="text-lg font-black uppercase tracking-tighter">Create Offer Node</h3>
-                <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mt-0.5">Campaign Initialization Terminal</p>
+                <h3 className="text-xl font-semibold tracking-tight uppercase">Create Offer Node</h3>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Campaign Initialization Terminal</p>
               </div>
-              <button onClick={() => setShowOfferForm(false)} className="p-2 hover:bg-white/10 rounded-xl transition"><X size={20} /></button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setShowOfferForm(false)} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">Back</button>
+              </div>
             </div>
 
-            <form className="p-6 space-y-4 overflow-y-auto custom-scrollbar" onSubmit={async (e) => {
+            <form className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar" onSubmit={async (e) => {
               e.preventDefault();
               setOfferSubmitting(true);
               try {
@@ -1331,12 +1342,14 @@ export default function Settings() {
                 <SI label="End Date" type="datetime-local" value={offerForm.endDate} onChange={v => setOfferForm({ ...offerForm, endDate: v })} />
               </div>
 
-              <div className="flex gap-3 mt-4">
-                <button type="button" onClick={() => setShowOfferForm(false)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition">Cancel</button>
-                <button type="submit" disabled={offerSubmitting} className="flex-[2] py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-600 transition disabled:opacity-50">
+              <footer className="pt-4 border-t border-slate-100 flex gap-3 shrink-0">
+                <button type="button" onClick={() => setShowOfferForm(false)} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest">
+                  Cancel
+                </button>
+                <button type="submit" disabled={offerSubmitting} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
                   {offerSubmitting ? 'Syncing...' : (editOfferId ? 'Update Node' : 'Activate Node')}
                 </button>
-              </div>
+              </footer>
             </form>
           </div>
         </div>
@@ -1357,7 +1370,7 @@ function SI({ label, value, onChange, required, type = 'text', placeholder, maxL
       <input type={type} value={value} required={required} placeholder={placeholder}
         maxLength={maxLength} disabled={disabled} pattern={pattern} title={title} min={min}
         onChange={e => onChange?.(e.target.value)}
-        className={`w-full px-4 py-3 rounded-2xl text-sm font-bold transition focus:outline-none ${disabled ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-100'
+        className={`w-full px-4 py-3 rounded-2xl text-sm font-semibold transition focus:outline-none ${disabled ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-100'
           : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:bg-white'
           }`}
       />
@@ -1375,7 +1388,7 @@ function PwdInput({ label, value, onChange, show, toggleShow }: {
       <div className="relative">
         <input type={show ? 'text' : 'password'} value={value} required
           onChange={e => onChange(e.target.value)} placeholder="••••••••"
-          className="w-full px-4 py-3 pr-11 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+          className="w-full px-4 py-3 pr-11 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:border-indigo-500 focus:bg-white transition"
         />
         <button type="button" onClick={toggleShow}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition">
