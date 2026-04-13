@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingCart, FileText, Package, Archive,
   BookOpen, Receipt, Users, BarChart2, LogOut,
-  Menu, X, Shield, AlertTriangle, ArrowRight, Cog, Bell
+  Menu, X, Shield, AlertTriangle, ArrowRight, Cog, Bell,
+  Package2, Search as SearchIcon
 } from 'lucide-react';
 import api from '../services/api';
 import socketService from '../services/socket';
@@ -13,7 +14,7 @@ import NotificationCenter from './NotificationCenter';
 interface AppLayoutProps { children?: React.ReactNode; }
 
 interface SuggestionItem {
-  type: 'invoice' | 'product' | 'staff';
+  type: 'invoice' | 'product' | 'party';
   id: string;
   label: string;
   sub: string;
@@ -30,7 +31,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   // ── Global Socket Connection ──
   useEffect(() => {
     socketService.connect();
-    // Re-connect on user change? Handled by connect() check.
   }, []);
 
   // ── Global Search ──────────────────────────────────────────────────────────
@@ -39,7 +39,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [showSug, setShowSug] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
 
   useEffect(() => { setIsSidebarOpen(false); }, [location.pathname]);
 
@@ -132,14 +131,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       return false;
     }
     if (item.permission !== null) {
-        if (isBusinessAdmin) return true; // Admins see everything
+        if (isBusinessAdmin) return true;
         return hasPermission(item.permission);
     }
     return true; 
   });
 
   const getInitials = (name: string) =>
-    name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'NX';
+    name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'BB';
 
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
@@ -153,13 +152,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         />
       )}
 
+      {/* ── SIDEBAR ────────────────────────────────────────────────────────── */}
       <aside 
         className={`fixed inset-y-0 left-0 w-[280px] bg-white border-r border-slate-100 z-[200] transform transition-transform duration-500 lg:translate-x-0 lg:static lg:block ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="h-full flex flex-col overflow-hidden">
-          <div className="h-[52px] px-6 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="h-[64px] px-6 flex items-center justify-between border-b border-slate-100 shrink-0">
             <Link to="/" className="flex items-center gap-3">
               <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                 <span className="text-xl font-black">N</span>
@@ -167,7 +167,31 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <span className="text-xl font-bold tracking-tight text-slate-900">
                 NexusBill
               </span>
-                <p className="text-xs font-medium text-slate-500 truncate lowercase first-letter:uppercase">{user?.role || 'Admin'}</p>
+            </Link>
+            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
+              <X size={20} />
+            </button>
+          </div>
+
+          <nav className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto sidebar-scrollbar scroll-smooth">
+            {visibleNavItems.map((item, idx) => (
+              <SidebarItem 
+                key={idx} 
+                item={item} 
+                isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))} 
+                onClick={() => setIsSidebarOpen(false)}
+              />
+            ))}
+          </nav>
+
+          <div className="p-4 shrink-0 mt-auto border-t border-slate-50">
+            <div className="px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3 transition-all hover:border-indigo-100">
+              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center font-bold text-xs text-indigo-600 shrink-0">
+                {getInitials(user?.name || 'BB')}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-slate-900 truncate">{user?.name || 'Admin User'}</p>
+                <p className="text-[10px] font-bold text-slate-500 truncate uppercase tracking-widest">{user?.role || 'Authority'}</p>
               </div>
               <button 
                 onClick={handleLogout}
@@ -184,94 +208,95 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* ── CORE VIEWPORT ────────────────────────────────────────────────── */}
       <main className="flex-1 flex flex-col min-w-0 relative bg-slate-50/50">
         <div className="flex-1 overflow-y-auto custom-scrollbar scroll-smooth">
-          <header className={`h-16 bg-white flex items-center justify-between px-4 lg:px-8 z-[120] ${location.pathname === '/dashboard' ? 'sticky top-0' : ''}`}>
+          <header className="h-16 bg-white flex items-center justify-between px-4 lg:px-8 border-b border-slate-100 z-[120] sticky top-0">
             <div className="flex items-center gap-3 flex-1">
               <button 
                 onClick={() => setIsSidebarOpen(true)} 
-                className="lg:hidden p-1.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
+                className="lg:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
               >
-              <Menu size={20} />
-            </button>
+                <Menu size={20} />
+              </button>
 
-            <button 
-              onClick={() => setIsMobileSearchOpen(true)} 
-              className="lg:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
-            >
-              <Receipt size={18} />
-            </button>
+              <button 
+                onClick={() => setIsMobileSearchOpen(true)} 
+                className="lg:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
+              >
+                <SearchIcon size={18} />
+              </button>
             
-            {/* Desktop Search */}
-            <div className={`
-              fixed lg:relative inset-x-0 top-0 p-3 lg:p-0 bg-white lg:bg-transparent border-b border-slate-100 lg:border-none
-              flex-1 max-w-sm transition-all duration-300 z-50
-              ${isMobileSearchOpen ? 'translate-y-0 opacity-100' : '-translate-y-full lg:translate-y-0 opacity-0 lg:opacity-100 pointer-events-none lg:pointer-events-auto'}
-            `} ref={searchRef}>
-              <div className="relative group">
-                <input
-                  type="text"
-                  placeholder="Search for invoices, products, or parties..."
-                  className="w-full pl-10 h-10 bg-slate-50 border-none rounded-xl text-sm font-normal text-slate-600 focus:bg-white focus:ring-4 focus:ring-slate-100 transition-all placeholder:text-slate-400 placeholder:font-normal"
-                  value={searchQ}
-                  onChange={handleSearch}
-                  onFocus={() => searchQ.length >= 2 && setShowSug(true)}
-                />
-                
-                {isMobileSearchOpen && (
-                  <button 
-                    onClick={() => setIsMobileSearchOpen(false)}
-                    className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-rose-500"
-                  >
-                    <X size={18} />
-                  </button>
-                )}
-                
-                {showSug && suggestions.length > 0 && (
-                  <div className="absolute top-full mt-2 w-full bg-white rounded-[1.5rem] shadow-2xl border border-slate-200 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-300">
-                    <div className="p-3 bg-slate-50 border-b border-slate-100">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <BarChart2 size={10} /> Node Recommendations
-                      </p>
-                    </div>
-                    <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
-                      {suggestions.map((s, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handleSuggestionClick(s)}
-                          className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0"
-                        >
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                            s.type === 'product' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'
-                          }`}>
-                            {s.type === 'product' ? <Package size={16} /> : <Receipt size={16} />}
-                          </div>
-                          <div className="text-left flex-1 min-w-0">
-                            <p className="text-[13px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase truncate">{s.label}</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{s.sub}</p>
-                          </div>
-                          <ArrowRight size={14} className="ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-                        </button>
-                      ))}
-                    </div>
+              {/* Search Protocol */}
+              <div className={`
+                fixed lg:relative inset-x-0 top-0 p-3 lg:p-0 bg-white lg:bg-transparent border-b border-slate-100 lg:border-none
+                flex-1 max-w-sm transition-all duration-300 z-50
+                ${isMobileSearchOpen ? 'translate-y-0 opacity-100' : '-translate-y-full lg:translate-y-0 opacity-0 lg:opacity-100 pointer-events-none lg:pointer-events-auto'}
+              `} ref={searchRef}>
+                <div className="relative group">
+                  <input
+                    type="text"
+                    placeholder="Search node repository..."
+                    className="w-full pl-10 h-11 bg-slate-50 border-none rounded-2xl text-sm font-normal text-slate-600 focus:bg-white focus:ring-4 focus:ring-slate-100 transition-all placeholder:text-slate-300"
+                    value={searchQ}
+                    onChange={handleSearch}
+                    onFocus={() => searchQ.length >= 2 && setShowSug(true)}
+                  />
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300">
+                    <SearchIcon size={16} />
                   </div>
-                )}
+                  
+                  {isMobileSearchOpen && (
+                    <button 
+                      onClick={() => setIsMobileSearchOpen(false)}
+                      className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-rose-500"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                  
+                  {showSug && suggestions.length > 0 && (
+                    <div className="absolute top-full mt-2 w-full bg-white rounded-[1.5rem] shadow-2xl border border-slate-200 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-300">
+                      <div className="p-3 bg-slate-50 border-b border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <BarChart2 size={10} /> Sync Recommendations
+                        </p>
+                      </div>
+                      <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
+                        {suggestions.map((s, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleSuggestionClick(s)}
+                            className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0"
+                          >
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                              s.type === 'product' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'
+                            }`}>
+                              {s.type === 'product' ? <Package size={16} /> : <Receipt size={16} />}
+                            </div>
+                            <div className="text-left flex-1 min-w-0">
+                              <p className="text-[13px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase truncate">{s.label}</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{s.sub}</p>
+                            </div>
+                            <ArrowRight size={14} className="ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3 lg:gap-5">
-            <div className="hidden sm:flex items-center gap-3">
-              <span className="text-sm font-bold text-slate-900">{user?.businessName || 'Nexus Electronics'}</span>
-              <div className="flex flex-col items-end">
-                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">GST ACTIVE</span>
+            <div className="flex items-center gap-3 lg:gap-5">
+              <div className="hidden sm:flex flex-col items-end">
+                 <span className="text-sm font-bold text-slate-900 max-w-[150px] truncate">{user?.businessName || 'Nexus Node'}</span>
+                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">Verified GST</span>
               </div>
+              <NotificationCenter />
             </div>
-            <NotificationCenter />
-          </div>
-        </header>
+          </header>
 
-        <div className="p-4 lg:p-6 relative">
+          <div className="p-4 lg:p-8 relative">
             {isBusinessAdmin && planStatus && (planStatus.isNearExpiry || planStatus.status === 'expired') && (
-              <div className={`mb-3 p-6 rounded-[2rem] border-2 flex items-center gap-6 animate-in slide-in-from-top-4 duration-500 shadow-xl ${
+              <div className={`mb-6 p-6 rounded-[2rem] border-2 flex items-center gap-6 animate-in slide-in-from-top-4 duration-500 shadow-xl ${
                 planStatus.status === 'expired' ? 'bg-rose-600 border-rose-500 text-white' : 'bg-amber-400 border-amber-300 text-slate-900'
               }`}>
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
@@ -280,23 +305,23 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   <AlertTriangle size={28} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold uppercase tracking-tight">
+                  <h3 className="text-lg font-semibold uppercase tracking-tight leading-none">
                     {planStatus.status === 'expired' ? 'Infrastructure Suspended' : 'Subscription Ending Soon'}
                   </h3>
-                  <p className="text-sm font-bold opacity-90 mt-0.5">
+                  <p className="text-sm font-bold opacity-90 mt-1.5">
                     {planStatus.status === 'expired' 
-                      ? 'Nexus protocol halted. Please restore billing to resume high-velocity operations.'
-                      : `Sync anomaly: Your plan expires in ${planStatus.remainingDays} days. Visit Master Control to renew.`
+                      ? 'Critical failure: Nexus protocol halted. Restore billing to resume operations.'
+                      : `Sync anomaly: Your plan expires in ${planStatus.remainingDays} days. Visit settings to renew.`
                     }
                   </p>
                 </div>
                 <Link 
                   to="/settings" 
-                  className={`px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg ${
+                  className={`px-8 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg ${
                     planStatus.status === 'expired' ? 'bg-white text-rose-600' : 'bg-slate-900 text-white'
                   }`}
                 >
-                  Configure Billing
+                  Configure
                 </Link>
               </div>
             )}
@@ -311,20 +336,23 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   );
 };
 
-const SidebarItem = React.memo(({ item, isActive }: { item: any, isActive: boolean }) => {
+const SidebarItem = React.memo(({ item, isActive, onClick }: { item: any, isActive: boolean, onClick: () => void }) => {
   const Icon = item.icon;
   return (
     <Link
       to={item.path}
-      className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group relative ${
+      onClick={onClick}
+      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative ${
         isActive 
-          ? 'bg-indigo-50/80 text-indigo-600' 
+          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
           : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
       }`}
     >
       <Icon size={18} className={`shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-      <span className={`text-sm font-${isActive ? 'semibold' : 'medium'}`}>{item.label}</span>
-      {isActive && <div className="ml-auto w-1 h-1 bg-indigo-500 rounded-full" />}
+      <span className={`text-[13px] font-${isActive ? 'bold' : 'semibold'} uppercase tracking-tight`}>{item.label}</span>
+      {isActive && (
+        <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+      )}
     </Link>
   );
 });
