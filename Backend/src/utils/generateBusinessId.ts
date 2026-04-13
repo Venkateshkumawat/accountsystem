@@ -1,8 +1,8 @@
 import Business from '../models/Business.js';
 
 /**
- * Generates a unique Business ID for BharatBill.
- * Format: "BB-" + 4 uppercase letters + "-" + 4 digits (e.g., BB-KRTX-7291)
+ * Generates a unique Business ID for NexusBill.
+ * Format: "NX-" + 4 uppercase letters + "-" + 4 digits (e.g., NX-KRTX-7291)
  */
 export const generateBusinessId = async (): Promise<string> => {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -12,7 +12,7 @@ export const generateBusinessId = async (): Promise<string> => {
   const maxAttempts = 10;
 
   while (attempts < maxAttempts) {
-    let result = 'BB-';
+    let result = 'NX-';
     
     // Generate 4 random uppercase letters
     for (let i = 0; i < 4; i++) {
@@ -41,9 +41,9 @@ export const generateBusinessId = async (): Promise<string> => {
 };
 
 /**
- * Validates if the given string matches the BharatBill Business ID pattern.
+ * Validates if the given string matches the NexusBill Business ID pattern.
  */
 export const isValidBusinessId = (id: string): boolean => {
-  const pattern = /^BB-[A-Z]{4}-\d{4}$/;
+  const pattern = /^NX-[A-Z]{4}-\d{4}$/;
   return pattern.test(id);
 };

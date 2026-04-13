@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Phone, Mail, ArrowUpRight, ArrowDownLeft, MoreVertical, Filter, UserPlus, Users, X, Edit2, Trash2, ShieldCheck, Activity, MapPin, Globe, CreditCard, Search, SearchCode } from 'lucide-react';
+import { Phone, Mail, ArrowUpRight, ArrowDownLeft, MoreVertical, UserPlus, Users, X, Edit2, Trash2, ShieldCheck, Activity, MapPin, CreditCard, Search } from 'lucide-react';
 import api from '../services/api';
 import { useNotify } from '../context/NotificationContext';
 import { INDIAN_STATES } from '../constants/indianStates';
 import { validateGSTIN, validatePincode } from '../utils/validation';
-import { Layout } from 'lucide-react';
 
 export default function Parties() {
     const [parties, setParties] = useState<any[]>([]);
@@ -76,112 +75,221 @@ export default function Parties() {
         return matchesSearch && matchesType;
     });
 
+    const totalToReceive = parties.filter(p => p.openingBalance > 0).reduce((acc, p) => acc + p.openingBalance, 0);
+    const totalToPay = parties.filter(p => p.openingBalance < 0).reduce((acc, p) => acc + Math.abs(p.openingBalance), 0);
+    const netBalance = totalToReceive - totalToPay;
+
     if (loading && parties.length === 0) {
         return (
             <div className="h-[80vh] flex flex-col items-center justify-center bg-slate-50/50">
                 <Users size={48} className="text-slate-200 animate-pulse" />
-                <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Syncing Party Vault...</p>
+                <p className="mt-4 text-sm font-medium text-slate-400">Syncing Party Vault...</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 min-h-screen p-4 bg-[#fcfcfd]">
+        <div className="space-y-6 min-h-screen p-6 bg-[#fcfcfd]">
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
-                <div className="space-y-1">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-full border border-indigo-100 shadow-sm mb-2">
-                        <Activity size={10} className="text-indigo-600" />
-                        <span className="text-[9px] font-black text-indigo-900/60 uppercase tracking-[0.2em]">Contact Records Management</span>
-                    </div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">Parties</h1>
-                    <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
-                        <ShieldCheck size={12} className="text-emerald-500" /> Digital address book for business ledger.
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Parties (Customers & Vendors)</h1>
+                    <p className="text-sm font-normal text-slate-500 mt-1">Manage your business relationships and outstanding balances</p>
                 </div>
-                <button onClick={() => { resetForm(); setEditingNode(null); setShowModal(true); }} className="flex items-center gap-3 px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black shadow-2xl hover:bg-slate-800 transition-all uppercase tracking-widest active:scale-95">
-                    <UserPlus size={18} /> New Party
-                </button>
+                <div className="flex items-center gap-3">
+                    <button onClick={() => { resetForm(); setEditingNode(null); setShowModal(true); }} className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+                        <UserPlus size={18} /> Add Party
+                    </button>
+                </div>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 font-inter">
+                <div className="bg-[#f5f7ff] border border-indigo-100 rounded-[1.5rem] p-5 lg:p-6 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm shrink-0">
+                        <ArrowUpRight size={24} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-semibold text-indigo-400 uppercase tracking-widest leading-none mb-1.5">TO RECEIVE</p>
+                        <p className="text-xl lg:text-2xl font-bold text-emerald-600 tracking-tight">₹{totalToReceive.toLocaleString()}</p>
+                    </div>
+                </div>
+                <div className="bg-[#fff5f5] border border-rose-100 rounded-[1.5rem] p-5 lg:p-6 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm shrink-0">
+                        <ArrowDownLeft size={24} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-semibold text-rose-400 uppercase tracking-widest leading-none mb-1.5">TO PAY</p>
+                        <p className="text-xl lg:text-2xl font-bold text-rose-600 tracking-tight">₹{totalToPay.toLocaleString()}</p>
+                    </div>
+                </div>
+                <div className="sm:col-span-2 lg:col-span-1 bg-white border border-slate-100 rounded-[1.5rem] p-5 lg:p-6 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 border border-slate-100 shrink-0">
+                        <CreditCard size={24} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5">NET BALANCE</p>
+                        <p className="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">₹{netBalance.toLocaleString()}</p>
+                    </div>
+                </div>
             </div>
 
             {/* Strategy & Search Protocol */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 px-2">
-                <div className="lg:col-span-3 flex overflow-x-auto gap-2 no-scrollbar pb-2">
-                    {['All', 'Customer', 'Vendor'].map((type) => (
-                        <button
-                            key={type}
-                            onClick={() => setActiveType(type)}
-                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${
-                                activeType === type ? 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-200' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-300'
-                            }`}
-                        >
-                            {type} Records
-                        </button>
-                    ))}
+            <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden flex flex-col">
+                <div className="p-4 lg:p-6 flex flex-col sm:flex-row gap-4 justify-between border-b border-slate-50">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                        <input
+                            type="text" placeholder="Search party name, GSTIN..." value={search} onChange={e => setSearch(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-normal focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
+                        />
+                    </div>
+                    <div className="flex gap-1.5 bg-slate-50 p-1 rounded-xl w-fit self-start sm:self-center">
+                        {['All', 'Customer', 'Vendor'].map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => setActiveType(type)}
+                                className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                                    activeType === type ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                                }`}
+                            >
+                                {type}s
+                            </button>
+                        ))}
+                    </div>
                 </div>
-                <div className="relative group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={14} />
-                    <input
-                        type="text" placeholder="SEARCH PARTIES..." value={search} onChange={e => setSearch(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-indigo-500/20 transition-all shadow-sm placeholder:text-slate-200"
-                    />
-                </div>
-            </div>
 
-            {/* Data Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
-                {filteredParties.map((party) => (
-                    <div key={party._id} className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                            <button onClick={() => { setEditingNode(party); setFormData(party); setShowModal(true); }} className="p-2 bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"> <Edit2 size={12} /> </button>
-                            <button onClick={() => handleDelete(party._id)} className="p-2 bg-slate-50 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"> <Trash2 size={12} /> </button>
-                        </div>
-
-                        <div className="flex items-start gap-5">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-all ${
-                                party.type === 'Vendor' ? 'bg-amber-50 border-amber-100 text-amber-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'
-                            }`}>
-                                <Users size={24} />
-                            </div>
-                            <div className="space-y-1">
-                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">{party.name}</h3>
-                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-300">{party.type} ID: {party._id.slice(-6)}</p>
-                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                                    party.type === 'Vendor' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                {/* Mobile Card View */}
+                <div className="lg:hidden divide-y divide-slate-50">
+                    {filteredParties.map((party) => (
+                        <div key={party._id} className="p-5 flex flex-col gap-4 hover:bg-slate-50/50 transition-colors">
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-base font-bold text-indigo-600 border border-slate-200 shrink-0">
+                                        {party.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[15px] font-bold text-slate-900 leading-tight truncate">{party.name}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">{party.gstin || 'NO GSTIN REGISTRY'}</p>
+                                    </div>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shrink-0 ${
+                                    party.type === 'Vendor' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                 }`}>
                                     {party.type}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-8 grid grid-cols-2 gap-4">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-slate-500">
-                                    <Phone size={12} className="text-slate-400" />
-                                    <span className="text-[10px] font-bold">{party.phone}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-slate-500 overflow-hidden">
-                                    <Mail size={12} className="text-slate-400 shrink-0" />
-                                    <span className="text-[10px] font-bold truncate">{party.email || 'N/A'}</span>
-                                </div>
-                            </div>
-                            <div className="bg-slate-50 rounded-2xl p-3 flex flex-col justify-center items-end border border-slate-100/50">
-                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Balance Ledger</span>
-                                <span className={`text-xs font-black ${party.openingBalance < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                                    ₹{Math.abs(party.openingBalance).toLocaleString()}
-                                    <span className="text-[8px] ml-1">{party.openingBalance < 0 ? 'Pay' : 'Rec'}</span>
                                 </span>
                             </div>
-                        </div>
 
-                        {party.address && (
-                            <div className="mt-6 pt-4 border-t border-slate-50 flex items-center gap-2 text-slate-300">
-                                <MapPin size={10} />
-                                <span className="text-[9px] font-bold uppercase truncate">{party.address.city}, {party.address.state}</span>
+                            <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50/50">
+                                <div>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status Pulse</p>
+                                    <p className={`text-base font-black ${party.openingBalance < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                        ₹{Math.abs(party.openingBalance).toLocaleString()}
+                                    </p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase">{party.openingBalance < 0 ? 'TO PAY' : 'TO RECEIVE'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Contact Protocol</p>
+                                    <div className="flex items-center gap-1.5 text-slate-600">
+                                        <Phone size={10} className="text-slate-300" />
+                                        <span className="text-[11px] font-black">{party.phone}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-slate-400 mt-0.5">
+                                        <Mail size={10} className="text-slate-300" />
+                                        <span className="text-[10px] font-bold truncate max-w-[120px]">{party.email || 'no-nexus-mail'}</span>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-                    </div>
-                ))}
+
+                            <div className="flex gap-2">
+                                <button onClick={() => { setEditingNode(party); setFormData(party); setShowModal(true); }} className="flex-1 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:border-indigo-200 transition-all">Edit Node</button>
+                                <button onClick={() => handleDelete(party._id)} className="w-12 h-12 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl border border-rose-100 hover:bg-rose-600 hover:text-white transition-all"><Trash2 size={16} /></button>
+                            </div>
+                        </div>
+                    ))}
+                    {filteredParties.length === 0 && (
+                        <div className="py-20 text-center">
+                            <Users size={32} className="mx-auto text-slate-100 mb-2" />
+                            <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No Parties Found</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Desktop Data Grid Table */}
+                <div className="hidden lg:block overflow-x-auto no-scrollbar">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-50">
+                                <th className="px-6 py-4">PARTY DETAILS</th>
+                                <th className="px-6 py-4">CONTACT</th>
+                                <th className="px-6 py-4">TYPE</th>
+                                <th className="px-6 py-4">BALANCE</th>
+                                <th className="px-6 py-4 text-right">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {filteredParties.map((party) => (
+                                <tr key={party._id} className="group hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-indigo-600 border border-slate-200">
+                                                {party.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-900 leading-none mb-1">{party.name}</p>
+                                                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">{party.gstin || 'No GSTIN Registry'}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-1.5 text-slate-600">
+                                                <Phone size={12} className="text-slate-300" />
+                                                <span className="text-[11px] font-medium">{party.phone}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-slate-400">
+                                                <Mail size={12} className="text-slate-300" />
+                                                <span className="text-[11px] font-medium truncate max-w-[150px]">{party.email || 'no-registry@nexus.com'}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                                            party.type === 'Vendor' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                                        }`}>
+                                            {party.type}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div>
+                                            <p className={`text-sm font-bold ${party.openingBalance < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                                ₹{Math.abs(party.openingBalance).toLocaleString()}
+                                            </p>
+                                            <p className="text-[9px] font-medium text-slate-400 uppercase">{party.openingBalance < 0 ? 'TO PAY' : 'TO RECEIVE'}</p>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-3">
+                                            <div className="relative group/menu">
+                                                <button className="p-2 text-slate-300 hover:text-slate-600 hover:bg-white rounded-lg transition-all">
+                                                    <MoreVertical size={16} />
+                                                </button>
+                                                <div className="absolute right-0 top-full mt-1 bg-white border border-slate-100 rounded-xl shadow-xl py-2 w-32 hidden group-hover/menu:block z-10 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                    <button onClick={() => { setEditingNode(party); setFormData(party); setShowModal(true); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-2">
+                                                        <Edit2 size={12} /> Edit
+                                                    </button>
+                                                    <button onClick={() => handleDelete(party._id)} className="w-full text-left px-4 py-2 text-xs font-medium text-rose-500 hover:bg-rose-50 flex items-center gap-2">
+                                                        <Trash2 size={12} /> Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Initialize Modal */}
@@ -193,15 +301,15 @@ export default function Parties() {
                                 <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg">
                                     <UserPlus size={20} />
                                 </div>
-                                <div>
-                                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tighter">{editingNode ? 'Edit Party' : 'New Party'}</h2>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Party Registry Update</p>
+                                <div className="space-y-0.5">
+                                    <h2 className="text-xl font-semibold text-slate-900 tracking-tight">{editingNode ? 'Edit Party' : 'New Party'}</h2>
+                                    <p className="text-xs font-normal text-slate-500">Party Registry Update</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowModal(false)} className="p-3 bg-white text-slate-400 hover:text-rose-500 rounded-2xl border border-slate-100 transition-all shadow-sm active:scale-90"> <X size={18} /> </button>
                         </header>
 
-                        <form onSubmit={handleSave} className="flex flex-col max-h-[70vh]">
+                        <form onSubmit={handleSave} className="flex flex-col max-h-[75vh]">
                             <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
                                 <section>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -209,10 +317,10 @@ export default function Parties() {
                                         <SI label="Mobile Protocol" icon={Phone} placeholder="10 Digits" value={formData.phone} onChange={(v: string) => setFormData({...formData, phone: v})} required maxLength={10} />
                                         <SI label="Registry Email" icon={Mail} placeholder="email@nexus.com" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} type="email" />
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2"> <Activity size={12} className="text-indigo-500" /> Strategy Type </label>
+                                            <label className="text-sm font-medium text-slate-500 ml-1 flex items-center gap-2"> <Activity size={14} className="text-indigo-500" /> Strategy Type </label>
                                             <div className="flex gap-2">
                                                 {['Customer', 'Vendor'].map(t => (
-                                                    <button key={t} type="button" onClick={() => setFormData({...formData, type: t})} className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                                                    <button key={t} type="button" onClick={() => setFormData({...formData, type: t})} className={`flex-1 py-3.5 rounded-2xl text-sm font-medium border transition-all ${
                                                         formData.type === t ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'
                                                     }`}> {t} </button>
                                                 ))}
@@ -227,15 +335,15 @@ export default function Parties() {
                                                 onChange={(v: string) => setFormData({...formData, gstin: v.toUpperCase()})} 
                                             />
                                             {formData.gstin && !validateGSTIN(formData.gstin) && (
-                                                <p className="text-[8px] font-black text-rose-500 uppercase tracking-tighter ml-1">Invalid GSTIN Pattern</p>
+                                                <p className="text-[10px] font-medium text-rose-500 ml-1 mt-1">Invalid GSTIN Pattern</p>
                                             )}
                                         </div>
                                         <SI label="Opening Pulse (₹)" icon={CreditCard} type="number" value={formData.openingBalance.toString()} onChange={(v: string) => setFormData({...formData, openingBalance: parseInt(v) || 0})} placeholder="0.00" />
                                         
                                         <div className="md:col-span-2 space-y-1.5">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2"> <Layout size={12} className="text-indigo-500" /> Section / Group </label>
+                                            <label className="text-sm font-medium text-slate-500 ml-1 flex items-center gap-2"> Section / Group </label>
                                             <div className="flex gap-2">
-                                                <select value={formData.group} onChange={(e) => setFormData({...formData, group: e.target.value})} className="flex-1 px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-black outline-none focus:bg-white focus:border-indigo-500 transition-all">
+                                                <select value={formData.group} onChange={(e) => setFormData({...formData, group: e.target.value})} className="flex-1 px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-normal text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all">
                                                     <option value="General">General</option>
                                                     <option value="VIP">VIP Nodes</option>
                                                     <option value="Wholesale">Wholesale Hub</option>
@@ -245,7 +353,7 @@ export default function Parties() {
                                                     ))}
                                                 </select>
                                                 <input 
-                                                    placeholder="+ Quick Add Section..." 
+                                                    placeholder="+ New Group..." 
                                                     onKeyDown={(e: any) => {
                                                         if (e.key === 'Enter') {
                                                             e.preventDefault();
@@ -253,7 +361,7 @@ export default function Parties() {
                                                             e.target.value = '';
                                                         }
                                                     }}
-                                                    className="w-48 px-5 py-3.5 bg-indigo-50 border border-indigo-100 rounded-2xl text-[10px] font-black outline-none focus:border-indigo-600 transition-all"
+                                                    className="w-48 px-5 py-3.5 bg-indigo-50 border border-indigo-100 rounded-2xl text-xs font-semibold text-indigo-900 outline-none focus:border-indigo-600 transition-all"
                                                 />
                                             </div>
                                         </div>
@@ -262,8 +370,8 @@ export default function Parties() {
 
                                 <section className="pt-8 border-t border-slate-100">
                                     <div className="flex items-center gap-3 mb-6">
-                                        <MapPin size={14} className="text-indigo-500" />
-                                        <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Geolocation Registry</h4>
+                                        <MapPin size={16} className="text-indigo-500" />
+                                        <h4 className="text-lg font-semibold text-slate-900 tracking-tight">Geolocation Registry</h4>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="md:col-span-2"> <SI label="Physical Address" value={formData.address.street} onChange={(v: string) => setFormData({...formData, address: {...formData.address, street: v}})} placeholder="Street / Area" required /> </div>
@@ -277,20 +385,20 @@ export default function Parties() {
                                                 maxLength={6} 
                                             />
                                             {formData.address.pincode && !validatePincode(formData.address.pincode) && (
-                                                <p className="text-[8px] font-black text-rose-500 uppercase tracking-tighter ml-1">Must be 6 digits</p>
+                                                <p className="text-[10px] font-medium text-rose-500 ml-1 mt-1">Must be 6 digits</p>
                                             )}
                                         </div>
                                         <SI label="City Node" value={formData.address.city} onChange={(v: string) => setFormData({...formData, address: {...formData.address, city: v}})} placeholder="Mumbai" required />
                                         
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2"> <MapPin size={12} className="text-indigo-500" /> State Territory </label>
+                                            <label className="text-sm font-medium text-slate-500 ml-1 flex items-center gap-2"> State Territory </label>
                                             <select 
                                                 value={formData.address.state} 
                                                 onChange={(e) => setFormData({...formData, address: {...formData.address, state: e.target.value}})}
-                                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-black outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none"
+                                                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-normal text-slate-900 outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none"
                                                 required
                                             >
-                                                <option value="">Select State</option>
+                                                <option value="">Select State Territory</option>
                                                 {INDIAN_STATES.map(s => (
                                                     <option key={s} value={s}>{s}</option>
                                                 ))}
@@ -301,9 +409,9 @@ export default function Parties() {
                             </div>
 
                             <footer className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4 shrink-0">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:bg-slate-100 transition-all"> Cancel </button>
-                                <button type="submit" className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 active:scale-95">
-                                    {editingNode ? 'Update Party' : 'Add Party'} <ShieldCheck size={18} />
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-sm font-medium border border-slate-200 hover:bg-slate-100 transition-all"> Cancel </button>
+                                <button type="submit" className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-sm font-medium shadow-2xl hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 active:scale-95">
+                                    {editingNode ? 'Update Node' : 'Initialize Node'} <ShieldCheck size={18} />
                                 </button>
                             </footer>
                         </form>
@@ -317,12 +425,12 @@ export default function Parties() {
 function SI({ label, value, onChange, icon: Icon, placeholder, type = "text", required = false, pattern, maxLength, min, title }: any) {
     return (
         <div className="space-y-1.5 group transition">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2 group-focus-within:text-indigo-600 transition-colors">
-                {Icon && <Icon size={12} />} {label} {required && <span className="text-rose-500 font-black ml-0.5">*</span>}
+            <label className="text-sm font-medium text-slate-500 ml-1 flex items-center gap-2 group-focus-within:text-indigo-600 transition-colors">
+                {Icon && <Icon size={14} />} {label} {required && <span className="text-rose-500 font-bold ml-0.5">*</span>}
             </label>
             <div className="relative">
                 <input required={required} type={type} pattern={pattern} maxLength={maxLength} min={min} title={title}
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-black focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/30 outline-none placeholder:text-slate-300 transition-all shadow-sm"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-normal text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none placeholder:text-slate-300 transition-all shadow-sm"
                     placeholder={placeholder || `Enter ${label.split(' ').pop()}...`} value={value}
                     onChange={e => onChange(e.target.value)}
                 />

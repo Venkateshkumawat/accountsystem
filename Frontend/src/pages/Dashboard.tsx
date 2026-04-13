@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   IndianRupee, FileText, Package, Users, AlertTriangle,
   Plus, ShoppingCart, TrendingUp, XCircle,
@@ -169,70 +169,65 @@ export default function Dashboard() {
     <div className="space-y-4  min-h-screen p-1">
 
       {/* ── Top Banner ──────────────────────────────────────────────────────── */}
-      <div className="bg-white p-3 rounded-xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-3 shadow-sm overflow-hidden relative">
-        <div className="flex items-center gap-3 z-10">
-          <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-            <Zap size={24} fill="currentColor" />
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm overflow-hidden relative group">
+        <div className="flex items-center gap-4 z-10">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 shrink-0">
+            <Zap size={24} fill="currentColor" className="sm:scale-110" />
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 tracking-tighter leading-tight">Welcome, {businessName || 'Admin'}</h1>
-            <p className="text-slate-400 font-bold text-[9px] mt-0.5 flex items-center gap-1.5 uppercase tracking-widest">
-              <CheckCircle2 size={10} className="text-emerald-500" />
-              Nexus Sync Active
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">Dashboard Overview</h1>
+            <p className="text-[11px] sm:text-xs font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">
+              Live Business Telemetry
             </p>
           </div>
         </div>
-        <div className="flex gap-3 z-10 w-full md:w-auto">
-          <div className="flex gap-2">
-            <button
-              onClick={() => fetchDashboard(true)}
-              disabled={refreshing}
-              title="Refreshed Sync Nodes"
-              className={`p-2.5 bg-slate-50 text-slate-400 rounded-lg hover:text-indigo-600 transition-all active:scale-90 ${refreshing ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-indigo-50'}`}
-            >
-              <RefreshCw size={16} className={`${refreshing ? 'animate-spin' : 'hover:rotate-180 transition-transform duration-500'}`} />
-            </button>
-          </div>
+        <div className="flex items-center gap-3 z-10 w-full md:w-auto pt-2 md:pt-0">
+          <button
+            onClick={() => fetchDashboard(true)}
+            disabled={refreshing}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-50 text-slate-500 rounded-xl hover:text-indigo-600 border border-slate-100 transition-all active:scale-95 ${refreshing ? 'opacity-50' : 'hover:bg-indigo-50 hover:border-indigo-100'}`}
+          >
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+            <span className="text-[10px] font-black uppercase tracking-widest">{refreshing ? 'Syncing...' : 'Refresh Nodes'}</span>
+          </button>
         </div>
-
       </div>
 
       {/* ── Stat Cards ────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 px-1">
-        <StatCard label="Today Flow" value={`₹${(data?.todaySales.total || 0).toLocaleString()}`} sub={`${data?.todaySales.count || 0} nodes`} icon={IndianRupee} color="indigo" trend="+12%" />
-        <StatCard label="Month Volume" value={`₹${(data?.monthlySales || 0).toLocaleString()}`} sub="Current revenue" icon={TrendingUp} color="emerald" trend="+8%" />
-        <StatCard label="Settled Node" value={data?.monthlyCount || 0} sub="This month" icon={FileText} color="amber" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-0.5">
+        <StatCard label="TODAY SALES" value={`₹${(data?.todaySales.total || 0).toLocaleString()}`} sub="vs last day" icon={IndianRupee} color="indigo" trend="+12%" />
+        <StatCard label="MONTHLY REVENUE" value={`₹${(data?.monthlySales || 0).toLocaleString()}`} sub="vs last month" icon={TrendingUp} color="emerald" trend="+8%" trendColor="text-emerald-500" />
+        <StatCard label="MONTHLY INVOICES" value={`${data?.monthlyCount || 0}`} sub="Completed nodes" icon={FileText} color="amber" border />
         <Link to="/inventory?filter=low-stock">
-          <StatCard label="Critical Product" value={data?.lowStockCount || 0} sub="Needs re-stock" icon={AlertTriangle}
+          <StatCard label="LOW STOCK ITEMS" value={data?.lowStockCount || 0} sub="Critical items" icon={AlertTriangle}
             color={data?.lowStockCount && data.lowStockCount > 0 ? 'rose' : 'slate'}
-            isAlert={!!(data?.lowStockCount && data.lowStockCount > 0)} />
+            isAlert={!!(data?.lowStockCount && data.lowStockCount > 0)} border />
         </Link>
       </div>
 
       {/* ── Chart + Secondary Stats ───────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-3">
-        <div className="lg:col-span-6 bg-white p-3 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden group">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:col-span-6 bg-white p-3 md:p-5 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none underline decoration-indigo-200 underline-offset-4">Settled revenue flow</h3>
-              <p className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-tighter leading-none">Weekly Node Discovery</p>
+              <h2 className="text-2xl font-semibold text-slate-800">Revenue Flow</h2>
+              <p className="text-sm font-normal text-slate-500">Weekly revenue trend analysis</p>
             </div>
-            <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 shadow-sm uppercase tracking-widest">Global Protocol</span>
           </div>
-          <div className="flex-1 w-full h-[250px] min-h-[250px] min-w-[200px] relative mt-2">
+          <div className="flex-1 w-full h-[200px] md:h-[250px] relative mt-2">
             {(!chartData || chartData.length === 0) ? (
               <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NODATA_SYNC</p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} barCategoryGap="20%">
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#94A3B8', fontSize: 8, fontWeight: 900 }} dy={5} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#94A3B8', fontSize: 8, fontWeight: 900 }} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#64748b', fontSize: 10, fontWeight: 500 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#64748b', fontSize: 10, fontWeight: 500 }} />
                   <Tooltip cursor={{ fill: '#F8FAFC' }}
                     contentStyle={{ fontFamily: "Inter", borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 900, fontSize: 10, background: '#fff' }} />
-                  <Bar dataKey="revenue" radius={[6, 6, 0, 0]} barSize={32}>
+                  <Bar dataKey="revenue" radius={[6, 6, 0, 0]} barSize={24}>
                     {chartData.map((_e, i) => (
                       <Cell key={i} fill={i === 3 ? '#4F46E5' : '#e2e8f0'} />
                     ))}
@@ -247,11 +242,9 @@ export default function Dashboard() {
           {/* GST card */}
           <div className="bg-slate-900 p-5 rounded-2xl shadow-xl text-white relative overflow-hidden ring-1 ring-slate-800">
             <div className="relative z-10">
-              <p className="text-indigo-400 text-[8px] font-black uppercase tracking-widest mb-1 leading-none">GST Liability Node</p>
-              <h2 className="text-2xl font-black tracking-tight leading-none">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
-              <div className="flex items-center gap-1.5 text-indigo-400 text-[9px] font-black uppercase mt-3 leading-none">
-                <FileText size={10} /> Estimated liability
-              </div>
+              <p className="text-indigo-300 text-sm font-medium uppercase tracking-widest mb-2 leading-none">GST Liability</p>
+              <h2 className="text-3xl font-bold tracking-tight">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
+              <p className="text-indigo-200 text-sm font-normal mt-3 opacity-90">Estimated liability this month</p>
             </div>
             <div className="absolute -right-2 -bottom-2 opacity-5 scale-110 rotate-12">
               <FileText size={100} />
@@ -261,15 +254,12 @@ export default function Dashboard() {
           {/* Product Usage Telemetry Box */}
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2 relative overflow-hidden group">
              <div className="flex justify-between items-end relative z-10">
-               <div>
-                  <div className="flex items-center gap-1.5 mb-1">
-                     <Package size={12} className="text-emerald-500" />
-                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Node Capacity (Product)</p>
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900 leading-none">
-                     {data?.usedProduct ?? 0} <span className="text-slate-300 text-sm">/ {data?.ProductLimit || '∞'}</span>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">NODE CAPACITY (PRODUCT)</p>
+                  <h3 className="text-xl font-bold text-slate-900">
+                     {data?.usedProduct ?? 0} <span className="text-slate-300 text-lg">/ {data?.ProductLimit || '∞'}</span>
                   </h3>
-               </div>
+                </div>
                <div className="text-right">
                   <p className="text-[8px] font-black uppercase text-slate-400">Remaining</p>
                   <p className={`text-xs font-black ${((data?.remainingProduct ?? 10) < 10) ? 'text-rose-500' : 'text-emerald-500'}`}>
@@ -293,12 +283,14 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm transition-all hover:bg-indigo-50/30 group flex justify-between items-center">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group">
               <div>
-                 <Users className="text-indigo-600 mb-1.5 group-hover:scale-110 transition-transform" size={14} />
-                 <p className="text-slate-400 text-[7px] font-black uppercase tracking-widest mb-0.5">Personnel Nodes</p>
+                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">PERSONNEL NODES</p>
+                 <h3 className="text-xl font-bold text-slate-900">{data?.staffCount ?? '—'}</h3>
               </div>
-              <h3 className="text-xl font-black text-slate-900 leading-none">{data?.staffCount ?? '—'}</h3>
+              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                 <Users size={18} />
+              </div>
             </div>
           </div>
 
@@ -325,9 +317,9 @@ export default function Dashboard() {
       {/* ── Invoices + Top Products ───────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-3">
         {/* Invoices with filter */}
-        <div className="lg:col-span-6 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-50 flex items-center justify-between flex-wrap gap-2">
-            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">Node Ledger Protocol</h3>
+        <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
+            <h2 className="text-2xl font-semibold text-slate-800">Recent Invoices</h2>
             <div className="flex items-center gap-1.5">
               {['all', 'paid', 'unpaid'].map(f => (
                 <button key={f} onClick={() => setInvoiceFilter(f)}
@@ -348,11 +340,11 @@ export default function Dashboard() {
             ) : (
               <table className="w-full text-left">
                 <thead className="bg-slate-50/50">
-                  <tr className="text-slate-400 font-black uppercase tracking-widest text-[8px] border-b border-slate-100">
-                    <th className="px-5 py-2">ID Node</th>
-                    <th className="px-5 py-2">Counterparty</th>
-                    <th className="px-5 py-2">Value</th>
-                    <th className="px-5 py-2">Flow</th>
+                  <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                    <th className="px-6 py-3">INVOICE ID</th>
+                    <th className="px-6 py-3">CUSTOMER</th>
+                    <th className="px-6 py-3">AMOUNT</th>
+                    <th className="px-6 py-3">STATUS</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -402,8 +394,8 @@ export default function Dashboard() {
         </div>
 
         {/* Top Products */}
-        <div className="lg:col-span-4 bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <h3 className="text-[10px] font-black text-slate-900 mb-5 uppercase tracking-widest">Top Product Nodes</h3>
+        <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-800 mb-5">Top Selling Products</h2>
           {(data?.topProducts?.length || 0) === 0 ? (
             <div className="py-8 text-center">
               <Package size={28} className="text-slate-200 mx-auto mb-2" />
@@ -432,10 +424,10 @@ export default function Dashboard() {
       </div>
 
       {/* ── Activity Stream ──────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-slate-50 flex items-center justify-between flex-wrap gap-3">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
           <div>
-            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Activity Stream</h3>
+            <h2 className="text-lg font-bold text-slate-800">Recent Activity</h2>
             <p className="text-[8px] text-slate-400 font-medium mt-0.5">
               Showing {filteredActivities.length} of {totalActivityCount} events
             </p>
@@ -531,33 +523,36 @@ export default function Dashboard() {
 }
 
 // ── StatCard ──────────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, icon: Icon, color, isAlert, trend }: any) {
-  const colorMap: Record<string, { bg: string; text: string; ring: string }> = {
-    indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600', ring: 'ring-indigo-100' },
-    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', ring: 'ring-emerald-100' },
-    amber: { bg: 'bg-amber-50', text: 'text-amber-600', ring: 'ring-amber-100' },
-    rose: { bg: 'bg-rose-50', text: 'text-rose-600', ring: 'ring-rose-100' },
-    slate: { bg: 'bg-slate-50', text: 'text-slate-500', ring: 'ring-slate-100' },
+ const StatCard = React.memo(({ label, value, sub, icon: Icon, color, isAlert, trend, trendColor = 'text-emerald-500', border }: any) => {
+  const colorMap: Record<string, { bg: string; text: string; accent: string }> = {
+    indigo: { bg: 'bg-indigo-50/50', text: 'text-indigo-600', accent: 'border-l-indigo-500' },
+    emerald: { bg: 'bg-emerald-50/50', text: 'text-emerald-600', accent: 'border-l-emerald-500' },
+    amber: { bg: 'bg-amber-50/50', text: 'text-amber-600', accent: 'border-l-amber-500' },
+    rose: { bg: 'bg-rose-50/50', text: 'text-rose-600', accent: 'border-l-rose-500' },
+    slate: { bg: 'bg-slate-50/50', text: 'text-slate-500', accent: 'border-l-slate-400' },
   };
   const s = colorMap[color] || colorMap.indigo;
   return (
-    <div className={`bg-white px-5 py-4 rounded-xl border ${isAlert ? 'border-rose-200 bg-rose-50/10' : 'border-slate-100'} shadow-sm hover:shadow-md hover:scale-[1.03] active:scale-95 transition-all group flex flex-col justify-center min-h-[100px] relative overflow-hidden animate-in fade-in zoom-in-95 duration-500`}>
-      <div className="flex items-center justify-between relative z-10 mb-2">
-        <div className={`p-2 rounded-xl ${s.bg} ${s.text} bg-white shadow-sm ring-1 ring-slate-100`}>
-          <Icon size={14} />
+    <div className={`bg-white p-5 rounded-2xl border ${isAlert ? 'border-rose-200' : 'border-slate-100'} ${border ? s.accent + ' border-l-4' : ''} shadow-sm group hover:shadow-md transition-all relative overflow-hidden`}>
+      <div className="flex justify-between items-start mb-4">
+        <p className="stat-label">{label}</p>
+        <div className={`p-2 rounded-xl ${s.bg} ${s.text}`}>
+          <Icon size={16} />
         </div>
-        {trend && (
-          <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{trend}</span>
-        )}
       </div>
-      <div>
-        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-        <h3 className={`text-xl font-black tracking-tight ${isAlert ? 'text-rose-600' : 'text-slate-900'} leading-none`}>{value}</h3>
-        <p className="text-[9px] font-bold text-slate-400 mt-1.5">{sub}</p>
+      <div className="space-y-1">
+        <h3 className="stat-value">{value}</h3>
+        <div className="flex items-center gap-2">
+          {trend ? (
+            <span className={`text-[10px] font-bold ${trendColor}`}>{trend} <span className="text-slate-400">vs last month</span></span>
+          ) : (
+            <p className="text-[10px] font-bold text-slate-400">{sub}</p>
+          )}
+        </div>
       </div>
     </div>
   );
-}
+});
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function DashboardSkeleton() {

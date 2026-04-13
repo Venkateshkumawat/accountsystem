@@ -59,7 +59,7 @@ const Login = () => {
           <div className="px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full mb-3">
             <p className="text-[7px] font-black text-indigo-600 uppercase tracking-[0.2em] leading-none">Authentication Required</p>
           </div>
-          <h1 className="text-lg font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">Nexus Terminal</h1>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight uppercase leading-none mb-1">Nexus Terminal</h1>
           <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-1.5 opacity-60">
             <Zap size={8} fill="currentColor" className="text-indigo-600" /> Secure Node Access
           </p>
@@ -81,7 +81,7 @@ const Login = () => {
           <button 
             type="submit"
             disabled={loading}
-            className={`w-full h-12 bg-slate-900 text-white rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-[0.98] transition-all mt-6 shadow-lg shadow-slate-900/10 border border-slate-700 ${loading ? 'opacity-50 grayscale' : ''}`}
+            className={`w-full h-12 bg-slate-900 text-white rounded-xl font-semibold text-sm uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-[0.98] transition-all mt-6 shadow-lg shadow-slate-900/10 border border-slate-700 ${loading ? 'opacity-50 grayscale' : ''}`}
           >
             {loading ? 'SYNCING...' : 'LOGIN NODE'}
             {!loading && <ArrowRight size={14} />}
@@ -124,7 +124,7 @@ const CompactInput = ({ icon: Icon, name, type = "text", placeholder, value, onC
       type={type}
       placeholder={placeholder}
       autoComplete={autoComplete}
-      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white transition-all placeholder:text-slate-300 uppercase h-11`}
+      className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white transition-all placeholder:text-slate-300 uppercase h-11`}
       value={value}
       onChange={onChange}
       required

@@ -32,8 +32,8 @@ const AdminSetting: React.FC = () => {
     <div className="space-y-6 pb-20 relative ">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">Admin Configuration</h1>
-          <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest leading-none">Internal root authority settings for Nexus Master node 0.3.</p>
+          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Admin Configuration</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">Internal root authority settings for Nexus Master node</p>
         </div>
       </div>
 
@@ -42,13 +42,13 @@ const AdminSetting: React.FC = () => {
           {tabs.map(t => (
             <button 
               key={t.id} onClick={() => setActiveTab(t.id as any)}
-              className={`flex-1 lg:flex-none flex items-center justify-center lg:justify-between px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all min-w-[120px] lg:min-w-0 ${activeTab === t.id ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
+              className={`flex-1 lg:flex-none flex items-center justify-center lg:justify-between px-5 py-3 rounded-xl text-sm font-${activeTab === t.id ? 'semibold' : 'medium'} tracking-wide transition-all min-w-[120px] lg:min-w-0 ${activeTab === t.id ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
             >
               <div className="flex items-center gap-2.5">
-                <t.icon size={12} />
+                <t.icon size={16} />
                 <span>{t.label}</span>
               </div>
-              <ChevronRight size={10} className="hidden lg:block opacity-40" />
+              <ChevronRight size={14} className="hidden lg:block opacity-40" />
             </button>
           ))}
         </aside>
@@ -109,10 +109,10 @@ const AdminSetting: React.FC = () => {
             <button 
               onClick={handleSave}
               disabled={loading}
-              className="w-full sm:w-auto px-10 py-3.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-10 py-3.5 bg-slate-900 text-white rounded-xl text-sm font-medium transition-all shadow-xl flex items-center justify-center gap-2 group"
             >
               {loading ? 'Committing Gateway State...' : 'Commit Changes'}
-              {!loading && <ArrowRight size={14} className="group-hover:translate-x-1" />}
+              {!loading && <ArrowRight size={16} className="group-hover:translate-x-1" />}
             </button>
           </div>
         </div>
@@ -149,16 +149,16 @@ const AdminSetting: React.FC = () => {
 
 const SectionTitle = ({ title, desc }: { title: string, desc: string }) => (
   <div>
-    <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 leading-none mb-1 flex items-center gap-2">
-      <ShieldCheck size={14} className="text-indigo-600" /> {title}
+    <h3 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2 mb-1">
+      <ShieldCheck size={20} className="text-indigo-600" /> {title}
     </h3>
-    <p className="text-xs font-bold text-slate-400 uppercase leading-none">{desc}</p>
+    <p className="text-sm font-normal text-slate-500">{desc}</p>
   </div>
 );
 
 const SimpleInput = ({ label, type = "text", defaultValue, disabled, placeholder }: any) => (
   <div className="space-y-1.5">
-    <label className="text-xs font-black text-slate-300 uppercase tracking-widest ml-1">{label}</label>
+    <label className="text-sm font-medium text-slate-600 ml-1">{label}</label>
     <input 
       type={type}
       disabled={disabled}

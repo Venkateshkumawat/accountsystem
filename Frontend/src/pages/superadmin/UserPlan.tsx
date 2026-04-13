@@ -11,14 +11,14 @@ import { validateGSTIN, validatePincode } from '../../utils/validation';
 
 // Internal Input Block - Defined outside to prevent focus loss on re-render
 const IB = ({ label, icon: Icon, type = "text", placeholder, value, onChange, required = false, autoComplete = "off" }: any) => (
-  <div className="space-y-1">
-    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+  <div className="space-y-1.5">
+    <label className="text-sm font-medium text-slate-500 ml-1">{label}</label>
     <div className="relative group">
       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors pointer-events-none">
-        <Icon size={12} />
+        <Icon size={14} />
       </div>
       <input type={type} placeholder={placeholder} autoComplete={autoComplete} value={value} onChange={(e) => onChange(e.target.value)} required={required}
-        className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border-none rounded-xl text-[10px] font-black text-slate-900 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300 h-9" />
+        className="w-full pl-10 pr-3 py-3 bg-slate-50 border-none rounded-xl text-sm font-normal text-slate-900 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300 h-11" />
     </div>
   </div>
 );
@@ -129,14 +129,14 @@ const UserPlan: React.FC = () => {
     <div className="min-h-screen bg-[#F8FAFC] pb-20">
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Header Protocol */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-6 mb-2">
           <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tighter uppercase leading-none">Nexus Provisioning</h1>
-            <p className="text-slate-400 font-bold tracking-widest text-[8px] uppercase mt-1">Admin Partition & Subscription Matrix</p>
+            <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Account Provisioning</h1>
+            <p className="text-sm font-normal text-slate-500 mt-1">Create business accounts and configure subscription limits</p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-100">
-            <Zap size={10} className="animate-pulse" />
-            <span className="text-[9px] font-black uppercase">Grid: NOMINAL</span>
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+            <ShieldCheck size={16} />
+            <span className="text-xs font-semibold uppercase tracking-widest">Master Control Active</span>
           </div>
         </div>
 
@@ -146,15 +146,15 @@ const UserPlan: React.FC = () => {
               
               {/* Identity Node */}
               <div className="p-6 border-b border-slate-100">
-                <div className="flex items-center gap-2 mb-4">
-                   <Users size={14} className="text-indigo-600" />
-                   <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Administrative Identity</h3>
+                <div className="flex items-center gap-2 mb-6">
+                   <Users size={18} className="text-indigo-600" />
+                   <h2 className="text-xl font-semibold text-slate-900">Identity Details</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                    <IB label="Admin Name" icon={Users} placeholder="Full Name" value={formData.ownerFullName} onChange={(v: string) => setFormData({...formData, ownerFullName: v})} required />
                    <IB label="Sync Email" icon={Mail} type="email" placeholder="email@nexus.com" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} required autoComplete="off" />
-                   <div className="space-y-1">
-                      <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile</label>
+                   <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-500 ml-1">Mobile</label>
                       <div className="relative group">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors pointer-events-none">
                           <Phone size={12} />
@@ -173,10 +173,10 @@ const UserPlan: React.FC = () => {
               </div>
 
               {/* Business Node */}
-              <div className="p-6 border-b border-slate-100 bg-slate-50/30">
-                <div className="flex items-center gap-2 mb-4">
-                   <Briefcase size={14} className="text-emerald-600" />
-                   <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Business Entity</h3>
+              <div className="p-6 border-b border-slate-100 bg-slate-50/20">
+                <div className="flex items-center gap-2 mb-6">
+                   <Briefcase size={18} className="text-emerald-600" />
+                   <h2 className="text-xl font-semibold text-slate-900">Business Details</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                    <IB label="Entity Name" icon={Briefcase} placeholder="Nexus Corp" value={formData.businessName} onChange={(v: string) => setFormData({...formData, businessName: v})} required />
@@ -215,8 +215,8 @@ const UserPlan: React.FC = () => {
               {/* Subscription Node */}
               <div className="p-6 space-y-6">
                 <div className="flex items-center gap-2">
-                   <Layers size={14} className="text-amber-500" />
-                   <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Subscription Controller</h3>
+                   <Layers size={18} className="text-amber-500" />
+                   <h2 className="text-xl font-semibold text-slate-900">Subscription Plan</h2>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -225,7 +225,7 @@ const UserPlan: React.FC = () => {
                         className={`py-3 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${
                           formData.plan === p ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-300'
                         }`}>
-                         <span className="text-[9px] font-black uppercase tracking-tighter">{p}</span>
+                         <span className="text-[9px] font-medium uppercase tracking-tighter">{p}</span>
                          {formData.plan === p && <CheckCircle size={10} />}
                       </button>
                    ))}
@@ -239,15 +239,15 @@ const UserPlan: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-900 rounded-xl p-5 text-white">
                    <div className="space-y-2">
                       <div className="flex justify-between items-center px-1">
-                         <span className="text-[8px] font-black uppercase text-indigo-400">SKU CAP</span>
-                         <span className="text-sm font-black">{formData.skuLimit}</span>
+                         <span className="text-[10px] font-semibold uppercase text-indigo-400 tracking-wider">SKU CAP</span>
+                         <span className="text-sm font-semibold">{formData.skuLimit}</span>
                       </div>
                       <input type="range" min="10" max="10000" step="10" value={formData.skuLimit} onChange={e => setFormData({...formData, skuLimit: parseInt(e.target.value)})} className="w-full h-1 bg-white/10 rounded-lg accent-indigo-500 appearance-none cursor-pointer" />
                    </div>
                    <div className="space-y-2">
                       <div className="flex justify-between items-center px-1">
-                         <span className="text-[8px] font-black uppercase text-emerald-400">INV CAP</span>
-                         <span className="text-sm font-black">{formData.invoiceLimit}</span>
+                         <span className="text-[10px] font-semibold uppercase text-emerald-400 tracking-wider">INV CAP</span>
+                         <span className="text-sm font-semibold">{formData.invoiceLimit}</span>
                       </div>
                       <input type="range" min="50" max="50000" step="50" value={formData.invoiceLimit} onChange={e => setFormData({...formData, invoiceLimit: parseInt(e.target.value)})} className="w-full h-1 bg-white/10 rounded-lg accent-emerald-500 appearance-none cursor-pointer" />
                    </div>
@@ -272,22 +272,22 @@ const UserPlan: React.FC = () => {
                 <div>
                    {success && <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-100 text-emerald-600 rounded-lg font-black text-[9px] uppercase"><CheckCircle size={12}/> DEPLOYED</div>}
                 </div>
-                <button disabled={loading || (formData.price > 0 && paymentStatus !== 'completed')} className={`w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center justify-center gap-2 ${loading || (formData.price > 0 && paymentStatus !== 'completed') ? 'opacity-50' : 'hover:-translate-y-0.5 shadow-lg'}`}>
-                  {loading ? 'Initializing Node...' : 'Execute Deployment'}
-                  {!loading && <ArrowRight size={14} />}
+                <button disabled={loading || (formData.price > 0 && paymentStatus !== 'completed')} className={`w-full sm:w-auto px-10 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 ${loading || (formData.price > 0 && paymentStatus !== 'completed') ? 'opacity-50' : 'hover:-translate-y-0.5'}`}>
+                  {loading ? 'Processing...' : 'Create Business Account'}
+                  {!loading && <ArrowRight size={16} />}
                 </button>
               </footer>
             </form>
           </div>
 
           <div className="space-y-4">
-             <div className="bg-slate-950 p-6 rounded-[1.5rem] text-white shadow-xl relative overflow-hidden group">
-                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-400 mb-6 border-b border-white/5 pb-3">Protocol V4.2</h4>
-                <ul className="space-y-5 relative z-10">
+             <div className="bg-slate-950 p-6 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-6 border-b border-white/5 pb-4">Platform Security</h4>
+                <ul className="space-y-6 relative z-10">
                    {[
-                     { icon: Layers, color: 'indigo', title: 'Isolation', text: 'Separate Database Partitions.' },
-                     { icon: ShoppingBag, color: 'emerald', title: 'SKU Protection', text: 'In-registry limit enforces.' },
-                     { icon: ShieldCheck, color: 'amber', title: 'Audit Ready', text: 'Real-time telemetry and logs.' }
+                     { icon: Layers, color: 'indigo', title: 'Data Isolation', text: 'Secure multi-tenant architecture.' },
+                     { icon: ShoppingBag, color: 'emerald', title: 'Product Limits', text: 'Enforced resource quotas per plan.' },
+                     { icon: ShieldCheck, color: 'amber', title: 'Admin Controls', text: 'Granular permission management.' }
                    ].map((item, i) => (
                      <li key={i} className="flex gap-3">
                         <div className={`w-7 h-7 rounded-lg bg-${item.color}-500/20 flex items-center justify-center text-${item.color}-400 border border-${item.color}-500/10 shrink-0`}> <item.icon size={12}/> </div>
@@ -299,10 +299,10 @@ const UserPlan: React.FC = () => {
                    ))}
                 </ul>
              </div>
-             <div className="bg-white p-6 rounded-[1.5rem] border border-slate-200 shadow-sm space-y-3">
-                <div className="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center"> <Zap size={18} /> </div>
-                <h4 className="text-[10px] font-black text-slate-900 uppercase">Latency Warning</h4>
-                <p className="text-[9px] font-bold text-slate-400 uppercase leading-relaxed">Workspace node initialization consumes approx 200ms per deployment.</p>
+             <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm space-y-4">
+                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0"> <Zap size={24} /> </div>
+                <h4 className="text-sm font-bold text-slate-800 tracking-tight">Quick Provisioning</h4>
+                <p className="text-xs font-medium text-slate-500 leading-relaxed">Accounts are usually activated instantly. You can manage limits in the Master Account registry.</p>
              </div>
           </div>
         </div>
@@ -322,7 +322,7 @@ const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose
       <div className="p-8 border-b-2 border-dashed border-slate-100 flex justify-between items-start bg-slate-50/50">
           <div>
               <p className="text-[8px] font-black text-indigo-500 uppercase tracking-widest mb-1">Nexus Deployment Receipt</p>
-              <h2 className="text-xl font-black text-slate-900 uppercase leading-none">Manifest Confirmed</h2>
+              <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Manifest Confirmed</h2>
               <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">NODE_ID: <span className="text-indigo-600">{data.businessId}</span></p>
           </div>
           <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl font-black text-lg flex items-center justify-center shadow-lg">NX</div>

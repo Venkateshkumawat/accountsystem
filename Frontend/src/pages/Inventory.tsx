@@ -193,82 +193,137 @@ export default function Inventory() {
 
 
   return (
-    <div className="space-y-6  min-h-screen p-2">
-      {/* Header with Subheader Bar */}
-      <div className="flex flex-col gap-4">
-        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-indigo-50/50 rounded-full border border-indigo-100 self-start ml-2 shadow-sm shadow-indigo-100/20">
-          <Zap size={12} className="text-amber-500 fill-amber-500" />
-          <span className="text-[9px] font-black text-indigo-900/60 uppercase tracking-[0.2em]">Nexus Ledger Control</span>
+    <div className="space-y-6 min-h-screen p-2">
+      {/* Header Context */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+        <div>
+          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Inventory Management</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">Track stock levels, warehouses, and product catalog</p>
         </div>
-
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-          <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tighter">Inventory Console</h1>
-            <p className="text-slate-500 font-bold text-[10px] mt-0.5 uppercase tracking-widest">Real-time stock & distribution nodes.</p>
-          </div>
+        <div className="flex items-center gap-3">
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition-all uppercase tracking-widest shadow-sm">
+              <Layout size={16} /> Warehouses
+          </button>
           <button
-            onClick={() => {
-              if (remainingProduct <= 0) {
-                alert("Plan limit reached. Upgrade required to provision more Product nodes.");
-                return;
-              }
-              setShowForm(true);
-            }}
-            disabled={remainingProduct <= 0}
-            className={`flex items-center gap-2 px-6 py-2.5 text-white rounded-xl text-xs font-black shadow-lg transition-all uppercase tracking-widest ${remainingProduct <= 0
-              ? 'bg-slate-400 opacity-60 cursor-not-allowed border-none'
-              : 'bg-indigo-600 shadow-indigo-100 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95'
-              }`}
+             onClick={() => {
+               if (remainingProduct <= 0) {
+                 alert("Plan limit reached. Upgrade required to provision more Product nodes.");
+                 return;
+               }
+               setShowForm(true);
+             }}
+             disabled={remainingProduct <= 0}
+             className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50"
           >
-            <Plus size={16} />
-            {remainingProduct <= 0 ? "Limit Reached" : "Add Product Node"}
+            <Plus size={16} /> Add Product
           </button>
         </div>
       </div>
 
-
       {/* Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <InventoryStat label="Total Product" value={products.length} icon={Box} color="indigo" />
-        <InventoryStat label="Low Stock" value={lowStockCount} icon={AlertTriangle} color="amber" />
-        <InventoryStat label="Active Node" value={products.filter(p => p.isActive).length} icon={Layout} color="emerald" />
-        <InventoryStat label="Valuation" value={`₹${totalValuation.toLocaleString()}`} icon={BarChart3} color="emerald" />
+        <InventoryStat label="TOTAL ITEMS" value={products.length.toLocaleString()} icon={Box} color="indigo" />
+        <InventoryStat label="LOW STOCK" value={lowStockCount} icon={AlertTriangle} color="rose" />
+        <InventoryStat label="STOCK VALUE" value={`₹${totalValuation.toLocaleString()}`} icon={BarChart3} color="emerald" />
+        <InventoryStat label="OUT OF STOCK" value={products.filter(p => p.stock <= 0).length} icon={Clock} color="slate" />
       </div>
 
       <div className="h-4" />
 
 
       {/* Dynamic Display / Sectionized Rendering */}
-      <div className="space-y-8 px-2 pb-20">
+      <div className="space-y-8 px-2 pb-24 md:pb-12">
         {products.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-100 py-32 text-center text-slate-300 font-black uppercase text-sm">
-            No products found in your inventory.
+          <div className="bg-white rounded-2xl border border-slate-100 py-32 text-center">
+            <Box size={40} className="mx-auto text-slate-200 mb-4" />
+            <h2 className="text-2xl font-semibold text-slate-400">No Inventory Found</h2>
+            <p className="text-sm font-normal text-slate-300">Start by adding your first product node.</p>
           </div>
         ) : (
-          Object.keys(groupedProducts).map((category) => (
-            <div key={category} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md hover:border-indigo-100 transition-all duration-300 animate-in fade-in slide-in-from-bottom-2">
-              {/* Section Header */}
-              <div className={`px-6 py-4 flex items-center justify-between border-b border-slate-50 ${getCategoryStyles(category).split(' ')[0]}`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${getCategoryStyles(category).split(' ')[1].replace('text', 'bg')}`} />
-                  <h2 className={`text-xs font-black uppercase tracking-[0.2em] ${getCategoryStyles(category).split(' ')[1]}`}>
-                    {category} Node Registry
-                  </h2>
-                </div>
-                <span className="text-[9px] font-black text-slate-400 uppercase">
-                  {groupedProducts[category].length} Product Active
+          Object.keys(groupedProducts).sort().map((category) => (
+            <div key={category} className="space-y-6">
+              <div className="flex items-center gap-4 px-2">
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">{category}</h2>
+                <div className="h-px flex-1 bg-slate-100" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                  {groupedProducts[category].length} Nodes
                 </span>
               </div>
 
-              <div className="overflow-x-auto custom-scrollbar">
+              {/* Responsive Layout: Cards on Mobile, Table on Desktop */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4">
+                {groupedProducts[category].map((product: any) => (
+                  <div key={product._id} className="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-4 group relative overflow-hidden">
+                    <div className="flex gap-4">
+                      <div className="w-20 h-20 rounded-[1.5rem] bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center relative">
+                        {product.image ? (
+                          <img 
+                            src={product.image} 
+                            alt={product.name} 
+                            loading="lazy"
+                            className="w-full h-full object-cover" 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <Box size={24} className={`text-slate-200 ${product.image ? 'hidden' : ''}`} />
+                        {product.discount > 0 && (
+                          <div className="absolute top-1 right-1 bg-rose-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">
+                            -{Math.round((product.discount / product.sellingPrice) * 100)}%
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-start mb-0.5">
+                            <span className="font-bold text-slate-900 text-[13px] leading-tight truncate pr-4">
+                              {product.name}
+                            </span>
+                          </div>
+                          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                            {product.barcode || 'NB-NODE-' + product._id.slice(-6)}
+                          </div>
+                          <div className="text-[10px] font-medium text-slate-400 mt-1">
+                            {product.unitValue} {product.unitType}
+                          </div>
+                        </div>
+                        <div className="flex items-end justify-between mt-2">
+                           <div>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">MEMBER PRICE</p>
+                              <div className="flex items-center gap-2">
+                                <span className="font-black text-slate-900 text-lg tracking-tight">₹{product.sellingPrice - product.discount}</span>
+                                {product.discount > 0 && (
+                                  <span className="text-[10px] text-slate-300 line-through">₹{product.sellingPrice}</span>
+                                )}
+                              </div>
+                           </div>
+                           <div className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
+                              Stock: {product.stock}
+                           </div>
+                        </div>
+                      </div>
+                    </div>
+                    {isAuthorized && (
+                       <div className="flex gap-2 pt-3 border-t border-slate-50">
+                         <button onClick={() => handleEdit(product)} className="flex-1 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-100 hover:border-indigo-100">Edit Node</button>
+                         <button onClick={() => deleteProduct(product._id)} className="w-12 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all border border-rose-100"><Trash2 size={16} /></button>
+                       </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="hidden md:block overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse min-w-[700px]">
-                  <thead className="bg-slate-50/30">
-                    <tr className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none border-b border-slate-50">
-                      <th className="px-6 py-4">Product Node</th>
-                      <th className="px-6 py-4 text-center">Retail Price</th>
-                      <th className="px-6 py-4 text-center">GST Rate</th>
-                      <th className="px-6 py-4 text-center">Stock Level</th>
-                      <th className="px-6 py-4 text-right">Action</th>
+                  <thead className="bg-slate-50/50">
+                    <tr className="text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
+                      <th className="px-6 py-4">Product Details</th>
+                      <th className="px-6 py-4 text-center">Current Stock</th>
+                      <th className="px-6 py-4 text-center">Price</th>
+                      <th className="px-6 py-4 text-center">Status</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -281,6 +336,7 @@ export default function Inventory() {
                                 <img
                                   src={product.image}
                                   alt={product.name}
+                                  loading="lazy"
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).style.display = 'none';
@@ -294,40 +350,25 @@ export default function Inventory() {
                               />
                             </div>
                             <div>
-                              <div className="font-black text-slate-900 text-[11px] uppercase leading-tight group-hover:text-indigo-600 transition-colors">
-                                {product.name} {product.unitValue && (product.unitType !== 'unit' || product.unitValue > 1) ? `(${product.unitValue}${product.unitType})` : ''}
+                              <div className="font-bold text-slate-900 text-sm leading-tight transition-colors">
+                                {product.name}
                               </div>
-                              <div className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">{product.barcode || 'N/A'}</div>
+                              <div className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
                             </div>
 
                           </div>
                         </td>
                         <td className="px-6 py-3 text-center">
                           <div className="flex flex-col items-center">
-                            {product.discount > 0 && (!product.saleEndDate || new Date(product.saleEndDate).setHours(23, 59, 59, 999) > Date.now()) ? (
-                              <>
-                                <span className="text-[9px] text-slate-400 line-through">₹{product.sellingPrice}</span>
-                                <span className="text-emerald-600 font-black text-[11px]">₹{product.sellingPrice - product.discount}</span>
-                                <div className="flex flex-col items-center gap-0.5 mt-1">
-                                  <span className="text-[7px] font-black bg-emerald-100 text-emerald-700 px-1 py-0.5 rounded uppercase tracking-tighter">SALE ₹{product.discount} OFF</span>
-                                  {product.saleEndDate && (
-                                    <span className="text-[6px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                                      <Clock size={8} /> Ends: {new Date(product.saleEndDate).toLocaleDateString('en-IN')}
-                                    </span>
-                                  )}
-                                </div>
-                              </>
-                            ) : (
-                              <span className="font-black text-slate-900 text-[11px]">₹{product.sellingPrice}</span>
-                            )}
+                            <span className="font-bold text-slate-900 text-sm">{product.stock} pcs</span>
+                            <span className="text-[10px] font-bold text-emerald-500">+8%</span>
                           </div>
                         </td>
-                        <td className="px-6 py-3 text-center font-black text-slate-400 text-[10px]">{product.gstRate}%</td>
+                        <td className="px-6 py-3 text-center font-bold text-slate-900 text-sm">₹{product.sellingPrice}</td>
                         <td className="px-6 py-3 text-center">
-                          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
-                            <div className={`w-1 h-1 rounded-full ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-                            <span>{product.stock} Units</span>
-                          </div>
+                          <span className={`${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} px-3 py-1 rounded-full text-[10px] font-bold uppercase`}>
+                            {product.stock > (product.lowStockThreshold || 10) ? 'IN STOCK' : 'LOW STOCK'}
+                          </span>
                         </td>
 
                         <td className="px-6 py-3.5 text-right">
@@ -367,7 +408,7 @@ export default function Inventory() {
           <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-300 max-h-[92vh] flex flex-col">
             <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-xl font-black tracking-tighter uppercase">{editId ? 'Update Product' : 'Product Entry'}</h3>
+                <h3 className="text-xl font-bold tracking-tight uppercase">{editId ? 'Update Product' : 'Product Entry'}</h3>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-70">Diagnostic ID: {editId || 'NEW_NODE'}</p>
               </div>
               <button onClick={closeModal} className="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-white"><X size={18} /></button>
@@ -382,7 +423,7 @@ export default function Inventory() {
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Enter product title..."
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:bg-white focus:border-indigo-600 outline-none transition-all shadow-sm"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:bg-white focus:border-indigo-600 outline-none transition-all shadow-sm"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -516,7 +557,7 @@ export default function Inventory() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black text-sm shadow-xl uppercase tracking-widest hover:bg-slate-800 transition-all disabled:opacity-50"
+                  className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-medium text-sm shadow-xl uppercase tracking-widest hover:bg-slate-800 transition-all disabled:opacity-50"
                 >
                   {formLoading ? "Synchronizing Product..." : "Initialize Product Protocol"}
                 </button>
@@ -532,16 +573,22 @@ export default function Inventory() {
 
 function InventoryStat({ label, value, icon: Icon, color }: any) {
   const colorMap: any = {
-    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
-    amber: 'bg-amber-50 text-amber-600 border-amber-100',
-    rose: 'bg-rose-50 text-rose-600 border-rose-100',
-    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+    indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600' },
+    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
+    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
+    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
+    slate: { bg: 'bg-slate-50', text: 'text-slate-600' }
   };
+  const s = colorMap[color] || colorMap.indigo;
   return (
-    <div className={`p-4 rounded-2xl border ${colorMap[color]} shadow-sm relative group bg-white`}>
-      <Icon size={18} className="absolute top-3 right-3 opacity-10 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-      <p className="text-[8px] font-black uppercase tracking-widest opacity-80 mb-1">{label}</p>
-      <h3 className="text-xl font-black tracking-tight">{value}</h3>
+    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
+        <Icon size={24} />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-slate-500 uppercase tracking-tight mb-0.5">{label}</p>
+        <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
+      </div>
     </div>
   );
 }

@@ -44,7 +44,7 @@ const App = () => {
       const now = new Date();
       const hours = now.getHours();
       const sunsetMode = hours >= 17; // 5:00 PM or later
-      
+
       setIsSunset(sunsetMode);
 
       if (sunsetMode) {
@@ -68,7 +68,7 @@ const App = () => {
 
   return (
     <NotificationProvider>
-      <div className={isSunset ? 'dark transition-colors duration-700' : 'transition-colors duration-700'}>
+      <div className={`${isSunset ? 'dark' : ''} font-sans text-slate-900 bg-slate-50 min-h-screen selection:bg-indigo-100 selection:text-indigo-600 transition-colors duration-700`}>
         <Router>
           <Suspense fallback={<Loader />}>
             <Routes>
@@ -78,13 +78,13 @@ const App = () => {
               <Route path="/superadmin-login" element={<SuperAdminLogin />} />
 
               {/* -- SuperAdmin Master Portal (Strict Isolation) -- */}
-              <Route 
-                path="/superadmin" 
+              <Route
+                path="/superadmin"
                 element={
                   <ProtectedRoute allowedRoles={['superadmin']} redirectTo="/dashboard">
                     <Suspense fallback={<Loader />}><SuperAdminLayout /></Suspense>
                   </ProtectedRoute>
-                } 
+                }
               >
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<SuperAdminDashboard />} />

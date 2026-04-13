@@ -46,7 +46,7 @@ async function globalDecommission() {
       }
     }
 
-    console.log('\n✨ Reset Complete: Your BharatBill instance is now a Zero-Knowledge Baseline.');
+    console.log('\n✨ Reset Complete: Your NexusBill instance is now a Zero-Knowledge Baseline.');
     console.log('🚀 Ready for fresh industrial deployment.');
     
     process.exit(0);

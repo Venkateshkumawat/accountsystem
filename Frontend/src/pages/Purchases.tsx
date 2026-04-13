@@ -115,7 +115,7 @@ export default function Purchases() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
           <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tighter">Purchases Terminal</h1>
+            <h1 className="text-2xl font-bold text-slate-900 leading-tight">Purchases Terminal</h1>
             <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mt-0.5">Real-time stock-in & procurement tracking.</p>
           </div>
           <div className="flex gap-2">
@@ -161,21 +161,21 @@ export default function Purchases() {
         ) : error ? (
           <div className="py-24 flex flex-col items-center justify-center text-center">
             <Zap size={48} className="text-rose-200 mb-4" />
-            <h3 className="text-xl font-black text-rose-600 uppercase tracking-tighter">Connection Error</h3>
+            <h3 className="text-lg font-semibold text-rose-600 uppercase tracking-tight">Connection Error</h3>
             <p className="text-rose-400/80 text-sm font-bold mt-2">{error}</p>
             <button onClick={fetchAll} className="mt-6 px-6 py-2 bg-rose-50 text-rose-600 font-black tracking-widest text-[10px] uppercase rounded-xl hover:bg-rose-100 transition-all">Retry Sequence</button>
           </div>
         ) : purchases.length === 0 ? (
           <div className="py-24 flex flex-col items-center justify-center text-center">
             <Package size={48} className="text-slate-100 mb-4" />
-            <h3 className="text-2xl font-black text-slate-200 uppercase tracking-tighter">No Purchases Yet</h3>
+            <h3 className="text-lg font-semibold text-slate-200 uppercase tracking-tight">No Purchases Yet</h3>
             <p className="text-slate-400 text-sm font-bold mt-2">Record your first vendor purchase to start tracking stock-in.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-slate-50/50">
-                <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 leading-none">
+                <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
                   <th className="px-6 py-3">Procurement Node</th>
                   <th className="px-6 py-3">Counterparty</th>
                   <th className="px-6 py-3">Inventory Load</th>
@@ -213,7 +213,7 @@ export default function Purchases() {
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-8 border-b border-slate-50 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">New Purchase</h2>
+                <h2 className="text-lg font-semibold text-slate-900 uppercase tracking-tight">New Purchase</h2>
                 <p className="text-xs font-bold text-slate-400">Record vendor stock-in with automatic inventory update.</p>
               </div>
               <button onClick={() => setShowForm(false)} className="p-2 text-slate-300 hover:text-rose-500 transition-colors"><X size={20} /></button>

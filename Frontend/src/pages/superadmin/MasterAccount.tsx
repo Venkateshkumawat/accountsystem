@@ -110,30 +110,34 @@ const MasterAccount: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20 relative ">
-      <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 pb-4 border-b border-slate-100">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+        <div>
+           <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Master Accounts</h1>
+           <p className="text-sm font-normal text-slate-500 mt-1">Manage business admin accounts and subscription limits</p>
+        </div>
         <div className="flex items-center gap-3">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors pointer-events-none" size={14} />
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="SEARCH NODE / ID"
-              className="pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-xl shadow-sm text-xs font-black uppercase tracking-widest focus:outline-none focus:border-slate-900 transition-all w-48 lg:w-72 h-11"
+              placeholder="Search by name or ID..."
+              className="pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all w-64"
             />
           </div>
           <button
             onClick={fetchBusinesses}
-            className="p-3 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 transition-all rounded-xl shadow-sm"
+            className="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 transition-all rounded-xl shadow-sm hover:bg-slate-50"
           >
-            <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+            <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 px-2">
         {['all', 'active', 'suspended', 'expired'].map(f => (
           <button
             key={f} onClick={() => setFilter(f as any)}
-            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
+            className={`px-5 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${filter === f ? 'bg-slate-900 text-white shadow-xl' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'}`}
           >
             {f}
           </button>
@@ -145,14 +149,13 @@ const MasterAccount: React.FC = () => {
         <div className="hidden lg:block overflow-x-auto no-scrollbar">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Metadata / Node ID</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Administrator</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Monetization</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Capabilities</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Usage Registry</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Health</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Overrides</th>
+              <tr className="bg-slate-50/50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                <th className="px-6 py-4">BUSINESS DETAILS</th>
+                <th className="px-6 py-4">ADMINISTRATOR</th>
+                <th className="px-6 py-4">PLAN & STATUS</th>
+                <th className="px-6 py-4 text-center">PRIVILEGES</th>
+                <th className="px-6 py-4">RESOURCE USAGE</th>
+                <th className="px-6 py-4 text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -162,46 +165,48 @@ const MasterAccount: React.FC = () => {
                 <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-200 uppercase font-black tracking-widest text-sm">No matching nodes</td></tr>
               ) : filtered.map(biz => (
                 <tr key={biz._id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-4 py-3">
-                    <p className="text-[11px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase leading-none mb-1">{biz.businessName}</p>
-                    <span className="text-[8px] font-black text-slate-400 uppercase bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-100">{biz.businessId}</span>
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors mb-1">{biz.businessName}</p>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">ID: {biz.businessId}</span>
                   </td>
-                  <td className="px-4 py-3">
-                    <p className="text-[11px] font-black text-slate-900 leading-none">{biz.ownerFullName}</p>
-                    <p className="text-[9px] font-bold text-slate-400 lowercase mt-0.5 leading-none">{biz.email}</p>
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-bold text-slate-900">{biz.ownerFullName}</p>
+                    <p className="text-xs font-medium text-slate-400 mt-1">{biz.email}</p>
                   </td>
-                  <td className="px-4 py-3">
-                    <p className={`text-[9px] font-black uppercase tracking-tighter mb-0.5 ${biz.plan === 'enterprise' ? 'text-violet-600' : biz.plan === 'pro' ? 'text-indigo-600' : 'text-slate-400'}`}>{biz.plan}</p>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase leading-none mt-1">
-                      EXP: <CountdownTimer endDate={biz.planEndDate} />
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 mb-1.5">
+                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase ${biz.plan === 'enterprise' ? 'bg-violet-50 text-violet-600' : biz.plan === 'pro' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-500'}`}>{biz.plan}</span>
+                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase ${biz.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>{biz.status}</span>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">
+                      Expires in: <CountdownTimer endDate={biz.planEndDate} />
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    <button onClick={() => setShowFeatureModal(biz)} className="p-2 bg-slate-50 text-slate-400 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-slate-100">
-                      <Settings size={12} />
+                  <td className="px-6 py-4 text-center">
+                    <button onClick={() => setShowFeatureModal(biz)} className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-indigo-600 hover:text-white transition-all border border-slate-200">
+                      <Settings size={14} />
                     </button>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="space-y-3">
+                  <td className="px-6 py-4">
+                    <div className="space-y-3 w-40">
                       <div className="space-y-1">
-                        <div className="flex justify-between items-center text-[7px] font-black uppercase text-slate-400">
-                          <span className="flex items-center gap-1"><FileText size={8} /> INV</span>
-                          <span className="text-slate-900">{biz.currentInvoiceCount || 0} / {biz.invoiceLimit}</span>
+                        <div className="flex justify-between items-center text-[10px] font-bold uppercase text-slate-400">
+                          <span className="flex items-center gap-1">Invoices</span>
+                          <span className="text-slate-900">{biz.currentInvoiceCount} / {biz.invoiceLimit}</span>
                         </div>
-                        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full transition-all ${((biz.currentInvoiceCount || 0) / biz.invoiceLimit) > 0.9 ? 'bg-rose-500' : 'bg-indigo-500'}`}
                             style={{ width: `${Math.min(100, ((biz.currentInvoiceCount || 0) / biz.invoiceLimit) * 100)}%` }}
                           />
                         </div>
                       </div>
-
                       <div className="space-y-1">
-                        <div className="flex justify-between items-center text-[7px] font-black uppercase text-slate-400">
-                          <span className="flex items-center gap-1"><Package size={8} /> SKU</span>
-                          <span className="text-slate-900">{biz.currentSkuCount || 0} / {biz.skuLimit || '∞'}</span>
+                        <div className="flex justify-between items-center text-[10px] font-bold uppercase text-slate-400">
+                          <span className="flex items-center gap-1">Products</span>
+                          <span className="text-slate-900">{biz.currentSkuCount} / {biz.skuLimit || '∞'}</span>
                         </div>
-                        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full transition-all ${((biz.currentSkuCount || 0) / (biz.skuLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'}`}
                             style={{ width: `${Math.min(100, ((biz.currentSkuCount || 0) / (biz.skuLimit || 1)) * 100)}%` }}
@@ -210,20 +215,16 @@ const MasterAccount: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${biz.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100/50' : 'bg-rose-50 text-rose-600 border-rose-100/50'}`}>
-                      {biz.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right space-x-1.5">
-                    <button onClick={() => handleToggleStatus(biz)} className={`p-2 rounded-lg transition-all shadow-sm ${biz.status === 'active' ? 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white'}`}>
-                      {biz.status === 'active' ? <ShieldAlert size={12} /> : <ShieldCheck size={12} />}
+
+                  <td className="px-6 py-4 text-right space-x-2">
+                    <button onClick={() => handleToggleStatus(biz)} className={`p-2.5 rounded-xl transition-all ${biz.status === 'active' ? 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white'}`}>
+                      {biz.status === 'active' ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />}
                     </button>
                     <button
                       onClick={() => { setEditModal(biz); setEditFormData({ ...biz, planEndDate: biz.planEndDate?.slice(0, 16) || '' }); }}
-                      className="p-2 bg-slate-50 text-slate-400 rounded-lg hover:bg-slate-900 hover:text-white transition-all border border-slate-100"
+                      className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
                     >
-                      <Edit3 size={12} />
+                      <Edit3 size={14} />
                     </button>
                   </td>
                 </tr>
@@ -279,13 +280,12 @@ const MasterAccount: React.FC = () => {
       {showFeatureModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-[340px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-4 bg-slate-900 text-white flex justify-between items-center relative overflow-hidden shrink-0">
-              <Zap className="absolute -right-4 -top-4 opacity-10 rotate-12" size={60} />
-              <div className="relative z-10">
-                <h3 className="text-sm font-black tracking-tighter uppercase leading-none">Capability Matrix</h3>
-                <p className="text-indigo-400 text-[9px] uppercase font-black tracking-widest mt-1">{showFeatureModal.businessName}</p>
+            <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
+               <div>
+                <h3 className="text-base font-bold text-white uppercase tracking-widest">Privilege Settings</h3>
+                <p className="text-indigo-400 text-[10px] font-bold mt-1 uppercase">{showFeatureModal.businessName}</p>
               </div>
-              <button onClick={() => setShowFeatureModal(null)} className="p-1.5 text-white/40 hover:text-white transition-colors relative z-10"><Trash2 size={16} className="rotate-45" /></button>
+              <button onClick={() => setShowFeatureModal(null)} className="p-2 text-white/40 hover:text-white transition-colors"><Trash2 size={18} className="rotate-45" /></button>
             </div>
 
             <div className="p-4 space-y-2 overflow-y-auto no-scrollbar">
@@ -299,8 +299,8 @@ const MasterAccount: React.FC = () => {
                 ].map(feat => {
                   const isActive = showFeatureModal.features?.[feat.key] !== false;
                   return (
-                    <div key={feat.key} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 hover:border-indigo-100 transition-all group">
-                      <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">{feat.name}</span>
+                    <div key={feat.name} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-400 transition-all">
+                      <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">{feat.name}</span>
                       <button
                         onClick={() => handleUpdateFeatures({ ...showFeatureModal.features, [feat.key]: !isActive })}
                         className={`transition-all duration-300 ${isActive ? 'text-indigo-600' : 'text-slate-300'}`}
@@ -346,12 +346,12 @@ const MasterAccount: React.FC = () => {
       {editModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-[400px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[95vh]">
-            <div className="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+            <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-sm font-black tracking-tighter uppercase leading-none">Edit Node Configuration</h3>
-                <p className="text-indigo-400 text-[9px] uppercase font-black tracking-widest mt-1">ID: {editModal.businessId}</p>
+                <h3 className="text-base font-bold text-white uppercase tracking-widest">Account Details</h3>
+                <p className="text-indigo-400 text-[10px] font-bold mt-1 uppercase">SYNCING DATA NODE</p>
               </div>
-              <button onClick={() => setEditModal(null)} className="p-1.5 text-white/40 hover:text-white"><Trash2 size={16} className="rotate-45" /></button>
+              <button onClick={() => setEditModal(null)} className="p-2 text-white/40 hover:text-white"><Trash2 size={18} className="rotate-45" /></button>
             </div>
 
             <form onSubmit={handleUpdateNode} className="p-4 space-y-3 overflow-y-auto no-scrollbar">
@@ -431,13 +431,13 @@ const MasterAccount: React.FC = () => {
                 </select>
               </div>
 
-              <button
+               <button
                 type="submit"
-                className="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all mt-4"
+                className="w-full py-4 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 mt-6"
               >
-                Verify & Sync node
+                Sync Account Changes
               </button>
-            </form>
+           </form>
           </div>
         </div>
       )}

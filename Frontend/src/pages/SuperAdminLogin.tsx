@@ -54,7 +54,7 @@ const SuperAdminLogin = () => {
           <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-xl rotate-6 animate-pulse border-b-2 border-indigo-800">
             <Server size={24} />
           </div>
-          <h1 className="text-lg font-black text-white tracking-widest uppercase leading-none mb-2 mt-4">Nexus Master</h1>
+          <h1 className="text-lg font-bold text-white uppercase leading-none mb-2 mt-4">Nexus Master</h1>
           <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.4em] flex items-center gap-1.5 opacity-60">
             <Zap size={8} fill="currentColor" className="text-indigo-400" /> Root Authority
           </p>
@@ -89,7 +89,7 @@ const SuperAdminLogin = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full h-12 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-2 hover:bg-indigo-500 active:scale-95 transition-all mt-6 shadow-xl shadow-indigo-600/10 ${loading ? 'opacity-50 grayscale' : ''}`}
+            className={`w-full h-12 bg-indigo-600 text-white rounded-xl font-medium text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-2 hover:bg-indigo-500 active:scale-95 transition-all mt-6 shadow-xl shadow-indigo-600/10 ${loading ? 'opacity-50 grayscale' : ''}`}
           >
             {loading ? 'VALIDATING...' : 'INITIATE OVERRIDE'}
             {!loading && <ArrowRight size={14} />}

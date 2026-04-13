@@ -4,9 +4,7 @@ import {
   ShieldCheck, 
   AlertTriangle, 
   CreditCard,
-  TrendingUp,
   Activity,
-  ArrowUpRight,
   RefreshCcw,
   Trash2
 } from 'lucide-react';
@@ -28,110 +26,74 @@ const SuperAdminDashboard: React.FC = () => {
 
   useEffect(() => { fetchStats(); }, []);
 
-  const statCards = [
-    { label: 'Total Business Admins', value: stats?.businessCount || 0, icon: Users, color: 'indigo', sub: '+12% this month' },
-    { label: 'Active Subscriptions', value: stats?.activeSubscriptions || 0, icon: ShieldCheck, color: 'emerald', sub: '98.5% uptime' },
-    { label: 'Expired Plans', value: stats?.expiredCount || 0, icon: AlertTriangle, color: 'rose', sub: '3 pending renewals' },
-    { label: 'Revenue Summary', value: '₹4.2L', icon: CreditCard, color: 'violet', sub: 'Monthly targets met' },
-  ];
-
   return (
     <div className="space-y-4 min-h-screen pb-10">
-      {/* Header Context */}
-      <div className="flex justify-between items-center bg-white border border-slate-100 p-5 rounded-xl shadow-sm">
-        <div className="flex items-center gap-4">
-           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-              <Activity size={20} />
-           </div>
-           <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tighter font-medium leading-none mb-1 text-slate-900">Master Terminal</h1>
-              <p className="text-slate-400 font-bold text-xs uppercase tracking-widest leading-none">Nexus Governance Protocol v1.02</p>
-           </div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+        <div>
+          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">SuperAdmin Dashboard</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">Global platform monitoring and administrative governance</p>
         </div>
-        <button 
+        <button
           onClick={fetchStats}
-          className="p-2.5 bg-slate-50 text-slate-400 hover:text-indigo-600 transition-all rounded-xl border border-slate-100 shadow-sm"
+          className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-medium uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm active:scale-95"
         >
-          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} /> Refresh Data
         </button>
       </div>
 
-      {/* Metric Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((s) => (
-          <div key={s.label} className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm flex flex-col justify-between group hover:border-indigo-600 transition-all relative overflow-hidden h-[100px]">
-             <div className={`absolute -right-2 -bottom-2 w-16 h-16 opacity-5 rotate-12 transition-transform group-hover:scale-125 ${s.color === 'indigo' ? 'text-indigo-600' : s.color === 'emerald' ? 'text-emerald-600' : s.color === 'rose' ? 'text-rose-600' : 'text-violet-600'}`}>
-              <s.icon size={50} />
-            </div>
-            
-            <div className="flex items-center justify-between mb-2">
-              <div className={`p-1.5 rounded-lg ${s.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : s.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : s.color === 'rose' ? 'bg-rose-50 text-rose-600' : 'bg-violet-50 text-violet-600'}`}>
-                <s.icon size={12} />
-              </div>
-              <div className="flex items-center gap-1 text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded text-xs font-black uppercase">
-                <ArrowUpRight size={8} /> +2.5%
-              </div>
-            </div>
-            
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 leading-none">{s.label}</p>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">
-                {typeof s.value === 'number' ? s.value.toLocaleString('en-IN') : s.value}
-              </h2>
-              <p className="text-xs font-bold text-slate-300 mt-1 transition-opacity group-hover:opacity-100 opacity-60 font-medium">{s.sub}</p>
-            </div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
+        <SuperStat label="BUSINESS ADMINS" value={stats?.businessCount || 0} icon={Users} color="indigo" trend="+12%" />
+        <SuperStat label="ACTIVE PLANS" value={stats?.activeSubscriptions || 0} icon={ShieldCheck} color="emerald" trend="Optimal" />
+        <SuperStat label="EXPIRED PLANS" value={stats?.expiredCount || 0} icon={AlertTriangle} color="rose" trend="High Priority" trendColor="text-rose-500" />
+        <SuperStat label="MONTHLY REVENUE" value="₹4.2L" icon={CreditCard} color="amber" trend="On Track" />
       </div>
 
-      {/* Placeholder Activity Chart Area */}
+      {/* Main Analytical Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 ">
-        <div className="lg:col-span-6 bg-white border border-slate-100 rounded-xl p-6 h-64 flex flex-col items-center justify-center text-center opacity-40 grayscale group hover:grayscale-0 hover:opacity-100 transition-all cursor-not-allowed relative overflow-hidden">
-          <Activity size={32} className="mb-4 text-indigo-600" />
-          <h2 className="text-xl font-black text-slate-400 group-hover:text-slate-900 transition-colors font-medium tracking-tighter">Telemetery Node Flow</h2>
-          <p className="text-slate-300 font-bold max-w-xs mt-2 uppercase text-xs tracking-widest leading-relaxed">Global scaling chart initializing... nexus connectivity verified for population.</p>
+        <div className="lg:col-span-6 bg-white border border-slate-100 rounded-2xl p-6 h-[400px] flex flex-col items-center justify-center text-center group transition-all relative overflow-hidden shadow-sm">
+          <Activity size={48} className="mb-4 text-indigo-600 opacity-20 group-hover:opacity-100 transition-opacity" />
+          <h2 className="text-2xl font-semibold text-slate-800 tracking-tight">System Performance</h2>
+          <p className="text-sm font-normal text-slate-400 max-w-sm mt-2">Global activity monitoring and infrastructure scaling trends will appear here.</p>
         </div>
 
-        <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-6 h-64 flex flex-col relative overflow-hidden ring-1 ring-slate-800">
-          <div className="flex justify-between items-start mb-6">
+        <div className="lg:col-span-4 bg-slate-900 rounded-2xl p-6 h-[400px] flex flex-col relative overflow-hidden shadow-2xl">
+          <div className="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
             <div>
-              <h4 className="text-sm font-black text-indigo-400 font-medium tracking-[0.2em] leading-none mb-1 uppercase">Administrative Registry</h4>
-              <p className="text-slate-500 font-black text-[10px] uppercase">Real-time audit log.</p>
+              <h4 className="text-sm font-semibold text-indigo-400 tracking-widest uppercase">Global Audit Log</h4>
+              <p className="text-xs font-normal text-slate-500 uppercase mt-1">Real-time system events</p>
             </div>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 bg-indigo-600 text-white text-[8px] font-black rounded-full animate-pulse uppercase tracking-widest">
+                <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-bold rounded-full animate-pulse uppercase">
                   {unreadCount} New
                 </span>
               )}
               <button 
-                onClick={markAllAsRead}
-                onDoubleClick={deleteAllNotifications}
-                className="p-1.5 bg-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 transition-all rounded-lg"
-                title="Singe Click: Archive | Double Click: Purge"
+                onClick={() => {markAllAsRead(); deleteAllNotifications();}}
+                className="p-2 bg-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 transition-all rounded-xl font-medium"
               >
-                <Trash2 size={12} />
+                <Trash2 size={14} />
               </button>
             </div>
           </div>
           
-          <div className="space-y-3 overflow-y-auto no-scrollbar flex-1">
+          <div className="space-y-4 overflow-y-auto no-scrollbar flex-1 pb-4">
             {notifications.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center opacity-20">
-                <Activity size={24} className="text-slate-500 mb-2" />
-                <p className="text-[10px] font-black text-slate-500 uppercase">Registry Clean</p>
+                <Activity size={32} className="text-slate-500 mb-2" />
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">No Events Found</p>
               </div>
             ) : notifications.slice(0, 10).map(n => (
-              <div key={n._id} className="flex items-start gap-3 border-b border-white/5 pb-3 last:border-0 hover:bg-white/5 p-1 transition-all rounded group">
-                <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                  n.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
-                  n.type === 'warning' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' :
-                  n.type === 'error' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]' :
-                  'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]'
+              <div key={n._id} className="flex items-start gap-3 group border-white/5">
+                <div className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${
+                  n.type === 'success' ? 'bg-emerald-500' :
+                  n.type === 'warning' ? 'bg-amber-500' :
+                  n.type === 'error' ? 'bg-rose-500' :
+                  'bg-indigo-500'
                 }`}></div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-black text-white/90 leading-tight uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{n.message}</p>
-                  <p className="text-[8px] font-bold text-white/30 lowercase mt-1">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                  <p className="text-sm font-normal text-white/90 leading-relaxed group-hover:text-indigo-400 transition-colors">{n.message}</p>
+                  <p className="text-xs font-normal text-white/30 lowercase mt-1">{new Date(n.createdAt).toLocaleTimeString()}</p>
                 </div>
               </div>
             ))}
@@ -141,5 +103,29 @@ const SuperAdminDashboard: React.FC = () => {
     </div>
   );
 };
+
+function SuperStat({ label, value, icon: Icon, color, trend, trendColor = 'text-emerald-500' }: any) {
+  const colorMap: any = {
+    indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600' },
+    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
+    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
+    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' }
+  };
+  const s = colorMap[color] || colorMap.indigo;
+  return (
+    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
+        <Icon size={24} />
+      </div>
+      <div>
+        <p className="stat-label">{label}</p>
+        <h3 className="stat-value">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
+        {trend && (
+           <p className={`text-[10px] font-semibold ${trendColor}`}>{trend}</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default SuperAdminDashboard;

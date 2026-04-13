@@ -59,13 +59,18 @@ const SuperAdminLayout: React.FC = () => {
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 pb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 font-bold text-lg rotate-3 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg font-black text-xl">
               N
             </div>
-            <span className="font-bold text-lg tracking-tight uppercase text-slate-900 leading-none">
-              Nexus <br /> <span className="text-indigo-600 text-xs tracking-wider not-">Master</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg tracking-tight text-slate-900 leading-none">
+                NexusBill
+              </span>
+              <span className="text-indigo-600 text-[10px] font-bold uppercase tracking-widest mt-1">
+                SuperAdmin
+              </span>
+            </div>
           </div>
           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
             <X size={20} />
@@ -78,7 +83,7 @@ const SuperAdminLayout: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) => `
-                flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-sm font-semibold tracking-wide transition-all
+                flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-sm font-${isActive ? 'semibold' : 'medium'} tracking-wide transition-all
                 ${isActive 
                   ? 'bg-slate-900 text-white shadow-xl shadow-slate-200' 
                   : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'}
@@ -93,10 +98,10 @@ const SuperAdminLayout: React.FC = () => {
         <div className="p-4 mt-auto border-t border-slate-50">
           <button 
             onClick={handleLogout}
-            className="w-full h-12 flex items-center gap-2.5 px-4 rounded-xl text-[11px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 transition-all"
+            className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all"
           >
             <LogOut size={14} />
-            Eject Node
+            Logout
           </button>
         </div>
       </aside>
@@ -113,20 +118,17 @@ const SuperAdminLayout: React.FC = () => {
               <Menu size={20} />
             </button>
             <div className="flex flex-col">
-              <h1 className="text-sm lg:text-lg font-black text-slate-900 tracking-tighter uppercase leading-none">
-                {navItems.find(n => location.pathname === n.path)?.name || 'Nexus Master Control'}
+              <h1 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight leading-none">
+                {navItems.find(n => location.pathname === n.path)?.name || 'Admin Dashboard'}
               </h1>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
-                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">Administrative Node Active</p>
-              </div>
+              <p className="text-xs font-normal text-slate-500 mt-1">System Health: Optimal</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 lg:gap-6">
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg">
                <ShieldCheck size={10} className="text-indigo-600" />
-               <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">Protocol V4.2 Locked</span>
+               <span className="text-[10px] font-medium uppercase text-slate-500 tracking-widest">Protocol V4.2 Locked</span>
             </div>
             <button onClick={() => navigate('/superadmin/notifications')} className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors">
               <Bell size={18} />
@@ -137,12 +139,12 @@ const SuperAdminLayout: React.FC = () => {
               )}
             </button>
             <div className="flex items-center gap-3 pl-3 lg:pl-6 border-l border-slate-100">
-              <div className="hidden xs:block text-right">
-                <p className="text-[10px] font-black text-slate-900 uppercase leading-none">Nexus Master</p>
-                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Authority Authority</p>
+               <div className="hidden xs:block text-right">
+                <p className="text-[10px] font-bold text-slate-900 uppercase">SuperAdmin</p>
+                <p className="text-[10px] font-medium text-slate-400 uppercase mt-0.5 tracking-widest">Platform Root</p>
               </div>
-              <div className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black border border-slate-900 shadow-lg text-[10px]">
-                NM
+              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs">
+                SA
               </div>
             </div>
           </div>

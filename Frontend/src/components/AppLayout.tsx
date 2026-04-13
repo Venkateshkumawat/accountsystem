@@ -144,7 +144,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#E8EDF5] select-none ">
+    <div className="flex h-screen overflow-hidden bg-white select-none ">
       {/* ── MOBILE BACKDROP ────────────────────────────────────────────────── */}
       {(isSidebarOpen || isMobileSearchOpen) && (
         <div 
@@ -161,54 +161,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <div className="h-full flex flex-col overflow-hidden">
           <div className="h-[52px] px-6 flex items-center justify-between border-b border-slate-100 shrink-0">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <Shield size={20} />
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <span className="text-xl font-black">N</span>
               </div>
-              <span className="text-xl font-black text-slate-900 tracking-tighter uppercase">
-                Nexus<span className="text-indigo-600">Bill</span>
+              <span className="text-xl font-bold tracking-tight text-slate-900">
+                NexusBill
               </span>
-            </Link>
-            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
-              <X size={20} />
-            </button>
-          </div>
-
-          <nav className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto sidebar-scrollbar scroll-smooth">
-            {visibleNavItems.map((item, idx) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-
-              return (
-                <Link
-                  key={idx}
-                  to={item.path}
-                  className={`flex items-center gap-3.5 px-4 py-3 rounded-[1.25rem] transition-all duration-300 group relative ${
-                    isActive 
-                      ? 'bg-indigo-50 text-indigo-600' 
-                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                  }`}
-                >
-                  <Icon size={18} className={`shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-                  <span className={`text-[13px] tracking-wide uppercase font-${isActive ? 'black' : 'bold'}`}>{item.label}</span>
-                  {isActive && <div className="ml-auto w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="p-4 border-t border-slate-100 shrink-0 mt-auto">
-            <div className="px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3 transition-all hover:border-indigo-100">
-              <div className="w-9 h-9 bg-white border border-slate-200 rounded-xl flex items-center justify-center font-black text-[11px] text-indigo-600 uppercase">
-                {getInitials(user?.name || 'NB')}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-black text-slate-900 truncate uppercase tracking-tight">{user?.name || 'Nexus Admin'}</p>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{user?.role || 'Root Access'}</p>
+                <p className="text-xs font-medium text-slate-500 truncate lowercase first-letter:uppercase">{user?.role || 'Admin'}</p>
               </div>
               <button 
                 onClick={handleLogout}
-                className="p-2 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"
-                title="De-authorize Terminal"
+                className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                title="Logout"
               >
                 <LogOut size={16} />
               </button>
@@ -218,9 +182,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* ── CORE VIEWPORT ────────────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col min-w-0 relative bg-[#F4F7FA]">
+      <main className="flex-1 flex flex-col min-w-0 relative bg-slate-50/50">
         <div className="flex-1 overflow-y-auto custom-scrollbar scroll-smooth">
-          <header className={`h-[52px] bg-white border-b border-slate-200/60 flex items-center justify-between px-4 lg:px-6 z-[120] ${location.pathname === '/dashboard' ? 'sticky top-0' : ''}`}>
+          <header className={`h-16 bg-white flex items-center justify-between px-4 lg:px-8 z-[120] ${location.pathname === '/dashboard' ? 'sticky top-0' : ''}`}>
             <div className="flex items-center gap-3 flex-1">
               <button 
                 onClick={() => setIsSidebarOpen(true)} 
@@ -245,8 +209,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <div className="relative group">
                 <input
                   type="text"
-                  placeholder="SEARCH NODES..."
-                  className="w-full pl-6 h-9 lg:h-8 bg-slate-50 border-slate-100 rounded-lg text-[10px] font-black uppercase tracking-widest focus:bg-white focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  placeholder="Search for invoices, products, or parties..."
+                  className="w-full pl-10 h-10 bg-slate-50 border-none rounded-xl text-sm font-normal text-slate-600 focus:bg-white focus:ring-4 focus:ring-slate-100 transition-all placeholder:text-slate-400 placeholder:font-normal"
                   value={searchQ}
                   onChange={handleSearch}
                   onFocus={() => searchQ.length >= 2 && setShowSug(true)}
@@ -295,9 +259,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-3 lg:gap-5">
-            <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[10px] font-black uppercase tracking-widest select-none">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              Nexus_Live: Stable
+            <div className="hidden sm:flex items-center gap-3">
+              <span className="text-sm font-bold text-slate-900">{user?.businessName || 'Nexus Electronics'}</span>
+              <div className="flex flex-col items-end">
+                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">GST ACTIVE</span>
+              </div>
             </div>
             <NotificationCenter />
           </div>
@@ -314,7 +280,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   <AlertTriangle size={28} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-black uppercase tracking-tight">
+                  <h3 className="text-lg font-semibold uppercase tracking-tight">
                     {planStatus.status === 'expired' ? 'Infrastructure Suspended' : 'Subscription Ending Soon'}
                   </h3>
                   <p className="text-sm font-bold opacity-90 mt-0.5">
@@ -335,7 +301,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </div>
             )}
             
-            <div className="bg-white rounded-[1.5rem] shadow-sm border border-slate-200/60 min-h-[calc(100vh-120px)] p-4 sm:p-5 lg:p-6 relative">
+            <div className="relative">
                {children}
             </div>
           </div>
@@ -344,3 +310,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     </div>
   );
 };
+
+const SidebarItem = React.memo(({ item, isActive }: { item: any, isActive: boolean }) => {
+  const Icon = item.icon;
+  return (
+    <Link
+      to={item.path}
+      className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group relative ${
+        isActive 
+          ? 'bg-indigo-50/80 text-indigo-600' 
+          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+      }`}
+    >
+      <Icon size={18} className={`shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+      <span className={`text-sm font-${isActive ? 'semibold' : 'medium'}`}>{item.label}</span>
+      {isActive && <div className="ml-auto w-1 h-1 bg-indigo-500 rounded-full" />}
+    </Link>
+  );
+});

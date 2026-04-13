@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ShoppingCart, Plus, Minus, X, CreditCard, Box,
   Printer, CheckCircle, Trash2, Package2, AlertTriangle, Zap,
-  Banknote, ArrowLeft
+  Banknote, ArrowLeft, Camera, RefreshCcw
 } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 import { useCart } from '../hooks/useCart';
 import api from '../services/api';
 import { useProducts } from '../context/ProductContext';
@@ -58,6 +59,8 @@ export default function POS() {
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [isInvoiceConfirmed, setIsInvoiceConfirmed] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -130,20 +133,66 @@ export default function POS() {
     setTimeout(() => setAddedFlash(null), 600);
   };
 
+  const findAndAddProduct = async (barcode: string) => {
+    if (!barcode) return;
+    try {
+      const res = await api.get(`/products/barcode/${barcode}`);
+      if (res.data?.success && res.data?.data) {
+        handleAddItem(res.data.data);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.error('Barcode lookup failed:', err);
+      return false;
+    }
+  };
+
   const handleBarcodeSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!barcodeInput) return;
-    try {
-      const res = await api.get(`/products/barcode/${barcodeInput}`);
-      if (res.data?.success && res.data?.data) {
-        handleAddItem(res.data.data);
-        setBarcodeInput('');
-      } else {
-        alert('Product not found in local registry');
-      }
-    } catch (err) {
-      alert('Product not found or network node failure');
+    const success = await findAndAddProduct(barcodeInput);
+    if (success) {
+      setBarcodeInput('');
+    } else {
+      alert('Product not found in local registry');
     }
+  };
+
+  const startScanner = async () => {
+    setIsScannerOpen(true);
+    setTimeout(async () => {
+      try {
+        const scanner = new Html5Qrcode("scanner-region");
+        scannerRef.current = scanner;
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 150 },
+          },
+          async (decodedText) => {
+            const success = await findAndAddProduct(decodedText);
+            if (success) {
+              stopScanner();
+            }
+          },
+          () => {}
+        );
+      } catch (err) {
+        console.error("Scanner start error:", err);
+        setIsScannerOpen(false);
+      }
+    }, 100);
+  };
+
+  const stopScanner = () => {
+    if (scannerRef.current) {
+      scannerRef.current.stop().catch(err => console.error("Scanner stop error:", err));
+      scannerRef.current = null;
+    }
+    setIsScannerOpen(false);
   };
 
   const handleProceedToCheckout = () => {
@@ -244,23 +293,23 @@ export default function POS() {
         <div className={`flex-[3] flex flex-col p-3 lg:p-5 border-r border-slate-100 overflow-hidden min-w-0 ${isMobileCartOpen ? 'hidden lg:flex' : 'flex'}`}>
 
           {/* Header */}
-          <header className="flex items-center justify-between gap-2 mb-2 p-0.5">
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full shadow-sm">
-              <Zap size={10} className="text-amber-500 fill-amber-500" />
-              <span className="text-[8px] font-black text-indigo-900 uppercase tracking-[0.2em]">Nexus Terminal Protocol</span>
+          <header className="flex items-center justify-between gap-2 mb-4 p-0.5">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full shadow-sm max-w-[60%] sm:max-w-none">
+              <Zap size={10} className="text-amber-500 fill-amber-500 shrink-0" />
+              <span className="text-sm sm:text-2xl font-bold text-indigo-900 uppercase tracking-tight truncate">Nexus Terminal Protocol</span>
             </div>
 
             <button
               onClick={() => handleCategoryClick('SALE')}
-              className={`px-3 py-1 ml-2 rounded-full text-[8px] font-black uppercase tracking-widest whitespace-nowrap transition-all border animate-pulse shadow-sm ${selectedCategory === 'SALE'
+              className={`px-3 py-1.5 ml-2 rounded-full text-[8px] font-medium uppercase tracking-widest whitespace-nowrap transition-all border animate-pulse shadow-sm ${selectedCategory === 'SALE'
                 ? 'bg-rose-600 text-white border-rose-600 shadow-rose-200'
                 : 'bg-rose-50 text-rose-500 border-rose-100 hover:border-rose-300'
                 }`}
             >
-              <Zap size={10} className="inline mr-1" /> Flash Sale
+              <Zap size={10} className="inline mr-1" /> Flash
             </button>
 
-            <div className="flex items-center gap-1.5 ml-auto">
+            <div className="hidden sm:flex items-center gap-1.5 ml-auto">
               <div className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg shadow-sm text-center">
                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Node Cart</p>
                 <p className="text-xs font-black text-slate-900 leading-none mt-0.5">{cart.length}</p>
@@ -273,27 +322,41 @@ export default function POS() {
           </header>
 
           {/* Search & Barcode — NO ICONS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3 shrink-0">
-            <form onSubmit={handleBarcodeSearch}>
-              <input ref={barcodeRef} value={barcodeInput}
-                onChange={e => setBarcodeInput(e.target.value)}
-                placeholder="Scan barcode Product…"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:outline-none focus:border-indigo-500 shadow-sm transition placeholder:text-slate-300"
-              />
-            </form>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 shrink-0">
+            <div className="relative group">
+              <form onSubmit={handleBarcodeSearch} className="flex gap-2">
+                <div className="relative flex-1">
+                  <input ref={barcodeRef} value={barcodeInput}
+                    onChange={e => setBarcodeInput(e.target.value)}
+                    placeholder="Scan barcode Product…"
+                    className="w-full pl-3 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:outline-none focus:border-indigo-500 shadow-sm transition placeholder:text-slate-300"
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 border-l border-slate-100 pl-2">
+                    <button
+                      type="button"
+                      onClick={startScanner}
+                      className="text-indigo-600 hover:text-indigo-700 active:scale-95 transition-all p-1"
+                      title="Open Camera Scanner"
+                    >
+                      <Camera size={14} />
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
             <input value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search product…"
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:outline-none focus:border-slate-600 shadow-sm transition placeholder:text-slate-300"
+              className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:outline-none focus:border-slate-600 shadow-sm transition placeholder:text-slate-300"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 mb-4 overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center gap-1.5 mb-5 overflow-x-auto no-scrollbar py-0.5 shrink-0">
             {['All', ...categories].map(cat => (
               <button
                 key={cat}
                 onClick={() => handleCategoryClick(cat)}
-                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border ${selectedCategory === cat
+                className={`px-4 py-2 rounded-xl text-[9px] font-medium uppercase tracking-widest whitespace-nowrap transition-all border ${selectedCategory === cat
                   ? 'bg-slate-900 text-white border-slate-900 shadow-md'
                   : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300 hover:text-slate-600'
                   }`}
@@ -303,38 +366,35 @@ export default function POS() {
             ))}
           </div>
 
-          {/* Flash Sale Banner */}
-
-
           {/* Low Stock Alert Banner */}
-          <div className="mb-5 px-5 py-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between animate-pulse shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
-                <AlertTriangle size={16} />
+          <div className="mb-6 px-4 sm:px-5 py-3 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse shadow-sm min-h-[60px]">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                <AlertTriangle size={18} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">Critical Alert: Low Product Nodes</p>
-                <p className="text-[9px] font-bold text-amber-600 mt-0.5">Some items in this category are crossing the safety threshold.</p>
+                <p className="text-sm sm:text-base font-bold text-amber-900 uppercase tracking-tight">Low Stock Alerts</p>
+                <p className="text-[10px] sm:text-[9px] font-bold text-amber-600 mt-0.5">Critical thresholds reached in this category.</p>
               </div>
             </div>
-            <button onClick={() => fetchProducts('', 'All')} className="px-4 py-1.5 bg-amber-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-amber-700 transition shadow-sm">
-              Check All
+            <button onClick={() => fetchProducts('', 'All')} className="w-full sm:w-auto px-6 py-2 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition shadow-sm whitespace-nowrap">
+              Check Inventory
             </button>
           </div>
 
           {/* Product Grid */}
           <div 
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 content-start pb-4">
+            className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 content-start pb-4">
             {loading ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <ShoppingCart size={32} className="mx-auto mb-2 animate-bounce" />
-                <p className="text-xs font-black uppercase tracking-widest">Loading products…</p>
+                <p className="text-xs font-black uppercase tracking-widest">Syncing Nodes…</p>
               </div>
             ) : displayedProducts.length === 0 ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <Box size={32} className="mx-auto mb-2" />
-                <p className="text-xs font-black uppercase">No products found</p>
+                <p className="text-xs font-black uppercase">No Nodes Found</p>
               </div>
             ) : displayedProducts.map(product => {
               const inCart = cart.find(i => i.productId === product._id);
@@ -411,7 +471,7 @@ export default function POS() {
                         className={`${inCart ? 'text-white/40' : 'text-slate-300'} ${product.image ? 'hidden' : ''}`} 
                       />
                     </div>
-                    <h3 className="text-slate-900 font-extrabold text-[8.5px] uppercase leading-none line-clamp-2 w-full px-0.5 min-h-[18px]">
+                    <h3 className="text-slate-900 font-semibold text-sm uppercase leading-none line-clamp-2 w-full px-0.5 min-h-[18px]">
                       {product.name}
                     </h3>
                     <p className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-1 rounded-sm border border-slate-100 mt-1 truncate w-full max-w-[50px]">
@@ -432,7 +492,7 @@ export default function POS() {
                               <span className="text-[7px] text-slate-400 line-through leading-none mb-0.5">₹{product.sellingPrice}</span>
                               <span className="text-[6px] font-black text-rose-500 bg-rose-50 px-1 rounded-sm uppercase tracking-tighter shadow-sm border border-rose-100">Sale Node</span>
                             </div>
-                            <div className="font-black text-emerald-600 text-[11px] leading-none mb-1">
+                            <div className="font-bold text-emerald-600 text-base leading-none mb-1">
                               <span className="text-[7px] font-bold mr-0.5">₹</span>
                               {product.sellingPrice - (product.discount || 0)}
                             </div>
@@ -440,7 +500,7 @@ export default function POS() {
                         );
                       } else {
                         return (
-                          <div className="font-black text-slate-900 text-[11px] leading-none mb-1">
+                          <div className="font-bold text-slate-900 text-base leading-none mb-1">
                             <span className="text-[7px] text-slate-400 font-bold mr-0.5">₹</span>
                             {product.sellingPrice}
                           </div>
@@ -468,7 +528,7 @@ export default function POS() {
                 <ShoppingCart size={15} className="text-indigo-600" />
               </div>
               <div>
-                <h2 className="font-black text-slate-900 text-base leading-none">Cart</h2>
+                <h2 className="text-lg font-semibold text-slate-900 leading-none">Cart</h2>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
                   {cart.length === 0 ? 'Empty' : `${cart.length} item${cart.length > 1 ? 's' : ''}`}
                 </p>
@@ -497,7 +557,7 @@ export default function POS() {
                   {/* Top: Name and Unit Details (Small Font) */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0 pr-2">
-                      <p className="text-[10px] font-black text-slate-900 uppercase truncate leading-none">{item.name}</p>
+                      <p className="text-sm font-semibold text-slate-900 uppercase truncate leading-none">{item.name}</p>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2 mt-1">
                           {item.discount > 0 && (!item.saleEndDate || new Date(item.saleEndDate).setHours(23, 59, 59, 999) > Date.now()) ? (
@@ -568,7 +628,7 @@ export default function POS() {
                       />
                     </div>
                     <div className="ml-auto text-right">
-                      <span className="block text-[11px] font-black text-slate-900 leading-none">₹{lineTotal.toFixed(0)}</span>
+                      <span className="block text-base font-bold text-slate-900 leading-none">₹{lineTotal.toFixed(0)}</span>
                       {lineGST > 0 && <span className="block text-[7px] font-bold text-indigo-400 opacity-70">tax +₹{lineGST.toFixed(1)}</span>}
                     </div>
                   </div>
@@ -584,10 +644,10 @@ export default function POS() {
 
             {cart.length > 0 && (
               <div className="bg-white rounded-2xl border border-slate-100 p-3 space-y-1.5">
-                <div className="flex justify-between text-[10px] font-bold text-slate-500"><span>Subtotal</span><span>₹{cartSubtotal.toFixed(2)}</span></div>
-                {cartDiscount > 0 && <div className="flex justify-between text-[10px] font-bold text-rose-500"><span>Discount</span><span>-₹{cartDiscount.toFixed(2)}</span></div>}
+                <div className="flex justify-between text-xs font-medium text-slate-500"><span>Subtotal</span><span>₹{cartSubtotal.toFixed(2)}</span></div>
+                {cartDiscount > 0 && <div className="flex justify-between text-xs font-medium text-rose-500"><span>Discount</span><span>-₹{cartDiscount.toFixed(2)}</span></div>}
 
-                <div className="flex justify-between text-[10px] font-bold text-indigo-600 border-b border-indigo-50 pb-1">
+                <div className="flex justify-between text-xs font-medium text-indigo-600 border-b border-indigo-50 pb-1">
                   <span>GST Liability</span>
                   <span>₹{cartGST.toFixed(2)}</span>
                 </div>
@@ -595,8 +655,8 @@ export default function POS() {
 
 
                 <div className="flex justify-between items-center pt-1.5 border-t border-slate-100">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Grand Total</span>
-                  <span className="text-lg font-black text-slate-900 tracking-tighter">₹{Math.round(cartTotal)}</span>
+                  <span className="text-xs font-medium text-slate-500 uppercase tracking-widest">Grand Total</span>
+                  <span className="text-lg font-bold text-slate-900 tracking-tighter">₹{Math.round(cartTotal)}</span>
                 </div>
               </div>
             )}
@@ -616,7 +676,7 @@ export default function POS() {
               <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
                 <CheckCircle size={24} className="text-emerald-600" />
               </div>
-              <h2 className="text-lg font-black text-slate-900">Invoice Generated!</h2>
+              <h2 className="text-lg font-semibold text-slate-900 tracking-tight">Invoice Generated!</h2>
               <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{lastInvoice.invoiceNumber}</p>
             </div>
             <div className="p-6 space-y-3 text-sm  max-h-64 overflow-y-auto">
@@ -685,7 +745,7 @@ export default function POS() {
                   <CreditCard size={14} />
                 </div>
                 <div>
-                  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none">Checkout Hub</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight leading-none">Checkout Hub</h3>
                   <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">FINALIZE TRANSACTION NODE</p>
                 </div>
               </div>
@@ -809,6 +869,73 @@ export default function POS() {
           </div>
         </div>
       )}
+      {/* ── SCANNER MODAL: Camera Protocol ─────────────────────────────── */}
+      {isScannerOpen && (
+        <div className="fixed inset-0 z-[70] backdrop-blur-md bg-slate-900/60 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col items-center">
+            <header className="w-full p-4 border-b border-slate-50 flex items-center justify-between bg-white shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg animate-pulse">
+                  <Camera size={16} />
+                </div>
+                <div>
+                  <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest leading-none">Scanning Node</h3>
+                  <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Align barcode within frame</p>
+                </div>
+              </div>
+              <button
+                onClick={stopScanner}
+                className="p-2 hover:bg-rose-50 text-slate-300 hover:text-rose-500 rounded-xl transition-all"
+              >
+                <X size={20} />
+              </button>
+            </header>
+
+            <div className="p-6 w-full flex flex-col items-center">
+              <div 
+                id="scanner-region" 
+                className="w-full aspect-square bg-slate-100 rounded-2xl overflow-hidden border-2 border-dashed border-indigo-200 shadow-inner relative"
+              >
+                <div className="absolute inset-0 z-10 pointer-events-none border-[30px] border-white/20">
+                    <div className="w-full h-full border-2 border-indigo-500 rounded-lg shadow-[0_0_0_1000px_rgba(0,0,0,0.3)]"></div>
+                </div>
+                {/* Scan Animation Line */}
+                <div className="absolute left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] z-20 animate-[scan_2s_ease-in-out_infinite]"></div>
+              </div>
+              
+              <div className="mt-8 flex flex-col items-center gap-4 w-full">
+                <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100 animate-bounce">
+                  <Zap size={14} className="fill-indigo-600" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Active Search Protocol</span>
+                </div>
+                
+                <button 
+                  onClick={stopScanner}
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] shadow-xl hover:bg-slate-800 transition-all uppercase tracking-[0.2em] active:scale-95 flex items-center justify-center gap-3"
+                >
+                  Terminate Scanner
+                </button>
+              </div>
+            </div>
+            
+            <footer className="w-full p-4 bg-slate-50 border-t border-slate-100 text-center">
+               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Nexus Optical Interface v2.4.0</p>
+            </footer>
+          </div>
+        </div>
+      )}
+      <style>{`
+        @keyframes scan {
+          0%, 100% { top: 10%; }
+          50% { top: 90%; }
+        }
+        #scanner-region video {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          border-radius: 1rem !important;
+        }
+      `}</style>
     </>
   );
 }

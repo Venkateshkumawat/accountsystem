@@ -62,7 +62,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onCo
           <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center">
             <AlertTriangle size={20} className="text-rose-600" />
           </div>
-          <h3 className="font-black text-slate-900">Confirm Action</h3>
+          <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">Confirm Action</h3>
         </div>
         <p className="text-slate-600 text-sm font-medium mb-6">{message}</p>
         <div className="flex gap-3">
@@ -234,12 +234,12 @@ export default function Staff() {
       {/* ──── Header ───────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
         <div>
-          <div className="flex items-center gap-1.5 mb-0.5">
+          <div className="flex items-center gap-1.5 mb-1">
             <Zap size={12} className="text-amber-500" />
-            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Nexus Personnel Protocol</span>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Nexus Personnel Protocol</span>
           </div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tighter leading-none">Staff Management</h1>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">
+          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Staff Management</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">
             {staff.length} active staff managing operations.
           </p>
         </div>
@@ -269,8 +269,8 @@ export default function Staff() {
             <div key={role} className={`flex items-center gap-3 px-4 py-3 rounded-2xl ${m.bg} border border-white`}>
               <Icon size={16} className={m.text} />
               <div>
-                <p className={`text-xs font-black uppercase tracking-widest ${m.text}`}>{role}</p>
-                <p className="text-2xl font-black text-slate-900">{count}</p>
+                <p className={`text-xs font-semibold uppercase tracking-widest ${m.text}`}>{role}</p>
+                <p className="text-xl font-bold tracking-tight text-slate-900">{count}</p>
               </div>
             </div>
           );
@@ -279,7 +279,7 @@ export default function Staff() {
           <CheckCircle size={16} className="text-emerald-700" />
           <div>
             <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Active</p>
-            <p className="text-2xl font-black text-slate-900">{activeCount}</p>
+            <p className="text-lg font-bold tracking-tight text-slate-900">{activeCount}</p>
           </div>
         </div>
       </div>
@@ -314,7 +314,7 @@ export default function Staff() {
       ) : filtered.length === 0 ? (
         <div className="py-24 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl text-center">
           <Users size={48} className="text-slate-200 mb-4" />
-          <h3 className="text-xl font-black text-slate-400">
+          <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight text-slate-400">
             {staff.length === 0 ? 'No Staff Yet' : 'No Results Found'}
           </h3>
           <p className="text-slate-400 text-sm font-medium mt-1 mb-6">
@@ -346,7 +346,7 @@ export default function Staff() {
                       <Icon size={22} className={meta.text} />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-black text-slate-900 text-sm truncate">{member.name}</h3>
+                      <h3 className="text-lg font-semibold text-slate-900 tracking-tight truncate">{member.name}</h3>
                       <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${meta.bg} ${meta.text} mt-0.5`}>
                         {member.role}
                       </span>
@@ -404,7 +404,7 @@ export default function Staff() {
                 <div className="px-5 py-3 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <div className={`w-2 h-2 rounded-full ${member.isActive ? 'bg-emerald-500' : 'bg-rose-400'}`} />
-                    <span className={`text-[10px] font-black uppercase ${member.isActive ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    <span className={`text-[10px] font-semibold uppercase tracking-wide ${member.isActive ? 'text-emerald-600' : 'text-rose-500'}`}>
                       {member.isActive ? 'Active' : 'Suspended'}
                     </span>
                   </div>
@@ -430,8 +430,8 @@ export default function Staff() {
             {/* Header */}
             <div className="p-5 bg-gradient-to-r from-slate-900 to-indigo-900 text-white flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-xl font-black tracking-tight uppercase">New Staff Member</h3>
-                <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mt-0.5">Authorizing New Staff Authorization</p>
+                <h3 className="text-lg font-semibold text-white tracking-tight">New Staff Member</h3>
+                <p className="text-xs font-normal text-indigo-300 mt-1">Authorizing new staff access node</p>
               </div>
               <button onClick={() => { setShowAdd(false); setForm(defaultForm); }}
                 className="p-3 text-slate-400 hover:text-white bg-white/10 rounded-xl transition-all">
@@ -469,9 +469,9 @@ export default function Staff() {
                 <FormInput label="Mobile Number *" placeholder="9XXXXXXXX9" required type="tel" maxLength={10}
                   value={form.mobile} onChange={v => setForm({ ...form, mobile: v })} />
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role *</label>
+                  <label className="text-sm font-medium text-slate-500 ml-1">Role *</label>
                   <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 transition">
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-normal text-slate-900 focus:outline-none focus:border-indigo-500 transition">
                     <option value="cashier">Cashier — POS billing</option>
                     <option value="accountant">Accountant — Finance</option>
                     <option value="manager">Manager — Full access</option>
@@ -481,11 +481,11 @@ export default function Staff() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password *</label>
+                  <label className="text-sm font-medium text-slate-500 ml-1">Password *</label>
                   <div className="relative">
                     <input type={showPass ? 'text' : 'password'} placeholder="Min 6 characters" required
                       value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold pr-10 focus:outline-none focus:border-indigo-500 transition" />
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-normal text-slate-900 pr-10 focus:outline-none focus:border-indigo-500 transition" />
                     <button type="button" onClick={() => setShowPass(!showPass)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                       {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -534,7 +534,7 @@ export default function Staff() {
 
             <div className="p-5 bg-slate-900 text-white flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-lg font-black tracking-tight uppercase">Update Staff</h3>
+                <h3 className="text-base font-bold text-white uppercase tracking-tight">Update Staff</h3>
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{editTarget.email}</p>
               </div>
               <button onClick={() => setEditTarget(null)}
@@ -550,9 +550,9 @@ export default function Staff() {
                 <FormInput label="Mobile Number" type="tel" maxLength={10}
                   value={editForm.mobile} onChange={v => setEditForm({ ...editForm, mobile: v })} />
                 <div className="sm:col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</label>
+                  <label className="text-sm font-medium text-slate-500 ml-1">Role</label>
                   <select value={editForm.role} onChange={e => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 transition">
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-normal text-slate-900 focus:outline-none focus:border-indigo-500 transition">
                     <option value="cashier">Cashier</option>
                     <option value="accountant">Accountant</option>
                     <option value="manager">Manager</option>
@@ -599,11 +599,11 @@ function FormInput({ label, value, onChange, required, type = 'text', placeholde
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</label>
+      <label className="text-sm font-medium text-slate-500 ml-1">{label}</label>
       <input
         type={type} value={value} required={required} placeholder={placeholder} maxLength={maxLength}
         onChange={e => onChange(e.target.value)}
-        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-normal text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
       />
     </div>
   );

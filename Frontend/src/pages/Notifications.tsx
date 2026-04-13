@@ -106,7 +106,7 @@ export default function Notifications() {
             placeholder="Search specific logs, barcodes, or event signatures..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-6 py-2.5 bg-white border border-slate-100 rounded-2xl text-[11px] font-bold shadow-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-300"
+            className="w-full px-6 py-2.5 bg-white border border-slate-100 rounded-2xl text-sm font-medium shadow-sm focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-300"
           />
         </div>
 
@@ -151,7 +151,7 @@ export default function Notifications() {
             <div className="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner shadow-indigo-100/50">
               <Bell size={40} />
             </div>
-            <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase">No {typeFilter === 'all' ? 'Event' : typeFilter} Match</h3>
+            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">No {typeFilter === 'all' ? 'Event' : typeFilter} Match</h3>
             <p className="text-slate-400 text-xs font-bold mt-2 uppercase tracking-wide">
               {typeFilter === 'error' ? 'Registry is clear of critical infrastructure anomalies.' : 'Registry is clean or the filter returned void nodes.'}
             </p>
@@ -189,7 +189,7 @@ export default function Notifications() {
                     </span>
                   </div>
 
-                  <p className={`text-[12px] leading-tight select-none ${!n.isRead ? 'font-black text-slate-900' : 'font-bold text-slate-500'}`}>
+                  <p className={`text-sm leading-tight select-none ${!n.isRead ? 'font-semibold text-slate-900' : 'font-medium text-slate-500'}`}>
                     {n.message}
                   </p>
 

@@ -441,20 +441,15 @@ export default function Settings() {
       )}
 
 
-      {/* ── Page header ──────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Zap size={14} className="text-amber-500" />
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">NexusBill SaaS Platform</span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Settings</h1>
-          <p className="text-slate-500 font-medium text-sm mt-0.5">Manage your business, staff, security and alerts</p>
+          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">System Settings</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">Manage your business profile, team, security, and preferences</p>
         </div>
         {user?.businessId && (
           <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-2xl w-fit">
             <Building2 size={14} className="text-indigo-600" />
-            <span className="text-xs font-black text-indigo-700 tracking-widest">{user.businessId}</span>
+            <span className="text-xs font-bold text-indigo-700 tracking-tight">BUSINESS ID: {user.businessId}</span>
           </div>
         )}
       </div>
@@ -466,7 +461,7 @@ export default function Settings() {
         <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-1 shrink-0">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-black transition-all whitespace-nowrap w-full ${activeTab === t.id
+              className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-medium transition-all whitespace-nowrap w-full ${activeTab === t.id
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
                 : 'bg-white text-slate-500 border border-slate-100 hover:border-indigo-200 hover:text-indigo-600'
                 }`}>
@@ -484,27 +479,27 @@ export default function Settings() {
           {activeTab === 'Profile' && (
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                <h2 className="text-lg font-black text-slate-900">Business Profile</h2>
-                <p className="text-slate-500 text-sm font-medium">Update your business information and address details</p>
+                <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Business Profile</h2>
+                <p className="text-sm font-normal text-slate-500">Update your business information and address details</p>
               </div>
               <form onSubmit={handleSaveProfile} className="p-6 space-y-5">
                 {/* Admin info (read-only) */}
-                <div className="p-4 bg-slate-50 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-5 bg-slate-50/80 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Admin Name</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Account Owner</p>
                     <p className="text-sm font-bold text-slate-800">{user?.name || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Admin Email</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Registration Email</p>
                     <p className="text-sm font-bold text-slate-800 break-all">{user?.email || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Business Name</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Business Name</p>
                     <p className="text-sm font-bold text-slate-800">{business?.businessName || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reference ID</p>
-                    <p className="text-sm font-black text-indigo-700 tracking-widest">{user?.businessId || '—'}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Business ID</p>
+                    <p className="text-sm font-bold text-indigo-600 font-mono">{user?.businessId || '—'}</p>
                   </div>
                 </div>
 
@@ -582,7 +577,7 @@ export default function Settings() {
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm">
                 <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-black text-slate-900">Team Members</h2>
+                    <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Team Members</h2>
                     <p className="text-slate-500 text-sm font-medium">{staff.length} staff · {staff.filter(s => s.isActive).length} active</p>
                   </div>
                   <div className="flex gap-2">
@@ -610,7 +605,7 @@ export default function Settings() {
                             <User size={18} className="text-indigo-600" />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-black text-slate-900 text-sm truncate">{s.name}</p>
+                            <p className="font-semibold text-slate-900 text-sm truncate">{s.name}</p>
                             <div className="flex items-center gap-2 flex-wrap mt-0.5">
                               <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-[9px] font-black uppercase">{s.role}</span>
                               <span className="text-[10px] text-slate-400 font-medium">{s.email}</span>
@@ -647,8 +642,8 @@ export default function Settings() {
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-black text-slate-900">Nodal Offers & Discounts</h2>
-                    <p className="text-slate-500 text-sm font-medium">Configure bulk discounts, BOGO, and seasonal campaigns</p>
+                    <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Offers & Campaigns</h2>
+                    <p className="text-slate-500 text-sm font-medium">Manage seasonal discounts, BOGO offers and customer pricing</p>
                   </div>
                   <button onClick={() => setShowOfferForm(true)}
                     className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-black hover:bg-slate-900 transition shadow-lg shadow-indigo-100">
@@ -692,7 +687,7 @@ export default function Settings() {
                                 await api.put(`/offers/${o._id}`, { isActive: !o.isActive });
                                 fetchData();
                                 showToast(`Offer ${!o.isActive ? 'activated' : 'paused'}!`);
-                                const sync = new BroadcastChannel('nexus_sync');
+                                const sync = new BroadcastChannel('bb_sync');
                                 sync.postMessage('FETCH_PRODUCTS');
                                 sync.close();
                               } catch { }
@@ -715,7 +710,7 @@ export default function Settings() {
               <div className="p-6 bg-slate-900 rounded-3xl flex items-center justify-between gap-6 overflow-hidden relative">
                 <div className="relative z-10">
                   <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2">Nexus Fiscal Optimization</p>
-                  <h3 className="text-white text-xl font-black tracking-tighter">Bulk Pricing Logic Active</h3>
+                  <h3 className="text-white text-base font-bold uppercase tracking-tight">Bulk Pricing Logic Active</h3>
                   <p className="text-slate-400 text-xs mt-1 font-bold">POS Terminal automatically evaluates best savings for every transaction.</p>
                 </div>
                 <Zap size={100} className="text-white/5 absolute -right-4 rotate-12" />
@@ -734,8 +729,8 @@ export default function Settings() {
                       <KeyRound size={18} className="text-indigo-600" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-black text-slate-900">Change Password</h2>
-                      <p className="text-slate-500 text-sm font-medium">Update your login password securely</p>
+                      <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Change Password</h2>
+                      <p className="text-sm font-normal text-slate-500">Update your login password securely</p>
                     </div>
                   </div>
                 </div>
@@ -781,8 +776,8 @@ export default function Settings() {
                       <Shield size={18} className="text-emerald-600" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-black text-slate-900">Security Status</h2>
-                      <p className="text-slate-500 text-sm font-medium">Account security overview</p>
+                      <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Security Status</h2>
+                      <p className="text-sm font-normal text-slate-500">Account security overview</p>
                     </div>
                   </div>
                 </div>
@@ -796,7 +791,7 @@ export default function Settings() {
                     { label: 'Last Updated', value: user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString('en-IN') : '—', ok: true },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
-                      <p className="text-sm font-bold text-slate-600">{row.label}</p>
+                      <p className="text-sm font-semibold text-slate-600">{row.label}</p>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-black text-slate-900">{row.value}</span>
                         {row.ok ? <CheckCircle size={14} className="text-emerald-500" /> : <XCircle size={14} className="text-rose-500" />}

@@ -113,7 +113,7 @@ export default function Reports() {
             <Activity size={20} className="animate-pulse" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tighter leading-none">Business Intelligence</h1>
+            <h1 className="text-2xl font-bold text-slate-900 leading-tight">Business Intelligence</h1>
             <p className="text-slate-400 font-bold text-[9px] uppercase tracking-widest mt-1">Real-time Performance Node</p>
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function Reports() {
       <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
          <div className="flex items-center gap-2 px-1">
             <Activity size={14} className="text-indigo-600" />
-            <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Diagnostic Filter Registry</h2>
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">Diagnostic Filter Registry</h2>
          </div>
          <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[140px] space-y-1.5">
@@ -202,7 +202,7 @@ export default function Reports() {
         <div className="lg:col-span-8 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-none">Revenue Growth Delta</h3>
+              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight leading-none">Revenue Growth Delta</h3>
               <p className="text-[8px] text-slate-400 font-bold uppercase mt-1">7-Day Sales Synchronization</p>
             </div>
             <div className="flex gap-2">
@@ -233,7 +233,7 @@ export default function Reports() {
         {/* Small Stats / Velocity Ranking */}
         <div className="lg:col-span-4 space-y-4">
           <div className="bg-slate-950 p-5 rounded-3xl shadow-2xl relative overflow-hidden border border-slate-800">
-            <h3 className="text-[10px] font-black text-indigo-400 mb-4 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-base font-bold text-indigo-400 mb-4 uppercase tracking-tight flex items-center gap-2">
               <ArrowUpRight size={14} /> High Velocity Items
             </h3>
             <div className="space-y-3 relative z-10">
@@ -250,7 +250,7 @@ export default function Reports() {
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="text-[10px] font-black text-rose-500 mb-4 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-base font-bold text-rose-500 mb-4 uppercase tracking-tight flex items-center gap-2">
               <TrendingDown size={14} /> Critical Low Stock
             </h3>
             <div className="space-y-3">
@@ -269,14 +269,14 @@ export default function Reports() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
-            <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
               <ShoppingCart size={14} className="text-indigo-600" /> Recent Purchase Acquisitions
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
                   <th className="py-3 px-2">Item Node</th>
                   <th className="py-3 px-2">Quantity</th>
                   <th className="py-3 px-2">Investment</th>
@@ -300,7 +300,7 @@ export default function Reports() {
         {/* Real-time Activity Ledger */}
         <div className="bg-slate-900 p-5 rounded-3xl shadow-xl border border-slate-800">
           <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
-            <h3 className="text-[11px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-base font-bold text-indigo-400 uppercase tracking-tight flex items-center gap-2">
               <Activity size={14} /> Master Audit Sequence
             </h3>
             <span className="text-[8px] font-black text-white/20 uppercase">Real-time Feed</span>
@@ -328,7 +328,7 @@ export default function Reports() {
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8">
            <div>
               <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2">Node A1: Discovery</p>
-              <h4 className="text-white text-lg font-black tracking-tighter">Strategic Growth Narrative</h4>
+              <h4 className="text-white text-lg font-semibold tracking-tight">Strategic Growth Narrative</h4>
               <p className="text-slate-400 text-[10px] font-medium leading-relaxed mt-2 uppercase">
                 {salesData?.topSoldItems?.length > 0 
                   ? `Revenue is currently dominated by ${salesData.topSoldItems[0]._id}. Recommend scaling purchase acquisitions in this node.`
@@ -337,7 +337,7 @@ export default function Reports() {
            </div>
            <div className="md:border-x border-white/5 md:px-8">
               <p className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-2">Node B2: Fiscal Health</p>
-              <h4 className="text-white text-lg font-black tracking-tighter">Promotional Impact Audit</h4>
+              <h4 className="text-white text-lg font-semibold tracking-tight">Promotional Impact Audit</h4>
               <div className="mt-3 space-y-2">
                  <div className="flex justify-between text-[9px] font-black text-slate-300 uppercase">
                     <span>GST Liability Reconciled</span>
@@ -351,7 +351,7 @@ export default function Reports() {
            </div>
            <div>
               <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-2">Node C3: Optimization</p>
-              <h4 className="text-white text-lg font-black tracking-tighter">Revenue Leakage Detection</h4>
+              <h4 className="text-white text-lg font-semibold tracking-tight">Revenue Leakage Detection</h4>
               <p className="text-slate-400 text-[10px] font-medium leading-relaxed mt-2 uppercase">
                  {salesData?.lowStockItems?.length > 0 
                    ? `Detected ${salesData.lowStockItems.length} potential stock-outs. Preventative restock registry initialized.`
@@ -381,7 +381,7 @@ export default function Reports() {
                       {proto === 'CASH' ? <IndianRupee size={12} /> : proto === 'UPI' ? <Zap size={12} /> : <CreditCard size={12} />}
                    </div>
                 </div>
-                <h3 className="text-xl font-black tracking-tighter text-slate-900 leading-none z-10">₹{(metric?.amount || 0).toLocaleString()}</h3>
+                <h3 className="text-lg font-semibold tracking-tight text-slate-900 leading-none z-10">₹{(metric?.amount || 0).toLocaleString()}</h3>
                 <p className="text-[8px] font-bold text-slate-400 mt-2 uppercase z-10">Settlement Count: <span className="text-slate-900">{metric?.count || 0} Nodes</span></p>
                 <div className="absolute top-0 right-0 p-1 opacity-10 rotate-12"> <Zap size={40} /> </div>
              </div>
@@ -392,14 +392,14 @@ export default function Reports() {
       {/* Fiscal Settlement Matrix (GST Slab Breakdown) */}
       <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm mt-4">
          <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
-            <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                <ShieldCheck size={14} className="text-amber-500" /> Fiscal Settlement Matrix (GST Slabs)
             </h3>
          </div>
          <div className="overflow-x-auto">
             <table className="w-full text-left">
                <thead>
-                  <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                  <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
                      <th className="py-3 px-2">Tax bracket</th>
                      <th className="py-3 px-2 text-right">Taxable Supply</th>
                      <th className="py-3 px-2 text-right">Collected Tax</th>
@@ -434,7 +434,7 @@ export default function Reports() {
         {/* Payment Logic Distribution */}
         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[350px]">
            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <CreditCard size={14} className="text-indigo-600" /> Sector-Wise Settlement Logic
               </h3>
            </div>
@@ -475,7 +475,7 @@ export default function Reports() {
         {/* Category Concentration Audit */}
         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <Box size={14} className="text-amber-500" /> Category-wise Inventory Hub
               </h3>
            </div>
@@ -500,7 +500,7 @@ export default function Reports() {
         {/* Unit Velocity Flux (Sales Count) */}
         <div className="lg:col-span-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <Zap size={14} className="text-indigo-600" /> Unit Velocity Flux
               </h3>
            </div>
@@ -523,7 +523,7 @@ export default function Reports() {
         {/* Stock vs Sales (Comparative Audit) */}
         <div className="lg:col-span-8 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <TrendingUp size={14} className="text-emerald-500" /> High-Velocity Node Performance Audit (Qty)
               </h3>
            </div>
@@ -564,7 +564,7 @@ function MetricCard({ label, value, icon: Icon, color, sub }: any) {
       </div>
       <div className="relative z-10">
         <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-0.5 text-slate-500">{label}</p>
-        <h3 className="text-xl font-black tracking-tighter text-slate-900 leading-none">{value}</h3>
+        <h3 className="text-xl font-bold tracking-tight text-slate-900 leading-none">{value}</h3>
       </div>
       <Icon size={50} className={`absolute -right-4 -bottom-4 opacity-5 scale-150 rotate-12 transition-transform duration-700 group-hover:rotate-45 ${themes[color].split(' ')[2]}`} />
     </div>

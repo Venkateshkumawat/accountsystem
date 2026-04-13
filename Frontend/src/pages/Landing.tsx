@@ -15,7 +15,7 @@ const Landing = () => {
               <div className="absolute inset-0 bg-violet-400 rounded-tr-xl rounded-bl-xl rounded-tl-sm rounded-br-sm -rotate-12 opacity-80 mix-blend-multiply"></div>
               <Layout size={16} className="text-white relative z-10" />
             </div>
-            <span className="font-extrabold text-slate-900 text-xl tracking-tighter">Nexus<span className="text-indigo-600 font-light">Bill</span></span>
+            <span className="text-xl font-bold tracking-tight text-slate-900">Nexus<span className="text-indigo-600 font-light">Bill</span></span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -63,10 +63,10 @@ const Landing = () => {
             </span>
             Nexus v5.0 is Live
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-slate-900 mb-8 max-w-4xl mx-auto leading-tight">
+          <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-slate-900 mb-8 max-w-4xl mx-auto leading-tight">
             The intelligent operating system for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500">modern commerce.</span>
           </h1>
-          <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-lg sm:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
             Unify your POS, inventory alerts, multi-tenant billing, payment tracking, and GST compliance in one beautifully crafted architecture.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -84,7 +84,7 @@ const Landing = () => {
       <section id="features" className="scroll-mt-24 py-12 bg-slate-50/50 outline-none border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-4">Powerful Core Features</h2>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 mb-4">Powerful Core Features</h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-lg">Everything you need to manage your business effectively.</p>
           </div>
 
@@ -150,7 +150,7 @@ const Landing = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-sm font-bold tracking-wide">
                 Seamless Operations
               </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
                 Simple Solutions for <br />Everyday Problems.
               </h2>
               <p className="text-slate-500 text-lg leading-relaxed mb-4">
@@ -222,7 +222,7 @@ const Landing = () => {
       <section id="about" className="scroll-mt-24 py-20 bg-slate-50 outline-none border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-4">About Us</h2>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 mb-4">About Us</h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-lg">Who we are, what we build, and why we do it.</p>
           </div>
 
@@ -298,7 +298,7 @@ const Landing = () => {
             <div className="absolute inset-0 bg-white/20 backdrop-blur-md rounded-tr-2xl rounded-bl-2xl rounded-tl-sm rounded-br-sm rotate-12"></div>
             <Layout size={24} className="text-white relative z-10" />
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tighter">Ready to experience NexusBill?</h2>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight">Ready to experience NexusBill?</h2>
           <p className="text-indigo-100 text-lg max-w-2xl mx-auto leading-relaxed">
             Built by engineers who care about design and performance. Join NexusBill to take control of your financial infrastructure instantly.
           </p>

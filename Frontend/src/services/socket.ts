@@ -15,7 +15,7 @@ class SocketService {
 
     this.socket.on("connect", () => {
       console.log("📡 Nexus Protocol: Socket Connected");
-      
+
       // Join business room if user is logged in
       const rawUser = localStorage.getItem("user");
       if (rawUser && rawUser !== "undefined") {

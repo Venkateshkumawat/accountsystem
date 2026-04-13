@@ -78,43 +78,36 @@ export default function Accounting() {
   return (
     <div className="space-y-6  min-h-screen p-2">
       {/* Header with Subheader Bar */}
-      <div className="flex flex-col gap-4">
-        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-emerald-50/50 rounded-full border border-emerald-100 self-start ml-2 shadow-sm shadow-emerald-100/20">
-          <Zap size={12} className="text-emerald-600 fill-emerald-600" />
-          <span className="text-[9px] font-black text-emerald-900/60 uppercase tracking-[0.2em]">Nexus Fiscal Ledger</span>
-        </div>
-
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
           <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tighter">Financial Protocol</h1>
-            <p className="text-slate-500 font-bold text-[10px] mt-0.5 uppercase tracking-widest">Real-time ledger & revenue analytics.</p>
+            <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Accounts & Ledger</h1>
+            <p className="text-sm font-normal text-slate-500 mt-1">Financial reports, receivables and payment settlement tracking</p>
           </div>
-          <button onClick={fetchAll} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm active:scale-95">
-            <RefreshCcw size={14} /> Sync Ledger
+          <button onClick={fetchAll} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95">
+            <RefreshCcw size={14} /> Refresh Ledger
           </button>
         </div>
-      </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <StatCard label="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={TrendingUp} color="indigo" sub="All time" />
-        <StatCard label="Received" value={`₹${stats.paidAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={CheckCircle} color="emerald" sub="Paid" />
-        <StatCard label="Outstanding" value={`₹${stats.pendingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={Clock} color="amber" sub="Pending" />
-        <StatCard label="Cash Box" value={`₹${stats.cashIn.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={Wallet} color="rose" sub="Cash only" />
+        <AccountingStat label="TOTAL REVENUE" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="indigo" trend="+12.5%" />
+        <AccountingStat label="PAID AMOUNT" value={`₹${stats.paidAmount.toLocaleString()}`} icon={CheckCircle} color="emerald" trend="+8.2%" />
+        <AccountingStat label="PENDING DUES" value={`₹${stats.pendingAmount.toLocaleString()}`} icon={Clock} color="amber" trend="-3.1%" trendColor="text-rose-500" />
+        <AccountingStat label="CASH IN HAND" value={`₹${stats.cashIn.toLocaleString()}`} icon={Wallet} color="rose" />
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Revenue Chart */}
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col h-[320px]">
-          <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Revenue Projection Trend</h3>
+        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col h-[360px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Revenue Trend</h2>
           {chartData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px] min-h-[250px] min-w-[200px] relative">
               <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+                 <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 500 }} axisLine={false} tickLine={false} dy={10} />
+                 <YAxis tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 500 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
                 <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                 <Line type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#fff" }} />
               </LineChart>
@@ -126,13 +119,13 @@ export default function Accounting() {
         </div>
 
         {/* Payment Methods */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col h-[320px]">
-          <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-3">Collection Mix</h3>
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col h-[360px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Payment Methods</h2>
           {methodData.length > 0 && !loading ? (
              <div className="flex-1 w-full h-[250px] min-h-[250px] min-w-[200px] relative">
               <ResponsiveContainer width="100%" height={250}>
               <BarChart data={methodData} barSize={20}>
-                <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 8, fill: '#94a3b8', fontWeight: 900 }} axisLine={false} tickLine={false} />
+                 <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 500 }} axisLine={false} tickLine={false} dy={10} />
                 <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, '']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {methodData.map((entry) => (
@@ -149,12 +142,12 @@ export default function Accounting() {
       </div>
 
       {/* Ledger Table */}
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden mx-2 mt-4">
-        <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-          <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Transaction Deep-Scan</h3>
-          <div className="flex gap-1.5">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden mt-4">
+        <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-800">Transaction History</h2>
+          <div className="flex gap-2">
             {(['all', 'paid', 'pending'] as const).map(f => (
-              <button key={f} onClick={() => setFilter(f)} className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-sm ${filter === f ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border border-slate-200'}`}>
+              <button key={f} onClick={() => setFilter(f)} className={`px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filter === f ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>
                 {f}
               </button>
             ))}
@@ -166,44 +159,43 @@ export default function Accounting() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-slate-50/50">
-                <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none border-b border-slate-100">
-                  <th className="px-6 py-3">Invoice Node</th>
-                  <th className="px-6 py-3">Counterparty</th>
-                  <th className="px-6 py-3">Protocol</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Timestamp</th>
-                  <th className="px-6 py-3">Balance</th>
-                  <th className="px-6 py-3 text-right">Actions</th>
+                <tr className="text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
+                  <th className="px-6 py-4">Invoice No</th>
+                  <th className="px-6 py-4">Customer</th>
+                  <th className="px-6 py-4">Method</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Amount</th>
+                  <th className="px-6 py-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {displayedLedger.length === 0 ? (
-                  <tr><td colSpan={7} className="py-20 text-center text-slate-300 font-black uppercase text-sm">No entries found</td></tr>
+                  <tr><td colSpan={7} className="py-20 text-center text-slate-300 font-bold">No transactions found</td></tr>
                 ) : displayedLedger.map(inv => (
-                  <tr key={inv._id} className="hover:bg-slate-50/50 transition-colors border-b border-slate-50 leading-none">
-                    <td className="px-6 py-2.5 text-[10px] font-black text-indigo-600">{inv.invoiceNumber || '—'}</td>
-                    <td className="px-6 py-2.5 text-[10px] font-bold text-slate-800 uppercase">{inv.customerName || 'Walk-in'}</td>
-                    <td className="px-6 py-2.5">
-                      <span className="px-1.5 py-0.5 bg-slate-50 border border-slate-100 text-[8px] font-black uppercase tracking-widest text-slate-500 rounded">
+                  <tr key={inv._id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-6 py-4 text-sm font-semibold text-indigo-600 font-mono tracking-tight">{inv.invoiceNumber || '—'}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-slate-700">{inv.customerName || 'Walk-in'}</td>
+                    <td className="px-6 py-4">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">
                         {inv.paymentMethod}
                       </span>
                     </td>
-                    <td className="px-6 py-2.5">
-                      <span className={`flex items-center gap-1 w-fit px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase border ${inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-                        <div className={`w-1 h-1 rounded-full ${inv.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></div>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
                         {inv.paymentStatus}
                       </span>
                     </td>
-                    <td className="px-6 py-2.5 text-[9px] font-bold text-slate-400">
-                      {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                    <td className="px-6 py-4 text-xs font-medium text-slate-400">
+                      {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
-                    <td className="px-6 py-2.5 text-[11px] font-black text-slate-900">₹{inv.grandTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
-                    <td className="px-6 py-2.5 text-right">
+                    <td className="px-6 py-4 text-sm font-bold text-slate-900">₹{inv.grandTotal.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => setSelectedInvoice(inv)}
-                        className="p-1.5 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-lg transition-all"
+                        className="p-2 bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                       >
-                        <FileText size={14} />
+                        <FileText size={16} />
                       </button>
                     </td>
                   </tr>
@@ -234,21 +226,26 @@ export default function Accounting() {
   );
 }
 
-function StatCard({ label, value, icon: Icon, color, sub }: any) {
-  const c: Record<string, string> = {
-    indigo: 'bg-indigo-50 border-indigo-100 text-indigo-600',
-    emerald: 'bg-emerald-50 border-emerald-100 text-emerald-600',
-    amber: 'bg-amber-50 border-amber-100 text-amber-600',
-    rose: 'bg-rose-50 border-rose-100 text-rose-600',
+function AccountingStat({ label, value, icon: Icon, color, trend, trendColor = 'text-emerald-500' }: any) {
+  const colorMap: any = {
+    indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600' },
+    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
+    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
+    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' }
   };
+  const s = colorMap[color] || colorMap.indigo;
   return (
-    <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm relative group bg-white">
-      <div className={`w-8 h-8 rounded-xl flex items-center justify-center border ${c[color]} mb-3 shadow-sm`}>
-        <Icon size={14} />
+    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
+        <Icon size={24} />
       </div>
-      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-      <h3 className="text-lg font-black text-slate-900 tracking-tighter leading-none">{value}</h3>
-      <p className="text-[8px] font-bold text-slate-300 mt-1 uppercase leading-none">{sub}</p>
+      <div>
+        <p className="stat-label">{label}</p>
+        <h3 className="stat-value">{value}</h3>
+        {trend && (
+           <p className={`text-[10px] font-semibold ${trendColor}`}>{trend} <span className="text-slate-400 font-normal whitespace-nowrap">vs last month</span></p>
+        )}
+      </div>
     </div>
   );
 }
