@@ -189,30 +189,30 @@ const Landing = () => {
             </div>
 
             <div className="flex-1 w-full bg-slate-50 rounded-[2.5rem] p-4 border border-slate-100 relative group overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-100/50 via-transparent to-transparent opacity-50 transition-opacity group-hover:opacity-80"></div>
-                
-                {/* Advanced Telemetry Node */}
-                <div className="relative bg-white rounded-[2rem] shadow-2xl shadow-indigo-200/50 border border-slate-200/60 overflow-hidden transform group-hover:scale-[1.02] transition-all duration-700 aspect-video min-h-[320px] lg:min-h-[400px]">
-                  <img 
-                    src="/nexus_dashboard.png" 
-                    alt="NexusBill Dashboard Preview" 
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Floating Metric Chips */}
-                  <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/50 shadow-sm flex items-center gap-3 animate-bounce shadow-xl">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[10px] font-extrabold text-slate-900 tracking-wider">NETWORK STATUS: OPTIMAL</span>
-                  </div>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-100/50 via-transparent to-transparent opacity-50 transition-opacity group-hover:opacity-80"></div>
 
-                  <div className="absolute bottom-6 right-6 bg-slate-900/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl flex flex-col gap-1 translate-y-2 group-hover:translate-y-0 transition-transform">
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Active Nodes</p>
-                    <div className="flex items-center gap-2">
-                       <p className="text-2xl font-black text-white tracking-tighter">1,248+</p>
-                       <Zap size={14} className="text-indigo-400 fill-indigo-400" />
-                    </div>
+              {/* Advanced Telemetry Node */}
+              <div className="relative bg-white rounded-[2rem] shadow-2xl shadow-indigo-200/50 border border-slate-200/60 overflow-hidden transform group-hover:scale-[1.02] transition-all duration-700 aspect-video min-h-[320px] lg:min-h-[400px]">
+                <img
+                  src="/nexus_dashboard.png"
+                  alt="NexusBill Dashboard Preview"
+                  className="w-full h-full object-cover"
+                />
+
+                {/* Floating Metric Chips */}
+                <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/50 shadow-sm flex items-center gap-3 animate-bounce shadow-xl">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[10px] font-extrabold text-slate-900 tracking-wider">NETWORK STATUS: OPTIMAL</span>
+                </div>
+
+                <div className="absolute bottom-6 right-6 bg-slate-900/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl flex flex-col gap-1 translate-y-2 group-hover:translate-y-0 transition-transform">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Active Nodes</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-black text-white tracking-tighter">1,248+</p>
+                    <Zap size={14} className="text-indigo-400 fill-indigo-400" />
                   </div>
                 </div>
+              </div>
             </div>
           </div>
         </div>

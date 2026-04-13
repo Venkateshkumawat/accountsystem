@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  ShieldCheck, 
-  AlertTriangle, 
+import {
+  Users,
+  ShieldCheck,
+  AlertTriangle,
   CreditCard,
   Activity,
   RefreshCcw,
@@ -30,7 +30,7 @@ const SuperAdminDashboard: React.FC = () => {
     <div className="space-y-4 min-h-screen pb-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">SuperAdmin Dashboard</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">SuperAdmin Dashboard</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">Global platform monitoring and administrative governance</p>
         </div>
         <button
@@ -68,15 +68,15 @@ const SuperAdminDashboard: React.FC = () => {
                   {unreadCount} New
                 </span>
               )}
-              <button 
-                onClick={() => {markAllAsRead(); deleteAllNotifications();}}
+              <button
+                onClick={() => { markAllAsRead(); deleteAllNotifications(); }}
                 className="p-2 bg-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 transition-all rounded-xl font-medium"
               >
                 <Trash2 size={14} />
               </button>
             </div>
           </div>
-          
+
           <div className="space-y-4 overflow-y-auto no-scrollbar flex-1 pb-4">
             {notifications.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center opacity-20">
@@ -85,12 +85,11 @@ const SuperAdminDashboard: React.FC = () => {
               </div>
             ) : notifications.slice(0, 10).map(n => (
               <div key={n._id} className="flex items-start gap-3 group border-white/5">
-                <div className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${
-                  n.type === 'success' ? 'bg-emerald-500' :
+                <div className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${n.type === 'success' ? 'bg-emerald-500' :
                   n.type === 'warning' ? 'bg-amber-500' :
-                  n.type === 'error' ? 'bg-rose-500' :
-                  'bg-indigo-500'
-                }`}></div>
+                    n.type === 'error' ? 'bg-rose-500' :
+                      'bg-indigo-500'
+                  }`}></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-normal text-white/90 leading-relaxed group-hover:text-indigo-400 transition-colors">{n.message}</p>
                   <p className="text-xs font-normal text-white/30 lowercase mt-1">{new Date(n.createdAt).toLocaleTimeString()}</p>
@@ -121,7 +120,7 @@ function SuperStat({ label, value, icon: Icon, color, trend, trendColor = 'text-
         <p className="stat-label">{label}</p>
         <h3 className="stat-value">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
         {trend && (
-           <p className={`text-[10px] font-semibold ${trendColor}`}>{trend}</p>
+          <p className={`text-[10px] font-semibold ${trendColor}`}>{trend}</p>
         )}
       </div>
     </div>
