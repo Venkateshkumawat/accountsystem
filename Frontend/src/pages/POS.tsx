@@ -10,6 +10,7 @@ import api from '../services/api';
 import { useProducts } from '../context/ProductContext';
 import { useRazorpay } from '../hooks/useRazorpay';
 import { useNotify } from '../context/NotificationContext';
+import InvoiceModal from '../components/InvoiceModal';
 
 interface InvoiceReceipt {
   invoiceNumber: string;
@@ -670,70 +671,14 @@ export default function POS() {
       </div>
 
       {showReceipt && lastInvoice && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden print:shadow-none">
-            <div className="p-6 text-center border-b border-dashed border-slate-200">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <CheckCircle size={24} className="text-emerald-600" />
-              </div>
-              <h2 className="text-lg font-semibold text-slate-900 tracking-tight">Invoice Generated!</h2>
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{lastInvoice.invoiceNumber}</p>
-            </div>
-            <div className="p-6 space-y-3 text-sm  max-h-64 overflow-y-auto">
-              <div className="text-center text-xs font-bold text-slate-600 border-b border-dashed pb-3">
-                <p className="font-black">NexusBill</p>
-                <p>{new Date(lastInvoice.createdAt).toLocaleString('en-IN')}</p>
-                {lastInvoice.customerName && <p className="font-black uppercase tracking-widest text-[#6366f1]">Cust: {lastInvoice.customerName}</p>}
-                {lastInvoice.customerPhone && <p className="font-bold opacity-70">Mob: {lastInvoice.customerPhone}</p>}
-              </div>
-               <div className="space-y-1.5">
-                {lastInvoice.items?.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-between text-[11px] items-start">
-                    <div className="flex flex-col">
-                      <span className="font-black truncate mr-2 uppercase tracking-tighter leading-tight text-slate-800">{item.name}</span>
-                      <span className="text-[9px] font-bold text-indigo-500 tabular-nums">× {item.qty}</span>
-                    </div>
-                    <span className="font-black shrink-0 tabular-nums">₹{item.total?.toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t border-dashed pt-3 space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-500"><span>Subtotal</span><span>₹{lastInvoice.subtotal?.toFixed(2)}</span></div>
-                {lastInvoice.totalDiscount > 0 && <div className="flex justify-between text-[11px] text-rose-500"><span>Discount</span><span>-₹{lastInvoice.totalDiscount?.toFixed(2)}</span></div>}
-                <div className="flex justify-between text-[11px] text-indigo-600 font-bold"><span>Total GST</span><span>₹{lastInvoice.totalGST?.toFixed(2)}</span></div>
-
-                {/* Receipt Slab Breakdown */}
-                <div className="py-1 border-y border-dashed border-slate-100">
-                  {Object.entries(
-                    lastInvoice.items?.reduce((acc: any, item: any) => {
-                      if (item.gstRate <= 0) return acc;
-                      const gst = item.gstAmount * item.qty;
-                      acc[item.gstRate] = (acc[item.gstRate] || 0) + gst;
-                      return acc;
-                    }, {} as Record<number, number>)
-                  ).map(([rate, amount]: [string, any]) => (
-                    <div key={rate} className="flex justify-between text-[9px] text-slate-400 capitalize">
-                      <span>GST {rate}% (CGST+SGST)</span>
-                      <span>₹{amount.toFixed(2)}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex justify-between text-sm font-black pt-1"><span>TOTAL</span><span>₹{lastInvoice.grandTotal?.toFixed(2)}</span></div>
-                <div className="flex justify-between text-[11px] text-slate-400"><span>Payment</span><span className="uppercase">{lastInvoice.paymentMethod}</span></div>
-              </div>
-              <div className="text-center text-[10px] text-slate-300 border-t border-dashed pt-3">Thank you for your purchase!</div>
-            </div>
-            <div className="p-4 flex gap-3 border-t border-slate-50">
-              <button onClick={() => window.print()} className="flex-1 py-3 bg-slate-50 border border-slate-100 text-slate-600 rounded-2xl text-xs font-black uppercase hover:bg-slate-100 transition flex items-center justify-center gap-2">
-                <Printer size={14} /> Print
-              </button>
-              <button onClick={() => setShowReceipt(false)} className="flex-1 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase hover:bg-indigo-700 transition">
-                New Sale
-              </button>
-            </div>
-          </div>
-        </div>
+        <InvoiceModal 
+          invoice={lastInvoice} 
+          onClose={() => {
+            setShowReceipt(false);
+            setLastInvoice(null);
+            clearCart();
+          }} 
+        />
       )}
       {/* ── CHECKOUT MODAL: Finalize Hub ─────────────────────────────── */}
       {showCheckout && (
