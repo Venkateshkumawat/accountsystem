@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, RefreshCcw, Package, X, Truck, CheckCircle, IndianRupee, Zap, CreditCard } from 'lucide-react';
 import api from '../services/api';
 import { useRazorpay } from '../hooks/useRazorpay';
@@ -10,7 +10,7 @@ import {
   ResponsiveContainer, CartesianGrid
 } from 'recharts';
 
-interface Product { _id: string; name: string; purchasePrice: number; sellingPrice: number; stock: number; barcode: string; }
+interface Product { _id: string; name: string; purchasePrice: number; sellingPrice: number; stock: number; barcode: string; image?: string; }
 interface PurchaseItem { productId: string; name: string; qty: number; purchasePrice: number; total: number; }
 interface Purchase { _id: string; billNumber: string; vendorName: string; grandTotal: number; paymentStatus: string; paymentMethod: string; createdAt: string; items: PurchaseItem[]; }
 
