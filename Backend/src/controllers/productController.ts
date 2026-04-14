@@ -444,19 +444,60 @@ export const getLowStockProducts = async (req: AuthRequest, res: Response): Prom
 /**
  * @desc    Manual stock adjustment
  * @route   POST /api/products/:id/adjust-stock
+ * @body    { qty, type: 'add'|'remove', reason }  ← standard format
+ *          OR { adjustment: number, reason }        ← shorthand format (signed number)
  */
 export const adjustStock = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { Product } = req.tenantModels!;
     const businessAdminId = getBusinessAdminId(req);
     const { id } = req.params;
-    const { qty, type, reason } = req.body;
+    const { qty, type, adjustment, reason } = req.body;
 
-    const adjustment = type === 'add' ? Number(qty) : -Number(qty);
+    // ── Resolve adjustment delta from either payload format ──
+    let delta: number;
+    if (adjustment !== undefined) {
+      // Shorthand signed format: { adjustment: +5 } or { adjustment: -2 }
+      delta = Number(adjustment);
+    } else if (qty !== undefined && type !== undefined) {
+      // Standard format: { qty: 5, type: 'add' | 'remove' }
+      delta = type === 'add' ? Number(qty) : -Number(qty);
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Invalid payload. Provide either { qty, type } or { adjustment }."
+      });
+      return;
+    }
+
+    // ── Guard: ensure delta is a valid number ──
+    if (isNaN(delta)) {
+      res.status(400).json({ success: false, message: "Stock adjustment value must be a valid number." });
+      return;
+    }
+
+    // ── Fetch current product to check floor ──
+    const currentProduct = await Product.findOne({ _id: id, businessAdminId });
+    if (!currentProduct) {
+      res.status(404).json({ success: false, message: "Product not found or unauthorized" });
+      return;
+    }
+
+    const currentStock = Number(currentProduct.stock) || 0;
+    const newStock = currentStock + delta;
+
+    // ── Guard: prevent stock going below 0 ──
+    if (newStock < 0) {
+      res.status(400).json({
+        success: false,
+        message: `Insufficient stock. Current: ${currentStock}, Attempted reduction: ${Math.abs(delta)}.`
+      });
+      return;
+    }
 
     const product = await Product.findOneAndUpdate(
       { _id: id, businessAdminId },
-      { $inc: { stock: adjustment } },
+      { $inc: { stock: delta } },
       { returnDocument: 'after' }
     );
 
@@ -465,27 +506,36 @@ export const adjustStock = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    await logActivity(req, "UPDATE", "PRODUCT", `Manual stock adjustment for: ${product.name} (${type}: ${qty}). Reason: ${reason}`, (product._id as any).toString());
+    const adjustLabel = delta >= 0 ? `+${delta}` : `${delta}`;
+    const adjustReason = reason || 'Manual adjustment';
+    const directionLabel = delta >= 0 ? 'increased' : 'decreased';
+
+    await logActivity(req, "UPDATE", "PRODUCT", `Manual stock adjustment for: ${product.name} (${adjustLabel} units). Reason: ${adjustReason}`, (product._id as any).toString());
 
     await createNotification(
       req.user?.businessId,
-      `Stock Node Adjusted: ${product.name} ${type === 'add' ? 'increased' : 'decreased'} by ${qty} units. Reason: ${reason}. Total Stock: ${product.stock}.`,
-      type === 'add' ? 'success' : 'warning',
-      "businessAdmin", // Added missing role parameter to match signature
+      `Stock Node Adjusted: ${product.name} ${directionLabel} by ${Math.abs(delta)} units. Reason: ${adjustReason}. New Stock: ${product.stock}.`,
+      delta >= 0 ? 'success' : 'warning',
+      "businessAdmin",
       undefined,
       "product"
     );
 
-    // 📡 Nexus Protocol: Real-time Data Sync Signal
+    // 📡 Real-time Data Sync
     if (req.user?.businessId) {
       getIO()?.to(req.user.businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
     }
 
-    res.status(200).json({ success: true, data: product, message: `Stock adjusted: ${reason}` });
+    res.status(200).json({
+      success: true,
+      data: product,
+      message: `Stock adjusted by ${adjustLabel} units. New stock: ${product.stock}. Reason: ${adjustReason}`
+    });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 
 /**
  * @desc    Get all unique categories for a business
