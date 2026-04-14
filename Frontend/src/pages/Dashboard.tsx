@@ -59,17 +59,18 @@ export default function Dashboard() {
 
   const fetchDashboard = useCallback(async (isRefresh = false) => {
     try {
+      if (!data && !isRefresh) setLoading(true);
       if (isRefresh) setRefreshing(true);
       const res = await api.get('/dashboard');
       setData(res.data.data);
-      
+
       const rawUser = localStorage.getItem('user');
       const user = rawUser && rawUser !== 'undefined' ? JSON.parse(rawUser) : {};
 
       // Get current plan from user object
       const fullUserRes = await api.get('/auth/me');
       if (fullUserRes.data?.businessObjectId?.plan) {
-         setCurrentPlan(fullUserRes.data.businessObjectId.plan);
+        setCurrentPlan(fullUserRes.data.businessObjectId.plan);
       }
     } catch (e) {
       console.error('Dashboard fetch error:', e);
@@ -77,10 +78,10 @@ export default function Dashboard() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [data]);
 
-  useEffect(() => { 
-    fetchDashboard(); 
+  useEffect(() => {
+    fetchDashboard();
 
     // ── Real-time Socket Sync ──
     const handleDataSync = (payload: any) => {
@@ -214,13 +215,13 @@ export default function Dashboard() {
               <p className="text-sm font-normal text-slate-500">Weekly revenue trend analysis</p>
             </div>
           </div>
-          <div className="flex-1 w-full h-[200px] md:h-[250px] relative mt-2">
+          <div className="flex-1 w-full h-full min-h-[250px] relative mt-2">
             {(!chartData || chartData.length === 0) ? (
               <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NODATA_SYNC</p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" aspect={window.innerWidth < 768 ? 1.5 : 2.2}>
                 <BarChart data={chartData} barCategoryGap="20%">
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#64748b', fontSize: 10, fontWeight: 500 }} dy={10} />
@@ -243,7 +244,7 @@ export default function Dashboard() {
           <div className="bg-slate-900 p-5 rounded-2xl shadow-xl text-white relative overflow-hidden ring-1 ring-slate-800">
             <div className="relative z-10">
               <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2 leading-none">GST Liability Node</p>
-              <h2 className="text-3xl font-semibold tracking-tight text-white">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
+              <h2 className="money-highlight !text-white !text-2xl">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
               <p className="text-indigo-200 text-sm font-normal mt-3 opacity-90">Estimated liability this month</p>
             </div>
             <div className="absolute -right-2 -bottom-2 opacity-5 scale-110 rotate-12">
@@ -253,43 +254,42 @@ export default function Dashboard() {
 
           {/* Product Usage Telemetry Box */}
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2 relative overflow-hidden group">
-             <div className="flex justify-between items-end relative z-10">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">NODE CAPACITY (PRODUCT)</p>
-                  <h3 className="text-xl font-semibold text-slate-900">
-                     {data?.usedProduct ?? 0} <span className="text-slate-300 text-lg">/ {data?.ProductLimit || '∞'}</span>
-                  </h3>
-                </div>
-               <div className="text-right">
-                  <p className="text-[8px] font-black uppercase text-slate-400">Remaining</p>
-                  <p className={`text-xs font-black ${((data?.remainingProduct ?? 10) < 10) ? 'text-rose-500' : 'text-emerald-500'}`}>
-                     {data?.remainingProduct ?? 'Stable'}
-                  </p>
-               </div>
-             </div>
-             
-             {/* Progress Bar */}
-             <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 relative z-10">
-               {data?.ProductLimit && (
-                 <div 
-                   className={`h-full rounded-full transition-all duration-1000 ${
-                     ((data?.usedProduct || 0) / (data?.ProductLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'
-                   }`}
-                   style={{ width: `${Math.min(((data?.usedProduct || 0) / (data?.ProductLimit || 1)) * 100, 100)}%` }}
-                 />
-               )}
-             </div>
-             <Package size={80} className="absolute -right-4 -bottom-4 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-700 text-emerald-500" />
+            <div className="flex justify-between items-end relative z-10">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">NODE CAPACITY (PRODUCT)</p>
+                <h3 className="text-xl font-semibold text-slate-900">
+                  {data?.usedProduct ?? 0} <span className="text-slate-300 text-lg">/ {data?.ProductLimit || '∞'}</span>
+                </h3>
+              </div>
+              <div className="text-right">
+                <p className="text-[8px] font-black uppercase text-slate-400">Remaining</p>
+                <p className={`text-xs font-black ${((data?.remainingProduct ?? 10) < 10) ? 'text-rose-500' : 'text-emerald-500'}`}>
+                  {data?.remainingProduct ?? 'Stable'}
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 relative z-10">
+              {data?.ProductLimit && (
+                <div
+                  className={`h-full rounded-full transition-all duration-1000 ${((data?.usedProduct || 0) / (data?.ProductLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'
+                    }`}
+                  style={{ width: `${Math.min(((data?.usedProduct || 0) / (data?.ProductLimit || 1)) * 100, 100)}%` }}
+                />
+              )}
+            </div>
+            <Package size={80} className="absolute -right-4 -bottom-4 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-700 text-emerald-500" />
           </div>
 
           <div className="grid grid-cols-1 gap-3">
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group">
               <div>
-                 <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-widest mb-1">PERSONNEL NODES</p>
-                 <h3 className="text-xl font-semibold text-slate-900">{data?.staffCount ?? '—'}</h3>
+                <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-widest mb-1">PERSONNEL NODES</p>
+                <h3 className="text-xl font-semibold text-slate-900">{data?.staffCount ?? '—'}</h3>
               </div>
               <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                 <Users size={18} />
+                <Users size={18} />
               </div>
             </div>
           </div>
@@ -316,10 +316,9 @@ export default function Dashboard() {
 
       {/* ── Invoices + Top Products ───────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-3">
-        {/* Invoices with filter */}
-        <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900 tracking-tight">Recent Invoices</h2>
+        <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between shrink-0">
+            <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Recent Invoices</h2>
             <div className="flex items-center gap-1.5">
               {['all', 'paid', 'unpaid'].map(f => (
                 <button key={f} onClick={() => setInvoiceFilter(f)}
@@ -332,50 +331,48 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
-          <div className="overflow-x-auto">
+          <div className={`overflow-x-auto custom-scrollbar ${showAllInvoices ? 'max-h-[480px] overflow-y-auto' : ''}`}>
             {filteredInvoices.length === 0 ? (
-              <div className="py-6 text-center">
-                <p className="text-slate-300 font-black uppercase text-[9px] tracking-widest">Zero Protocol History</p>
+              <div className="py-12 text-center">
+                <p className="text-slate-300 font-black uppercase text-[9px] tracking-widest leading-none">Zero Protocol History</p>
               </div>
             ) : (
-              <table className="w-full text-left">
-                <thead className="bg-slate-50/50">
-                  <tr className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                    <th className="px-6 py-3">INVOICE ID</th>
-                    <th className="px-6 py-3">CUSTOMER</th>
-                    <th className="px-6 py-3">AMOUNT</th>
-                    <th className="px-6 py-3">STATUS</th>
+              <table className="w-full text-left table-fixed min-w-[500px] border-separate border-spacing-0">
+                <thead className="sticky top-0 z-20">
+                  <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <th className="px-6 py-4 w-[40%] bg-white border-b border-slate-100 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">INVOICE ID & CLIENT</th>
+                    <th className="px-6 py-4 w-[30%] bg-white border-b border-slate-100 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">AMOUNT</th>
+                    <th className="px-6 py-4 w-[30%] bg-white border-b border-slate-100 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] text-right">STATUS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 relative z-10">
                   {filteredInvoices.map(inv => (
-                    <tr 
-                      key={inv._id} 
+                    <tr
+                      key={inv._id}
                       onClick={() => setSelectedInvoice(inv)}
                       className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0"
                     >
                       <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[13px] font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight truncate">
                             {inv.customerName || 'Walk-in Client'}
                           </span>
-                          <span className="text-[10px] font-medium text-slate-400 mt-0.5 whitespace-nowrap">
+                          <span className="text-[10px] font-semibold text-slate-400 mt-0.5 tracking-widest uppercase opacity-80">
                             ID: {inv.invoiceNumber}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                           <span className="text-xs font-bold text-slate-900">₹{inv.grandTotal.toLocaleString()}</span>
-                           <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Grand Total</span>
+                        <div className="flex flex-col text-left">
+                          <span className="money-highlight !text-sm">₹{inv.grandTotal.toLocaleString()}</span>
+                          <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Grand Total</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${
-                          inv.paymentStatus === 'paid' 
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-sm shadow-emerald-50' 
-                            : 'bg-rose-50 text-rose-600 border-rose-100 shadow-sm shadow-rose-50'
-                        }`}>
+                      <td className="px-6 py-4 text-right">
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${inv.paymentStatus === 'paid'
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                          : 'bg-rose-50 text-rose-600 border-rose-100'
+                          }`}>
                           {inv.paymentStatus}
                         </span>
                       </td>
@@ -391,7 +388,7 @@ export default function Dashboard() {
             <div className="p-4 border-t border-slate-50 text-center bg-slate-50/30">
               <button
                 onClick={() => setShowAllInvoices(true)}
-                className="mx-auto px-6 py-2 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2"
+                className="mx-auto px-6 py-2 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2"
               >
                 <ChevronDown size={12} /> Show {data!.recentInvoices.length - INVOICE_LIMIT} More Transactions
               </button>
@@ -410,65 +407,65 @@ export default function Dashboard() {
         </div>
 
         {/* Top Products */}
-        <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900 tracking-tight mb-5">Top Selling Products</h2>
-          {(data?.topProducts?.length || 0) === 0 ? (
-            <div className="py-8 text-center">
-              <Package size={28} className="text-slate-200 mx-auto mb-2" />
-              <p className="text-slate-400 font-semibold text-sm">No sales data yet</p>
-            </div>
-          ) : (
-            <>
+        <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+          <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-5 shrink-0">Top Selling Products</h2>
+          <div className={`flex-1 ${showAllProducts ? 'max-h-[480px] overflow-y-auto custom-scrollbar pr-2' : ''}`}>
+            {(data?.topProducts?.length || 0) === 0 ? (
+              <div className="py-12 text-center opacity-20">
+                <Package size={28} className="text-slate-500 mx-auto mb-2" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Zero Node Activity</p>
+              </div>
+            ) : (
               <div className="space-y-4">
                 {(showAllProducts ? (data?.topProducts || []) : (data?.topProducts || []).slice(0, PRODUCT_LIMIT)).map((prod, i) => {
                   const max = data!.topProducts[0]?.totalRevenue || 1;
                   const pct = (prod.totalRevenue / max) * 100;
                   return (
-                    <div key={i} className="space-y-2 group p-2 hover:bg-slate-50 rounded-xl transition-all">
+                    <div key={i} className="space-y-2 group p-2 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-100">
                       <div className="flex justify-between items-end">
                         <div className="flex flex-col min-w-0 pr-2">
-                           <span className="text-sm font-semibold text-slate-900 truncate uppercase tracking-tight">{prod.name}</span>
-                           <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Top-Sell Item</span>
+                          <span className="text-[13px] font-semibold text-slate-900 truncate uppercase tracking-tight">{prod.name}</span>
+                          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mt-1 opacity-80">Performance Node</span>
                         </div>
                         <div className="flex flex-col items-end">
-                           <span className="text-xs font-bold text-slate-900 tracking-tight">₹{prod.totalRevenue?.toLocaleString()}</span>
-                           <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">Total Nodes</span>
+                          <span className="money-highlight !text-sm">₹{prod.totalRevenue?.toLocaleString()}</span>
+                          <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-1 whitespace-nowrap">Revenue Generated</span>
                         </div>
                       </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                         <div className="h-full bg-slate-900 group-hover:bg-indigo-600 rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
                 })}
               </div>
+            )}
+          </div>
 
-              {!showAllProducts && (data?.topProducts?.length || 0) > PRODUCT_LIMIT && (
-                <button 
-                  onClick={() => setShowAllProducts(true)}
-                  className="mt-6 w-full py-2 bg-slate-50 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all border border-transparent hover:border-indigo-100"
-                >
-                  See more performance nodes
-                </button>
-              )}
-              {showAllProducts && (
-                <button 
-                  onClick={() => setShowAllProducts(false)}
-                  className="mt-6 w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all"
-                >
-                  Collapse Performance
-                </button>
-              )}
-            </>
+          {!showAllProducts && (data?.topProducts?.length || 0) > PRODUCT_LIMIT && (
+            <button
+              onClick={() => setShowAllProducts(true)}
+              className="mt-6 w-full py-2 bg-slate-50 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all border border-transparent hover:border-indigo-100"
+            >
+              See more performance nodes
+            </button>
+          )}
+          {showAllProducts && (
+            <button
+              onClick={() => setShowAllProducts(false)}
+              className="mt-6 w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all"
+            >
+              Collapse Performance
+            </button>
           )}
         </div>
       </div>
 
-      {/* ── Activity Stream ──────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900 tracking-tight">Recent Activity</h2>
+      {/* ── Transaction Activity ────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mt-3">
+        <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
+          <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Recent Activity</h2>
+          <div className="flex items-center gap-2">
             <p className="text-[8px] text-slate-400 font-medium mt-0.5">
               Showing {filteredActivities.length} of {totalActivityCount} events
             </p>
@@ -509,14 +506,14 @@ export default function Dashboard() {
                       <Icon size={12} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-900 truncate tracking-tight mb-0.5">{act.description}</p>
+                      <p className="text-[13px] font-semibold text-slate-900 uppercase tracking-tight group-hover:text-indigo-600 transition-colors mb-2">{act.description}</p>
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <Users size={9} className="text-slate-400" />
-                          <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wide">{act.userName}</span>
+                        <div className="flex items-center gap-1.5">
+                          <Users size={10} className="text-slate-400" />
+                          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{act.userName}</span>
                         </div>
                         <span className="text-slate-200 text-[8px]">·</span>
-                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wide">
+                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">
                           {new Date(act.createdAt).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -551,22 +548,22 @@ export default function Dashboard() {
         )}
       </div>
 
-      <PlanModal 
-        isOpen={isPlanModalOpen} 
-        onClose={() => setIsPlanModalOpen(false)} 
+      <PlanModal
+        isOpen={isPlanModalOpen}
+        onClose={() => setIsPlanModalOpen(false)}
         currentPlan={currentPlan}
       />
 
-      <InvoiceModal 
-        invoice={selectedInvoice} 
-        onClose={() => setSelectedInvoice(null)} 
+      <InvoiceModal
+        invoice={selectedInvoice}
+        onClose={() => setSelectedInvoice(null)}
       />
     </div>
   );
 }
 
 // ── StatCard ──────────────────────────────────────────────────────────────────
-  const StatCard = React.memo(({ label, value, sub, icon: Icon, color, isAlert, trend, trendColor = 'text-emerald-500', border }: any) => {
+const StatCard = React.memo(({ label, value, sub, icon: Icon, color, isAlert, trend, trendColor = 'text-emerald-500', border }: any) => {
   const colorMap: Record<string, { bg: string; text: string; accent: string }> = {
     indigo: { bg: 'bg-indigo-50/50', text: 'text-indigo-600', accent: 'border-l-indigo-500' },
     emerald: { bg: 'bg-emerald-50/50', text: 'text-emerald-600', accent: 'border-l-emerald-500' },
@@ -577,20 +574,20 @@ export default function Dashboard() {
   const s = colorMap[color] || colorMap.indigo;
   return (
     <div className={`bg-white p-4 rounded-3xl border ${isAlert ? 'border-rose-200 shadow-rose-50' : 'border-slate-100'} ${border ? s.accent + ' border-l-4' : ''} shadow-sm group hover:shadow-md transition-all flex items-center gap-4`}>
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 ${s.bg} ${s.text} border border-white shadow-sm ring-1 ring-slate-100`}>
-          <Icon size={20} />
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 ${s.bg} ${s.text} border border-white shadow-sm ring-1 ring-slate-100`}>
+        <Icon size={20} />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p>
+        <div className="flex flex-col">
+          <h3 className="money-highlight truncate">{value}</h3>
+          {trend ? (
+            <span className={`text-[9px] font-semibold ${trendColor} mt-1`}>{trend} <span className="text-slate-400 font-medium">vs prev</span></span>
+          ) : sub && (
+            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-tighter mt-1 truncate">{sub}</p>
+          )}
         </div>
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p>
-          <div className="flex flex-col">
-            <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-none truncate">{value}</h3>
-            {trend ? (
-              <span className={`text-[9px] font-semibold ${trendColor} mt-1`}>{trend} <span className="text-slate-400 font-medium">vs prev</span></span>
-            ) : sub && (
-              <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-tighter mt-1 truncate">{sub}</p>
-            )}
-           </div>
-        </div>
+      </div>
     </div>
   );
 });

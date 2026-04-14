@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Wallet, RefreshCcw, TrendingUp,
-  FileText, CheckCircle, Clock, Zap
+  CheckCircle, Clock
 } from 'lucide-react';
 import api from '../services/api';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, CartesianGrid } from 'recharts';
@@ -28,14 +28,56 @@ export default function Accounting() {
   const [showAllLedger, setShowAllLedger] = useState(false);
   const LIMIT = 5;
 
+  const fetchAll = useCallback(async () => {
+    // Only set loading if we don't have data yet to prevent frequent blinking
+    if (invoices.length === 0) setLoading(true); 
+    
+    try {
+      const [invRes, salesRes] = await Promise.all([
+        api.get('/invoices?limit=50'),
+        api.get('/reports/sales')
+      ]);
+
+      const allInvoices: LedgerEntry[] = invRes.data?.data || [];
+      
+      // Batch updates together
+      const totalRevenue = allInvoices.reduce((s, i) => s + i.grandTotal, 0);
+      const paidAmount = allInvoices.filter(i => i.paymentStatus === 'paid').reduce((s, i) => s + i.grandTotal, 0);
+      const pendingAmount = allInvoices.filter(i => i.paymentStatus === 'pending').reduce((s, i) => s + i.grandTotal, 0);
+      const cashIn = allInvoices.filter(i => i.paymentMethod === 'cash' && i.paymentStatus === 'paid').reduce((s, i) => s + i.grandTotal, 0);
+      
+      const salesData = salesRes.data?.data?.dailySales || [];
+      const trend = salesData.slice(-14).map((d: any) => ({
+        date: new Date(d._id).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+        revenue: d.totalSales || 0
+      }));
+
+      const methods: Record<string, number> = {};
+      allInvoices.forEach(i => {
+        if (i.paymentStatus === 'paid') {
+          methods[i.paymentMethod] = (methods[i.paymentMethod] || 0) + i.grandTotal;
+        }
+      });
+      const methArr = Object.entries(methods).map(([name, value]) => ({ name: name.toUpperCase(), value }));
+
+      // Set all at once to minimize re-renders
+      setInvoices(allInvoices);
+      setStats({ totalRevenue, paidAmount, pendingAmount, cashIn });
+      setChartData(trend);
+      setMethodData(methArr);
+    } catch (err) {
+      console.error('Accounting Sync Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [invoices.length]);
+
   useEffect(() => { 
     fetchAll(); 
     
-    // ── Cross-Tab Sync ──
     const syncChannel = new BroadcastChannel('nexus_sync');
     const handleSync = (event: any) => {
-      // Invoices or Dashboard updates affect accounting
-      if (event.data === 'FETCH_DASHBOARD' || event.data === 'SYNC_PARTIES') {
+      if (event.data === 'SYNC_PURCHASES' || event.data === 'SYNC_PARTIES') {
         fetchAll();
       }
     };
@@ -45,64 +87,23 @@ export default function Accounting() {
       syncChannel.removeEventListener('message', handleSync);
       syncChannel.close();
     };
-  }, []);
-
-  const fetchAll = async () => {
-    setLoading(true);
-    try {
-      const [invRes, salesRes] = await Promise.all([
-        api.get('/invoices?limit=50'),
-        api.get('/reports/sales')
-      ]);
-
-      const allInvoices: LedgerEntry[] = invRes.data?.data || [];
-      setInvoices(allInvoices);
-
-      const totalRevenue = allInvoices.reduce((s, i) => s + i.grandTotal, 0);
-      const paidAmount = allInvoices.filter(i => i.paymentStatus === 'paid').reduce((s, i) => s + i.grandTotal, 0);
-      const pendingAmount = allInvoices.filter(i => i.paymentStatus === 'pending').reduce((s, i) => s + i.grandTotal, 0);
-      const cashIn = allInvoices.filter(i => i.paymentMethod === 'cash' && i.paymentStatus === 'paid').reduce((s, i) => s + i.grandTotal, 0);
-      setStats({ totalRevenue, paidAmount, pendingAmount, cashIn });
-
-      // Daily revenue trend
-      const salesData = salesRes.data?.data?.dailySales || [];
-      setChartData(salesData.slice(-14).map((d: any) => ({
-        date: new Date(d._id).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
-        revenue: d.totalSales || 0
-      })));
-
-      // Payment method
-      const methods: Record<string, number> = {};
-      allInvoices.forEach(i => {
-        if (i.paymentStatus === 'paid') {
-          methods[i.paymentMethod] = (methods[i.paymentMethod] || 0) + i.grandTotal;
-        }
-      });
-      setMethodData(Object.entries(methods).map(([name, value]) => ({ name: name.toUpperCase(), value })));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchAll]);
 
   const filtered = filter === 'all' ? invoices : invoices.filter(i => i.paymentStatus === filter);
   const displayedLedger = showAllLedger ? filtered : filtered.slice(0, LIMIT);
-
   const METHOD_COLORS: Record<string, string> = { CASH: '#6366f1', UPI: '#10b981', CARD: '#f59e0b', ONLINE: '#8b5cf6' };
 
   return (
-    <div className="space-y-4  min-h-screen p-1 sm:p-2">
-      {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Accounts & Ledger</h1>
-            <p className="text-sm font-normal text-slate-500 mt-1">Financial reports, receivables and payment settlement tracking</p>
-          </div>
-          <button onClick={fetchAll} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95">
-            <RefreshCcw size={14} /> Refresh Ledger
-          </button>
+    <div className="space-y-4 min-h-screen p-1 sm:p-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Accounts & Ledger</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">Financial reports, receivables and payment settlement tracking</p>
         </div>
+        <button onClick={fetchAll} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95">
+          <RefreshCcw size={14} /> Refresh Ledger
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
         <AccountingStat label="TOTAL REVENUE" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="indigo" trend="+12.5%" />
@@ -117,39 +118,39 @@ export default function Accounting() {
           {chartData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
-                <YAxis tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                <Line type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#fff" }} />
-              </LineChart>
-            </ResponsiveContainer>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
+                  <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
+                  <YAxis tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                  <Line type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#fff" }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-200 text-[10px] font-black uppercase">No data sync</div>
+            <div className="h-full flex items-center justify-center text-slate-200 text-[10px] font-black uppercase tracking-widest animate-pulse">Synchronizing Data Nodes...</div>
           )}
         </div>
 
         <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col h-[360px]">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Payment Methods</h2>
           {methodData.length > 0 && !loading ? (
-             <div className="flex-1 w-full h-[250px]">
+            <div className="flex-1 w-full h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={methodData} barSize={20}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
-                <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, '']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                  {methodData.map((entry) => (
-                    <Cell key={entry.name} fill={METHOD_COLORS[entry.name] || '#6366f1'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+                <BarChart data={methodData} barSize={20}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
+                  <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
+                  <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, '']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    {methodData.map((entry) => (
+                      <Cell key={entry.name} fill={METHOD_COLORS[entry.name] || '#6366f1'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-200 text-[10px] font-black uppercase">No data sync</div>
+            <div className="h-full flex items-center justify-center text-slate-200 text-[10px] font-black uppercase tracking-widest animate-pulse">Syncing Nodes...</div>
           )}
         </div>
       </div>
@@ -168,41 +169,46 @@ export default function Accounting() {
         {loading ? (
           <div className="py-20 text-center text-slate-300 font-black uppercase text-[10px] tracking-[0.2em] animate-pulse">Scanning Nodes...</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left table-fixed min-w-[900px]">
               <thead>
-                <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                  <th className="px-6 py-4">Invoice No</th>
-                  <th className="px-6 py-4">Customer</th>
-                  <th className="px-6 py-4">Method</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4 text-right">Amount</th>
+                <tr className="text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
+                  <th className="px-6 py-4 w-[25%]">INVOICE NO</th>
+                  <th className="px-6 py-4 w-[25%]">CUSTOMER</th>
+                  <th className="px-6 py-4 w-[15%]">METHOD</th>
+                  <th className="px-6 py-4 w-[12%] text-center">STATUS</th>
+                  <th className="px-6 py-4 w-[10%]">DATE</th>
+                  <th className="px-6 py-4 w-[13%] text-right">AMOUNT</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {displayedLedger.length === 0 ? (
                   <tr><td colSpan={6} className="py-20 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest">No transactions filed</td></tr>
                 ) : displayedLedger.map(inv => (
-                  <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
+                  <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
+                        <span className="text-[11px] font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-widest">
                           {inv.invoiceNumber || '—'}
                         </span>
-                        <span className="text-[10px] font-medium text-slate-400 mt-0.5">
-                          Method: {inv.paymentMethod.toUpperCase()}
+                        <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">
+                          Audit Log Linked
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-slate-700">{inv.customerName || 'Walk-in'}</span>
-                        <span className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-widest">Customer Entity</span>
+                        <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-widest">{inv.customerName || 'Walk-in'}</span>
+                        <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">Business Entity</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${
+                       <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200">
+                          {inv.paymentMethod.toUpperCase()}
+                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${
                         inv.paymentStatus === 'paid' 
                           ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                           : 'bg-rose-50 text-rose-600 border-rose-100'
@@ -211,14 +217,14 @@ export default function Accounting() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                       <p className="text-[10px] font-bold text-slate-900">
+                       <p className="text-[10px] font-bold text-slate-900 uppercase">
                          {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                        </p>
-                       <p className="text-[9px] font-medium text-slate-400 uppercase">Registered</p>
+                       <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter">Registered</p>
                     </td>
                     <td className="px-6 py-4 text-right">
-                       <p className="text-xs font-bold text-slate-900 tracking-tight">₹{inv.grandTotal.toLocaleString()}</p>
-                       <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Settled Amt</p>
+                       <p className="money-highlight !text-sm">₹{inv.grandTotal.toLocaleString()}</p>
+                       <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.1em] mt-0.5">Settled Amt</p>
                     </td>
                   </tr>
                 ))}

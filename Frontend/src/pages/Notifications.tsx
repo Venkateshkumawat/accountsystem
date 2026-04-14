@@ -16,16 +16,7 @@ export default function Notifications() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'success' | 'info' | 'error' | 'warning'>('all');
   const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
-  const [visibleLimit, setVisibleLimit] = useState(3);
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'success': return <CheckCircle size={18} className="text-emerald-500" />;
-      case 'error': return <XCircle size={18} className="text-rose-500" />;
-      case 'warning': return <AlertTriangle size={18} className="text-amber-500" />;
-      default: return <Info size={18} className="text-indigo-500" />;
-    }
-  };
+  const [visibleLimit, setVisibleLimit] = useState(8);
 
   const filteredNotifications = useMemo(() => {
     let result = notifications.filter(n =>
@@ -72,11 +63,11 @@ export default function Notifications() {
   };
 
   return (
-    <div className="nexus-container py-6 lg:py-10 animate-in fade-in duration-500">
+    <div className="nexus-container py-6 lg:py-6 animate-in fade-in duration-500">
       {/* ── HEADER ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight">Event Registry</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Event Registry</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">Auditing active node signals across the platform</p>
         </div>
 
@@ -87,7 +78,7 @@ export default function Notifications() {
           </div>
           <button
             onClick={handleClearRegistry}
-            className="btn-primary shadow-xl shadow-indigo-200"
+            className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
           >
             Clear Registry
           </button>
@@ -95,7 +86,7 @@ export default function Notifications() {
       </div>
 
       {/* Controls */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
         <div className="lg:col-span-2 relative group">
           <input
             type="text"
@@ -106,51 +97,41 @@ export default function Notifications() {
           />
         </div>
 
-        <div className="relative group">
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as any)}
-            className="w-full px-6 py-2.5 bg-white border border-slate-100 rounded-2xl text-[10px] font-semibold tracking-wide outline-none appearance-none shadow-sm focus:border-indigo-500"
-          >
-            <option value="all">All Log Types</option>
-            <option value="success" className="text-emerald-500">Success nodes</option>
-            <option value="info" className="text-indigo-500">Info nodes</option>
-            <option value="warning" className="text-amber-500">Warning nodes</option>
-            <option value="error" className="text-rose-500">Error nodes</option>
-          </select>
-        </div>
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as any)}
+          className="w-full px-6 py-2.5 bg-white border border-slate-100 rounded-2xl text-[10px] font-semibold tracking-wide outline-none shadow-sm focus:border-indigo-500"
+        >
+          <option value="all">All Log Types</option>
+          <option value="success">Success nodes</option>
+          <option value="info">Info nodes</option>
+          <option value="warning">Warning nodes</option>
+          <option value="error">Error nodes</option>
+        </select>
 
-        <div className="relative group">
-          <select
-            value={timeFilter}
-            onChange={(e) => setTimeFilter(e.target.value as any)}
-            className="w-full px-6 py-2.5 bg-white border border-slate-100 rounded-2xl text-[10px] font-semibold tracking-wide outline-none appearance-none shadow-sm focus:border-indigo-500 cursor-pointer hover:border-indigo-300 transition-all"
-          >
-            <option value="all">Full History</option>
-            <option value="today">Today Only</option>
-            <option value="week">Past 7 Days</option>
-            <option value="month">This Month</option>
-          </select>
-        </div>
+        <select
+          value={timeFilter}
+          onChange={(e) => setTimeFilter(e.target.value as any)}
+          className="w-full px-6 py-2.5 bg-white border border-slate-100 rounded-2xl text-[10px] font-semibold tracking-wide outline-none shadow-sm focus:border-indigo-500"
+        >
+          <option value="all">Full History</option>
+          <option value="today">Today Only</option>
+          <option value="week">Past 7 Days</option>
+          <option value="month">This Month</option>
+        </select>
       </div>
 
       {/* Main List */}
-      <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-[0_10px_35px_rgba(0,0,0,0.05)] overflow-hidden mb-10">
+      <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden mb-10">
         {loading && notifications.length === 0 ? (
-          <div className="py-32 flex flex-col items-center animate-pulse">
-            <div className="w-16 h-16 bg-slate-50 rounded-3xl mb-6 shadow-sm shadow-indigo-100/50" />
-            <div className="h-2 w-48 bg-slate-50 rounded-full mb-3" />
-            <div className="h-2 w-32 bg-slate-50 opacity-50 rounded-full" />
+          <div className="py-20 text-center animate-pulse text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+            Scanning Node Repository...
           </div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="py-40 text-center animate-in zoom-in duration-700">
-            <div className="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner shadow-indigo-100/50">
-              <Bell size={40} />
-            </div>
-            <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight">No {typeFilter === 'all' ? 'Event' : typeFilter} Match</h3>
-            <p className="text-slate-400 text-xs font-semibold mt-2 uppercase tracking-wide">
-              {typeFilter === 'error' ? 'Registry is clear of critical infrastructure anomalies.' : 'Registry is clean or the filter returned void nodes.'}
-            </p>
+          <div className="py-20 text-center">
+            <Bell size={32} className="text-slate-100 mx-auto mb-4" />
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight">Empty Trace</h3>
+            <p className="text-slate-400 text-[10px] font-semibold mt-1 uppercase tracking-widest">No matching logs found in registry</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-50">
@@ -158,55 +139,45 @@ export default function Notifications() {
               <div
                 key={n._id}
                 onDoubleClick={(e) => !n.isRead && acknowledgeLog(n._id, e as any)}
-                className={`px-6 py-6 hover:bg-slate-50/50 transition-all group flex items-start gap-4 relative cursor-pointer select-none ${!n.isRead ? 'bg-indigo-50/20' : ''}`}
-                title={!n.isRead ? "Double-click to Acknowledge Node" : ""}
+                className={`px-6 py-3.5 hover:bg-slate-50/80 transition-all group flex items-start gap-4 relative cursor-pointer select-none border-b border-slate-50 last:border-0 ${!n.isRead ? 'bg-indigo-50/20' : ''}`}
               >
                 {!n.isRead && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-600 animate-in fade-in slide-in-from-left duration-500" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600" />
                 )}
 
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${n.type === 'success' ? 'bg-emerald-50' :
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-white ${n.type === 'success' ? 'bg-emerald-50' :
                   n.type === 'error' ? 'bg-rose-50' :
                     n.type === 'warning' ? 'bg-amber-50' : 'bg-indigo-50'
                   }`}>
-                  {getTypeIcon(n.type)}
+                  {n.type === 'success' ? <CheckCircle size={14} className="text-emerald-500" /> :
+                   n.type === 'error' ? <XCircle size={14} className="text-rose-500" /> :
+                   n.type === 'warning' ? <AlertTriangle size={14} className="text-amber-500" /> : <Info size={14} className="text-indigo-500" />}
                 </div>
 
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className={`text-[8px] font-semibold tracking-wide px-2 py-0.5 rounded-md ${n.type === 'success' ? 'bg-emerald-100 text-emerald-700' :
-                      n.type === 'error' ? 'bg-rose-100 text-rose-700' :
-                        n.type === 'warning' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-lg border ${n.type === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      n.type === 'error' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                        n.type === 'warning' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'
                       }`}>
                       {n.type} Node
                     </span>
-                    <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">
+                    <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">
                       {new Date(n.createdAt).toLocaleDateString('en-IN')} · {new Date(n.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
 
-                  <p className={`text-sm leading-tight select-none ${!n.isRead ? 'font-semibold text-slate-900' : 'font-medium text-slate-500'}`}>
+                  <p className={`text-[13px] font-semibold tracking-tight uppercase select-none group-hover:text-indigo-600 transition-colors ${!n.isRead ? 'text-slate-900' : 'text-slate-500 opacity-80'}`}>
                     {n.message}
                   </p>
-
-                  <div className="flex items-center gap-4 pt-1">
-                    {!n.isRead && (
-                      <button
-                        onClick={(e) => acknowledgeLog(n._id, e)}
-                        className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:text-slate-900 transition-colors"
-                      >
-                        Acknowledge Entry →
-                      </button>
-                    )}
-                  </div>
                 </div>
 
                 <button
                   onClick={(e) => handlePurgeLog(n._id, e)}
                   title="Archive this log"
-                  className="p-3 text-slate-200 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0"
+                  className="p-2 text-slate-200 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100 shrink-0"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             ))}
@@ -214,7 +185,7 @@ export default function Notifications() {
             {filteredNotifications.length > visibleLimit && (
               <button
                 onClick={() => setVisibleLimit(prev => prev + 20)}
-                className="w-full py-8 text-[11px] font-black text-indigo-600 uppercase tracking-[0.4em] hover:bg-slate-50 transition-all flex items-center justify-center gap-3 animate-in fade-in"
+                className="w-full py-6 text-[11px] font-bold text-slate-400 hover:text-indigo-600 uppercase tracking-[0.2em] hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
               >
                 Load Historical History Nodes ({filteredNotifications.length - visibleLimit} Hidden)
               </button>
@@ -224,19 +195,22 @@ export default function Notifications() {
       </div>
 
       {/* Footer Metrics */}
-      <div className="flex items-center justify-between px-5 py-3 bg-slate-900 rounded-2xl text-white">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between px-5 py-4 bg-slate-900 rounded-3xl text-white shadow-xl">
+        <div className="flex items-center gap-6">
           <div className="flex flex-col">
-            <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest leading-none">Registry Context</span>
-            <span className="text-sm font-black mt-0.5">Industrial Protocol v2.1</span>
+            <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest leading-none">Registry Context</span>
+            <span className="text-sm font-bold mt-1 tracking-tight">Industrial Protocol v2.5</span>
           </div>
-          <div className="w-px h-5 bg-white/10 hidden sm:block" />
+          <div className="w-px h-8 bg-white/10 hidden sm:block" />
           <div className="hidden sm:flex flex-col">
-            <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Synced Nodes</span>
-            <span className="text-sm font-black mt-0.5">{notifications.length} Entries</span>
+            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Synced Nodes</span>
+            <span className="text-sm font-bold mt-1 tracking-tight">{notifications.length} Atomic Entries</span>
           </div>
         </div>
-        <Zap size={16} className="text-indigo-400/30 animate-pulse" />
+        <div className="flex items-center gap-3">
+           <span className="text-[10px] font-black uppercase text-indigo-300 tracking-[0.2em] animate-pulse">Telemetry Active</span>
+           <Zap size={16} className="text-indigo-400" />
+        </div>
       </div>
     </div>
   );

@@ -50,17 +50,17 @@ const SuperAdminDashboard: React.FC = () => {
 
       {/* Main Analytical Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 ">
-        <div className="lg:col-span-6 bg-white border border-slate-100 rounded-2xl p-6 h-[400px] flex flex-col items-center justify-center text-center group transition-all relative overflow-hidden shadow-sm">
+        <div className="lg:col-span-6 bg-white border border-slate-100 rounded-[2rem] p-8 h-[400px] flex flex-col items-center justify-center text-center group transition-all relative overflow-hidden shadow-sm">
           <Activity size={48} className="mb-4 text-indigo-600 opacity-20 group-hover:opacity-100 transition-opacity" />
-          <h2 className="text-2xl font-semibold text-slate-800 tracking-tight">System Performance</h2>
-          <p className="text-sm font-normal text-slate-400 max-w-sm mt-2">Global activity monitoring and infrastructure scaling trends will appear here.</p>
+          <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">System Performance</h2>
+          <p className="text-sm font-normal text-slate-400 max-w-sm mt-3">Global activity monitoring and infrastructure scaling trends will appear here.</p>
         </div>
 
-        <div className="lg:col-span-4 bg-slate-900 rounded-2xl p-6 h-[400px] flex flex-col relative overflow-hidden shadow-2xl">
+        <div className="lg:col-span-4 bg-slate-900 rounded-[2rem] p-8 h-[400px] flex flex-col relative overflow-hidden shadow-2xl">
           <div className="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-400 tracking-widest uppercase">Global Audit Log</h4>
-              <p className="text-xs font-normal text-slate-500 uppercase mt-1">Real-time system events</p>
+              <h4 className="text-[10px] font-bold text-indigo-400 tracking-[0.2em] uppercase">Global Audit Log</h4>
+              <p className="text-[10px] font-bold text-slate-500 uppercase mt-1 tracking-widest">Real-time system events</p>
             </div>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
@@ -112,15 +112,15 @@ function SuperStat({ label, value, icon: Icon, color, trend, trendColor = 'text-
   };
   const s = colorMap[color] || colorMap.indigo;
   return (
-    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
+    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
         <Icon size={24} />
       </div>
-      <div>
-        <p className="stat-label">{label}</p>
-        <h3 className="stat-value">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
+      <div className="min-w-0">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p>
+        <h3 className="money-highlight truncate">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
         {trend && (
-          <p className={`text-[10px] font-semibold ${trendColor}`}>{trend}</p>
+          <p className={`text-[9px] font-bold ${trendColor} mt-1 uppercase tracking-tighter`}>{trend}</p>
         )}
       </div>
     </div>
