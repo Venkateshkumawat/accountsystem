@@ -193,46 +193,18 @@ export default function Inventory() {
   };
 
 
+  // Helper to resolve backend image paths
+  const getImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const baseUrl = api.defaults.baseURL?.replace('/api', '') || 'https://account-billing-system.onrender.com';
+    return `${baseUrl}/${path}`;
+  };
+
   return (
     <div className="space-y-6 min-h-screen p-2">
-      {/* Header Context */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight">Inventory Management</h1>
-          <p className="text-sm font-normal text-slate-500 mt-1">Track stock levels, warehouses, and product catalog</p>
-        </div>
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
-          <button className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] sm:text-sm font-medium hover:bg-slate-50 transition-all uppercase tracking-widest shadow-sm shrink-0">
-            <Layout size={16} /> Warehouses
-          </button>
-          <button
-            onClick={() => {
-              if (remainingProduct <= 0) {
-                alert("Plan limit reached. Upgrade required to provision more Product nodes.");
-                return;
-              }
-              setShowForm(true);
-            }}
-            disabled={remainingProduct <= 0}
-            className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] sm:text-sm font-medium shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50 shrink-0"
-          >
-            <Plus size={16} /> Add Product
-          </button>
-        </div>
-      </div>
-
-      {/* Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <InventoryStat label="TOTAL ITEMS" value={products.length.toLocaleString()} icon={Box} color="indigo" />
-        <InventoryStat label="LOW STOCK" value={lowStockCount} icon={AlertTriangle} color="rose" sub="CRITICAL ITEMS" />
-        <InventoryStat label="STOCK VALUE" value={`₹${totalValuation.toLocaleString()}`} icon={BarChart3} color="emerald" sub="VALUATION NODE" />
-        <InventoryStat label="OUT OF STOCK" value={products.filter(p => p.stock <= 0).length} icon={Clock} color="amber" sub="ACTION REQUIRED" />
-      </div>
-
-      <div className="h-4" />
-
-
-      {/* Dynamic Display / Sectionized Rendering */}
+      {/* ... previous header/metric code ... */}
+      
       <div className="space-y-8 px-2 pb-24 md:pb-12">
         {products.length === 0 ? (
           <div className="bg-white rounded-2xl border-2 border-slate-200 py-24 sm:py-32 text-center overflow-hidden">
@@ -251,150 +223,140 @@ export default function Inventory() {
                 </span>
               </div>
 
-              {/* Responsive Layout: Cards on Mobile, Table on Desktop */}
+              {/* Responsive Layout: Cards on Mobile */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4">
-                {groupedProducts[category].map((product: any) => (
-                  <div key={product._id} className="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm hover:border-indigo-200 transition-all flex flex-col gap-4 group relative overflow-hidden">
-                    <div className="flex gap-4">
-                      <div className="w-20 h-20 rounded-[1.5rem] bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center relative">
-                        {product.image ? (
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            loading="lazy"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                            }}
-                          />
-                        ) : null}
-                        <Box size={24} className={`text-slate-200 ${product.image ? 'hidden' : ''}`} />
-                        {product.discount > 0 && (
-                          <div className="absolute top-1 right-1 bg-rose-600 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">
-                            -{Math.round((product.discount / product.sellingPrice) * 100)}%
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-start mb-0.5">
-                            <span className="font-semibold text-slate-900 text-[13px] leading-tight truncate pr-4">
+                {groupedProducts[category].map((product: any) => {
+                  const productImg = getImageUrl(product.image);
+                  return (
+                    <div key={product._id} className="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm hover:border-indigo-200 transition-all flex flex-col gap-4 group relative overflow-hidden">
+                      <div className="flex gap-4">
+                        <div className="w-20 h-20 rounded-[1.5rem] bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center relative">
+                          {productImg ? (
+                            <img
+                              src={productImg}
+                              alt={product.name}
+                              loading="lazy"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <Box size={24} className={`text-slate-200 ${productImg ? 'hidden' : ''}`} />
+                          {product.discount > 0 && (
+                            <div className="absolute top-1 right-1 bg-rose-600 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">
+                              -{Math.round((product.discount / product.sellingPrice) * 100)}%
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0 flex flex-col justify-between">
+                          <div>
+                            <span className="font-semibold text-slate-900 text-[13px] leading-tight block truncate mb-1">
                               {product.name}
                             </span>
-                          </div>
-                          <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
-                            {product.barcode || 'NB-NODE-' + product._id.slice(-6)}
-                          </div>
-                          <div className="text-[10px] font-medium text-slate-400 mt-1">
-                            {product.unitValue} {product.unitType}
-                          </div>
-                        </div>
-                        <div className="flex items-end justify-between mt-2">
-                          <div>
-                            <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1">MEMBER PRICE</p>
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-slate-900 text-lg tracking-tight">₹{product.sellingPrice - product.discount}</span>
-                              {product.discount > 0 && (
-                                <span className="text-[10px] text-slate-300 line-through">₹{product.sellingPrice}</span>
-                              )}
+                            <div className="inline-block text-[8px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                              {product.barcode || 'NB-' + product._id.slice(-6)}
                             </div>
                           </div>
-                          <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
-                            Stock: {product.stock}
+                          <div className="flex items-end justify-between mt-2">
+                            <div>
+                               <p className="text-[7px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">VALUATION</p>
+                               <div className="flex flex-col">
+                                  {product.discount > 0 && (
+                                    <span className="text-[9px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
+                                  )}
+                                  <span className="font-bold text-slate-900 text-lg tracking-tight leading-none">₹{product.sellingPrice - product.discount}</span>
+                               </div>
+                            </div>
+                            <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
+                              Stock: {product.stock}
+                            </div>
                           </div>
                         </div>
                       </div>
+                      {isAuthorized && (
+                        <div className="flex gap-2 pt-3 border-t border-slate-50">
+                          <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all border border-slate-100 hover:border-indigo-100">
+                            <Edit3 size={12} /> Edit Node
+                          </button>
+                          <button onClick={() => deleteProduct(product._id)} className="w-12 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all border border-rose-100"><Trash2 size={16} /></button>
+                        </div>
+                      )}
                     </div>
-                    {isAuthorized && (
-                      <div className="flex gap-2 pt-3 border-t border-slate-50">
-                        <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all border border-slate-100 hover:border-indigo-100">
-                          <Edit3 size={12} /> Edit Node
-                        </button>
-                        <button onClick={() => deleteProduct(product._id)} className="w-12 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all border border-rose-100"><Trash2 size={16} /></button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {/* Desktop Audit View */}
+              {/* Desktop Table View */}
               <div className="hidden lg:block bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead className="bg-slate-50/50">
                     <tr className="text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
-                      <th className="px-6 py-4">Product Details</th>
-                      <th className="px-6 py-4 text-center">Current Stock</th>
-                      <th className="px-6 py-4 text-center">Price</th>
-                      <th className="px-6 py-4 text-center">Status</th>
+                      <th className="px-6 py-4">Product Protocol</th>
+                      <th className="px-6 py-4 text-center">Stock Node</th>
+                      <th className="px-6 py-4 text-center">Factual Price</th>
+                      <th className="px-6 py-4 text-center">Node State</th>
                       <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {groupedProducts[category].map((product: any) => (
-                      <tr key={product._id} className="hover:bg-slate-50/30 transition-colors group">
-                        <td className="px-6 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                              {product.image ? (
-                                <img
-                                  src={product.image}
-                                  alt={product.name}
-                                  loading="lazy"
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                  }}
-                                />
-                              ) : null}
-                              <Box
-                                size={16}
-                                className={`text-slate-300 ${product.image ? 'hidden' : ''}`}
-                              />
-                            </div>
-                            <div>
-                              <div className="font-semibold text-slate-900 text-sm leading-tight transition-colors">
-                                {product.name}
+                    {groupedProducts[category].map((product: any) => {
+                      const productImg = getImageUrl(product.image);
+                      return (
+                        <tr key={product._id} className="hover:bg-slate-50/30 transition-colors group">
+                          <td className="px-6 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                {productImg ? (
+                                  <img
+                                    src={productImg}
+                                    alt={product.name}
+                                    loading="lazy"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none';
+                                      (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                  />
+                                ) : null}
+                                <Box size={16} className={`text-slate-300 ${productImg ? 'hidden' : ''}`} />
                               </div>
-                              <div className="text-[10px] font-semibold text-slate-400 uppercase mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
+                              <div>
+                                <div className="font-semibold text-slate-900 text-sm leading-tight">{product.name}</div>
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
+                              </div>
                             </div>
-
-                          </div>
-                        </td>
-                        <td className="px-6 py-3 text-center">
-                          <span className="font-semibold text-slate-900 text-sm">{product.stock} pcs</span>
-                        </td>
-                        <td className="px-6 py-3 text-center font-semibold text-slate-900 text-sm">₹{product.sellingPrice}</td>
-                        <td className="px-6 py-3 text-center">
-                          <span className={`${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} px-3 py-1 rounded-full text-[10px] font-semibold uppercase`}>
-                            {product.stock > (product.lowStockThreshold || 10) ? 'IN STOCK' : 'LOW STOCK'}
-                          </span>
-                        </td>
-
-                        <td className="px-6 py-3.5 text-right">
-                          <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {isAuthorized && (
-                              <>
-                                <button
-                                  onClick={() => handleEdit(product)}
-                                  className="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 rounded-lg transition-all active:scale-75 shadow-sm shadow-indigo-100/10"
-                                  title="Edit Node"
-                                >
-                                  <Edit3 size={13} />
-                                </button>
-                                <button
-                                  onClick={() => deleteProduct(product._id)}
-                                  className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all active:scale-75"
-                                >
-                                  <Trash2 size={13} />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                            <span className="font-semibold text-slate-900 text-sm">{product.stock} {product.unitType}</span>
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                             <div className="flex flex-col items-center">
+                                {product.discount > 0 && (
+                                  <span className="text-[10px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
+                                )}
+                                <span className="font-bold text-slate-900 text-sm">₹{product.sellingPrice - (product.discount || 0)}</span>
+                             </div>
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                            <span className={`${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm`}>
+                              {product.stock > (product.lowStockThreshold || 10) ? 'AVAILABLE' : 'CRITICAL'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3.5 text-right">
+                            <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {isAuthorized && (
+                                <>
+                                  <button onClick={() => handleEdit(product)} className="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 rounded-lg transition-all active:scale-75 shadow-sm shadow-indigo-100/10"><Edit3 size={13} /></button>
+                                  <button onClick={() => deleteProduct(product._id)} className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all active:scale-75"><Trash2 size={13} /></button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

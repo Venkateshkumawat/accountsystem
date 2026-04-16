@@ -231,7 +231,7 @@ export default function POS() {
           razorpayPaymentId: razorpayDetails?.razorpay_payment_id || null,
           razorpayOrderId: razorpayDetails?.razorpay_order_id || null,
           razorpaySignature: razorpayDetails?.razorpay_signature || null,
-          paymentStatus: razorpayDetails ? 'paid' : 'pending'
+          paymentStatus: (razorpayDetails || paymentMethod === 'cash' || paymentMethod === 'card') ? 'paid' : 'pending'
         };
         const res = await api.post('/invoices', payload);
         if (res.data.success) {
@@ -573,7 +573,7 @@ export default function POS() {
       )}
       {/* ── CHECKOUT MODAL: Finalize Hub ─────────────────────────────── */}
       {showCheckout && (
-        <div className="fixed inset-0 z-[60] backdrop-blur-sm bg-slate-900/40 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] backdrop-blur-sm bg-slate-900/40 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-200 flex flex-col max-h-[90vh]">
             <header className="p-3 border-b border-slate-50 flex items-center justify-between bg-white shrink-0 sticky top-0 z-10">
               <div className="flex items-center gap-3">
@@ -717,55 +717,41 @@ export default function POS() {
       )}
       {/* ── SCANNER MODAL: Camera Protocol ─────────────────────────────── */}
       {isScannerOpen && (
-        <div className="fixed inset-0 z-[70] backdrop-blur-md bg-slate-900/60 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-200 flex flex-col items-center">
-            <header className="w-full p-4 border-b border-slate-50 flex items-center justify-between bg-white shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg animate-pulse">
-                  <Camera size={16} />
-                </div>
-                <div>
-                  <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-widest leading-none">Scanning Node</h3>
-                  <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Align barcode within frame</p>
-                </div>
-              </div>
-              <button
+        <div className="fixed inset-0 z-[9999] backdrop-blur-md bg-slate-900/60 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-xs rounded-[2.5rem] shadow-2xl overflow-hidden border-2 border-slate-200 flex flex-col items-center animate-in zoom-in duration-300">
+            <header className="w-full p-5 border-b border-slate-50 flex items-center justify-between bg-white shrink-0 relative">
+               <button
                 onClick={stopScanner}
-                className="p-2 hover:bg-rose-50 text-slate-300 hover:text-rose-500 rounded-xl transition-all"
+                className="p-2 hover:bg-rose-50 text-slate-300 hover:text-rose-500 rounded-xl transition-all z-10"
               >
                 <X size={20} />
               </button>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">Scanning Node</h3>
+                <p className="text-[7px] font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Align barcode</p>
+              </div>
+              <div className="w-9" /> {/* Spacer */}
             </header>
 
             <div className="p-6 w-full flex flex-col items-center">
               <div
                 id="scanner-region"
-                className="w-full aspect-square bg-slate-100 rounded-2xl overflow-hidden border-2 border-dashed border-indigo-200 shadow-inner relative"
+                className="w-full aspect-square bg-slate-100 rounded-3xl overflow-hidden border-2 border-dashed border-indigo-200 shadow-inner relative"
               >
-                <div className="absolute inset-0 z-10 pointer-events-none border-[30px] border-white/20">
-                  <div className="w-full h-full border-2 border-indigo-500 rounded-lg shadow-[0_0_0_1000px_rgba(0,0,0,0.3)]"></div>
-                </div>
-                {/* Scan Animation Line */}
-                <div className="absolute left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] z-20 animate-[scan_2s_ease-in-out_infinite]"></div>
+                 {/* Scan Animation */}
+                 <div className="absolute left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] z-20 animate-[scan_2s_ease-in-out_infinite]" />
               </div>
-
-              <div className="mt-8 flex flex-col items-center gap-4 w-full">
-                <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100 animate-bounce">
-                  <Zap size={14} className="fill-indigo-600" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Active Search Protocol</span>
-                </div>
-
-                <button
-                  onClick={stopScanner}
-                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] shadow-xl hover:bg-slate-800 transition-all uppercase tracking-[0.2em] active:scale-95 flex items-center justify-center gap-3"
-                >
-                  Terminate Scanner
-                </button>
-              </div>
+              
+              <button
+                onClick={stopScanner}
+                className="mt-6 w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] shadow-xl hover:bg-slate-800 transition-all uppercase tracking-[0.2em] active:scale-95"
+              >
+                Terminate
+              </button>
             </div>
-
+            
             <footer className="w-full p-4 bg-slate-50 border-t border-slate-100 text-center">
-              <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">Nexus Optical Interface v2.4.0</p>
+              <p className="text-[7px] font-semibold text-slate-300 uppercase tracking-widest">Nexus Optical Interface v2.5.0</p>
             </footer>
           </div>
         </div>
@@ -794,99 +780,108 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash }: any
   const isNotExpired = !product.saleEndDate || new Date(product.saleEndDate).setHours(23, 59, 59, 999) > Date.now();
   const isSaleActive = hasDiscount && isNotExpired;
 
+  // Correct image URL logic: prepend base URL if starting with uploads/
+  const getImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const baseUrl = api.defaults.baseURL?.replace('/api', '') || 'https://account-billing-system.onrender.com';
+    return `${baseUrl}/${path}`;
+  };
+
+  const productImg = getImageUrl(product.image);
+
   return (
     <div
-      onClick={() => onAdd(product)}
-      className={`bg-white p-2 rounded-2xl border-2 transition-all cursor-pointer active:scale-95 flex flex-col items-center text-center relative overflow-hidden h-[155px] justify-between
-        ${inCart ? 'border-indigo-600 ring-2 ring-indigo-50 shadow-lg' : 'border-slate-200 hover:border-indigo-400 shadow-sm'}
-        ${outOfStock ? 'opacity-50 grayscale' : ''}
+      onClick={() => !outOfStock && onAdd(product)}
+      className={`bg-white group p-2.5 rounded-2xl border-2 transition-all cursor-pointer active:scale-95 flex flex-col items-center relative overflow-hidden h-[180px] select-none
+        ${inCart ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-xl' : 'border-slate-100 hover:border-slate-300 shadow-sm'}
+        ${outOfStock ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-md'}
         ${isFlash ? 'animate-pulse scale-90' : ''}
       `}
     >
-      <div className="absolute top-0.5 right-0.5 z-30">
-        {inCart && (
-          <button
+      {/* Absolute Badges */}
+      <div className="absolute top-1.5 right-1.5 z-30 flex flex-col gap-1 items-end">
+        {inCart ? (
+           <button
             onClick={(e) => { e.stopPropagation(); onRemove(product._id); }}
-            className="w-5 h-5 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-lg hover:bg-rose-600 active:scale-110 transition-all border border-white"
+            className="w-6 h-6 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-lg hover:bg-rose-600 active:scale-110 transition-all border-2 border-white"
           >
-            <X size={10} strokeWidth={4} />
+            <X size={12} strokeWidth={4} />
           </button>
+        ) : isSaleActive && (
+          <div className="bg-rose-600 text-white text-[8px] font-black px-2 py-0.5 rounded-lg shadow-md border border-white uppercase tracking-widest translate-x-1 -rotate-12">
+            SALE
+          </div>
         )}
       </div>
 
-      {isSaleActive && (
-        <div className="absolute top-0.5 right-6 z-30 bg-rose-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-sm ring-1 ring-white uppercase tracking-tighter">
-          -{Math.round(((product.discount || 0) / product.sellingPrice) * 100)}%
-        </div>
-      )}
-
-      <div className="absolute top-0.5 left-0.5 z-30 flex flex-col gap-1 items-start">
+      <div className="absolute top-1.5 left-1.5 z-30 flex flex-col gap-1.5 items-start">
         {inCart && (
-          <div className="min-w-[14px] h-[14px] bg-indigo-600 text-white rounded-lg text-[9px] font-black flex items-center justify-center px-1 shadow-lg ring-1 ring-white">
+          <div className="min-w-[18px] h-[18px] bg-indigo-600 text-white rounded-lg text-[10px] font-bold flex items-center justify-center px-1.5 shadow-lg border border-white">
             {inCartItem.qty}
           </div>
         )}
         {!outOfStock && product.stock <= (product.lowStockThreshold || 5) && (
-          <div className="flex items-center justify-center p-0.5 bg-amber-500 text-white rounded-sm text-[6px] font-black uppercase ring-1 ring-white">
-            LOW
+          <div className="px-1.5 py-0.5 bg-amber-500 text-white rounded-md text-[7px] font-black uppercase border border-white shadow-sm">
+            STOCK LOW
           </div>
         )}
+      </div>
+
+      {/* Image / Icon Node */}
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all overflow-hidden border-2 shrink-0 ${inCart ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-50 border-slate-100'}`}>
+        {productImg ? (
+          <img
+            src={productImg}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+        ) : null}
+        <Package2
+          size={20}
+          className={`${inCart ? 'text-white' : 'text-slate-300'} ${productImg ? 'hidden' : ''}`}
+        />
+      </div>
+
+      {/* Info Block */}
+      <div className="flex-1 w-full flex flex-col items-center justify-between text-center min-w-0">
+        <div className="w-full">
+          <h3 className="text-slate-900 font-semibold text-[11px] uppercase leading-tight line-clamp-2 px-1 mb-1">
+            {product.name}
+          </h3>
+          <p className="inline-block text-[8px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+            {product.barcode || 'NO BARCODE'}
+          </p>
+        </div>
+
+        <div className="w-full mt-2">
+           {isSaleActive ? (
+            <div className="flex flex-col items-center leading-none">
+              <span className="text-[8px] text-slate-400 line-through mb-1 opacity-70">₹{product.sellingPrice}</span>
+              <div className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
+                <span className="text-[9px] opacity-70">₹</span>
+                {product.sellingPrice - (product.discount || 0)}
+              </div>
+            </div>
+           ) : (
+            <div className="text-slate-900 text-sm font-semibold flex items-center justify-center gap-0.5 leading-none">
+              <span className="text-[9px] text-slate-400">₹</span>
+              {product.sellingPrice}
+            </div>
+           )}
+           <div className={`mt-1.5 h-1.5 rounded-full w-full max-w-[40px] mx-auto transition-all ${inCart ? 'bg-indigo-600' : 'bg-slate-100 group-hover:bg-slate-200'}`} />
+        </div>
       </div>
 
       {outOfStock && (
-        <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg z-20">
-          <span className="text-[7px] font-black text-rose-500 uppercase tracking-tighter bg-rose-50 px-1 py-0.5 rounded border border-rose-100">Out Node</span>
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-20">
+          <span className="text-[9px] font-black text-white bg-slate-900 px-3 py-1 rounded-full uppercase tracking-widest shadow-xl">Out of Node</span>
         </div>
       )}
-
-      <div className="flex flex-col items-center w-full min-h-0 pt-0.5">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 transition-all overflow-hidden border ${inCart ? 'bg-indigo-600 border-indigo-500 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
-          {product.image ? (
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-              }}
-            />
-          ) : null}
-          <Package2
-            size={16}
-            className={`${inCart ? 'text-white/40' : 'text-slate-300'} ${product.image ? 'hidden' : ''}`}
-          />
-        </div>
-        <h3 className="text-slate-900 font-semibold text-[10px] uppercase leading-tight line-clamp-2 w-full px-0.5 min-h-[22px] mt-1">
-          {product.name}
-        </h3>
-        <p className="text-[7.5px] font-black text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 mt-1.5 w-full text-center">
-          {product.barcode || 'NO-SCAN'}
-        </p>
-      </div>
-
-      <div className="w-full flex flex-col items-center pb-0.5">
-        {isSaleActive ? (
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-1">
-              <span className="text-[7px] text-slate-400 line-through leading-none mb-0.5">₹{product.sellingPrice}</span>
-              <span className="text-[6px] font-black text-rose-500 bg-rose-50 px-1 rounded-sm uppercase tracking-tighter shadow-sm border border-rose-100">Sale Node</span>
-            </div>
-            <div className="font-semibold text-emerald-600 text-base leading-none mb-1">
-              <span className="text-[7px] font-semibold mr-0.5">₹</span>
-              {product.sellingPrice - (product.discount || 0)}
-            </div>
-          </div>
-        ) : (
-          <div className="font-semibold text-slate-800 text-base leading-none mb-1">
-            <span className="text-[8px] text-slate-400 font-semibold mr-0.5">₹</span>
-            {product.sellingPrice}
-          </div>
-        )}
-        <div className={`w-full py-0.5 rounded-sm text-[6px] font-black uppercase tracking-widest transition-all ${inCart ? 'bg-indigo-600 text-white opacity-100' : 'bg-slate-900 text-white opacity-0'}`}>
-          {inCart ? 'Node Active' : ''}
-        </div>
-      </div>
     </div>
   );
 });
