@@ -204,7 +204,7 @@ export default function Inventory() {
   return (
     <div className="space-y-6 min-h-screen p-2">
       {/* ... previous header/metric code ... */}
-      
+
       <div className="space-y-8 px-2 pb-24 md:pb-12">
         {products.length === 0 ? (
           <div className="bg-white rounded-2xl border-2 border-slate-200 py-24 sm:py-32 text-center overflow-hidden">
@@ -261,13 +261,13 @@ export default function Inventory() {
                           </div>
                           <div className="flex items-end justify-between mt-2">
                             <div>
-                               <p className="text-[7px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">VALUATION</p>
-                               <div className="flex flex-col">
-                                  {product.discount > 0 && (
-                                    <span className="text-[9px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
-                                  )}
-                                  <span className="font-bold text-slate-900 text-lg tracking-tight leading-none">₹{product.sellingPrice - product.discount}</span>
-                               </div>
+                              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">VALUATION</p>
+                              <div className="flex flex-col">
+                                {product.discount > 0 && (
+                                  <span className="text-[9px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
+                                )}
+                                <span className="font-bold text-slate-900 text-lg tracking-tight leading-none">₹{product.sellingPrice - product.discount}</span>
+                              </div>
                             </div>
                             <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
                               Stock: {product.stock}
@@ -332,12 +332,12 @@ export default function Inventory() {
                             <span className="font-semibold text-slate-900 text-sm">{product.stock} {product.unitType}</span>
                           </td>
                           <td className="px-6 py-3 text-center">
-                             <div className="flex flex-col items-center">
-                                {product.discount > 0 && (
-                                  <span className="text-[10px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
-                                )}
-                                <span className="font-bold text-slate-900 text-sm">₹{product.sellingPrice - (product.discount || 0)}</span>
-                             </div>
+                            <div className="flex flex-col items-center">
+                              {product.discount > 0 && (
+                                <span className="text-[10px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
+                              )}
+                              <span className="font-bold text-slate-900 text-sm">₹{product.sellingPrice - (product.discount || 0)}</span>
+                            </div>
                           </td>
                           <td className="px-6 py-3 text-center">
                             <span className={`${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm`}>

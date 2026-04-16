@@ -26,8 +26,8 @@ export default function Purchases() {
   const [search, setSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
   const [cartItems, setCartItems] = useState<PurchaseItem[]>([]);
-  const [vendor, setVendor] = useState({ name: '', phone: '', gstin: '', state: '' });
-  const [payment, setPayment] = useState({ method: 'cash', status: 'paid' });
+  const [vendor, setVendor] = useState({ name: '', phone: '', gstin: '', state: '', invoiceNumber: '', poNumber: '', shippingAddress: '', shippingCharges: 0 });
+  const [payment, setPayment] = useState({ method: 'cash', status: 'paid', dueDate: '' });
   const [submitting, setSubmitting] = useState(false);
   const { handlePayment } = useRazorpay();
 
@@ -128,10 +128,15 @@ export default function Purchases() {
           vendorName: vendor.name,
           vendorPhone: vendor.phone,
           vendorGstin: vendor.gstin,
+          vendorInvoice: vendor.invoiceNumber,
+          poNumber: vendor.poNumber,
+          shippingAddress: vendor.shippingAddress,
+          shippingCharges: Number(vendor.shippingCharges),
           items: cartItems,
           paymentMethod: payment.method,
           paymentStatus: razorpayDetails ? 'paid' : payment.status,
-          grandTotal,
+          paymentDueDate: payment.dueDate,
+          grandTotal: grandTotal + Number(vendor.shippingCharges),
           subtotal: grandTotal,
           razorpayPaymentId: razorpayDetails?.razorpay_payment_id || null,
           razorpayOrderId: razorpayDetails?.razorpay_order_id || null,
@@ -140,7 +145,7 @@ export default function Purchases() {
         });
         setShowForm(false);
         setCartItems([]);
-        setVendor({ name: '', phone: '', gstin: '', state: '' });
+        setVendor({ name: '', phone: '', gstin: '', state: '', invoiceNumber: '', poNumber: '', shippingAddress: '', shippingCharges: 0 });
         fetchAll();
 
         const sync = new BroadcastChannel('nexus_sync');
@@ -195,64 +200,12 @@ export default function Purchases() {
         </div>
       </div>
 
-      {/* Stats & Visual Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 px-2 items-start">
-        <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MetricCard label="Outbound Capital" value={`₹${(stats.totalSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={IndianRupee} color="indigo" />
-          <MetricCard label="Current Month" value={`₹${(stats.monthSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={Truck} color="emerald" />
-          <MetricCard label="Purchases Volume" value={stats.monthCount?.toString() || '0'} icon={Package} color="amber" />
-          <MetricCard label="Order Registry" value={stats.totalCount?.toString() || '0'} icon={CheckCircle} color="rose" />
-        </div>
-
-        {/* Procurement Trend Node */}
-        <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden h-full flex flex-col min-h-[175px]">
-
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Procurement Flux</p>
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          </div>
-          <div className="flex-1 w-full min-h-[100px]">
-            {stats.dailySpend?.length > 0 ? (
-              <ResponsiveContainer width="100%" height={150} minWidth={0}>
-                <AreaChart data={stats.dailySpend}>
-                  <defs>
-                    <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="date" hide />
-                  <YAxis hide />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: 'none',
-                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                      fontSize: '10px',
-                      fontWeight: '900',
-                      textTransform: 'uppercase'
-                    }}
-                    labelStyle={{ display: 'none' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="total"
-                    stroke="#6366f1"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorSpend)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center opacity-20">
-                <RefreshCcw size={20} className="animate-spin mb-2" />
-                <p className="text-[9px] font-semibold uppercase">Syncing_Nodes</p>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Stats Cluster - Optimized 4-Card Manifest */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-2 mt-2 font-inter">
+        <MetricCard label="Outbound Capital" value={`₹${(stats.totalSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={IndianRupee} color="indigo" />
+        <MetricCard label="Current Month" value={`₹${(stats.monthSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={Truck} color="emerald" />
+        <MetricCard label="Purchases Volume" value={stats.monthCount?.toString() || '0'} icon={Package} color="amber" />
+        <MetricCard label="Order Registry" value={stats.totalCount?.toString() || '0'} icon={CheckCircle} color="rose" />
       </div>
 
       <div className="px-2">
@@ -308,24 +261,24 @@ export default function Purchases() {
                       </span>
                       <span className="text-[8px] font-semibold text-slate-300 uppercase tracking-widest">{p.items?.length || 1} Load Nodes</span>
                     </div>
-                    <p className="money-highlight !text-base">₹{p.grandTotal.toLocaleString()}</p>
+                    <p className="money-highlight !text-base !font-semibold font-inter text-slate-900">₹{p.grandTotal.toLocaleString()}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Desktop Procurement Matrix */}
-            <div className="hidden lg:block overflow-x-auto">
-              <table className="w-full text-left table-fixed min-w-[1000px]">
+            <div className="hidden lg:block">
+              <table className="w-full text-left table-auto">
                 <thead className="bg-slate-50/50">
                   <tr className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                    <th className="px-6 py-4 w-[15%]">IDC_NODE</th>
-                    <th className="px-6 py-4 w-[20%]">COUNTERPARTY</th>
-                    <th className="px-6 py-4 w-[18%]">LOAD_SPEC</th>
-                    <th className="px-6 py-4 w-[12%]">PROTOCOL</th>
-                    <th className="px-6 py-4 w-[12%]">STATUS</th>
-                    <th className="px-6 py-4 w-[10%]">STAMP</th>
-                    <th className="px-6 py-4 w-[13%] text-right">BALANCE</th>
+                    <th className="px-6 py-4">IDC_NODE</th>
+                    <th className="px-6 py-4">COUNTERPARTY</th>
+                    <th className="px-6 py-4">LOAD_SPEC</th>
+                    <th className="px-6 py-4">PROTOCOL</th>
+                    <th className="px-6 py-4 text-center">STATUS</th>
+                    <th className="px-6 py-4">STAMP</th>
+                    <th className="px-6 py-4 text-right">BALANCE</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -340,14 +293,14 @@ export default function Purchases() {
                           {p.paymentMethod}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 text-right">
+                      <td className="px-6 py-3.5 text-center">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase border transition-all ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                           <div className={`w-1 h-1 rounded-full ${p.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} /> {p.paymentStatus}
                         </span>
                       </td>
                       <td className="px-6 py-3.5 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</td>
                       <td className="px-6 py-3.5 text-right">
-                        <p className="money-highlight !text-sm">₹{p.grandTotal.toLocaleString()}</p>
+                        <p className="money-highlight !text-sm !font-semibold font-inter text-slate-900">₹{p.grandTotal.toLocaleString()}</p>
                       </td>
                     </tr>
                   ))}
@@ -425,6 +378,24 @@ export default function Purchases() {
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
+
+                <input placeholder="Supplier Invoice #" value={vendor.invoiceNumber} onChange={e => setVendor({ ...vendor, invoiceNumber: e.target.value.toUpperCase() })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all placeholder:text-slate-300" />
+                
+                <input placeholder="Purchase Order (PO) #" value={vendor.poNumber} onChange={e => setVendor({ ...vendor, poNumber: e.target.value.toUpperCase() })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all placeholder:text-slate-300" />
+              </div>
+
+              {/* Logistics & Inventory Metadata */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="md:col-span-3">
+                  <input placeholder="Shipping / Receiving Address" value={vendor.shippingAddress} onChange={e => setVendor({ ...vendor, shippingAddress: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all placeholder:text-slate-300" />
+                </div>
+                <div className="md:col-span-1">
+                  <input type="number" placeholder="Freight ₹" value={vendor.shippingCharges || ''} onChange={e => setVendor({ ...vendor, shippingCharges: Number(e.target.value) })}
+                    className="w-full px-4 py-3 bg-indigo-50/30 border border-indigo-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all placeholder:text-indigo-300" />
+                </div>
               </div>
 
               {/* Product Search */}
@@ -505,34 +476,45 @@ export default function Purchases() {
                       </div>
                     </div>
                   </div>
-                  <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Global Aggregate</span>
-                    <span className="text-xl font-semibold text-indigo-600 tracking-tighter">₹{grandTotal.toFixed(2)}</span>
+                  <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center font-inter">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1">Items Subtotal</span>
+                      <span className="text-sm font-bold text-slate-900">₹{grandTotal.toFixed(2)}</span>
+                    </div>
+                    <div className="text-right flex flex-col items-end">
+                      <span className="text-[10px] font-semibold text-indigo-600 uppercase tracking-widest leading-none mb-1">Payable Balance</span>
+                      <span className="text-2xl font-black text-indigo-600 tracking-tighter">₹{(grandTotal + Number(vendor.shippingCharges)).toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Payment */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Payment & Terms */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-inter">
                 <div>
-                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Payment Method</label>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Payment Protocol</label>
                   <select value={payment.method} onChange={e => setPayment({ ...payment, method: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600">
-                    <option value="cash">Cash</option>
-                    <option value="upi">UPI</option>
-                    <option value="card">Card</option>
-                    <option value="razorpay">Razorpay Checkout</option>
-                    <option value="credit">Credit / Letter of Credit</option>
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold outline-none focus:border-indigo-600 shadow-sm transition-all">
+                    <option value="cash">Cash Settlement</option>
+                    <option value="upi">Direct UPI</option>
+                    <option value="card">Business Card</option>
+                    <option value="razorpay">Razorpay Gateway</option>
+                    <option value="credit">Trade Credit / AC</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Payment Status</label>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Node Status</label>
                   <select value={payment.status} onChange={e => setPayment({ ...payment, status: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600">
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="partial">Partial</option>
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold outline-none focus:border-indigo-600 shadow-sm transition-all">
+                    <option value="paid">Fully Settled</option>
+                    <option value="pending">Awaiting Sync</option>
+                    <option value="partial">Segmented Payment</option>
                   </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Due Date (Terms)</label>
+                  <input type="date" value={payment.dueDate} onChange={e => setPayment({ ...payment, dueDate: e.target.value })}
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold outline-none focus:border-indigo-600 shadow-sm transition-all" />
                 </div>
               </div>
 
@@ -541,7 +523,7 @@ export default function Purchases() {
                   Cancel
                 </button>
                 <button type="submit" disabled={submitting || cartItems.length === 0 || !vendor.name} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-40 flex items-center justify-center gap-2">
-                  {submitting ? "Recording..." : `Record — ₹${grandTotal.toFixed(2)}`}
+                  {submitting ? "Recording..." : `Record \u2014 ₹${(grandTotal + Number(vendor.shippingCharges)).toFixed(2)}`}
                 </button>
               </footer>
             </form>
