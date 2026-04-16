@@ -190,9 +190,9 @@ export default function Parties() {
 
                             <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50/50">
                                 <div>
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status Pulse</p>
-                                    <p className={`text-base font-black ${party.openingBalance < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                                        ₹{Math.abs(party.openingBalance).toLocaleString()}
+                                    <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Status Pulse</p>
+                                    <p className={`text-base font-semibold ${party.openingBalance < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                        ₹ {(Number(party.openingBalance || 0)).toLocaleString('en-IN')}
                                     </p>
                                     <p className="text-[8px] font-semibold text-slate-400 uppercase">{party.openingBalance < 0 ? 'TO PAY' : 'TO RECEIVE'}</p>
                                 </div>
@@ -460,14 +460,14 @@ const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
   };
   
   return (
-    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-4 h-4" />
+    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-3.5 h-3.5" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
-        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
+        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
       </div>
     </div>
   );

@@ -178,7 +178,7 @@ export default function Purchases() {
       <div className="flex flex-col gap-4">
         <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-indigo-50/50 rounded-full border border-indigo-100 self-start ml-2 shadow-sm shadow-indigo-100/20">
           <Zap size={12} className="text-amber-500 fill-amber-500" />
-          <span className="text-[9px] font-black text-indigo-900/60 uppercase tracking-[0.2em]">Nexus Inbound Logistics</span>
+          <span className="text-[9px] font-semibold text-indigo-900/60 uppercase tracking-[0.2em]">Nexus Inbound Logistics</span>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
@@ -188,7 +188,7 @@ export default function Purchases() {
           </div>
           <div className="flex gap-2">
             <button onClick={fetchAll} className="p-2.5 bg-white border border-slate-100 text-slate-300 rounded-xl hover:text-indigo-600 transition-all shadow-sm active:scale-95"><RefreshCcw size={14} /></button>
-            <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest">
+            <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest">
               <Plus size={16} /> New Purchase
             </button>
           </div>
@@ -208,7 +208,7 @@ export default function Purchases() {
         <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden h-full flex flex-col min-h-[175px]">
 
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Procurement Flux</p>
+            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Procurement Flux</p>
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
           <div className="flex-1 w-full min-h-[100px]">
@@ -248,7 +248,7 @@ export default function Purchases() {
             ) : (
               <div className="h-full flex flex-col items-center justify-center opacity-20">
                 <RefreshCcw size={20} className="animate-spin mb-2" />
-                <p className="text-[9px] font-black uppercase">Syncing_Nodes</p>
+                <p className="text-[9px] font-semibold uppercase">Syncing_Nodes</p>
               </div>
             )}
           </div>
@@ -258,7 +258,7 @@ export default function Purchases() {
       <div className="px-2">
         <div className="relative group">
           <input value={search} onChange={e => { setSearch(e.target.value); }}
-            placeholder="Lookup Vendor Node..." className="w-full px-6 py-3 bg-white border-2 border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-indigo-600 transition-all shadow-sm placeholder:text-slate-300" />
+            placeholder="Lookup Vendor Node..." className="w-full px-6 py-3 bg-white border-2 border-slate-200 rounded-2xl text-[11px] font-semibold uppercase tracking-widest focus:outline-none focus:border-indigo-600 transition-all shadow-sm placeholder:text-slate-300" />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
             {loading && <RefreshCcw size={12} className="animate-spin text-slate-300" />}
             <Zap size={12} className="text-slate-200" />
@@ -271,13 +271,13 @@ export default function Purchases() {
       {/* Purchases Table */}
       <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden mx-2 mt-4">
         {loading ? (
-          <div className="py-20 text-center text-slate-200 font-black uppercase">Loading...</div>
+          <div className="py-20 text-center text-slate-200 font-semibold uppercase">Loading...</div>
         ) : error ? (
           <div className="py-24 flex flex-col items-center justify-center text-center">
             <Zap size={48} className="text-rose-200 mb-4" />
             <h3 className="text-lg font-semibold text-rose-600 uppercase tracking-tight">Connection Error</h3>
             <p className="text-rose-400/80 text-sm font-semibold mt-2">{error}</p>
-            <button onClick={fetchAll} className="mt-6 px-6 py-2 bg-rose-50 text-rose-600 font-black tracking-widest text-[10px] uppercase rounded-xl hover:bg-rose-100 transition-all">Retry Sequence</button>
+            <button onClick={fetchAll} className="mt-6 px-6 py-2 bg-rose-50 text-rose-600 font-semibold tracking-widest text-[10px] uppercase rounded-xl hover:bg-rose-100 transition-all">Retry Sequence</button>
           </div>
         ) : purchases.length === 0 ? (
           <div className="py-24 flex flex-col items-center justify-center text-center">
@@ -292,21 +292,21 @@ export default function Purchases() {
               {(showAllPurchases ? purchases : purchases.slice(0, PURCHASE_LIMIT)).map(p => (
                 <div key={p._id} className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-tighter">Node: {p.billNumber}</span>
-                    <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase border ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                    <span className="text-[10px] font-semibold text-indigo-600 uppercase tracking-tighter">Node: {p.billNumber}</span>
+                    <span className={`px-2 py-0.5 rounded-lg text-[8px] font-semibold uppercase border ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                       {p.paymentStatus}
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900 uppercase truncate">{p.vendorName || 'Independent Vendor'}</h4>
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    <h4 className="text-sm font-semibold text-slate-900 uppercase truncate">{p.vendorName || 'Independent Vendor'}</h4>
+                    <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-slate-50">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200">
+                      <span className="px-2 py-1 bg-slate-100 text-[8px] font-semibold uppercase rounded-lg text-slate-500 border border-slate-200">
                         {p.paymentMethod}
                       </span>
-                      <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{p.items?.length || 1} Load Nodes</span>
+                      <span className="text-[8px] font-semibold text-slate-300 uppercase tracking-widest">{p.items?.length || 1} Load Nodes</span>
                     </div>
                     <p className="money-highlight !text-base">₹{p.grandTotal.toLocaleString()}</p>
                   </div>
@@ -318,7 +318,7 @@ export default function Purchases() {
             <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-left table-fixed min-w-[1000px]">
                 <thead className="bg-slate-50/50">
-                  <tr className="text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                  <tr className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
                     <th className="px-6 py-4 w-[15%]">IDC_NODE</th>
                     <th className="px-6 py-4 w-[20%]">COUNTERPARTY</th>
                     <th className="px-6 py-4 w-[18%]">LOAD_SPEC</th>
@@ -331,17 +331,17 @@ export default function Purchases() {
                 <tbody className="divide-y divide-slate-50">
                   {(showAllPurchases ? purchases : purchases.slice(0, PURCHASE_LIMIT)).map(p => (
                     <tr key={p._id} className="hover:bg-slate-50/80 transition-all border-b border-slate-50 last:border-0 group cursor-default">
-                      <td className="px-6 py-3.5 text-[11px] font-bold text-indigo-600 uppercase tracking-tighter group-hover:tracking-widest transition-all">{p.billNumber}</td>
+                      <td className="px-6 py-3.5 text-[11px] font-semibold text-indigo-600 uppercase tracking-tighter group-hover:tracking-widest transition-all">{p.billNumber}</td>
                       <td className="px-6 py-3.5 text-[11px] font-semibold text-slate-900 uppercase truncate group-hover:text-indigo-600 transition-all">{p.vendorName || 'Independent Vendor'}</td>
-                      <td className="px-6 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{p.items?.length || 1} STACKED_PRODUCTS</td>
+                      <td className="px-6 py-3.5 text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none">{p.items?.length || 1} STACKED_PRODUCTS</td>
                       <td className="px-6 py-3.5">
-                        <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 whitespace-nowrap flex items-center gap-1.5 w-fit border border-slate-200">
+                        <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-semibold uppercase rounded-lg text-slate-500 whitespace-nowrap flex items-center gap-1.5 w-fit border border-slate-200">
                           {p.paymentMethod === 'razorpay' ? <CreditCard size={9} className="text-indigo-600" /> : <Zap size={9} />}
                           {p.paymentMethod}
                         </span>
                       </td>
                       <td className="px-6 py-3.5 text-right">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase border transition-all ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                           <div className={`w-1 h-1 rounded-full ${p.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} /> {p.paymentStatus}
                         </span>
                       </td>
@@ -360,7 +360,7 @@ export default function Purchases() {
               <div className="p-6 text-center bg-slate-50/30 border-t border-slate-50">
                 <button
                   onClick={() => setShowAllPurchases(true)}
-                  className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center"
+                  className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-2xl text-[10px] font-semibold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center"
                 >
                   See {purchases.length - PURCHASE_LIMIT} More Procurement Nodes
                 </button>
@@ -370,7 +370,7 @@ export default function Purchases() {
               <div className="p-6 text-center bg-slate-50/30 border-t border-slate-50">
                 <button
                   onClick={() => setShowAllPurchases(false)}
-                  className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all justify-center"
+                  className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-400 rounded-2xl text-[10px] font-semibold uppercase tracking-widest transition-all justify-center"
                 >
                   Collapse Procurement Registry
                 </button>
@@ -403,7 +403,7 @@ export default function Purchases() {
                   <input placeholder="Phone" value={vendor.phone} onChange={e => setVendor({ ...vendor, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all" />
                   {vendor.phone && !validateMobile(vendor.phone) && (
-                    <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter ml-1">Invalid Mobile Number</p>
+                    <p className="text-[9px] font-semibold text-rose-500 uppercase tracking-tighter ml-1">Invalid Mobile Number</p>
                   )}
                 </div>
 
@@ -411,7 +411,7 @@ export default function Purchases() {
                   <input placeholder="GSTIN (optional)" value={vendor.gstin} onChange={e => setVendor({ ...vendor, gstin: e.target.value.toUpperCase() })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all" />
                   {vendor.gstin && !validateGSTIN(vendor.gstin) && (
-                    <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter ml-1">Invalid GSTIN Pattern</p>
+                    <p className="text-[9px] font-semibold text-rose-500 uppercase tracking-tighter ml-1">Invalid GSTIN Pattern</p>
                   )}
                 </div>
 
@@ -429,7 +429,7 @@ export default function Purchases() {
 
               {/* Product Search */}
               <div className="relative">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Add Products</label>
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Add Products</label>
                 <div>
                   <input value={productSearch} onChange={e => setProductSearch(e.target.value)}
                     placeholder="Search product to add..." className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600 transition-all" />
@@ -448,14 +448,14 @@ export default function Purchases() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-black text-slate-800 truncate uppercase leading-none mb-1">{p.name}</p>
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                            <p className="text-sm font-semibold text-slate-800 truncate uppercase leading-none mb-1">{p.name}</p>
+                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none">
                               Barcode: {p.barcode || 'N/A'} · Current Stock: <span className={p.stock < 10 ? 'text-rose-500' : 'text-emerald-500'}>{p.stock}</span>
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-xs font-black text-slate-900 leading-none mb-1">₹{p.purchasePrice?.toLocaleString()}</p>
-                            <p className="text-[8px] font-bold text-slate-400 uppercase">Unit Cost</p>
+                            <p className="text-xs font-semibold text-slate-900 leading-none mb-1">₹{p.purchasePrice?.toLocaleString()}</p>
+                            <p className="text-[8px] font-semibold text-slate-400 uppercase">Unit Cost</p>
                           </div>
                         </button>
                       ))}
@@ -469,7 +469,7 @@ export default function Purchases() {
                 <div className="border border-slate-100 rounded-[1.5rem] overflow-hidden shadow-sm">
                   <div className="overflow-x-auto custom-scrollbar">
                     <div className="min-w-[500px]">
-                      <div className="grid grid-cols-12 gap-2 px-6 py-4 bg-slate-900 text-[10px] font-black text-white uppercase tracking-[0.2em]">
+                      <div className="grid grid-cols-12 gap-2 px-6 py-4 bg-slate-900 text-[10px] font-semibold text-white uppercase tracking-[0.2em]">
                         <span className="col-span-4">Product / Identifier</span>
                         <span className="col-span-3 text-center">Unit Price</span>
                         <span className="col-span-2 text-center">Qty</span>
@@ -480,20 +480,20 @@ export default function Purchases() {
                         {cartItems.map(item => (
                           <div key={item.productId} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-white group hover:bg-indigo-50/30 transition-all">
                             <div className="col-span-4 min-w-0">
-                              <p className="text-xs font-black text-slate-800 truncate">{item.name}</p>
+                              <p className="text-xs font-semibold text-slate-800 truncate">{item.name}</p>
                             </div>
                             <div className="col-span-3">
                               <input type="number" value={item.purchasePrice} min={0}
                                 onChange={e => updateCartItem(item.productId, 'purchasePrice', Number(e.target.value))}
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-black outline-none focus:bg-white focus:border-indigo-600 transition-all text-center" />
+                                className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-indigo-600 transition-all text-center" />
                             </div>
                             <div className="col-span-2">
                               <input type="number" value={item.qty} min={1}
                                 onChange={e => updateCartItem(item.productId, 'qty', Number(e.target.value))}
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-black outline-none focus:bg-white focus:border-indigo-600 transition-all text-center" />
+                                className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-indigo-600 transition-all text-center" />
                             </div>
                             <div className="col-span-2 text-right">
-                              <p className="text-xs font-black text-slate-900">₹{item.total.toFixed(2)}</p>
+                              <p className="text-xs font-semibold text-slate-900">₹{item.total.toFixed(2)}</p>
                             </div>
                             <div className="col-span-1 text-right">
                               <button type="button" onClick={() => removeFromCart(item.productId)} className="p-2 text-slate-300 hover:text-rose-500 transition-all active:scale-75">
@@ -506,8 +506,8 @@ export default function Purchases() {
                     </div>
                   </div>
                   <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Aggregate</span>
-                    <span className="text-xl font-black text-indigo-600 tracking-tighter">₹{grandTotal.toFixed(2)}</span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Global Aggregate</span>
+                    <span className="text-xl font-semibold text-indigo-600 tracking-tighter">₹{grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
               )}
@@ -515,7 +515,7 @@ export default function Purchases() {
               {/* Payment */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Payment Method</label>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Payment Method</label>
                   <select value={payment.method} onChange={e => setPayment({ ...payment, method: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600">
                     <option value="cash">Cash</option>
@@ -526,7 +526,7 @@ export default function Purchases() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Payment Status</label>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Payment Status</label>
                   <select value={payment.status} onChange={e => setPayment({ ...payment, status: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold outline-none focus:border-indigo-600">
                     <option value="paid">Paid</option>
@@ -561,14 +561,14 @@ const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
   };
 
   return (
-    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-4 h-4" />
+    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-3.5 h-3.5" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
-        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
+        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
       </div>
     </div>
   );

@@ -289,7 +289,7 @@ export default function Staff() {
           {/* Only businessAdmin can add staff */}
           {isBusinessAdmin && (
             <button onClick={() => setShowAdd(true)}
-              className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest">
+              className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest">
               <UserPlus size={16} /> Add Staff
             </button>
           )}
@@ -351,7 +351,7 @@ export default function Staff() {
           </p>
           {staff.length === 0 && (
             <button onClick={() => setShowAdd(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-sm font-black hover:bg-indigo-700 transition">
+              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-sm font-semibold hover:bg-indigo-700 transition">
               <UserPlus size={16} /> Add First Member
             </button>
           )}
@@ -376,7 +376,7 @@ export default function Staff() {
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-lg font-semibold text-slate-900 tracking-tight truncate">{member.name}</h3>
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${meta.bg} ${meta.text} mt-0.5`}>
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${meta.bg} ${meta.text} mt-0.5`}>
                         {member.role}
                       </span>
                     </div>
@@ -416,12 +416,12 @@ export default function Staff() {
 
                 {/* Permissions */}
                 <div className="px-5 pb-4">
-                  <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-2">Permissions</p>
+                  <p className="text-[9px] font-semibold text-slate-300 uppercase tracking-widest mb-2">Permissions</p>
                   <div className="flex flex-wrap gap-1.5">
                     {member.permissions.length === 0
                       ? <span className="text-[10px] text-slate-300">None assigned</span>
                       : member.permissions.map(p => (
-                        <span key={p} className="px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg text-[9px] font-black uppercase">
+                        <span key={p} className="px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg text-[9px] font-semibold uppercase">
                           {p.replace('_', ' ')}
                         </span>
                       ))
@@ -440,7 +440,7 @@ export default function Staff() {
                   {/* Only businessAdmin can suspend/restore staff */}
                   {isBusinessAdmin && (
                     <button onClick={() => handleToggleStatus(member._id)}
-                      className={`text-[10px] font-black uppercase tracking-widest transition-colors ${member.isActive ? 'text-rose-400 hover:text-rose-600' : 'text-emerald-400 hover:text-emerald-600'}`}>
+                      className={`text-[10px] font-semibold uppercase tracking-widest transition-colors ${member.isActive ? 'text-rose-400 hover:text-rose-600' : 'text-emerald-400 hover:text-emerald-600'}`}>
                       {member.isActive ? 'Suspend' : 'Restore'}
                     </button>
                   )}
@@ -475,7 +475,7 @@ export default function Staff() {
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldCheck size={15} className="text-amber-600" />
-                  <label className="text-xs font-black text-amber-700 uppercase tracking-widest">
+                  <label className="text-xs font-semibold text-amber-700 uppercase tracking-widest">
                     Business ID *
                   </label>
                 </div>
@@ -528,14 +528,14 @@ export default function Staff() {
 
               {/* Permissions */}
               <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">
                   Module Access
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {ALL_PERMISSIONS.map(p => (
                     <button key={p} type="button"
                       onClick={() => togglePerm(p, form.permissions, v => setForm({ ...form, permissions: v }))}
-                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${form.permissions.includes(p) ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all ${form.permissions.includes(p) ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
                         }`}>
                       {p.replace('_', ' ')}
                     </button>
@@ -591,12 +591,12 @@ export default function Staff() {
               </div>
 
               <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Module Access</label>
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">Module Access</label>
                 <div className="flex flex-wrap gap-2">
                   {ALL_PERMISSIONS.map(p => (
                     <button key={p} type="button"
                       onClick={() => togglePerm(p, editForm.permissions, v => setEditForm({ ...editForm, permissions: v }))}
-                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${editForm.permissions.includes(p) ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all ${editForm.permissions.includes(p) ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
                         }`}>
                       {p.replace('_', ' ')}
                     </button>
@@ -631,12 +631,12 @@ const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
   return (
     <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-4 h-4" />
+        <Icon className="w-3.5 h-3.5" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
         <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
-        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+        {sub && <p className={`mt-1 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
       </div>
     </div>
   );

@@ -40,8 +40,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, hasPermission, isBusinessAdmin } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [planStatus, setPlanStatus] = useState<any>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 1024) {
+        setIsSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // ── Global Socket Connection ──
   useEffect(() => {
@@ -55,7 +65,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => { setIsSidebarOpen(false); }, [location.pathname]);
+  useEffect(() => { 
+    // Only auto-close sidebar on mobile/tablet when navigation occurs
+    if (window.innerWidth <= 1024) {
+      setIsSidebarOpen(false); 
+    }
+  }, [location.pathname]);
 
   // Fetch plan status for businessAdmin once or when specifically needed
   useEffect(() => {
@@ -148,15 +163,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* ── MOBILE BACKDROP ────────────────────────────────────────────────── */}
       {(isSidebarOpen || isMobileSearchOpen) && (
         <div 
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[100] animate-in fade-in duration-300"
-          onClick={() => { setIsSidebarOpen(false); setIsMobileSearchOpen(false); }}
+          className="fixed inset-0 z-[100] animate-in fade-in duration-300 pointer-events-auto lg:hidden"
+          onClick={() => { if (window.innerWidth <= 1024) { setIsSidebarOpen(false); setIsMobileSearchOpen(false); } }}
         />
       )}
 
       {/* ── SIDEBAR ────────────────────────────────────────────────────────── */}
       <aside 
-        className={`fixed inset-y-0 left-0 w-[280px] bg-white border-r border-slate-100 z-[200] transform transition-transform duration-500 lg:translate-x-0 lg:static lg:block ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 w-[280px] bg-white border-r border-slate-100 z-[200] transform transition-transform duration-500 ${
+          isSidebarOpen ? 'translate-x-0 lg:static lg:block' : '-translate-x-full lg:hidden'
         }`}
       >
         <div className="h-full flex flex-col overflow-hidden">
@@ -180,7 +195,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 key={idx} 
                 item={item} 
                 isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))} 
-                onClick={() => setIsSidebarOpen(false)}
+                onClick={() => {
+                  if (window.innerWidth <= 1024) {
+                    setIsSidebarOpen(false);
+                  }
+                }}
               />
             ))}
           </nav>
@@ -212,10 +231,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <header className="h-16 bg-white flex items-center justify-between px-4 lg:px-8 border-b border-slate-100 z-[120] sticky top-0">
             <div className="flex items-center gap-3 flex-1">
               <button 
-                onClick={() => setIsSidebarOpen(true)} 
-                className="lg:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+                className="p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all focus:outline-none"
               >
-                <Menu size={20} />
+                {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
 
               <button 

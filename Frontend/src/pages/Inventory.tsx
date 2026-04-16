@@ -246,7 +246,7 @@ export default function Inventory() {
               <div className="flex items-center gap-4 px-2">
                 <h2 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight">{category}</h2>
                 <div className="h-px flex-1 bg-slate-100" />
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                   {groupedProducts[category].length} Nodes
                 </span>
               </div>
@@ -271,7 +271,7 @@ export default function Inventory() {
                         ) : null}
                         <Box size={24} className={`text-slate-200 ${product.image ? 'hidden' : ''}`} />
                         {product.discount > 0 && (
-                          <div className="absolute top-1 right-1 bg-rose-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">
+                          <div className="absolute top-1 right-1 bg-rose-600 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">
                             -{Math.round((product.discount / product.sellingPrice) * 100)}%
                           </div>
                         )}
@@ -294,13 +294,13 @@ export default function Inventory() {
                           <div>
                             <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1">MEMBER PRICE</p>
                             <div className="flex items-center gap-2">
-                              <span className="font-black text-slate-900 text-lg tracking-tight">₹{product.sellingPrice - product.discount}</span>
+                              <span className="font-semibold text-slate-900 text-lg tracking-tight">₹{product.sellingPrice - product.discount}</span>
                               {product.discount > 0 && (
                                 <span className="text-[10px] text-slate-300 line-through">₹{product.sellingPrice}</span>
                               )}
                             </div>
                           </div>
-                          <div className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
+                          <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
                             Stock: {product.stock}
                           </div>
                         </div>
@@ -308,7 +308,7 @@ export default function Inventory() {
                     </div>
                     {isAuthorized && (
                       <div className="flex gap-2 pt-3 border-t border-slate-50">
-                        <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-100 hover:border-indigo-100">
+                        <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all border border-slate-100 hover:border-indigo-100">
                           <Edit3 size={12} /> Edit Node
                         </button>
                         <button onClick={() => deleteProduct(product._id)} className="w-12 h-10 flex items-center justify-center bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all border border-rose-100"><Trash2 size={16} /></button>
@@ -421,7 +421,7 @@ export default function Inventory() {
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
+                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
                   <input
                     required
                     value={formData.name}
@@ -431,7 +431,7 @@ export default function Inventory() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Image URL (Direct Link)</label>
+                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Image URL (Direct Link)</label>
                   <input
                     value={formData.image}
                     onChange={e => setFormData({ ...formData, image: e.target.value })}
@@ -447,7 +447,7 @@ export default function Inventory() {
 
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Category</label>
                   <select
                     value={showCustomCategory ? "OTHER" : formData.category}
                     onChange={(e) => {
@@ -455,7 +455,7 @@ export default function Inventory() {
                       if (val === "OTHER") { setShowCustomCategory(true); }
                       else { setShowCustomCategory(false); handleCategoryChange(val); }
                     }}
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-black outline-none shadow-sm focus:bg-white focus:border-indigo-600"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold outline-none shadow-sm focus:bg-white focus:border-indigo-600"
                   >
                     <option value="General">General</option>
                     {categories.map(cat => (<option key={cat} value={cat}>{cat}</option>))}
@@ -467,25 +467,25 @@ export default function Inventory() {
                     value={customCategory}
                     onChange={e => setCustomCategory(e.target.value)}
                     placeholder="Custom Section..."
-                    className="w-full px-5 py-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs font-black outline-none"
+                    className="w-full px-5 py-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs font-semibold outline-none"
                   />
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-rose-400 uppercase tracking-widest ml-1">Original MRP (Base ₹)</label>
+                  <label className="text-[9px] font-semibold text-rose-400 uppercase tracking-widest ml-1">Original MRP (Base ₹)</label>
                   <input
                     required type="number"
                     value={formData.sellingPrice}
                     onChange={e => setFormData({ ...formData, sellingPrice: e.target.value })}
                     placeholder="e.g. 999"
-                    className="w-full px-5 py-3.5 bg-rose-50/10 border border-rose-100 rounded-xl text-sm font-black outline-none shadow-sm focus:bg-white focus:border-rose-400 text-rose-900"
+                    className="w-full px-5 py-3.5 bg-rose-50/10 border border-rose-100 rounded-xl text-sm font-semibold outline-none shadow-sm focus:bg-white focus:border-rose-400 text-rose-900"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-emerald-500 uppercase tracking-widest ml-1">Promo Sale Price (Optional)</label>
+                  <label className="text-[9px] font-semibold text-emerald-500 uppercase tracking-widest ml-1">Promo Sale Price (Optional)</label>
                   <input
                     type="number"
                     value={formData.promoPrice}
@@ -496,24 +496,24 @@ export default function Inventory() {
                       setFormData({ ...formData, promoPrice: promo, discount: disc });
                     }}
                     placeholder="e.g. 799"
-                    className="w-full px-5 py-3.5 bg-emerald-50/20 border border-emerald-100 rounded-xl text-sm font-black text-emerald-700 outline-none shadow-sm focus:bg-white focus:border-emerald-500"
+                    className="w-full px-5 py-3.5 bg-emerald-50/20 border border-emerald-100 rounded-xl text-sm font-semibold text-emerald-700 outline-none shadow-sm focus:bg-white focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Sale Deadline (Date & Time)</label>
+                <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Sale Deadline (Date & Time)</label>
                 <input
                   type="datetime-local"
                   value={formData.saleEndDate}
                   onChange={e => setFormData({ ...formData, saleEndDate: e.target.value })}
-                  className="w-full px-5 py-3.5 bg-rose-50/20 border border-rose-100 rounded-xl text-xs font-black outline-none shadow-sm focus:bg-white focus:border-rose-500"
+                  className="w-full px-5 py-3.5 bg-rose-50/20 border border-rose-100 rounded-xl text-xs font-semibold outline-none shadow-sm focus:bg-white focus:border-rose-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit Specification</label>
+                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Unit Specification</label>
                   <div className="flex gap-2">
                     <input
                       required type="number"
@@ -521,12 +521,12 @@ export default function Inventory() {
                       step="any"
                       value={formData.unitValue}
                       onChange={e => setFormData({ ...formData, unitValue: e.target.value })}
-                      className="w-20 px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black outline-none"
+                      className="w-20 px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-semibold outline-none"
                     />
                     <select
                       value={formData.unitType}
                       onChange={(e) => setFormData({ ...formData, unitType: e.target.value })}
-                      className="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-black text-slate-900 outline-none"
+                      className="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold text-slate-900 outline-none"
                     >
                       <option value="unit">Unit</option><option value="kg">KG</option><option value="gm">GM</option><option value="l">Ltr</option><option value="ml">ML</option><option value="pack">Pack</option>
                     </select>
@@ -534,11 +534,11 @@ export default function Inventory() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">GST Rate (%)</label>
+                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">GST Rate (%)</label>
                   <select
                     value={formData.gstRate}
                     onChange={(e) => setFormData({ ...formData, gstRate: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-black outline-none appearance-none"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold outline-none appearance-none"
                   >
                     <option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option>
                   </select>
@@ -546,13 +546,13 @@ export default function Inventory() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Initial Stock</label>
+                <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Initial Stock</label>
                 <input
                   required type="number"
                   min="0"
                   value={formData.stock}
                   onChange={e => setFormData({ ...formData, stock: Math.max(0, Number(e.target.value)).toString() })}
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-50 rounded-xl text-sm font-black outline-none"
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-50 rounded-xl text-sm font-semibold outline-none"
                 />
               </div>
 
@@ -583,14 +583,14 @@ function InventoryStat({ label, value, icon: Icon, color, sub }: any) {
   };
 
   return (
-    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-4 h-4" />
+    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-3.5 h-3.5" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
-        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
+        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ const ChartWrapper = memo(({ data, children }: any) => {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50/50 rounded-[1.25rem] border border-dashed border-slate-200">
         <Activity size={24} className="text-slate-300 mb-2" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NODATA_SYNC</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">NODATA_SYNC</p>
       </div>
     );
   }
@@ -55,8 +55,15 @@ export default function GSTPortal() {
    const fetchGSTData = async () => {
       setLoading(true);
       try {
+         const now = new Date();
+         let startDate = new Date();
+         
+         if (period === 'month') startDate.setDate(now.getDate() - 30);
+         else if (period === 'quarter') startDate.setDate(now.getDate() - 90);
+         else if (period === 'year') startDate.setFullYear(now.getFullYear() - 1);
+
          // Syncing with the Strategic Sales Report Node (which contains detailed GST slabs)
-         const res = await api.get('/reports/sales').catch(() => ({ data: { data: null } }));
+         const res = await api.get(`/reports/sales?startDate=${startDate.toISOString()}`).catch(() => ({ data: { data: null } }));
          setGstData(res.data?.data);
       } catch (err) {
          console.error("Nexus GST Sync Error:", err);
@@ -86,7 +93,7 @@ export default function GSTPortal() {
             <RefreshCcw size={48} className="text-indigo-600 animate-spin opacity-20" />
             <ShieldCheck size={24} className="absolute inset-0 m-auto text-indigo-600" />
          </div>
-         <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Syncing Fiscal Compliance Nodes...</p>
+         <p className="mt-4 text-[10px] font-semibold text-slate-400 uppercase tracking-[0.3em] animate-pulse">Syncing Fiscal Compliance Nodes...</p>
       </div>
    );
 
@@ -206,7 +213,7 @@ export default function GSTPortal() {
                <div className="flex gap-4">
                   <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
                      <CheckCircle size={14} className="text-emerald-500" />
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Audit Logs: OK</span>
+                      <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-widest">Audit Logs: OK</span>
                   </div>
                </div>
             </div>
@@ -216,34 +223,34 @@ export default function GSTPortal() {
                     {gstData?.gstSlabs?.length > 0 ? gstData.gstSlabs.map((slab: any, i: number) => (
                         <div key={i} className="py-5 space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bracket {i + 1}</span>
-                                <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-100">
+                                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Bracket {i + 1}</span>
+                                <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-semibold uppercase tracking-widest border border-indigo-100">
                                    GST {slab._id}%
                                 </span>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-[8px] font-black text-slate-300 uppercase mb-1 tracking-widest">Taxable Value</p>
+                                    <p className="text-[8px] font-semibold text-slate-300 uppercase mb-1 tracking-widest">Taxable Value</p>
                                     <p className="text-xs font-bold text-slate-700">₹{slab.taxableValue.toLocaleString()}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-[8px] font-black text-slate-300 uppercase mb-1 tracking-widest">Audit Status</p>
-                                    <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest uppercase">Audited Node</p>
+                                    <p className="text-[8px] font-semibold text-slate-300 uppercase mb-1 tracking-widest">Audit Status</p>
+                                    <p className="text-[9px] font-semibold text-emerald-500 uppercase tracking-widest uppercase">Audited Node</p>
                                 </div>
                             </div>
                             <div className="pt-3 border-t border-slate-50 flex justify-between items-center bg-slate-50/50 p-3 rounded-xl">
                                 <div className="flex flex-col">
-                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">TOTAL_GST_LIABILITY</p>
+                                    <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest">TOTAL_GST_LIABILITY</p>
                                     <p className="money-highlight !text-base">₹{slab.totalTax.toLocaleString()}</p>
                                 </div>
                                 <div className="text-right">
-                                   <p className="text-[7px] font-black text-slate-400 uppercase mb-0.5 tracking-widest shrink-0 leading-none">CGSTRO node: ₹{(slab.totalTax/2).toFixed(0)}</p>
-                                   <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest shrink-0 leading-none">SGSTRO node: ₹{(slab.totalTax/2).toFixed(0)}</p>
+                                   <p className="text-[7px] font-semibold text-slate-400 uppercase mb-0.5 tracking-widest shrink-0 leading-none">CGSTRO node: ₹{(slab.totalTax/2).toFixed(0)}</p>
+                                   <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest shrink-0 leading-none">SGSTRO node: ₹{(slab.totalTax/2).toFixed(0)}</p>
                                 </div>
                             </div>
                         </div>
                     )) : (
-                        <div className="py-12 text-center text-slate-200 font-black text-[10px] uppercase tracking-widest">Syncing Fiscal Hub...</div>
+                        <div className="py-12 text-center text-slate-200 font-semibold text-[10px] uppercase tracking-widest">Syncing Fiscal Hub...</div>
                     )}
                 </div>
 
@@ -251,7 +258,7 @@ export default function GSTPortal() {
                 <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-left">
                     <thead>
-                        <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                        <tr className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100">
                             <th className="py-4 px-4 w-1/4">TAX SLAB</th>
                             <th className="py-4 px-4 text-right">TAXABLE SUPPLY</th>
                             <th className="py-4 px-4 text-right">CGST</th>
@@ -264,7 +271,7 @@ export default function GSTPortal() {
                             <tr key={i} className="group hover:bg-slate-50/50 transition-all">
                             <td className="py-5 px-4 font-medium text-sm text-slate-900">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-4 h-4 rounded-full bg-slate-100 border-2 border-white shadow-sm flex items-center justify-center text-[7px] font-black text-slate-400">
+                                    <div className="w-4 h-4 rounded-full bg-slate-100 border-2 border-white shadow-sm flex items-center justify-center text-[7px] font-semibold text-slate-400">
                                         {i + 1}
                                     </div>
                                     GST {slab._id}% Bracket
@@ -280,7 +287,7 @@ export default function GSTPortal() {
                             </td>
                             </tr>
                         )) : (
-                            <tr><td colSpan={5} className="py-20 text-center text-slate-200 font-black text-[12px] uppercase tracking-[0.5em]">Syncing_Fiscal_Data...</td></tr>
+                            <tr><td colSpan={5} className="py-20 text-center text-slate-200 font-semibold text-[12px] uppercase tracking-[0.5em]">Syncing_Fiscal_Data...</td></tr>
                         )}
                     </tbody>
                     {gstData?.gstSlabs?.length > 0 && (
@@ -325,14 +332,14 @@ const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
   };
   
   return (
-    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-4 h-4" />
+    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-3.5 h-3.5" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
-        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
+        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
       </div>
     </div>
   );

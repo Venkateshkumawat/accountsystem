@@ -180,7 +180,7 @@ export default function Accounting() {
                     <div className="flex justify-between items-start">
                       <div className="flex flex-col">
                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{inv.invoiceNumber || 'NO_ID'}</span>
-                         <span className="text-sm font-bold text-slate-900 truncate max-w-[150px]">{inv.customerName || 'Walk-in Client'}</span>
+                         <span className="text-sm font-semibold text-slate-900 truncate max-w-[150px]">{inv.customerName || 'Walk-in Client'}</span>
                       </div>
                       <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
                         inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
@@ -196,8 +196,8 @@ export default function Accounting() {
                           </span>
                        </div>
                        <div className="text-right">
-                          <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Settled Amount</p>
-                          <p className="money-highlight !text-lg !font-black tracking-tighter">₹{inv.grandTotal.toLocaleString()}</p>
+                          <p className="text-[8px] font-semibold text-slate-300 uppercase tracking-widest mb-0.5">Settled Amount</p>
+                          <p className="text-lg font-semibold text-slate-900 tracking-tighter">₹ {(Number(inv.grandTotal || 0)).toLocaleString('en-IN')}</p>
                        </div>
                     </div>
                   </div>
@@ -209,7 +209,7 @@ export default function Accounting() {
             <div className="hidden lg:block overflow-x-auto custom-scrollbar">
               <table className="w-full text-left table-fixed min-w-[900px]">
                 <thead>
-                  <tr className="text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
+                  <tr className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
                     <th className="px-6 py-4 w-[25%]">INVOICE NO</th>
                     <th className="px-6 py-4 w-[25%]">CUSTOMER</th>
                     <th className="px-6 py-4 w-[15%]">METHOD</th>
@@ -254,13 +254,13 @@ export default function Accounting() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                         <p className="text-[10px] font-bold text-slate-900 uppercase">
+                         <p className="text-[10px] font-semibold text-slate-900 uppercase">
                            {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                          </p>
                          <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter">Registered</p>
                       </td>
                       <td className="px-6 py-4 text-right">
-                         <p className="money-highlight !text-base !font-black !text-slate-900">₹{inv.grandTotal.toLocaleString()}</p>
+                         <p className="text-base font-semibold text-slate-900">₹ {(Number(inv.grandTotal || 0)).toLocaleString('en-IN')}</p>
                          <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.1em] mt-0.5">Settled Amt</p>
                       </td>
                     </tr>
@@ -299,14 +299,14 @@ const AccountingStat = memo(({ label, value, icon: Icon, color, sub }: any) => {
   };
   
   return (
-    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-4 h-4" />
+    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-3.5 h-3.5" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
-        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
+        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
+        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
       </div>
     </div>
   );
