@@ -42,10 +42,10 @@ const SuperAdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <SuperStat label="BUSINESS ADMINS" value={stats?.businessCount || 0} icon={Users} color="indigo" trend="+12%" />
-        <SuperStat label="ACTIVE PLANS" value={stats?.activeSubscriptions || 0} icon={ShieldCheck} color="emerald" trend="Optimal" />
-        <SuperStat label="EXPIRED PLANS" value={stats?.expiredCount || 0} icon={AlertTriangle} color="rose" trend="High Priority" trendColor="text-rose-500" />
-        <SuperStat label="MONTHLY REVENUE" value="₹4.2L" icon={CreditCard} color="amber" trend="On Track" />
+        <SuperStat label="BUSINESS ADMINS" value={stats?.businessCount || 0} icon={Users} color="indigo" sub="TOTAL NODES" />
+        <SuperStat label="ACTIVE PLANS" value={stats?.activeSubscriptions || 0} icon={ShieldCheck} color="emerald" sub="+5 this week" />
+        <SuperStat label="EXPIRED PLANS" value={stats?.expiredCount || 0} icon={AlertTriangle} color="rose" sub="ACTION REQUIRED" />
+        <SuperStat label="MONTHLY REVENUE" value="₹4.2L" icon={CreditCard} color="amber" sub="GLOBAL FLOW" />
       </div>
 
       {/* Main Analytical Grid */}
@@ -103,28 +103,28 @@ const SuperAdminDashboard: React.FC = () => {
   );
 };
 
-function SuperStat({ label, value, icon: Icon, color, trend, trendColor = 'text-emerald-500' }: any) {
-  const colorMap: any = {
-    indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600' },
-    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
-    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
-    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' }
+function SuperStat({ label, value, icon: Icon, color, sub }: any) {
+  const colors: any = {
+    indigo: 'border-l-indigo-600 text-indigo-600 bg-indigo-50/50',
+    rose: 'border-l-rose-600 text-rose-600 bg-rose-50/50',
+    amber: 'border-l-amber-600 text-amber-600 bg-amber-50/50',
+    emerald: 'border-l-emerald-600 text-emerald-600 bg-emerald-50/50',
   };
-  const s = colorMap[color] || colorMap.indigo;
+  
   return (
-    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
-        <Icon size={24} />
+    <div className={`bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md group relative overflow-hidden border-l-4 ${colors[color].split(' ')[0]}`}>
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border border-white/50 shadow-sm`}>
+        <Icon size={20} />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p>
-        <h3 className="money-highlight truncate">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
-        {trend && (
-          <p className={`text-[9px] font-bold ${trendColor} mt-1 uppercase tracking-tighter`}>{trend}</p>
-        )}
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 leading-tight">{label}</p>
+        <h3 className="text-2xl font-black text-slate-900 leading-none truncate mb-1">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
+        {sub && <p className={`text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
       </div>
     </div>
   );
 }
+
+
 
 export default SuperAdminDashboard;

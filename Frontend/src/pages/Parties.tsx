@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Phone, Mail, ArrowUpRight, ArrowDownLeft, MoreVertical, UserPlus, Users, X, Edit2, Trash2, ShieldCheck, Activity, MapPin, CreditCard, Search } from 'lucide-react';
 import api from '../services/api';
 import { useNotify } from '../context/NotificationContext';
@@ -137,37 +137,13 @@ export default function Parties() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 font-inter">
-                <div className="bg-[#f5f7ff] border border-indigo-100 rounded-[1.5rem] p-5 lg:p-6 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm shrink-0">
-                        <ArrowUpRight size={24} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-semibold text-indigo-400 uppercase tracking-widest leading-none mb-1.5">TO RECEIVE</p>
-                        <p className="text-xl lg:text-2xl font-semibold text-emerald-600 tracking-tight">₹{totalToReceive.toLocaleString()}</p>
-                    </div>
-                </div>
-                <div className="bg-[#fff5f5] border border-rose-100 rounded-[1.5rem] p-5 lg:p-6 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm shrink-0">
-                        <ArrowDownLeft size={24} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-semibold text-rose-400 uppercase tracking-widest leading-none mb-1.5">TO PAY</p>
-                        <p className="text-xl lg:text-2xl font-semibold text-rose-600 tracking-tight">₹{totalToPay.toLocaleString()}</p>
-                    </div>
-                </div>
-                <div className="sm:col-span-2 lg:col-span-1 bg-white border border-slate-100 rounded-[1.5rem] p-5 lg:p-6 shadow-sm flex items-center gap-4">
-                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 border border-slate-100 shrink-0">
-                        <CreditCard size={24} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5">NET BALANCE</p>
-                        <p className="text-xl lg:text-2xl font-semibold text-slate-900 tracking-tight">₹{netBalance.toLocaleString()}</p>
-                    </div>
-                </div>
+                <MetricCard label="TO RECEIVE" value={`₹${totalToReceive.toLocaleString()}`} icon={ArrowUpRight} color="emerald" />
+                <MetricCard label="TO PAY" value={`₹${totalToPay.toLocaleString()}`} icon={ArrowDownLeft} color="rose" />
+                <MetricCard label="NET BALANCE" value={`₹${netBalance.toLocaleString()}`} icon={CreditCard} color="indigo" />
             </div>
 
             {/* Strategy & Search Protocol */}
-            <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
                 <div className="p-4 lg:p-6 flex flex-col sm:flex-row gap-4 justify-between border-b border-slate-50">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
@@ -475,19 +451,42 @@ export default function Parties() {
     );
 }
 
-function SI({ label, value, onChange, icon: Icon, placeholder, type = "text", required = false, pattern, maxLength, min, title }: any) {
+const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
+  const colors: any = {
+    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
+  };
+  
+  return (
+    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0 text-center sm:text-left flex-1">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
+        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+      </div>
+    </div>
+  );
+});
+
+
+
+function SI({ label, icon: Icon, ...props }: any) {
     return (
-        <div className="space-y-1.5 group transition">
-            <label className="text-sm font-medium text-slate-500 ml-1 flex items-center gap-2 group-focus-within:text-indigo-600 transition-colors">
-                {Icon && <Icon size={14} />} {label} {required && <span className="text-rose-500 font-semibold ml-0.5">*</span>}
+        <div className="space-y-1.5 flex-1 min-w-0">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                {Icon && <Icon size={12} className="text-indigo-400" />} {label}
             </label>
-            <div className="relative">
-                <input required={required} type={type} pattern={pattern} maxLength={maxLength} min={min} title={title}
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-normal text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none placeholder:text-slate-300 transition-all shadow-sm"
-                    placeholder={placeholder || `Enter ${label.split(' ').pop()}...`} value={value}
-                    onChange={e => onChange(e.target.value)}
-                />
-            </div>
+            <input 
+                {...props} 
+                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold text-slate-900 outline-none focus:bg-white focus:border-indigo-600 transition-all placeholder:text-slate-300" 
+                onChange={(e) => props.onChange(e.target.value)}
+            />
         </div>
     );
 }
+

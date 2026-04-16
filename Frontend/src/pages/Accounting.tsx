@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import {
   Wallet, RefreshCcw, TrendingUp,
   CheckCircle, Clock
@@ -106,18 +106,18 @@ export default function Accounting() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <AccountingStat label="TOTAL REVENUE" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="indigo" trend="+12.5%" />
-        <AccountingStat label="PAID AMOUNT" value={`₹${stats.paidAmount.toLocaleString()}`} icon={CheckCircle} color="emerald" trend="+8.2%" />
-        <AccountingStat label="PENDING DUES" value={`₹${stats.pendingAmount.toLocaleString()}`} icon={Clock} color="amber" trend="-3.1%" trendColor="text-rose-500" />
+        <AccountingStat label="TOTAL REVENUE" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="rose" />
+        <AccountingStat label="PAID AMOUNT" value={`₹${stats.paidAmount.toLocaleString()}`} icon={CheckCircle} color="amber" />
+        <AccountingStat label="PENDING DUES" value={`₹${stats.pendingAmount.toLocaleString()}`} icon={Clock} color="amber" />
         <AccountingStat label="CASH IN HAND" value={`₹${stats.cashIn.toLocaleString()}`} icon={Wallet} color="rose" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col h-[360px]">
+        <div className="lg:col-span-2 bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col h-[360px] overflow-hidden">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Revenue Trend</h2>
           {chartData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={260} minWidth={0}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
@@ -132,11 +132,11 @@ export default function Accounting() {
           )}
         </div>
 
-        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col h-[360px]">
+        <div className="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col h-[360px] overflow-hidden">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Payment Methods</h2>
           {methodData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={260} minWidth={0}>
                 <BarChart data={methodData} barSize={20}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
@@ -155,7 +155,7 @@ export default function Accounting() {
         </div>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden mt-4">
+      <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden mt-4">
         <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-800">Transaction History</h2>
           <div className="flex gap-2">
@@ -169,67 +169,105 @@ export default function Accounting() {
         {loading ? (
           <div className="py-20 text-center text-slate-300 font-black uppercase text-[10px] tracking-[0.2em] animate-pulse">Scanning Nodes...</div>
         ) : (
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left table-fixed min-w-[900px]">
-              <thead>
-                <tr className="text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                  <th className="px-6 py-4 w-[25%]">INVOICE NO</th>
-                  <th className="px-6 py-4 w-[25%]">CUSTOMER</th>
-                  <th className="px-6 py-4 w-[15%]">METHOD</th>
-                  <th className="px-6 py-4 w-[12%] text-center">STATUS</th>
-                  <th className="px-6 py-4 w-[10%]">DATE</th>
-                  <th className="px-6 py-4 w-[13%] text-right">AMOUNT</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {displayedLedger.length === 0 ? (
-                  <tr><td colSpan={6} className="py-20 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest">No transactions filed</td></tr>
-                ) : displayedLedger.map(inv => (
-                  <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
-                    <td className="px-6 py-4">
+          <div className="flex flex-col">
+            {/* Mobile Cards */}
+            <div className="lg:hidden divide-y divide-slate-50">
+              {displayedLedger.length === 0 ? (
+                <div className="py-20 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest">No transactions filed</div>
+              ) : (
+                displayedLedger.map(inv => (
+                  <div key={inv._id} onClick={() => setSelectedInvoice(inv)} className="p-4 active:bg-slate-50 transition-colors flex flex-col gap-3">
+                    <div className="flex justify-between items-start">
                       <div className="flex flex-col">
-                        <span className="text-[11px] font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-widest">
-                          {inv.invoiceNumber || '—'}
-                        </span>
-                        <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">
-                          Audit Log Linked
-                        </span>
+                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{inv.invoiceNumber || 'NO_ID'}</span>
+                         <span className="text-sm font-bold text-slate-900 truncate max-w-[150px]">{inv.customerName || 'Walk-in Client'}</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-widest">{inv.customerName || 'Walk-in'}</span>
-                        <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">Business Entity</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                       <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200">
-                          {inv.paymentMethod.toUpperCase()}
-                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${
-                        inv.paymentStatus === 'paid' 
-                          ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-                          : 'bg-rose-50 text-rose-600 border-rose-100'
+                      <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                        inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
                       }`}>
                         {inv.paymentStatus}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                       <p className="text-[10px] font-bold text-slate-900 uppercase">
-                         {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                       </p>
-                       <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter">Registered</p>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                       <p className="money-highlight !text-sm">₹{inv.grandTotal.toLocaleString()}</p>
-                       <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.1em] mt-0.5">Settled Amt</p>
-                    </td>
+                    </div>
+                    <div className="flex justify-between items-end border-t border-slate-50 pt-3">
+                       <div className="flex flex-col gap-1">
+                          <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Protocol</span>
+                          <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200 w-fit">
+                            {inv.paymentMethod.toUpperCase()}
+                          </span>
+                       </div>
+                       <div className="text-right">
+                          <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Settled Amount</p>
+                          <p className="money-highlight !text-lg !font-black tracking-tighter">₹{inv.grandTotal.toLocaleString()}</p>
+                       </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden lg:block overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left table-fixed min-w-[900px]">
+                <thead>
+                  <tr className="text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
+                    <th className="px-6 py-4 w-[25%]">INVOICE NO</th>
+                    <th className="px-6 py-4 w-[25%]">CUSTOMER</th>
+                    <th className="px-6 py-4 w-[15%]">METHOD</th>
+                    <th className="px-6 py-4 w-[12%] text-center">STATUS</th>
+                    <th className="px-6 py-4 w-[10%]">DATE</th>
+                    <th className="px-6 py-4 w-[13%] text-right">AMOUNT</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {displayedLedger.length === 0 ? (
+                    <tr><td colSpan={6} className="py-20 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest">No transactions filed</td></tr>
+                  ) : displayedLedger.map(inv => (
+                    <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-widest">
+                            {inv.invoiceNumber || '—'}
+                          </span>
+                          <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">
+                            Audit Log Linked
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-widest">{inv.customerName || 'Walk-in'}</span>
+                          <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">Business Entity</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                         <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200">
+                            {inv.paymentMethod.toUpperCase()}
+                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${
+                          inv.paymentStatus === 'paid' 
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                            : 'bg-rose-50 text-rose-600 border-rose-100'
+                        }`}>
+                          {inv.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                         <p className="text-[10px] font-bold text-slate-900 uppercase">
+                           {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                         </p>
+                         <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter">Registered</p>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                         <p className="money-highlight !text-base !font-black !text-slate-900">₹{inv.grandTotal.toLocaleString()}</p>
+                         <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.1em] mt-0.5">Settled Amt</p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
         {filtered.length > LIMIT && (
@@ -252,26 +290,27 @@ export default function Accounting() {
   );
 }
 
-function AccountingStat({ label, value, icon: Icon, color, trend, trendColor = 'text-emerald-500' }: any) {
-  const colorMap: any = {
-    indigo: { bg: 'bg-indigo-50', text: 'text-indigo-600' },
-    amber: { bg: 'bg-amber-50', text: 'text-amber-600' },
-    rose: { bg: 'bg-rose-50', text: 'text-rose-600' },
-    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600' }
+const AccountingStat = memo(({ label, value, icon: Icon, color, sub }: any) => {
+  const colors: any = {
+    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
   };
-  const s = colorMap[color] || colorMap.indigo;
+  
   return (
-    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${s.bg} ${s.text}`}>
-        <Icon size={24} />
+    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
       </div>
-      <div>
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-        <h3 className="text-xl font-semibold text-slate-900 tracking-tight leading-none">{value}</h3>
-        {trend && (
-           <p className={`text-[9px] font-semibold mt-1.5 ${trendColor}`}>{trend} <span className="text-slate-400 font-medium whitespace-nowrap">vs last month</span></p>
-        )}
+      <div className="min-w-0 text-center sm:text-left flex-1">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
+        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
       </div>
     </div>
   );
-}
+});
+
+
+

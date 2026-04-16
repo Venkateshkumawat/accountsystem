@@ -89,48 +89,53 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [getRole]);
 
+  const lastFetchRef = React.useRef(0);
+  const fetchingRef = React.useRef(false);
+
   const refreshAll = useCallback(async (isLocalChange = true) => {
     if (getRole() === 'superadmin') return;
+    if (fetchingRef.current) return; // 🛑 Lock: Already provisioning
 
-    await Promise.all([fetchProducts(), fetchCategories()]);
-    if (isLocalChange) {
-      syncChannel.postMessage('FETCH_PRODUCTS');
-      syncChannel.postMessage('FETCH_DASHBOARD');
+    fetchingRef.current = true;
+    try {
+      await Promise.all([fetchProducts(), fetchCategories()]);
+      if (isLocalChange) {
+        syncChannel.postMessage('FETCH_PRODUCTS');
+        syncChannel.postMessage('FETCH_DASHBOARD');
+      }
+      lastFetchRef.current = Date.now();
+    } finally {
+      fetchingRef.current = false;
     }
-  }, [fetchProducts, fetchCategories, syncChannel]);
+  }, [fetchProducts, fetchCategories, syncChannel, getRole]);
 
-  // Subscription Node: Listen for sync events from other tabs/nodes
   useEffect(() => {
     const handleSync = (event: MessageEvent) => {
+      // Selective Sync Node: Only refresh products if relevant
       if (event.data === 'FETCH_PRODUCTS') {
-        console.log('[NexusSync] Signal Received: Re-synchronizing SKU nodes...');
-        refreshAll(false); // Do not re-broadcast
+        fetchProducts();
       }
     };
     syncChannel.addEventListener('message', handleSync);
     
-    // 📡 Global Telemetry: Listen for server-side push notifications
+    // Server Sync Node: Throttled response to global updates
     const handleServerSync = (payload: any) => {
-      console.log('📡 [NexusSocket] Product Sync Received:', payload);
-      refreshAll(false);
+        // Optimization: Only refresh if the payload confirms it's a product-affecting event
+        // Defaulting to limited refresh if unclear
+        fetchProducts(undefined, undefined, false);
     };
     socketService.on('DATA_SYNC', handleServerSync);
-    socketService.connect(); // Ensure socket is active
+    socketService.connect();
 
-    // Smart Fetch: Only refresh if last fetch was more than 2 minutes ago or explicitly requested
-    const lastFetchRef = { current: 0 };
     const smartRefresh = () => {
       const now = Date.now();
-      if (now - lastFetchRef.current > 120000) { // 2 minutes
-        lastFetchRef.current = now;
+      // Increase threshold to 5 minutes to prevent focus-induced lag
+      if (now - lastFetchRef.current > 300000) { 
         refreshAll(false);
       }
     };
 
-    // Background Poll: Every 60s to catch server-side external changes
-    const pollId = setInterval(smartRefresh, 60000);
-
-    // Focus-based Sync: Refresh when user returns to tab
+    const pollId = setInterval(smartRefresh, 300000); // 5 minute polling
     const handleFocus = () => smartRefresh();
     window.addEventListener('focus', handleFocus);
 
@@ -140,7 +145,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       clearInterval(pollId);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [syncChannel, refreshAll]);
+  }, [syncChannel, fetchProducts, refreshAll]);
+
 
   const contextValue = React.useMemo(() => ({
     products,

@@ -5,13 +5,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { PermissionRoute } from './components/PermissionGate';
 import { NotificationProvider } from './context/NotificationContext';
 
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-
 // Dynamic Node Imports
+const Landing = lazy(() => import('./pages/Landing'));
+const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const POS = lazy(() => import('./pages/POS'));
 const B2BSales = lazy(() => import('./pages/B2BSales'));
+
+
 const Purchases = lazy(() => import('./pages/Purchases'));
 const Inventory = lazy(() => import('./pages/Inventory'));
 const Accounting = lazy(() => import('./pages/Accounting'));

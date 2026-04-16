@@ -21,6 +21,21 @@ interface SuggestionItem {
   path: string;
 }
 
+const NAV_ITEMS = [
+  { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['businessAdmin', 'manager', 'accountant', 'cashier'], permission: null },
+  { label: 'POS Terminal', path: '/pos', icon: ShoppingCart, roles: ['businessAdmin', 'manager', 'cashier'], permission: 'POS' },
+  { label: 'B2B Sales', path: '/b2b', icon: Receipt, roles: ['businessAdmin', 'manager', 'cashier'], permission: 'POS' },
+  { label: 'Purchases', path: '/purchases', icon: Archive, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'PURCHASES' },
+  { label: 'Inventory', path: '/inventory', icon: Package, roles: ['businessAdmin', 'manager', 'cashier'], permission: 'INVENTORY' },
+  { label: 'Accounting', path: '/accounting', icon: BookOpen, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'ACCOUNTING' },
+  { label: 'Parties', path: '/parties', icon: Users, roles: ['businessAdmin', 'manager', 'accountant', 'cashier'], permission: 'CUSTOMERS' },
+  { label: 'Staff Node', path: '/staff', icon: Users, roles: ['businessAdmin', 'manager'], permission: 'STAFF' },
+  { label: 'GST Portal', path: '/gst', icon: Shield, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'GST_PORTAL' },
+  { label: 'REPORTS', path: '/reports', icon: BarChart2, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'REPORTS' },
+  { label: 'Audit Logs', path: '/notifications', icon: Bell, roles: ['businessAdmin', 'manager', 'accountant', 'cashier'], permission: 'AUDIT_LOGS' },
+  { label: 'Settings', path: '/settings', icon: Cog, roles: ['businessAdmin'], permission: null },
+];
+
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,14 +57,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   useEffect(() => { setIsSidebarOpen(false); }, [location.pathname]);
 
-  // Fetch plan status for businessAdmin
+  // Fetch plan status for businessAdmin once or when specifically needed
   useEffect(() => {
-    if (isBusinessAdmin) {
+    if (isBusinessAdmin && !planStatus) {
       api.get('/businesses/plan-status')
         .then(res => setPlanStatus(res.data))
         .catch(() => {});
     }
-  }, [isBusinessAdmin, location.pathname]);
+  }, [isBusinessAdmin, planStatus]);
+
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -109,22 +125,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     navigate('/login');
   };
 
-  const navItems = [
-    { id: 'dashboard', path: '/dashboard', label: 'Dashboard',  icon: LayoutDashboard, permission: null,        roles: null },
-    { id: 'pos',       path: '/pos',       label: 'POS Billing', icon: ShoppingCart,    permission: 'POS',       roles: null },
-    { id: 'b2b',       path: '/b2b',       label: 'B2B Sales',   icon: FileText,        permission: 'POS',       roles: null },
-    { id: 'purchases', path: '/purchases', label: 'Purchases',   icon: Package,         permission: 'PURCHASES', roles: null },
-    { id: 'inventory', path: '/inventory', label: 'Inventory',   icon: Archive,         permission: 'INVENTORY', roles: null },
-    { id: 'accounting',path: '/accounting',label: 'Accounting',  icon: BookOpen,        permission: 'ACCOUNTING',roles: null },
-    { id: 'gst',       path: '/gst',       label: 'GST Portal',  icon: Receipt,         permission: 'GST_PORTAL',roles: null },
-    { id: 'parties',   path: '/parties',   label: 'Parties',     icon: Users,           permission: 'CUSTOMERS', roles: null },
-    { id: 'staff',     path: '/staff',     label: 'Staff',       icon: Shield,          permission: 'STAFF',     roles: null },
-    { id: 'reports',   path: '/reports',   label: 'Reports',     icon: BarChart2,       permission: 'REPORTS',   roles: null },
-    { id: 'notifications', path: '/notifications', label: 'Audit Logs',  icon: Bell,            permission: 'AUDIT_LOGS',roles: null },
-    { id: 'settings',  path: '/settings',  label: 'Admin Settings', icon: Cog,           permission: 'SETTINGS',  roles: ['businessAdmin'] },
-  ];
-
-  const visibleNavItems = navItems.filter(item => {
+  const visibleNavItems = NAV_ITEMS.filter(item => {
     if (item.roles !== null) {
       if (isBusinessAdmin && item.roles.includes('businessAdmin')) return true;
       if (user?.role && item.roles.includes(user.role)) return true;

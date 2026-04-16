@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, memo } from 'react';
 import {
-  IndianRupee, FileText, Package, Users, AlertTriangle,
+  IndianRupee, FileText, Package, Users, AlertTriangle, AlertCircle,
   Plus, ShoppingCart, TrendingUp, XCircle,
   Settings, ChevronDown, RefreshCw, Filter,
   CheckCircle2, Zap
@@ -57,12 +57,16 @@ export default function Dashboard() {
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
 
+  const initialized = useRef(false);
+
   const fetchDashboard = useCallback(async (isRefresh = false) => {
     try {
-      if (!data && !isRefresh) setLoading(true);
+      if (!initialized.current && !isRefresh) setLoading(true);
       if (isRefresh) setRefreshing(true);
+      
       const res = await api.get('/dashboard');
       setData(res.data.data);
+      initialized.current = true;
 
       const rawUser = localStorage.getItem('user');
       const user = rawUser && rawUser !== 'undefined' ? JSON.parse(rawUser) : {};
@@ -78,7 +82,7 @@ export default function Dashboard() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [data]);
+  }, []);
 
   useEffect(() => {
     fetchDashboard();
@@ -105,7 +109,8 @@ export default function Dashboard() {
     // ── Cross-Tab Sync ──
     const syncChannel = new BroadcastChannel('nexus_sync');
     syncChannel.onmessage = (event) => {
-      if (event.data === 'FETCH_PRODUCTS' || event.data === 'FETCH_DASHBOARD') {
+      // Only fetch if specifically requested to avoid sync storms
+      if (event.data === 'FETCH_DASHBOARD') {
         fetchDashboard(true);
       }
     };
@@ -116,6 +121,7 @@ export default function Dashboard() {
       syncChannel.close();
     };
   }, [fetchDashboard]);
+
 
   const chartData = useMemo(() => {
     const base = data?.monthlySales || 0;
@@ -170,7 +176,7 @@ export default function Dashboard() {
     <div className="space-y-4  min-h-screen p-1">
 
       {/* ── Top Banner ──────────────────────────────────────────────────────── */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm overflow-hidden relative group">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm overflow-hidden relative group">
         <div className="flex items-center gap-4 z-10">
           <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 shrink-0">
             <Zap size={24} fill="currentColor" className="sm:scale-110" />
@@ -196,19 +202,17 @@ export default function Dashboard() {
 
       {/* ── Stat Cards ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-0.5">
-        <StatCard label="TODAY SALES" value={`₹${(data?.todaySales.total || 0).toLocaleString()}`} sub="vs last day" icon={IndianRupee} color="indigo" trend="+12%" />
-        <StatCard label="MONTHLY REVENUE" value={`₹${(data?.monthlySales || 0).toLocaleString()}`} sub="vs last month" icon={TrendingUp} color="emerald" trend="+8%" trendColor="text-emerald-500" />
-        <StatCard label="MONTHLY INVOICES" value={`${data?.monthlyCount || 0}`} sub="Completed nodes" icon={FileText} color="amber" border />
+        <StatCard label="TODAY SALES" value={`₹${(data?.todaySales?.total || 0).toLocaleString()}`} icon={Zap} color="indigo" sub="+12% vs prev" />
+        <StatCard label="MONTHLY REVENUE" value={`₹${(data?.monthlySales || 0).toLocaleString()}`} icon={TrendingUp} color="emerald" sub="+8% vs prev" />
+        <StatCard label="MONTHLY INVOICES" value={`${data?.monthlyCount || 0}`} icon={FileText} color="amber" sub="COMPLETED NODES" />
         <Link to="/inventory?filter=low-stock">
-          <StatCard label="LOW STOCK ITEMS" value={data?.lowStockCount || 0} sub="Critical items" icon={AlertTriangle}
-            color={data?.lowStockCount && data.lowStockCount > 0 ? 'rose' : 'slate'}
-            isAlert={!!(data?.lowStockCount && data.lowStockCount > 0)} border />
+          <StatCard label="LOW STOCK ITEMS" value={`${data?.lowStockCount || 0}`} icon={AlertCircle} color="rose" sub="CRITICAL ITEMS" />
         </Link>
       </div>
 
       {/* ── Chart + Secondary Stats ───────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-3">
-        <div className="lg:col-span-6 bg-white p-3 md:p-5 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden group">
+        <div className="lg:col-span-6 bg-white p-3 md:p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden group">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Revenue Flow</h2>
@@ -221,7 +225,7 @@ export default function Dashboard() {
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NODATA_SYNC</p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" aspect={window.innerWidth < 768 ? 1.5 : 2.2}>
+              <ResponsiveContainer width="100%" aspect={window.innerWidth < 768 ? 1.5 : 2.2} minWidth={0}>
                 <BarChart data={chartData} barCategoryGap="20%">
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fill: '#64748b', fontSize: 10, fontWeight: 500 }} dy={10} />
@@ -241,10 +245,10 @@ export default function Dashboard() {
 
         <div className="lg:col-span-4 space-y-3">
           {/* GST card */}
-          <div className="bg-slate-900 p-5 rounded-2xl shadow-xl text-white relative overflow-hidden ring-1 ring-slate-800">
+          <div className="bg-slate-900 p-5 rounded-2xl border-2 border-slate-800 shadow-xl text-white relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2 leading-none">GST Liability Node</p>
-              <h2 className="money-highlight !text-white !text-2xl">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
+              <p className="text-indigo-400 text-[10px] font-semibold uppercase tracking-[0.2em] mb-2 leading-none">GST Liability Node</p>
+              <h2 className="text-white text-2xl font-semibold">₹{(data?.gstPayableThisMonth || 0).toLocaleString()}</h2>
               <p className="text-indigo-200 text-sm font-normal mt-3 opacity-90">Estimated liability this month</p>
             </div>
             <div className="absolute -right-2 -bottom-2 opacity-5 scale-110 rotate-12">
@@ -253,7 +257,7 @@ export default function Dashboard() {
           </div>
 
           {/* Product Usage Telemetry Box */}
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-200 flex flex-col gap-2 relative overflow-hidden group">
             <div className="flex justify-between items-end relative z-10">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">NODE CAPACITY (PRODUCT)</p>
@@ -283,7 +287,7 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center group">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-200 flex justify-between items-center group">
               <div>
                 <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-widest mb-1">PERSONNEL NODES</p>
                 <h3 className="text-xl font-semibold text-slate-900">{data?.staffCount ?? '—'}</h3>
@@ -316,9 +320,9 @@ export default function Dashboard() {
 
       {/* ── Invoices + Top Products ───────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-3">
-        <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+        <div className="lg:col-span-6 bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between shrink-0">
-            <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Recent Invoices</h2>
+            <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Recent Invoices</h2>
             <div className="flex items-center gap-1.5">
               {['all', 'paid', 'unpaid'].map(f => (
                 <button key={f} onClick={() => setInvoiceFilter(f)}
@@ -331,55 +335,77 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
-          <div className={`overflow-x-auto custom-scrollbar ${showAllInvoices ? 'max-h-[480px] overflow-y-auto' : ''}`}>
+          <div className="p-0 flex flex-col flex-1 min-h-[280px]">
             {filteredInvoices.length === 0 ? (
-              <div className="py-12 text-center">
-                <p className="text-slate-300 font-black uppercase text-[9px] tracking-widest leading-none">Zero Protocol History</p>
+              <div className="py-24 text-center opacity-20 flex flex-col items-center justify-center flex-1">
+                <FileText size={40} className="text-slate-200 mb-4" />
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Zero Ledger Activity</p>
               </div>
             ) : (
-              <table className="w-full text-left table-fixed min-w-[500px] border-separate border-spacing-0">
-                <thead className="sticky top-0 z-20">
-                  <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    <th className="px-6 py-4 w-[40%] bg-white border-b border-slate-100 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">INVOICE ID & CLIENT</th>
-                    <th className="px-6 py-4 w-[30%] bg-white border-b border-slate-100 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">AMOUNT</th>
-                    <th className="px-6 py-4 w-[30%] bg-white border-b border-slate-100 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] text-right">STATUS</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50 relative z-10">
+              <>
+                {/* Mobile Cards */}
+                <div className="lg:hidden divide-y divide-slate-50">
                   {filteredInvoices.map(inv => (
-                    <tr
-                      key={inv._id}
-                      onClick={() => setSelectedInvoice(inv)}
-                      className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[13px] font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight truncate">
-                            {inv.customerName || 'Walk-in Client'}
-                          </span>
-                          <span className="text-[10px] font-semibold text-slate-400 mt-0.5 tracking-widest uppercase opacity-80">
-                            ID: {inv.invoiceNumber}
-                          </span>
+                    <div key={inv._id} onClick={() => setSelectedInvoice(inv)} className="p-4 active:bg-slate-50 transition-colors flex flex-col gap-3 cursor-pointer">
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col">
+                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{inv.invoiceNumber}</span>
+                           <span className="text-sm font-semibold text-slate-900 truncate max-w-[150px]">{inv.customerName || 'Walk-in Client'}</span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col text-left">
-                          <span className="money-highlight !text-sm">₹{inv.grandTotal.toLocaleString()}</span>
-                          <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Grand Total</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${inv.paymentStatus === 'paid'
-                          ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                          : 'bg-rose-50 text-rose-600 border-rose-100'
-                          }`}>
+                        <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                          inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                        }`}>
                           {inv.paymentStatus}
                         </span>
-                      </td>
-                    </tr>
+                      </div>
+                      <div className="flex justify-between items-center text-[11px]">
+                         <span className="text-slate-400 font-medium">{new Date(inv.createdAt).toLocaleDateString()}</span>
+                         <span className="font-semibold text-slate-900">₹{(inv.grandTotal || inv.totalAmount || 0).toLocaleString()}</span>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+
+                {/* Desktop Audit Table */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-slate-50">
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Invoice</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Customer</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filteredInvoices.map(inv => (
+                        <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
+                          <td className="px-6 py-4">
+                            <span className="text-xs font-semibold text-indigo-600 uppercase group-hover:underline">{inv.invoiceNumber}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-xs font-semibold text-slate-900">{inv.customerName || 'Walk-in Client'}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-xs font-semibold text-slate-900">₹{(inv.grandTotal || inv.totalAmount || 0).toLocaleString()}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                             <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${
+                               inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                             }`}>
+                               {inv.paymentStatus}
+                             </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-[10px] font-medium text-slate-400">{new Date(inv.createdAt).toLocaleDateString()}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
 
@@ -407,13 +433,13 @@ export default function Dashboard() {
         </div>
 
         {/* Top Products */}
-        <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
-          <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-5 shrink-0">Top Selling Products</h2>
+        <div className="lg:col-span-4 bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col">
+          <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em] mb-5 shrink-0">Top Selling Products</h2>
           <div className={`flex-1 ${showAllProducts ? 'max-h-[480px] overflow-y-auto custom-scrollbar pr-2' : ''}`}>
             {(data?.topProducts?.length || 0) === 0 ? (
               <div className="py-12 text-center opacity-20">
                 <Package size={28} className="text-slate-500 mx-auto mb-2" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Zero Node Activity</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Zero Node Activity</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -428,7 +454,7 @@ export default function Dashboard() {
                           <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mt-1 opacity-80">Performance Node</span>
                         </div>
                         <div className="flex flex-col items-end">
-                          <span className="money-highlight !text-sm">₹{prod.totalRevenue?.toLocaleString()}</span>
+                          <span className="text-sm font-semibold text-slate-900">₹{prod.totalRevenue?.toLocaleString()}</span>
                           <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-1 whitespace-nowrap">Revenue Generated</span>
                         </div>
                       </div>
@@ -464,7 +490,7 @@ export default function Dashboard() {
       {/* ── Transaction Activity ────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mt-3">
         <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-          <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Recent Activity</h2>
+          <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Recent Activity</h2>
           <div className="flex items-center gap-2">
             <p className="text-[8px] text-slate-400 font-medium mt-0.5">
               Showing {filteredActivities.length} of {totalActivityCount} events
@@ -562,35 +588,30 @@ export default function Dashboard() {
   );
 }
 
-// ── StatCard ──────────────────────────────────────────────────────────────────
-const StatCard = React.memo(({ label, value, sub, icon: Icon, color, isAlert, trend, trendColor = 'text-emerald-500', border }: any) => {
-  const colorMap: Record<string, { bg: string; text: string; accent: string }> = {
-    indigo: { bg: 'bg-indigo-50/50', text: 'text-indigo-600', accent: 'border-l-indigo-500' },
-    emerald: { bg: 'bg-emerald-50/50', text: 'text-emerald-600', accent: 'border-l-emerald-500' },
-    amber: { bg: 'bg-amber-50/50', text: 'text-amber-600', accent: 'border-l-amber-500' },
-    rose: { bg: 'bg-rose-50/50', text: 'text-rose-600', accent: 'border-l-rose-500' },
-    slate: { bg: 'bg-slate-50/50', text: 'text-slate-500', accent: 'border-l-slate-400' },
+const StatCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
+  const colors: any = {
+    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
+    slate: 'text-slate-500 bg-slate-50/50 border-slate-100',
   };
-  const s = colorMap[color] || colorMap.indigo;
+  
   return (
-    <div className={`bg-white p-4 rounded-3xl border ${isAlert ? 'border-rose-200 shadow-rose-50' : 'border-slate-100'} ${border ? s.accent + ' border-l-4' : ''} shadow-sm group hover:shadow-md transition-all flex items-center gap-4`}>
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 ${s.bg} ${s.text} border border-white shadow-sm ring-1 ring-slate-100`}>
-        <Icon size={20} />
+    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
       </div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1 truncate">{label}</p>
-        <div className="flex flex-col">
-          <h3 className="money-highlight truncate">{value}</h3>
-          {trend ? (
-            <span className={`text-[9px] font-semibold ${trendColor} mt-1`}>{trend} <span className="text-slate-400 font-medium">vs prev</span></span>
-          ) : sub && (
-            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-tighter mt-1 truncate">{sub}</p>
-          )}
-        </div>
+      <div className="min-w-0 text-center sm:text-left flex-1">
+        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
+        {sub && <p className={`mt-1 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
       </div>
     </div>
   );
 });
+
+
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function DashboardSkeleton() {

@@ -8,7 +8,9 @@ import {
     Users,
     CreditCard
 } from 'lucide-react';
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
+
 
 export default function B2BSales() {
     return (
@@ -50,39 +52,52 @@ export default function B2BSales() {
             </header>
 
             {/* Metrics Hub (Small & Dense) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <MetricCard label="B2B Revenue" value="₹0" sub="Protocol Pending" icon={TrendingUp} color="emerald" />
-                <MetricCard label="Active Clients" value="0 Nodes" sub="Awaiting Setup" icon={Users} color="indigo" />
-                <MetricCard label="Pending Flow" value="₹0" sub="No Receivables" icon={CreditCard} color="rose" />
-                <MetricCard label="Settled Load" value="0" sub="Clean Registry" icon={FileText} color="amber" />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <MetricCard label="B2B Revenue" value="₹0" icon={TrendingUp} color="emerald" />
+                <MetricCard label="Active Clients" value="0 Nodes" icon={Users} color="indigo" />
+                <MetricCard label="Pending Flow" value="₹0" icon={CreditCard} color="rose" />
+                <MetricCard label="Settled Load" value="0" icon={FileText} color="amber" />
             </div>
 
             {/* Split Interface: Recent Sales + Partner Nodes */}
             <div className="grid grid-cols-1 lg:grid-cols-10 gap-3">
 
-                {/* Recent B2B Log */}
-                <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-                    <div className="px-5 py-3 border-b border-slate-50 flex items-center justify-between">
+                {/* Transactional Flow Terminal */}
+            <div className="lg:col-span-6 bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                <div className="w-full px-6 py-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Recent Node Transactions</h3>
                         <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase">Real-time sync active</span>
                     </div>
-                    <div className="p-0 overflow-x-auto min-h-[180px] flex flex-col">
-                        <table className="w-full text-left flex-1">
-                            <thead className="bg-slate-50/50">
-                                <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                                    <th className="px-5 py-4">Client SKU</th>
-                                    <th className="px-5 py-4">Audit ID</th>
-                                    <th className="px-5 py-4">Value</th>
-                                    <th className="px-5 py-4 text-right">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {/* Records will be dynamically populated via Node Sync */}
-                            </tbody>
-                        </table>
-                        <div className="flex-1 flex flex-col items-center justify-center py-12 opacity-20 group-hover:opacity-30 transition-opacity">
-                            <Building2 size={32} className="mb-2" />
-                            <p className="text-[9px] font-black uppercase tracking-widest">Zero B2B Protocols Found</p>
+                    <div className="p-0 flex flex-col min-h-[180px]">
+                        {/* Mobile Cards */}
+                        <div className="lg:hidden divide-y divide-slate-50">
+                            {/* Records will be dynamically populated via Node Sync */}
+                            <div className="flex flex-col items-center justify-center py-12 opacity-20">
+                                <Building2 size={32} className="mb-2" />
+                                <p className="text-[9px] font-black uppercase tracking-widest">Zero B2B Protocols Found</p>
+                            </div>
+                        </div>
+
+                        {/* Desktop Table */}
+                        <div className="hidden lg:block overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50/50">
+                                    <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                                        <th className="px-5 py-4 font-black">Client SKU</th>
+                                        <th className="px-5 py-4 font-black">Audit ID</th>
+                                        <th className="px-5 py-4 font-black">Value</th>
+                                        <th className="px-5 py-4 text-right font-black">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {/* Records will be dynamically populated via Node Sync */}
+                                </tbody>
+                            </table>
+                            {/* Empty State for Empty Results */}
+                            <div className="flex-1 flex flex-col items-center justify-center py-12 opacity-20 group-hover:opacity-30 transition-opacity">
+                                <Building2 size={32} className="mb-2" />
+                                <p className="text-[9px] font-black uppercase tracking-widest">Zero B2B Protocols Found</p>
+                            </div>
                         </div>
                     </div>
                     <div className="p-3 bg-slate-50/50 border-t border-slate-50 text-center">
@@ -94,7 +109,7 @@ export default function B2BSales() {
 
                 {/* Automation Promo Plate */}
                 <div className="lg:col-span-4 flex flex-col gap-3">
-                    <div className="flex-1 bg-slate-900 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                    <div className="flex-1 bg-slate-900 p-6 rounded-2xl border-2 border-slate-800 shadow-xl relative overflow-hidden group">
                         <div className="relative z-10 h-full flex flex-col justify-between">
                             <div>
                                 <p className="text-indigo-400 text-[8px] font-black uppercase tracking-[0.2em] mb-2 leading-none">Automation Node</p>
@@ -127,28 +142,27 @@ export default function B2BSales() {
     );
 }
 
-function MetricCard({ label, value, sub, icon: Icon, color }: any) {
-    const colors: any = {
-        emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
-        indigo: "bg-indigo-50 text-indigo-600 border-indigo-100",
-        rose: "bg-rose-50 text-rose-600 border-rose-100",
-        amber: "bg-amber-50 text-amber-600 border-amber-100",
-    };
-    return (
-        <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative active:scale-95 cursor-pointer">
-            <div className="flex items-center justify-between mb-3 relative z-10">
-                <div className={`p-1.5 rounded-lg ${colors[color]}`}>
-                    <Icon size={14} />
-                </div>
-                <span className="text-[7px] font-black text-slate-300 uppercase tracking-widest">{label}</span>
-            </div>
-            <div className="relative z-10">
-                <h3 className="text-xl font-semibold text-slate-900 leading-none mb-1.5">{value}</h3>
-                <p className={`text-[8px] font-black uppercase tracking-tight ${color === 'rose' ? 'text-rose-500' : 'text-emerald-500'}`}>{sub}</p>
-            </div>
-            <div className="absolute right-0 bottom-0 p-2 opacity-[0.03] scale-150 group-hover:scale-[1.8] group-hover:rotate-12 transition-all duration-700">
-                <Icon size={40} />
-            </div>
-        </div>
-    );
-}
+const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
+  const colors: any = {
+    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
+  };
+  
+  return (
+    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0 text-center sm:text-left flex-1">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
+        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+      </div>
+    </div>
+  );
+});
+
+
+

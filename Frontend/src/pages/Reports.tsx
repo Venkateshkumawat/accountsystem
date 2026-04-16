@@ -189,11 +189,11 @@ export default function Reports() {
 
       {/* Critical Vitals Grid */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <MetricCard label="Total Sales" value={`₹${(salesData?.totalSalesAllTime || 0).toLocaleString()}`} icon={Zap} color="indigo" sub="All-Time Revenue" />
-        <MetricCard label="Total Purchases" value={`₹${(salesData?.dailyPurchases?.[0]?.totalPurchases || 0).toLocaleString()}`} icon={CreditCard} color="rose" sub="Capital Outflow" />
-        <MetricCard label="GST Liability" value={`₹${(salesData?.totalGST || 0).toLocaleString()}`} icon={ShieldCheck} color="amber" sub="Tax Provision" />
-        <MetricCard label="Discount Yield" value={`₹${(salesData?.totalDiscounts || 0).toLocaleString()}`} icon={Tag} color="emerald" sub="Savings protocol" />
-        <MetricCard label="Stock Valuation" value={`₹${(inventoryData?.stats?.totalValuation || 0).toLocaleString()}`} icon={IndianRupee} color="indigo" sub="Asset Worth" />
+        <MetricCard label="Total Sales" value={`₹${(salesData?.totalSalesAllTime || 0).toLocaleString()}`} icon={Zap} color="indigo" />
+        <MetricCard label="Total Purchases" value={`₹${(salesData?.dailyPurchases?.[0]?.totalPurchases || 0).toLocaleString()}`} icon={CreditCard} color="rose" />
+        <MetricCard label="GST Liability" value={`₹${(salesData?.totalGST || 0).toLocaleString()}`} icon={ShieldCheck} color="amber" />
+        <MetricCard label="Discount Yield" value={`₹${(salesData?.totalDiscounts || 0).toLocaleString()}`} icon={Tag} color="emerald" />
+        <MetricCard label="Stock Valuation" value={`₹${(inventoryData?.stats?.totalValuation || 0).toLocaleString()}`} icon={IndianRupee} color="indigo" />
       </div>
 
       {/* Main Analysis Node */}
@@ -273,32 +273,48 @@ export default function Reports() {
               <ShoppingCart size={14} className="text-indigo-600" /> Recent Purchase Acquisitions
             </h3>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                  <th className="py-3 px-2">Item Node</th>
-                  <th className="py-3 px-2">Quantity</th>
-                  <th className="py-3 px-2">Investment</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {salesData?.topPurchasedItems?.length > 0 ? salesData.topPurchasedItems.slice(0, 5).map((item: any, i: number) => (
-                  <tr key={i} className="text-[11px] font-black text-slate-700 uppercase">
-                    <td className="py-3 px-2">{item._id}</td>
-                    <td className="py-3 px-2 text-slate-400">{item.totalQty}</td>
-                    <td className="py-3 px-2 text-indigo-600">₹{item.investment.toLocaleString()}</td>
+          <div className="flex flex-col">
+            {/* Mobile Purchase Cards */}
+            <div className="lg:hidden divide-y divide-slate-50">
+              {salesData?.topPurchasedItems?.length > 0 ? salesData.topPurchasedItems.slice(0, 5).map((item: any, i: number) => (
+                <div key={i} className="py-3 flex justify-between items-center">
+                   <div>
+                      <p className="text-[10px] font-black text-slate-800 uppercase">{item._id}</p>
+                      <p className="text-[8px] font-black text-slate-400 uppercase">{item.totalQty} Units Inbound</p>
+                   </div>
+                   <p className="text-[10px] font-black text-indigo-600">₹{item.investment.toLocaleString()}</p>
+                </div>
+              )) : <p className="py-6 text-center text-slate-200 font-black text-[10px] uppercase">NULL_SET</p>}
+            </div>
+
+            {/* Desktop Acquisitions Matrix */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                    <th className="py-3 px-2">Item Node</th>
+                    <th className="py-3 px-2">Quantity</th>
+                    <th className="py-3 px-2">Investment</th>
                   </tr>
-                )) : (
-                  <tr><td colSpan={3} className="py-10 text-center text-slate-300 font-black tracking-widest">NULL_SET</td></tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {salesData?.topPurchasedItems?.length > 0 ? salesData.topPurchasedItems.slice(0, 5).map((item: any, i: number) => (
+                    <tr key={i} className="text-[11px] font-black text-slate-700 uppercase">
+                      <td className="py-3 px-2">{item._id}</td>
+                      <td className="py-3 px-2 text-slate-400">{item.totalQty}</td>
+                      <td className="py-3 px-2 text-indigo-600">₹{item.investment.toLocaleString()}</td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan={3} className="py-10 text-center text-slate-300 font-black tracking-widest">NULL_SET</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         {/* Real-time Activity Ledger */}
-        <div className="bg-slate-900 p-5 rounded-3xl shadow-xl border border-slate-800">
+        <div className="bg-slate-900 p-5 rounded-2xl border-2 border-slate-800 shadow-xl overflow-hidden">
           <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
             <h3 className="text-base font-semibold text-indigo-400 uppercase tracking-tight flex items-center gap-2">
               <Activity size={14} /> Master Audit Sequence
@@ -321,7 +337,7 @@ export default function Reports() {
       </div>
 
       {/* Strategic Performance Insights Node */}
-      <div className="bg-gradient-to-br from-indigo-900 to-slate-950 p-6 rounded-[2.5rem] shadow-2xl relative overflow-hidden border border-white/10 mt-4">
+      <div className="bg-gradient-to-br from-indigo-900 to-slate-950 p-6 rounded-2xl border-2 border-white/10 shadow-2xl relative overflow-hidden mt-4">
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <TrendingUp size={120} className="text-white rotate-12" />
         </div>
@@ -365,74 +381,101 @@ export default function Reports() {
       </div>
 
       {/* Merchant Protocol Audit terminal */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-         {(['CASH', 'UPI', 'CARD'] as const).map(proto => {
-           const metric = salesData?.paymentMetrics?.find((m:any) => m._id?.toUpperCase() === proto);
-           const themes = {
-             CASH: 'text-emerald-600 bg-emerald-50 border-emerald-100',
-             UPI: 'text-indigo-600 bg-indigo-50 border-indigo-100',
-             CARD: 'text-rose-600 bg-rose-50 border-rose-100'
-           };
-           return (
-                   <div key={proto} className={`bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden flex flex-col group transition-all hover:scale-[1.02] ${themes[proto]}`}>
-                <div className="flex items-center justify-between mb-2 z-10">
-                     <span className="text-[9px] font-black uppercase text-slate-400">{proto} Hub</span>
-                   <div className="p-1.5 rounded-lg bg-white border border-slate-100">
-                      {proto === 'CASH' ? <IndianRupee size={12} /> : proto === 'UPI' ? <Zap size={12} /> : <CreditCard size={12} />}
-                   </div>
-                </div>
-                <h3 className="text-lg font-semibold tracking-tight text-slate-900 leading-none z-10">₹{(metric?.amount || 0).toLocaleString()}</h3>
-                <p className="text-[8px] font-semibold text-slate-400 mt-2 uppercase z-10">Settlement Count: <span className="text-slate-900">{metric?.count || 0} Nodes</span></p>
-                <div className="absolute top-0 right-0 p-1 opacity-10 rotate-12"> <Zap size={40} /> </div>
-             </div>
-           );
-         })}
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+             {(['CASH', 'UPI', 'CARD'] as const).map(proto => {
+               const metric = salesData?.paymentMetrics?.find((m:any) => m._id?.toUpperCase() === proto);
+               const themes = {
+                 CASH: 'text-emerald-600 bg-emerald-50 border-emerald-100',
+                 UPI: 'text-indigo-600 bg-indigo-50 border-indigo-100',
+                 CARD: 'text-rose-600 bg-rose-50 border-rose-100'
+               };
+               return (
+                 <div key={proto} className={`bg-white p-3 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-start justify-between group transition-all hover:scale-[1.02] ${themes[proto]}`}>
+                    <div className="z-10 text-center sm:text-left">
+                        <span className="text-[7px] sm:text-[9px] font-black uppercase text-slate-400 block mb-1">{proto} Hub</span>
+                        <h3 className="text-sm sm:text-lg font-semibold tracking-tight text-slate-900 leading-none">₹{(metric?.amount || 0).toLocaleString()}</h3>
+                        <p className="text-[6px] sm:text-[8px] font-semibold text-slate-400 mt-1 sm:mt-2 uppercase">Settlements: <span className="text-slate-900">{metric?.count || 0}</span></p>
+                    </div>
+                    <div className="p-1.5 sm:p-2 rounded-lg bg-white border border-slate-100 shrink-0 mt-2 sm:mt-0 z-10">
+                       {proto === 'CASH' ? <IndianRupee size={12} /> : proto === 'UPI' ? <Zap size={12} /> : <CreditCard size={12} />}
+                    </div>
+                    <div className="absolute top-0 right-0 p-1 opacity-10 rotate-12 pointer-events-none"> <Zap size={40} /> </div>
+                 </div>
+               );
+             })}
+          </div>
 
       {/* Fiscal Settlement Matrix (GST Slab Breakdown) */}
-      <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm mt-4">
+      <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm mt-4 overflow-hidden">
          <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
             <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                <ShieldCheck size={14} className="text-amber-500" /> Fiscal Settlement Matrix (GST Slabs)
             </h3>
          </div>
-         <div className="overflow-x-auto">
-            <table className="w-full text-left">
-               <thead>
-                  <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
-                     <th className="py-3 px-2">Tax bracket</th>
-                     <th className="py-3 px-2 text-right">Taxable Supply</th>
-                     <th className="py-3 px-2 text-right">Collected Tax</th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-50">
-                  {salesData?.gstSlabs?.length > 0 ? salesData.gstSlabs.map((slab:any, i:number) => (
-                    <tr key={i} className="text-[10px] font-black text-slate-700 uppercase">
-                       <td className="py-3 px-2 text-slate-400">GST {slab._id}% Bracket</td>
-                       <td className="py-3 px-2 text-right">₹{slab.taxableValue.toLocaleString()}</td>
-                       <td className="py-3 px-2 text-right text-amber-600 font-black">₹{slab.totalTax.toLocaleString()}</td>
-                    </tr>
-                  )) : (
-                    <tr><td colSpan={3} className="py-10 text-center text-slate-200 font-black tracking-widest">NO_TAX_DATA_SYNCED</td></tr>
-                  )}
-               </tbody>
+         <div className="flex flex-col">
+            {/* Mobile GST Slab Cards */}
+            <div className="lg:hidden divide-y divide-slate-50">
+               {salesData?.gstSlabs?.length > 0 ? salesData.gstSlabs.map((slab:any, i:number) => (
+                 <div key={i} className="py-3 space-y-2">
+                    <div className="flex justify-between items-center">
+                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">GST {slab._id}% Protocol</span>
+                       <span className="text-[10px] font-black text-amber-600">₹{slab.totalTax.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                       <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Taxable Value</span>
+                       <span className="text-[10px] font-bold text-slate-700">₹{slab.taxableValue.toLocaleString()}</span>
+                    </div>
+                 </div>
+               )) : <p className="py-6 text-center text-slate-200 font-black text-[10px] uppercase">NO_TAX_DATA_SYNCED</p>}
                {salesData?.gstSlabs?.length > 0 && (
-                 <tfoot>
-                    <tr className="bg-slate-50/50 border-t-2 border-slate-100 font-black text-[10px] uppercase">
-                       <td className="py-3 px-2 text-slate-900">Aggregate Summary</td>
-                       <td className="py-3 px-2 text-right text-slate-900">₹{salesData.gstSlabs.reduce((s:number, c:any) => s + c.taxableValue, 0).toLocaleString()}</td>
-                       <td className="py-3 px-2 text-right text-amber-600">₹{salesData.totalGST.toLocaleString()}</td>
-                    </tr>
-                 </tfoot>
+                 <div className="pt-3 border-t-2 border-slate-100 mt-2">
+                    <div className="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                       <span className="text-[9px] font-black text-slate-900 uppercase">Grand Aggregate</span>
+                       <span className="text-xs font-black text-amber-600">₹{salesData.totalGST.toLocaleString()}</span>
+                    </div>
+                 </div>
                )}
-            </table>
+            </div>
+
+            {/* Desktop GST Matrix */}
+            <div className="hidden lg:block overflow-x-auto">
+               <table className="w-full text-left">
+                  <thead>
+                     <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                        <th className="py-3 px-2">Tax bracket</th>
+                        <th className="py-3 px-2 text-right">Taxable Supply</th>
+                        <th className="py-3 px-2 text-right">Collected Tax</th>
+                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                     {salesData?.gstSlabs?.length > 0 ? salesData.gstSlabs.map((slab:any, i:number) => (
+                       <tr key={i} className="text-[10px] font-black text-slate-700 uppercase">
+                          <td className="py-3 px-2 text-slate-400">GST {slab._id}% Bracket</td>
+                          <td className="py-3 px-2 text-right">₹{slab.taxableValue.toLocaleString()}</td>
+                          <td className="py-3 px-2 text-right text-amber-600 font-black">₹{slab.totalTax.toLocaleString()}</td>
+                       </tr>
+                     )) : (
+                       <tr><td colSpan={3} className="py-10 text-center text-slate-200 font-black tracking-widest">NO_TAX_DATA_SYNCED</td></tr>
+                     )}
+                  </tbody>
+                  {salesData?.gstSlabs?.length > 0 && (
+                    <tfoot>
+                       <tr className="bg-slate-50/50 border-t-2 border-slate-100 font-black text-[10px] uppercase">
+                          <td className="py-3 px-2 text-slate-900">Aggregate Summary</td>
+                          <td className="py-3 px-2 text-right text-slate-900">₹{salesData.gstSlabs.reduce((s:number, c:any) => s + c.taxableValue, 0).toLocaleString()}</td>
+                          <td className="py-3 px-2 text-right text-amber-600">₹{salesData.totalGST.toLocaleString()}</td>
+                       </tr>
+                    </tfoot>
+                  )}
+               </table>
+            </div>
          </div>
       </div>
 
       {/* Visual Analytics Node */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
         {/* Payment Logic Distribution */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[350px]">
+        <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col h-[350px] overflow-hidden">
            <div className="flex items-center justify-between mb-2">
               <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <CreditCard size={14} className="text-indigo-600" /> Sector-Wise Settlement Logic
@@ -473,7 +516,7 @@ export default function Reports() {
         </div>
 
         {/* Category Concentration Audit */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
+        <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col h-[300px] overflow-hidden">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <Box size={14} className="text-amber-500" /> Category-wise Inventory Hub
@@ -498,7 +541,7 @@ export default function Reports() {
       {/* Velocity & Stock Correlation Node */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
         {/* Unit Velocity Flux (Sales Count) */}
-        <div className="lg:col-span-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
+        <div className="lg:col-span-4 bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col h-[300px] overflow-hidden">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <Zap size={14} className="text-indigo-600" /> Unit Velocity Flux
@@ -521,7 +564,7 @@ export default function Reports() {
         </div>
 
         {/* Stock vs Sales (Comparative Audit) */}
-        <div className="lg:col-span-8 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[300px]">
+        <div className="lg:col-span-8 bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col h-[300px] overflow-hidden">
            <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                  <TrendingUp size={14} className="text-emerald-500" /> High-Velocity Node Performance Audit (Qty)
@@ -548,26 +591,25 @@ export default function Reports() {
 }
 
 function MetricCard({ label, value, icon: Icon, color, sub }: any) {
-  const themes: any = {
-    indigo: 'border-indigo-100 hover:border-indigo-300 bg-indigo-50/20 text-indigo-600',
-    rose: 'border-rose-100 hover:border-rose-300 bg-rose-50/20 text-rose-600',
-    amber: 'border-amber-100 hover:border-amber-300 bg-amber-50/20 text-amber-600',
-    emerald: 'border-emerald-100 hover:border-emerald-300 bg-emerald-50/20 text-emerald-600',
+  const colors: any = {
+    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
   };
+  
   return (
-    <div className={`p-4 rounded-3xl border-2 transition-all group bg-white shadow-sm flex flex-col justify-center h-[100px] relative overflow-hidden ${themes[color]}`}>
-      <div className="relative z-10 flex items-center justify-between mb-2">
-        <div className="p-2 rounded-xl bg-white border border-slate-100 shadow-sm ring-1 ring-slate-100">
-          <Icon size={16} />
-        </div>
-        <span className="text-[8px] font-black uppercase tracking-[0.1em] opacity-60 text-slate-500">{sub}</span>
+    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
       </div>
-      <div className="relative z-10">
-        <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-0.5 text-slate-500">{label}</p>
-        <h3 className="text-xl font-semibold tracking-tight text-slate-900 leading-none">{value}</h3>
+      <div className="min-w-0 text-center sm:text-left flex-1">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
+        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
       </div>
-      <Icon size={50} className={`absolute -right-4 -bottom-4 opacity-5 scale-150 rotate-12 transition-transform duration-700 group-hover:rotate-45 ${themes[color].split(' ')[2]}`} />
     </div>
   );
 }
+
 

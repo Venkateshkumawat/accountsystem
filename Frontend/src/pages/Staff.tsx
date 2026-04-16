@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import {
   Users, UserPlus, Trash2, CheckCircle, X,
   ShieldCheck, Edit3, Save, RefreshCw, AlertTriangle,
@@ -57,7 +57,7 @@ function Toast({ message, type, onClose }: { message: string; type: 'success' | 
 function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full">
+      <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-2xl p-8 max-w-sm w-full overflow-hidden">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-2xl bg-rose-100 flex items-center justify-center">
             <AlertTriangle size={20} className="text-rose-600" />
@@ -297,28 +297,20 @@ export default function Staff() {
       </div>
 
       {/* ──── Stats Pills ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-2">
         {(['manager', 'accountant', 'cashier'] as const).map(role => {
           const m = ROLE_META[role];
-          const Icon = m.icon;
           const count = staff.filter(s => s.role === role).length;
+          const colors: any = {
+            manager: 'border-l-indigo-500 text-indigo-600 bg-indigo-50/50',
+            accountant: 'border-l-emerald-500 text-emerald-600 bg-emerald-50/50',
+            cashier: 'border-l-amber-500 text-amber-600 bg-amber-50/50',
+          };
           return (
-            <div key={role} className={`flex items-center gap-3 px-4 py-3 rounded-2xl ${m.bg} border border-white`}>
-              <Icon size={16} className={m.text} />
-              <div>
-                <p className={`text-xs font-semibold uppercase tracking-widest ${m.text}`}>{role}</p>
-                <p className="text-xl font-semibold tracking-tight text-slate-900">{count}</p>
-              </div>
-            </div>
+            <MetricCard key={role} label={role.toUpperCase()} value={count.toString()} icon={m.icon} color={role === 'manager' ? 'indigo' : role === 'accountant' ? 'emerald' : 'amber'} />
           );
         })}
-        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-100 border border-white">
-          <CheckCircle size={16} className="text-emerald-700" />
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Active</p>
-            <p className="text-lg font-semibold tracking-tight text-slate-900">{activeCount}</p>
-          </div>
-        </div>
+        <MetricCard label="ACTIVE_NODES" value={activeCount.toString()} icon={CheckCircle} color="emerald" />
       </div>
 
       {/* ──── Search & Filter ──────────────────────────────────────── */}
@@ -371,7 +363,7 @@ export default function Staff() {
             const Icon = meta.icon;
             return (
               <div key={member._id}
-                className="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
 
                 {/* Card top bar */}
                 <div className={`h-1.5 ${meta.bg}`} />
@@ -462,7 +454,7 @@ export default function Staff() {
       {/* ──────────────────────────────────────────── ADD STAFF MODAL ─── */}
       {showAdd && (
         <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border-2 border-slate-800 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
 
             {/* Header */}
             <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
@@ -567,7 +559,7 @@ export default function Staff() {
       {/* ──────────────────────────────────────────── EDIT STAFF MODAL ─── */}
       {editTarget && (
         <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-lg rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border-2 border-slate-800 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
 
             <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
               <div>
@@ -628,7 +620,31 @@ export default function Staff() {
   );
 }
 
-// ─── Shared form input ─────────────────────────────────────────────────────────
+const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
+  const colors: any = {
+    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
+  };
+  
+  return (
+    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0 text-center sm:text-left flex-1">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
+        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+      </div>
+    </div>
+  );
+});
+
+
+
+
 function FormInput({ label, value, onChange, required, type = 'text', placeholder, maxLength }: {
   label: string; value: string; onChange: (v: string) => void;
   required?: boolean; type?: string; placeholder?: string; maxLength?: number;

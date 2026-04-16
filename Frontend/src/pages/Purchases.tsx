@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { Plus, RefreshCcw, Package, X, Truck, CheckCircle, IndianRupee, Zap, CreditCard } from 'lucide-react';
 import api from '../services/api';
 import { useRazorpay } from '../hooks/useRazorpay';
@@ -31,8 +31,8 @@ export default function Purchases() {
   const [submitting, setSubmitting] = useState(false);
   const { handlePayment } = useRazorpay();
 
-  const fetchAll = useCallback(async () => {
-    if (purchases.length === 0) setLoading(true);
+  const fetchAll = useCallback(async (isRefresh = false) => {
+    if (!isRefresh && purchases.length === 0) setLoading(true);
     setError(null);
     try {
       const pUrl = search ? `/purchases?search=${search}` : '/purchases';
@@ -51,15 +51,17 @@ export default function Purchases() {
       setError(e.response?.data?.message || 'Failed to sync with procurement node.');
     }
     finally { setLoading(false); }
-  }, [purchases.length, search]);
+  }, [search]);
+
 
   useEffect(() => {
     fetchAll();
 
     // ── Real-time Socket Listener ──
     const handleSync = (payload: any) => {
-      if (payload.type === 'PURCHASE' || payload.type === 'PRODUCT') {
-        fetchAll();
+      // Only re-fetch if relevant to purchases
+      if (payload.type === 'PURCHASE') {
+        fetchAll(true);
       }
     };
     socketService.on('DATA_SYNC', handleSync);
@@ -67,8 +69,8 @@ export default function Purchases() {
     // ── Cross-Tab Sync (Nexus Local) ──
     const syncChannel = new BroadcastChannel('nexus_sync');
     const handleLocalSync = (event: any) => {
-      if (event.data === 'FETCH_DASHBOARD' || event.data === 'SYNC_PURCHASES') {
-        fetchAll();
+      if (event.data === 'SYNC_PURCHASES') {
+        fetchAll(true);
       }
     };
     syncChannel.addEventListener('message', handleLocalSync);
@@ -79,6 +81,7 @@ export default function Purchases() {
       syncChannel.close();
     };
   }, [fetchAll]);
+
 
   const fetchProducts = async (q: string) => {
     try {
@@ -193,35 +196,24 @@ export default function Purchases() {
       </div>
 
       {/* Stats & Visual Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 px-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 px-2 items-start">
         <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Outbound Capital', value: `₹${(stats.totalSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, icon: IndianRupee, color: 'indigo' },
-            { label: 'Current Month', value: `₹${(stats.monthSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, icon: Truck, color: 'emerald' },
-            { label: 'Purchases Volume', value: stats.monthCount?.toString() || '0', icon: Package, color: 'amber' },
-            { label: 'Order Registry', value: stats.totalCount?.toString() || '0', icon: CheckCircle, color: 'rose' },
-          ].map(s => (
-            <div key={s.label} className="bg-white border border-slate-100 p-5 rounded-3xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md group ring-1 ring-slate-50">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 ${s.color === 'indigo' ? 'bg-indigo-50 text-indigo-600' : s.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : s.color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'} border border-white shadow-sm ring-1 ring-slate-100`}>
-                <s.icon size={20} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 truncate">{s.label}</p>
-                <h3 className="money-highlight truncate">{s.value}</h3>
-              </div>
-            </div>
-          ))}
+          <MetricCard label="Outbound Capital" value={`₹${(stats.totalSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={IndianRupee} color="indigo" />
+          <MetricCard label="Current Month" value={`₹${(stats.monthSpend || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} icon={Truck} color="emerald" />
+          <MetricCard label="Purchases Volume" value={stats.monthCount?.toString() || '0'} icon={Package} color="amber" />
+          <MetricCard label="Order Registry" value={stats.totalCount?.toString() || '0'} icon={CheckCircle} color="rose" />
         </div>
 
         {/* Procurement Trend Node */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden min-h-[160px] flex flex-col">
+        <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden h-full flex flex-col min-h-[175px]">
+
           <div className="flex items-center justify-between mb-4">
             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Procurement Flux</p>
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
           <div className="flex-1 w-full min-h-[100px]">
             {stats.dailySpend?.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={150} minWidth={0}>
                 <AreaChart data={stats.dailySpend}>
                   <defs>
                     <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
@@ -266,7 +258,7 @@ export default function Purchases() {
       <div className="px-2">
         <div className="relative group">
           <input value={search} onChange={e => { setSearch(e.target.value); }}
-            placeholder="Lookup Vendor Node..." className="w-full px-6 py-3 bg-white border border-slate-100 rounded-2xl text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-indigo-600 transition-all shadow-sm placeholder:text-slate-300" />
+            placeholder="Lookup Vendor Node..." className="w-full px-6 py-3 bg-white border-2 border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-widest focus:outline-none focus:border-indigo-600 transition-all shadow-sm placeholder:text-slate-300" />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
             {loading && <RefreshCcw size={12} className="animate-spin text-slate-300" />}
             <Zap size={12} className="text-slate-200" />
@@ -277,7 +269,7 @@ export default function Purchases() {
       <div className="h-4" />
 
       {/* Purchases Table */}
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden mx-2 mt-4">
+      <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden mx-2 mt-4">
         {loading ? (
           <div className="py-20 text-center text-slate-200 font-black uppercase">Loading...</div>
         ) : error ? (
@@ -294,44 +286,74 @@ export default function Purchases() {
             <p className="text-slate-400 text-sm font-semibold mt-2">Record your first vendor purchase to start tracking stock-in.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left table-fixed min-w-[1000px]">
-              <thead className="bg-slate-50/50">
-                <tr className="text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                  <th className="px-6 py-4 w-[15%]">IDC_NODE</th>
-                  <th className="px-6 py-4 w-[20%]">COUNTERPARTY</th>
-                  <th className="px-6 py-4 w-[18%]">LOAD_SPEC</th>
-                  <th className="px-6 py-4 w-[12%]">PROTOCOL</th>
-                  <th className="px-6 py-4 w-[12%]">STATUS</th>
-                  <th className="px-6 py-4 w-[10%]">STAMP</th>
-                  <th className="px-6 py-4 w-[13%] text-right">BALANCE</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {(showAllPurchases ? purchases : purchases.slice(0, PURCHASE_LIMIT)).map(p => (
-                  <tr key={p._id} className="hover:bg-slate-50/80 transition-all border-b border-slate-50 last:border-0 group cursor-default">
-                    <td className="px-6 py-3.5 text-[11px] font-bold text-indigo-600 uppercase tracking-tighter group-hover:tracking-widest transition-all">{p.billNumber}</td>
-                    <td className="px-6 py-3.5 text-[11px] font-semibold text-slate-900 uppercase truncate group-hover:text-indigo-600 transition-all">{p.vendorName || 'Independent Vendor'}</td>
-                    <td className="px-6 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{p.items?.length || 1} STACKED_PRODUCTS</td>
-                    <td className="px-6 py-3.5">
-                      <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 whitespace-nowrap flex items-center gap-1.5 w-fit border border-slate-200">
-                        {p.paymentMethod === 'razorpay' ? <CreditCard size={9} className="text-indigo-600" /> : <Zap size={9} />}
+          <div className="flex flex-col">
+            {/* Mobile Registry Cards */}
+            <div className="lg:hidden divide-y divide-slate-50">
+              {(showAllPurchases ? purchases : purchases.slice(0, PURCHASE_LIMIT)).map(p => (
+                <div key={p._id} className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-tighter">Node: {p.billNumber}</span>
+                    <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase border ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                      {p.paymentStatus}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 uppercase truncate">{p.vendorName || 'Independent Vendor'}</h4>
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200">
                         {p.paymentMethod}
                       </span>
-                    </td>
-                    <td className="px-6 py-3.5 text-right">
-                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-                         <div className={`w-1 h-1 rounded-full ${p.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} /> {p.paymentStatus}
-                       </span>
-                    </td>
-                    <td className="px-6 py-3.5 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</td>
-                    <td className="px-6 py-3.5 text-right">
-                       <p className="money-highlight !text-sm">₹{p.grandTotal.toLocaleString()}</p>
-                    </td>
+                      <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{p.items?.length || 1} Load Nodes</span>
+                    </div>
+                    <p className="money-highlight !text-base">₹{p.grandTotal.toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Procurement Matrix */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-left table-fixed min-w-[1000px]">
+                <thead className="bg-slate-50/50">
+                  <tr className="text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                    <th className="px-6 py-4 w-[15%]">IDC_NODE</th>
+                    <th className="px-6 py-4 w-[20%]">COUNTERPARTY</th>
+                    <th className="px-6 py-4 w-[18%]">LOAD_SPEC</th>
+                    <th className="px-6 py-4 w-[12%]">PROTOCOL</th>
+                    <th className="px-6 py-4 w-[12%]">STATUS</th>
+                    <th className="px-6 py-4 w-[10%]">STAMP</th>
+                    <th className="px-6 py-4 w-[13%] text-right">BALANCE</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {(showAllPurchases ? purchases : purchases.slice(0, PURCHASE_LIMIT)).map(p => (
+                    <tr key={p._id} className="hover:bg-slate-50/80 transition-all border-b border-slate-50 last:border-0 group cursor-default">
+                      <td className="px-6 py-3.5 text-[11px] font-bold text-indigo-600 uppercase tracking-tighter group-hover:tracking-widest transition-all">{p.billNumber}</td>
+                      <td className="px-6 py-3.5 text-[11px] font-semibold text-slate-900 uppercase truncate group-hover:text-indigo-600 transition-all">{p.vendorName || 'Independent Vendor'}</td>
+                      <td className="px-6 py-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{p.items?.length || 1} STACKED_PRODUCTS</td>
+                      <td className="px-6 py-3.5">
+                        <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 whitespace-nowrap flex items-center gap-1.5 w-fit border border-slate-200">
+                          {p.paymentMethod === 'razorpay' ? <CreditCard size={9} className="text-indigo-600" /> : <Zap size={9} />}
+                          {p.paymentMethod}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3.5 text-right">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                          <div className={`w-1 h-1 rounded-full ${p.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} /> {p.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3.5 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</td>
+                      <td className="px-6 py-3.5 text-right">
+                        <p className="money-highlight !text-sm">₹{p.grandTotal.toLocaleString()}</p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             {/* Pagination / Show More node */}
             {!showAllPurchases && purchases.length > PURCHASE_LIMIT && (
@@ -529,3 +551,27 @@ export default function Purchases() {
     </div>
   );
 }
+
+const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
+  const colors: any = {
+    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
+  };
+
+  return (
+    <div className="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 transition-all hover:border-indigo-200 group relative overflow-hidden">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0 text-center sm:text-left flex-1">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{label}</p>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight">{value}</h3>
+        {sub && <p className={`mt-1 text-[8px] font-bold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'}`}>{sub}</p>}
+      </div>
+    </div>
+  );
+});
+
+

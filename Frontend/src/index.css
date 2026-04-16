@@ -1,6 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
- Broadway
+@import "tailwindcss";
 
 :root {
   --primary: #2563eb;
@@ -203,4 +202,12 @@
   .page-break {
     page-break-before: always;
   }
+}
+
+.money-highlight {
+  @apply font-black text-slate-900 tracking-tight;
+}
+
+.metric-accent-border {
+  @apply border-l-4 border-slate-200 transition-all duration-300;
 }

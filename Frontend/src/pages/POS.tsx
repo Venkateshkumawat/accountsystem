@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, memo } from 'react';
 import {
   ShoppingCart, Plus, Minus, X, CreditCard, Box,
   Printer, CheckCircle, Trash2, Package2, AlertTriangle, Zap,
@@ -73,8 +73,12 @@ export default function POS() {
   // Terminal Sync Node: Listen for platform-wide updates
   useEffect(() => {
     const syncChannel = new BroadcastChannel('nexus_sync');
-    const handleSync = () => {
-      fetchProducts();
+    const handleSync = (event: MessageEvent) => {
+      // Only fetch products if the sync event is specifically for products
+      // OR if it's a general DASHBOARD sync that might involve stock changes
+      if (event.data === 'FETCH_PRODUCTS' || event.data === 'FETCH_DASHBOARD') {
+        fetchProducts();
+      }
     };
     syncChannel.addEventListener('message', handleSync);
 
@@ -82,7 +86,8 @@ export default function POS() {
       syncChannel.removeEventListener('message', handleSync);
       syncChannel.close();
     };
-  }, []);
+  }, [fetchProducts]);
+
 
 
 
@@ -270,7 +275,7 @@ export default function POS() {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row h-[calc(100vh-100px)] bg-[#F8FAFF]  overflow-hidden lg:rounded-2xl border border-slate-100 relative">
+      <div className="flex flex-col lg:flex-row h-[calc(100vh-100px)] bg-[#F8FAFF] overflow-hidden lg:rounded-2xl border-2 border-slate-200 relative">
 
         {/* Mobile Header Toggle */}
         <div className="lg:hidden flex items-center justify-between p-3 bg-white border-b border-slate-100 shrink-0">
@@ -305,20 +310,18 @@ export default function POS() {
 
           {/* Header */}
           <header className="flex items-center justify-between gap-4 mb-8 p-1">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight">Point of Sale</h1>
-              <p className="hidden sm:block text-sm font-normal text-slate-500 mt-1">Checkout point & real-time billing center</p>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight leading-none">Point of Sale</h1>
+              <button
+                onClick={() => handleCategoryClick('SALE')}
+                className={`px-3 py-1.5 rounded-full text-[8px] font-medium uppercase tracking-widest whitespace-nowrap transition-all border animate-pulse shadow-sm ${selectedCategory === 'SALE'
+                  ? 'bg-rose-600 text-white border-rose-600 shadow-rose-200'
+                  : 'bg-rose-50 text-rose-500 border-rose-100 hover:border-rose-300'
+                  }`}
+              >
+                <Zap size={10} className="inline mr-1" /> Super Sale
+              </button>
             </div>
-
-            <button
-              onClick={() => handleCategoryClick('SALE')}
-              className={`px-3 py-1.5 ml-2 rounded-full text-[8px] font-medium uppercase tracking-widest whitespace-nowrap transition-all border animate-pulse shadow-sm ${selectedCategory === 'SALE'
-                ? 'bg-rose-600 text-white border-rose-600 shadow-rose-200'
-                : 'bg-rose-50 text-rose-500 border-rose-100 hover:border-rose-300'
-                }`}
-            >
-              <Zap size={10} className="inline mr-1" /> Super Sale
-            </button>
 
             <div className="hidden sm:flex items-center gap-1.5 ml-auto">
               <div className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg shadow-sm text-center">
@@ -392,126 +395,19 @@ export default function POS() {
                 <Box size={32} className="mx-auto mb-2" />
                 <p className="text-xs font-black uppercase">No Nodes Found</p>
               </div>
-            ) : displayedProducts.map(product => {
-              const inCart = cart.find(i => i.productId === product._id);
-              const isFlash = addedFlash === product._id;
-              const outOfStock = product.stock === 0;
-              return (
-                <div key={product._id}
-                  onClick={() => handleAddItem(product)}
-                  className={`bg-white p-2 rounded-xl border transition-all cursor-pointer active:scale-95 flex flex-col items-center text-center relative overflow-hidden h-[145px] justify-between
-                    ${outOfStock ? 'opacity-50 cursor-not-allowed border-slate-100' :
-                      product.stock <= (product.lowStockThreshold || 5) ? 'border-amber-400 bg-amber-50/10' :
-                        isFlash ? 'border-indigo-500 scale-95 shadow-inner shadow-indigo-100' :
-                          'border-slate-100 hover:border-indigo-400 shadow-sm'}
-                  `}>
-
-                  {/* Absolute Overlays Area */}
-                  <div className="absolute top-0.5 right-0.5 z-30">
-                    {inCart && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removeItem(product._id); }}
-                        className="w-5 h-5 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-lg hover:bg-rose-600 active:scale-110 transition-all border border-white"
-                      >
-                        <X size={10} strokeWidth={4} />
-                      </button>
-                    )}
-                  </div>
-
-                  {(() => {
-                    const hasDiscount = (product.discount || 0) > 0;
-                    const isNotExpired = !product.saleEndDate || new Date(product.saleEndDate).setHours(23, 59, 59, 999) > Date.now();
-                    const isSaleActive = hasDiscount && isNotExpired;
-
-                    return isSaleActive && (
-                      <div className="absolute top-0.5 right-6 z-30 bg-rose-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-sm ring-1 ring-white uppercase tracking-tighter">
-                        -{Math.round(((product.discount || 0) / product.sellingPrice) * 100)}%
-                      </div>
-                    );
-                  })()}
-
-                  <div className="absolute top-0.5 left-0.5 z-30 flex flex-col gap-1 items-start">
-                    {inCart && (
-                      <div className="min-w-[14px] h-[14px] bg-indigo-600 text-white rounded-lg text-[9px] font-black flex items-center justify-center px-1 shadow-lg ring-1 ring-white">
-                        {inCart.qty}
-                      </div>
-                    )}
-                    {!outOfStock && product.stock <= (product.lowStockThreshold || 5) && (
-                      <div className="flex items-center justify-center p-0.5 bg-amber-500 text-white rounded-sm text-[6px] font-black uppercase ring-1 ring-white">
-                        LOW
-                      </div>
-                    )}
-                  </div>
-
-                  {outOfStock && (
-                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg z-20">
-                      <span className="text-[7px] font-black text-rose-500 uppercase tracking-tighter bg-rose-50 px-1 py-0.5 rounded border border-rose-100">Out Node</span>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col items-center w-full min-h-0 pt-0.5">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 transition-all overflow-hidden border ${inCart ? 'bg-indigo-600 border-indigo-500 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
-                      {product.image ? (
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                          }}
-                        />
-                      ) : null}
-                      <Package2
-                        size={16}
-                        className={`${inCart ? 'text-white/40' : 'text-slate-300'} ${product.image ? 'hidden' : ''}`}
-                      />
-                    </div>
-                    <h3 className="text-slate-900 font-semibold text-[10px] uppercase leading-tight line-clamp-2 w-full px-0.5 min-h-[22px] mt-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-[7.5px] font-black text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 mt-1.5 w-full text-center">
-                      {product.barcode || 'NO-SCAN'}
-                    </p>
-                  </div>
-
-                  <div className="w-full flex flex-col items-center pb-0.5">
-                    {(() => {
-                      const hasDiscount = (product.discount || 0) > 0;
-                      const isNotExpired = !product.saleEndDate || new Date(product.saleEndDate).setHours(23, 59, 59, 999) > Date.now();
-                      const isSaleActive = hasDiscount && isNotExpired;
-
-                      if (isSaleActive) {
-                        return (
-                          <div className="flex flex-col items-center">
-                            <div className="flex items-center gap-1">
-                              <span className="text-[7px] text-slate-400 line-through leading-none mb-0.5">₹{product.sellingPrice}</span>
-                              <span className="text-[6px] font-black text-rose-500 bg-rose-50 px-1 rounded-sm uppercase tracking-tighter shadow-sm border border-rose-100">Sale Node</span>
-                            </div>
-                            <div className="font-semibold text-emerald-600 text-base leading-none mb-1">
-                              <span className="text-[7px] font-semibold mr-0.5">₹</span>
-                              {product.sellingPrice - (product.discount || 0)}
-                            </div>
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div className="font-semibold text-slate-800 text-base leading-none mb-1">
-                            <span className="text-[8px] text-slate-400 font-semibold mr-0.5">₹</span>
-                            {product.sellingPrice}
-                          </div>
-                        );
-                      }
-                    })()}
-                    <div className={`w-full py-0.5 rounded-sm text-[6px] font-black uppercase tracking-widest transition-all ${inCart ? 'bg-indigo-600 text-white opacity-100' : 'bg-slate-900 text-white opacity-0'}`}>
-                      {inCart ? 'Node Active' : ''}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            ) : displayedProducts.map(product => (
+              <ProductNode 
+                key={product._id} 
+                product={product} 
+                onAdd={handleAddItem} 
+                onRemove={removeItem}
+                inCartItem={cart.find(i => i.productId === product._id)}
+                isFlash={addedFlash === product._id}
+              />
+            ))}
           </div>
         </div>
+
 
         {/* ── RIGHT: Cart & Checkout ──────────────────────────────────────── */}
         <div className={`
@@ -678,7 +574,7 @@ export default function POS() {
       {/* ── CHECKOUT MODAL: Finalize Hub ─────────────────────────────── */}
       {showCheckout && (
         <div className="fixed inset-0 z-[60] backdrop-blur-sm bg-slate-900/40 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-200 flex flex-col max-h-[90vh]">
             <header className="p-3 border-b border-slate-50 flex items-center justify-between bg-white shrink-0 sticky top-0 z-10">
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
@@ -822,7 +718,7 @@ export default function POS() {
       {/* ── SCANNER MODAL: Camera Protocol ─────────────────────────────── */}
       {isScannerOpen && (
         <div className="fixed inset-0 z-[70] backdrop-blur-md bg-slate-900/60 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col items-center">
+          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-200 flex flex-col items-center">
             <header className="w-full p-4 border-b border-slate-50 flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg animate-pulse">
@@ -889,3 +785,109 @@ export default function POS() {
     </>
   );
 }
+
+const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash }: any) => {
+  const outOfStock = product.stock === 0;
+  const inCart = !!inCartItem;
+  
+  const hasDiscount = (product.discount || 0) > 0;
+  const isNotExpired = !product.saleEndDate || new Date(product.saleEndDate).setHours(23, 59, 59, 999) > Date.now();
+  const isSaleActive = hasDiscount && isNotExpired;
+
+  return (
+    <div
+      onClick={() => onAdd(product)}
+      className={`bg-white p-2 rounded-2xl border-2 transition-all cursor-pointer active:scale-95 flex flex-col items-center text-center relative overflow-hidden h-[155px] justify-between
+        ${inCart ? 'border-indigo-600 ring-2 ring-indigo-50 shadow-lg' : 'border-slate-200 hover:border-indigo-400 shadow-sm'}
+        ${outOfStock ? 'opacity-50 grayscale' : ''}
+        ${isFlash ? 'animate-pulse scale-90' : ''}
+      `}
+    >
+      <div className="absolute top-0.5 right-0.5 z-30">
+        {inCart && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onRemove(product._id); }}
+            className="w-5 h-5 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-lg hover:bg-rose-600 active:scale-110 transition-all border border-white"
+          >
+            <X size={10} strokeWidth={4} />
+          </button>
+        )}
+      </div>
+
+      {isSaleActive && (
+        <div className="absolute top-0.5 right-6 z-30 bg-rose-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-md shadow-sm ring-1 ring-white uppercase tracking-tighter">
+          -{Math.round(((product.discount || 0) / product.sellingPrice) * 100)}%
+        </div>
+      )}
+
+      <div className="absolute top-0.5 left-0.5 z-30 flex flex-col gap-1 items-start">
+        {inCart && (
+          <div className="min-w-[14px] h-[14px] bg-indigo-600 text-white rounded-lg text-[9px] font-black flex items-center justify-center px-1 shadow-lg ring-1 ring-white">
+            {inCartItem.qty}
+          </div>
+        )}
+        {!outOfStock && product.stock <= (product.lowStockThreshold || 5) && (
+          <div className="flex items-center justify-center p-0.5 bg-amber-500 text-white rounded-sm text-[6px] font-black uppercase ring-1 ring-white">
+            LOW
+          </div>
+        )}
+      </div>
+
+      {outOfStock && (
+        <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg z-20">
+          <span className="text-[7px] font-black text-rose-500 uppercase tracking-tighter bg-rose-50 px-1 py-0.5 rounded border border-rose-100">Out Node</span>
+        </div>
+      )}
+
+      <div className="flex flex-col items-center w-full min-h-0 pt-0.5">
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 transition-all overflow-hidden border ${inCart ? 'bg-indigo-600 border-indigo-500 shadow-sm' : 'bg-slate-50 border-slate-100'}`}>
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <Package2
+            size={16}
+            className={`${inCart ? 'text-white/40' : 'text-slate-300'} ${product.image ? 'hidden' : ''}`}
+          />
+        </div>
+        <h3 className="text-slate-900 font-semibold text-[10px] uppercase leading-tight line-clamp-2 w-full px-0.5 min-h-[22px] mt-1">
+          {product.name}
+        </h3>
+        <p className="text-[7.5px] font-black text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 mt-1.5 w-full text-center">
+          {product.barcode || 'NO-SCAN'}
+        </p>
+      </div>
+
+      <div className="w-full flex flex-col items-center pb-0.5">
+        {isSaleActive ? (
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1">
+              <span className="text-[7px] text-slate-400 line-through leading-none mb-0.5">₹{product.sellingPrice}</span>
+              <span className="text-[6px] font-black text-rose-500 bg-rose-50 px-1 rounded-sm uppercase tracking-tighter shadow-sm border border-rose-100">Sale Node</span>
+            </div>
+            <div className="font-semibold text-emerald-600 text-base leading-none mb-1">
+              <span className="text-[7px] font-semibold mr-0.5">₹</span>
+              {product.sellingPrice - (product.discount || 0)}
+            </div>
+          </div>
+        ) : (
+          <div className="font-semibold text-slate-800 text-base leading-none mb-1">
+            <span className="text-[8px] text-slate-400 font-semibold mr-0.5">₹</span>
+            {product.sellingPrice}
+          </div>
+        )}
+        <div className={`w-full py-0.5 rounded-sm text-[6px] font-black uppercase tracking-widest transition-all ${inCart ? 'bg-indigo-600 text-white opacity-100' : 'bg-slate-900 text-white opacity-0'}`}>
+          {inCart ? 'Node Active' : ''}
+        </div>
+      </div>
+    </div>
+  );
+});
+
