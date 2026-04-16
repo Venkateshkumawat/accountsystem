@@ -23,6 +23,7 @@ export interface IInvoice extends Document {
   customerName?: string;
   customerPhone?: string;
   customerAddress?: string;
+  customerGstin?: string;
   items: IInvoiceItem[];
   subtotal: number;
   totalGST: number;
@@ -77,6 +78,9 @@ const invoiceSchema = new Schema<IInvoice>(
       type: String,
     },
     customerAddress: {
+      type: String,
+    },
+    customerGstin: {
       type: String,
     },
     items: [

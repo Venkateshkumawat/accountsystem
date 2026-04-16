@@ -49,7 +49,7 @@ export default function POS() {
   const { fetchNotifications } = useNotify();
   const [search, setSearch] = useState('');
   const [barcodeInput, setBarcodeInput] = useState('');
-  const [customer, setCustomer] = useState({ name: '', phone: '', address: '' });
+  const [customer, setCustomer] = useState({ name: '', phone: '', address: '', gstin: '' });
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card'>('cash');
   const [submitting, setSubmitting] = useState(false);
   const [lastInvoice, setLastInvoice] = useState<InvoiceReceipt | null>(null);
@@ -221,6 +221,7 @@ export default function POS() {
           customerName: customer.name,
           customerPhone: customer.phone,
           customerAddress: customer.address,
+          customerGstin: customer.gstin,
           items: cart.map((item: CartItem) => ({
             productId: item.productId,
             qty: item.qty,
@@ -239,7 +240,7 @@ export default function POS() {
           setShowReceipt(true);
           setShowCheckout(false);
           clearCart();
-          setCustomer({ name: '', phone: '', address: '' });
+          setCustomer({ name: '', phone: '', address: '', gstin: '' });
           // Synchronize system alerts after successful transaction
           fetchNotifications();
 
@@ -640,6 +641,15 @@ export default function POS() {
                     placeholder="Enter city or full physical address..."
                     rows={2}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black focus:bg-white focus:border-indigo-500 outline-none transition-all shadow-sm resize-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Customer GSTIN (Optional)</label>
+                  <input
+                    value={customer.gstin}
+                    onChange={e => setCustomer({ ...customer, gstin: e.target.value.toUpperCase() })}
+                    placeholder="E.g. 27AAAAA0000A1Z5"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black focus:bg-white focus:border-indigo-500 outline-none transition-all shadow-sm"
                   />
                 </div>
               </div>
