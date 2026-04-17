@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Plus,
   AlertTriangle,
@@ -18,6 +18,8 @@ import { useAuth } from '../hooks/useAuth';
 
 export default function Inventory() {
   const { products, categories, refreshAll, remainingProduct } = useProducts();
+  const resultsRef = React.useRef<HTMLDivElement>(null);
+  const categoryRef = React.useRef<HTMLDivElement>(null);
   const { role } = useAuth();
   const isAuthorized = role === 'businessAdmin' || role === 'manager';
   const [showForm, setShowForm] = useState(false);
@@ -39,11 +41,15 @@ export default function Inventory() {
 
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'lowStock' | 'outOfStock' | 'category'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const handleSync = (payload: any) => {
       console.log('📡 Inventory Sync Received:', payload);
       refreshAll();
+      setLastSync(new Date().toLocaleTimeString());
     };
 
     // ── Real-time Socket Sync ──
@@ -51,7 +57,10 @@ export default function Inventory() {
 
     // ── Cross-Tab Sync ──
     const syncChannel = new BroadcastChannel('nexus_sync');
-    syncChannel.addEventListener('message', () => refreshAll());
+    syncChannel.addEventListener('message', () => {
+      refreshAll();
+      setLastSync(new Date().toLocaleTimeString());
+    });
 
     refreshAll();
 
@@ -156,16 +165,40 @@ export default function Inventory() {
     }
   };
 
-  const lowStockCount = products.filter(p => p.stock <= (p.lowStockThreshold || 10)).length;
-  const totalValuation = products.reduce((acc, p) => acc + (p.sellingPrice * p.stock), 0);
+  const lowStockThreshold = 10;
+  
+  // 🛰️ Memorialized Analytical Compute Node
+  const analytics = React.useMemo(() => {
+    const low = products.filter(p => p.stock > 0 && p.stock <= (p.lowStockThreshold || lowStockThreshold)).length;
+    const out = products.filter(p => p.stock <= 0).length;
+    const totalVal = products.reduce((acc, p) => acc + ((p.sellingPrice - (p.discount || 0)) * p.stock), 0);
+    return { low, out, totalVal };
+  }, [products]);
 
-  // Group products by category for section-wise identification
-  const groupedProducts = products.reduce((acc: any, p) => {
-    const cat = p.category || 'General';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(p);
-    return acc;
-  }, {});
+  const filteredProducts = React.useMemo(() => {
+    return products.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           (p.barcode && p.barcode.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      if (!matchesSearch) return false;
+      
+      if (activeFilter === 'lowStock') return p.stock > 0 && p.stock <= (p.lowStockThreshold || lowStockThreshold);
+      if (activeFilter === 'outOfStock') return p.stock <= 0;
+      if (activeFilter === 'category' && selectedCategory) return p.category === selectedCategory;
+      return true;
+    });
+  }, [products, searchTerm, activeFilter, selectedCategory]);
+
+  const groupedProducts = React.useMemo(() => {
+    return filteredProducts.reduce((acc: any, p) => {
+      const cat = p.category || 'General';
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(p);
+      return acc;
+    }, {});
+  }, [filteredProducts]);
+
+  const [lastSync, setLastSync] = useState(new Date().toLocaleTimeString());
 
   const getCategoryStyles = (cat: string) => {
     const mapping: any = {
@@ -201,16 +234,158 @@ export default function Inventory() {
     return `${baseUrl}/${path}`;
   };
 
-  return (
-    <div className="space-y-6 min-h-screen p-2">
-      {/* ... previous header/metric code ... */}
+  const scrollToResults = () => {
+    if (window.innerWidth < 1024) {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
-      <div className="space-y-8 px-2 pb-24 md:pb-12">
-        {products.length === 0 ? (
-          <div className="bg-white rounded-2xl border-2 border-slate-200 py-24 sm:py-32 text-center overflow-hidden">
-            <Box size={40} className="mx-auto text-slate-200 mb-4" />
-            <h2 className="text-xl sm:text-2xl font-semibold text-slate-400">No Inventory Found</h2>
-            <p className="text-sm font-normal text-slate-300">Start by adding your first product node.</p>
+  const scrollToCategories = () => {
+    categoryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const handleMetricClick = (filter: typeof activeFilter, category: string | null = null) => {
+    setActiveFilter(filter);
+    setSelectedCategory(category);
+    if (filter === 'all' && !category) setSearchTerm('');
+    
+    // Automatic navigation for mobile UX
+    if (filter === 'category') {
+      setTimeout(scrollToCategories, 100);
+    } else {
+      setTimeout(scrollToResults, 100);
+    }
+  };
+
+  return (
+    <div className="space-y-6 min-h-screen p-2 font-inter bg-slate-50/50">
+      {/* Header & Metric Suite */}
+      <div className="space-y-6 px-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col gap-1.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full w-fit">
+              <Zap size={10} className="text-indigo-600 fill-indigo-600 animate-pulse" />
+              <span className="text-[9px] font-bold text-indigo-900 uppercase tracking-widest">Live Sync: {lastSync}</span>
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Overall Stock</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative group">
+              <input 
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                placeholder="Search name or barcode..." 
+                className="w-full sm:w-64 pl-10 pr-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-xs font-semibold outline-none focus:border-indigo-600 transition-all shadow-sm"
+              />
+              <Zap size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+            </div>
+            {isAuthorized && (
+              <button 
+                onClick={() => setShowForm(true)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all uppercase tracking-widest"
+              >
+                <Plus size={16} /> Add Items
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Quad Analytical Cluster */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div onClick={() => handleMetricClick('all')} className="cursor-pointer">
+            <InventoryStat 
+              label="Registry Catalog" 
+              value={products.length.toString()} 
+              icon={Box} 
+              color={activeFilter === 'all' && !selectedCategory ? 'indigo' : 'slate'} 
+              sub="Global Reset View"
+            />
+          </div>
+          <div onClick={() => handleMetricClick('category')} className="cursor-pointer">
+            <InventoryStat 
+              label="Sectional Clusters" 
+              value={categories.length.toString()} 
+              icon={Layout} 
+              color={activeFilter === 'category' ? 'emerald' : 'slate'} 
+              sub="Drill-down by Sector"
+            />
+          </div>
+          <div onClick={() => handleMetricClick('lowStock')} className="cursor-pointer">
+            <InventoryStat 
+              label="Stock Alarms" 
+              value={(analytics.low + analytics.out).toString()} 
+              icon={AlertTriangle} 
+              color={activeFilter === 'lowStock' || activeFilter === 'outOfStock' ? 'rose' : 'slate'} 
+              sub={`${analytics.out} Out of Stock | ${analytics.low} Running Low`}
+            />
+          </div>
+          <div onClick={() => handleMetricClick('all')} className="cursor-pointer">
+            <InventoryStat 
+              label="Inventory Worth" 
+              value={`₹${analytics.totalVal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} 
+              icon={BarChart3} 
+              color="amber" 
+              sub="Live Asset Valuation"
+            />
+          </div>
+        </div>
+
+        {/* Alert Navigation Sub-Tabs */}
+        {(activeFilter === 'lowStock' || activeFilter === 'outOfStock') && (
+          <div className="flex gap-2 py-4 animate-in slide-in-from-top-2">
+            <button 
+              onClick={() => setActiveFilter('lowStock')}
+              className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-all ${activeFilter === 'lowStock' ? 'bg-rose-500 text-white border-rose-500' : 'bg-white text-rose-500 border-rose-100 hove:bg-rose-50'}`}
+            >
+              Running Low ({analytics.low})
+            </button>
+            <button 
+              onClick={() => setActiveFilter('outOfStock')}
+              className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-all ${activeFilter === 'outOfStock' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'}`}
+            >
+              Out of Stock ({analytics.out})
+            </button>
+          </div>
+        )}
+
+        {/* Category Navigator UI */}
+        {activeFilter === 'category' && (
+          <div ref={categoryRef} className="flex flex-wrap gap-2 py-4 animate-in slide-in-from-top-4 duration-300 scroll-mt-20">
+            <button 
+              onClick={() => setSelectedCategory(null)}
+              className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all ${!selectedCategory ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100' : 'bg-white text-slate-400 border-slate-200 hover:border-emerald-200'}`}
+            >
+              All Sections
+            </button>
+            {categories.map(cat => (
+              <button 
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all ${selectedCategory === cat ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100' : 'bg-white text-slate-400 border-slate-200 hover:border-emerald-200'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div ref={resultsRef} className="space-y-8 px-2 pb-24 md:pb-12">
+        {filteredProducts.length === 0 ? (
+          <div className="bg-white rounded-3xl border-2 border-slate-200 py-32 text-center overflow-hidden">
+            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
+              <Box size={32} className="text-slate-200" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Protocol: No Nodes Found</h2>
+            <p className="text-sm font-medium text-slate-400 mt-1 uppercase tracking-widest">Selected spectrum contains zero data items.</p>
+            {(searchTerm || activeFilter !== 'all' || selectedCategory) && (
+              <button 
+                onClick={() => {setSearchTerm(''); setActiveFilter('all'); setSelectedCategory(null);}}
+                className="mt-6 text-indigo-600 text-[10px] font-bold uppercase tracking-widest hover:underline"
+              >
+                Reset Global Telemetry
+              </button>
+            )}
           </div>
         ) : (
           Object.keys(groupedProducts).sort().map((category) => (
@@ -269,8 +444,8 @@ export default function Inventory() {
                                 <span className="font-bold text-slate-900 text-lg tracking-tight leading-none">₹{product.sellingPrice - product.discount}</span>
                               </div>
                             </div>
-                            <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
-                              Stock: {product.stock}
+                            <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900 animate-pulse' : product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                              {product.stock <= 0 ? 'Out of Stock' : `Stock: ${product.stock}`}
                             </div>
                           </div>
                         </div>
@@ -340,16 +515,16 @@ export default function Inventory() {
                             </div>
                           </td>
                           <td className="px-6 py-3 text-center">
-                            <span className={`${product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm`}>
-                              {product.stock > (product.lowStockThreshold || 10) ? 'AVAILABLE' : 'CRITICAL'}
+                            <span className={`${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900' : product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm`}>
+                              {product.stock <= 0 ? 'OUT OF STOCK' : product.stock > (product.lowStockThreshold || 10) ? 'IN STOCK' : 'LOW STOCK'}
                             </span>
                           </td>
                           <td className="px-6 py-3.5 text-right">
-                            <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex justify-end gap-1.5 transition-all">
                               {isAuthorized && (
                                 <>
-                                  <button onClick={() => handleEdit(product)} className="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 rounded-lg transition-all active:scale-75 shadow-sm shadow-indigo-100/10"><Edit3 size={13} /></button>
-                                  <button onClick={() => deleteProduct(product._id)} className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all active:scale-75"><Trash2 size={13} /></button>
+                                  <button onClick={() => handleEdit(product)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-100 rounded-lg transition-all active:scale-75 shadow-sm"><Edit3 size={13} /></button>
+                                  <button onClick={() => deleteProduct(product._id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-100 rounded-lg transition-all active:scale-75 shadow-sm"><Trash2 size={13} /></button>
                                 </>
                               )}
                             </div>
@@ -539,21 +714,27 @@ export default function Inventory() {
 function InventoryStat({ label, value, icon: Icon, color, sub }: any) {
   const colors: any = {
     indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
-    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
-    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
-    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
+    slate: 'text-slate-400 bg-slate-50/50 border-slate-100',
+    rose: 'text-rose-600 bg-rose-50/50 border-rose-100 shadow-rose-100/20',
+    amber: 'text-amber-600 bg-amber-50/50 border-amber-100 shadow-amber-100/20',
+    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100 shadow-emerald-100/20',
   };
 
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-3.5 h-3.5" />
+    <div className={`bg-white p-4 sm:p-5 rounded-3xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 active:scale-[0.98] group relative overflow-hidden h-full ${label === 'Stock Alerts' && value !== '0' ? 'ring-2 ring-rose-500/10' : ''}`}>
+      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-4 h-4" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
-        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
-        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2 overflow-hidden text-ellipsis whitespace-nowrap">{label}</p>
+        <h3 className="text-xl font-extrabold text-slate-900 leading-tight truncate tracking-tight">{value}</h3>
+        {sub && <p className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${color === 'rose' ? 'text-rose-500' : 'text-slate-400'} truncate`}>{sub}</p>}
       </div>
+      {(label === 'Stock Alerts' && value !== '0') && (
+        <div className="absolute top-2 right-2 flex gap-0.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+        </div>
+      )}
     </div>
   );
 }
