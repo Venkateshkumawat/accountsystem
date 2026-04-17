@@ -357,7 +357,7 @@ export default function Staff() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2">
           {filtered.map(member => {
             const meta = ROLE_META[member.role] || ROLE_META.cashier;
             const Icon = meta.icon;
@@ -369,10 +369,10 @@ export default function Staff() {
                 <div className={`h-1.5 ${meta.bg}`} />
 
                 {/* Header */}
-                <div className="p-5 flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${meta.bg}`}>
-                      <Icon size={22} className={meta.text} />
+                <div className="p-4 flex items-start justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${meta.bg}`}>
+                      <Icon size={18} className={meta.text} />
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-lg font-semibold text-slate-900 tracking-tight truncate">{member.name}</h3>
@@ -403,25 +403,25 @@ export default function Staff() {
                 </div>
 
                 {/* Contact info */}
-                <div className="px-5 pb-4 space-y-1.5">
-                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                    <Mail size={12} className="text-slate-400 shrink-0" />
+                <div className="px-4 pb-3 space-y-1">
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
+                    <Mail size={10} className="text-slate-400 shrink-0" />
                     <span className="truncate">{member.email}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                    <Phone size={12} className="text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
+                    <Phone size={10} className="text-slate-400 shrink-0" />
                     <span>{member.mobile}</span>
                   </div>
                 </div>
 
                 {/* Permissions */}
-                <div className="px-5 pb-4">
-                  <p className="text-[9px] font-semibold text-slate-300 uppercase tracking-widest mb-2">Permissions</p>
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="px-4 pb-3">
+                  <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mb-1.5">Module Access</p>
+                  <div className="flex flex-wrap gap-1">
                     {member.permissions.length === 0
-                      ? <span className="text-[10px] text-slate-300">None assigned</span>
+                      ? <span className="text-[10px] text-slate-300">None</span>
                       : member.permissions.map(p => (
-                        <span key={p} className="px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg text-[9px] font-semibold uppercase">
+                        <span key={p} className="px-2 py-0.5 bg-indigo-50/50 text-indigo-500 border border-indigo-100 rounded text-[8px] font-bold uppercase">
                           {p.replace('_', ' ')}
                         </span>
                       ))
@@ -430,18 +430,18 @@ export default function Staff() {
                 </div>
 
                 {/* Footer */}
-                <div className="px-5 py-3 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between">
+                <div className="px-4 py-2.5 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <div className={`w-2 h-2 rounded-full ${member.isActive ? 'bg-emerald-500' : 'bg-rose-400'}`} />
-                    <span className={`text-[10px] font-semibold uppercase tracking-wide ${member.isActive ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${member.isActive ? 'bg-emerald-500' : 'bg-rose-400'}`} />
+                    <span className={`text-[9px] font-bold uppercase tracking-wide ${member.isActive ? 'text-emerald-600' : 'text-rose-500'}`}>
                       {member.isActive ? 'Active' : 'Suspended'}
                     </span>
                   </div>
                   {/* Only businessAdmin can suspend/restore staff */}
                   {isBusinessAdmin && (
                     <button onClick={() => handleToggleStatus(member._id)}
-                      className={`text-[10px] font-semibold uppercase tracking-widest transition-colors ${member.isActive ? 'text-rose-400 hover:text-rose-600' : 'text-emerald-400 hover:text-emerald-600'}`}>
-                      {member.isActive ? 'Suspend' : 'Restore'}
+                      className={`text-[9px] font-bold uppercase tracking-widest transition-colors ${member.isActive ? 'text-rose-400 hover:text-rose-600' : 'text-emerald-400 hover:text-emerald-600'}`}>
+                      {member.isActive ? 'Limit' : 'Restore'}
                     </button>
                   )}
                 </div>
