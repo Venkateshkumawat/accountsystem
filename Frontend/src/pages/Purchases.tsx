@@ -97,15 +97,20 @@ export default function Purchases() {
   const addToCart = (product: Product) => {
     const existing = cartItems.find(i => i.productId === product._id);
     if (existing) {
-      setCartItems(cartItems.map(i => i.productId === product._id ? { ...i, qty: i.qty + 1, total: (i.qty + 1) * i.purchasePrice } : i));
-    } else {
-      setCartItems([...cartItems, { productId: product._id, name: product.name, qty: 1, purchasePrice: product.purchasePrice || 0, total: product.purchasePrice || 0 }]);
+      setCartItems([...cartItems, { 
+        productId: product._id, 
+        name: product.name, 
+        qty: 1, 
+        purchasePrice: product.purchasePrice || 0, 
+        gstRate: product.gstRate || 0,
+        total: product.purchasePrice || 0 
+      }]);
     }
     setProductSearch('');
     setProducts([]);
   };
 
-  const updateCartItem = (productId: string, field: 'qty' | 'purchasePrice', value: number) => {
+  const updateCartItem = (productId: string, field: 'qty' | 'purchasePrice' | 'gstRate', value: number) => {
     setCartItems(cartItems.map(i => {
       if (i.productId !== productId) return i;
       const updated = { ...i, [field]: value };
@@ -124,6 +129,12 @@ export default function Purchases() {
     const processPurchase = async (razorpayDetails?: any) => {
       setSubmitting(true);
       try {
+        const itemizedGst = cartItems.map(i => ({
+          ...i,
+          gstAmount: (i.purchasePrice * i.qty * i.gstRate) / 100
+        }));
+        const totalTax = itemizedGst.reduce((s, i) => s + i.gstAmount, 0);
+
         await api.post('/purchases', {
           vendorName: vendor.name,
           vendorPhone: vendor.phone,
@@ -132,11 +143,12 @@ export default function Purchases() {
           poNumber: vendor.poNumber,
           shippingAddress: vendor.shippingAddress,
           shippingCharges: Number(vendor.shippingCharges),
-          items: cartItems,
+          items: itemizedGst,
           paymentMethod: payment.method,
           paymentStatus: razorpayDetails ? 'paid' : payment.status,
           paymentDueDate: payment.dueDate,
-          grandTotal: grandTotal + Number(vendor.shippingCharges),
+          totalGST: totalTax,
+          grandTotal: grandTotal + totalTax + Number(vendor.shippingCharges),
           subtotal: grandTotal,
           razorpayPaymentId: razorpayDetails?.razorpay_payment_id || null,
           razorpayOrderId: razorpayDetails?.razorpay_order_id || null,

@@ -267,7 +267,7 @@ export default function Inventory() {
               <Zap size={10} className="text-indigo-600 fill-indigo-600 animate-pulse" />
               <span className="text-[9px] font-bold text-indigo-900 uppercase tracking-widest">Live Sync: {lastSync}</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Overall Stock</h1>
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Overall Stock</h1>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative group">

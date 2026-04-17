@@ -224,3 +224,29 @@ export const getPurchaseStats = async (req: AuthRequest, res: Response): Promise
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/**
+ * @desc  Get purchase by ID for auditing
+ * @route GET /api/purchases/:id
+ */
+export const getPurchaseById = async (req: AuthRequest, res: Response): Promise<void> => {
+   try {
+     if (!req.tenantModels) {
+       res.status(500).json({ success: false, message: "Workspace node offline." });
+       return;
+     }
+     const { Purchase } = req.tenantModels;
+     const adminId = getBusinessAdminId(req);
+     const { id } = req.params;
+ 
+     const purchase = await Purchase.findOne({ _id: id, businessAdminId: adminId as any });
+ 
+     if (!purchase) {
+       res.status(404).json({ success: false, message: "Purchase record missing from node." });
+       return;
+     }
+     res.status(200).json({ success: true, data: purchase });
+   } catch (error: any) {
+     res.status(500).json({ success: false, message: error.message });
+   }
+ };

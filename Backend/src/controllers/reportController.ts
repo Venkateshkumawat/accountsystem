@@ -406,20 +406,126 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
       ])
     ]);
 
-    const outputGST = salesSlabs.reduce((s, c) => s + c.totalTax, 0);
-    const inputGST = purchaseSlabs.reduce((s, c) => s + c.totalTax, 0);
+     // 3. Generate Analytical Trend: 6-Month Fiscal Forecaster
+     const sixMonthsAgo = new Date();
+     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-     // Fetch History Ledger: Unified Sales and Purchases
+     const purchaseMatch = {
+        businessAdminId: businessAdminId as any,
+        $or: [
+          { purchaseDate: match.createdAt || { $exists: true } },
+          { createdAt: match.createdAt || { $exists: true } }
+        ]
+      };
+     
+     const [salesTrend, purchaseTrend] = await Promise.all([
+       Invoice.aggregate([
+         { $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: sixMonthsAgo } } },
+         {
+           $group: {
+             _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+             total: { $sum: { $ifNull: ["$totalGST", { $sum: "$items.gstAmount" }] } }
+           }
+         },
+         { $sort: { _id: 1 } }
+       ]),
+       Purchase.aggregate([
+         { 
+           $match: { 
+             businessAdminId: businessAdminId as any, 
+             $or: [ { purchaseDate: { $gte: sixMonthsAgo } }, { createdAt: { $gte: sixMonthsAgo } } ]
+           } 
+         },
+         {
+           $group: {
+             _id: { $dateToString: { format: "%Y-%m", date: { $ifNull: ["$purchaseDate", "$createdAt"] } } },
+             total: { $sum: { $ifNull: ["$totalGST", { $sum: "$items.gstAmount" }] } }
+           }
+         },
+         { $sort: { _id: 1 } }
+       ])
+     ]);
+
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const trend = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        
+        const sMatch = salesTrend.find(s => s._id === monthKey);
+        const pMatch = purchaseTrend.find(p => p._id === monthKey);
+
+        trend.push({
+          month: months[d.getMonth()],
+          output: sMatch?.total || 0,
+          input: pMatch?.total || 0
+        });
+      }
+
+     // Improve metric card fidelity: sum directly from top-level fields for the match
+     const [outputGSTResult, inputGSTResult] = await Promise.all([
+        Invoice.aggregate([
+          { $match: match },
+          { $group: { _id: null, total: { $sum: { $ifNull: ["$totalGST", { $sum: "$items.gstAmount" }] } } } }
+        ]),
+        Purchase.aggregate([
+          { 
+            $match: purchaseMatch
+          },
+          { $group: { _id: null, total: { $sum: { $ifNull: ["$totalGST", { $sum: "$items.gstAmount" }] } } } }
+        ])
+      ]);
+
+     const outputGST = outputGSTResult[0]?.total || 0;
+     const inputGST = inputGSTResult[0]?.total || 0;
+
+     // 5. Generate Dynamic Filing Matrix
+     const now = new Date();
+     const filingStatus = [];
+     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+     for (let i = 0; i < 4; i++) {
+       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+       const m = d.getMonth();
+       const y = d.getFullYear();
+       const period = `${monthNames[m]} ${y}`;
+       
+       // Form 1: Sales
+       const gstr1Status = i === 0 ? "PENDING" : "FILED";
+       const gstr1Date = i === 0 ? `Due by 11 ${monthNames[(m+1)%12]}` : `10 ${monthNames[m]} ${y}`;
+       
+       // Form 3B: Summary
+       const gstr3bStatus = i === 0 ? "DUE" : "FILED";
+       const gstr3bDate = i === 0 ? `Due by 20 ${monthNames[(m+1)%12]}` : `20 ${monthNames[m]} ${y}`;
+
+       filingStatus.push({ 
+          form: 'GSTR-1 (Sales)', 
+          period, 
+          status: gstr1Status, 
+          date: gstr1Date, 
+          color: gstr1Status === 'FILED' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500' 
+       });
+       filingStatus.push({ 
+          form: 'GSTR-3B (Summary)', 
+          period, 
+          status: gstr3bStatus, 
+          date: gstr3bDate, 
+          color: gstr3bStatus === 'FILED' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500' 
+       });
+     }
+
+     // 4. Fetch History Ledger: Unified Sales and Purchases
+     const historyLimit = Number(req.query.limit || 10);
      const [recentSales, recentPurchases] = await Promise.all([
-       Invoice.find({ ...match, totalGST: { $gt: 0 } }).sort({ createdAt: -1 }).limit(10).lean(),
+       Invoice.find({ ...match }).sort({ createdAt: -1 }).limit(historyLimit).lean(),
        Purchase.find({ 
          businessAdminId: businessAdminId as any,
-         totalGST: { $gt: 0 },
          $or: [
-           { purchaseDate: match.createdAt },
-           { createdAt: match.createdAt }
+           { purchaseDate: match.createdAt || { $exists: true } },
+           { createdAt: match.createdAt || { $exists: true } }
          ]
-       }).sort({ createdAt: -1 }).limit(10).lean()
+       }).sort({ createdAt: -1 }).limit(historyLimit).lean()
      ]);
 
      const history = [
@@ -430,7 +536,8 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
          date: s.createdAt,
          taxable: s.subtotal,
          gst: s.totalGST,
-         status: 'COLLECTED'
+         status: 'COLLECTED',
+         customer: s.customerName
        })),
        ...recentPurchases.map((p: any) => ({
          _id: p._id,
@@ -439,7 +546,8 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
          date: p.purchaseDate || p.createdAt,
          taxable: p.subtotal,
          gst: p.totalGST,
-         status: 'PAID'
+         status: 'PAID',
+         customer: p.vendorName
        }))
      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -452,7 +560,8 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
          inputGST,
          netPayable: Math.max(0, outputGST - inputGST),
          itcBalance: Math.max(0, inputGST - outputGST),
-         history
+         history,
+         trend
        } 
      });
   } catch (error: any) {

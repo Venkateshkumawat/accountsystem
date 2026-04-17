@@ -28,6 +28,7 @@ const AdminSetting = lazy(() => import('./pages/superadmin/AdminSetting'));
 const SuperAdminLayout = lazy(() => import('./components/superadmin/SuperAdminLayout'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const SuperAdminLogin = lazy(() => import('./pages/SuperAdminLogin'));
+const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 
 const Loader = () => (
   <div className="h-screen w-full flex flex-col items-center justify-center bg-[#E8EDF5] ">
@@ -171,6 +172,13 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Dedicated Finance Auditing */}
+              <Route path="/invoice-view/:id" element={
+                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
+                  <InvoiceView />
+                </ProtectedRoute>
+              } />
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
