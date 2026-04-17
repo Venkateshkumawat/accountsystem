@@ -119,6 +119,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
         barcode: product.barcode,
         qty: itemQty,
         price: product.sellingPrice,
+        purchasePrice: product.purchasePrice || 0, // Captured for P&L Analysis
         gstRate: product.gstRate,
         gstAmount: gstAmountPerItem * itemQty,
         discount: combinedDiscount,
@@ -143,7 +144,11 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     const grandTotal = subtotal - totalDiscount + totalGST;
     const adminIdStr = businessAdminId.toString();
     const invoiceNumber = `BB-${adminIdStr.slice(-5)}-${Date.now()}`;
-    const finalPaymentStatus = (razorpayPaymentId && razorpayOrderId && razorpaySignature) ? 'paid' : (incomingStatus || 'pending');
+    
+    // Auto-finalize 'paid' status for cash or verified digital payments
+    const isCashPayment = paymentMethod?.toLowerCase() === 'cash' || paymentMethod?.toLowerCase() === 'upi';
+    const isDigitalVerified = razorpayPaymentId && razorpayOrderId && razorpaySignature;
+    const finalPaymentStatus = (isDigitalVerified || isCashPayment) ? 'paid' : (incomingStatus || 'pending');
 
     if (finalPaymentStatus === 'paid' && razorpayPaymentId && razorpayOrderId && razorpaySignature) {
       const { verifyRazorpaySignature } = await import('../utils/paymentUtils.js');
@@ -263,12 +268,30 @@ export const getInvoices = async (req: AuthRequest, res: Response): Promise<void
       res.status(500).json({ success: false, message: "Workspace node offline." });
       return;
     }
-    const { Invoice } = req.tenantModels;
+    const { Invoice, Transaction } = req.tenantModels;
     const businessAdminId = getBusinessAdminId(req);
     const status = req.query.status ? String(req.query.status) : undefined;
     const page   = Number(req.query.page  || 1);
     const limit  = Number(req.query.limit || 20);
     const skip   = (page - 1) * limit;
+
+    // Self-Healing Protocol: Resolve legacy Cash/UPI pending records
+    await Invoice.updateMany(
+      { 
+        businessAdminId,
+        paymentStatus: 'pending',
+        paymentMethod: { $in: ['cash', 'CASH', 'upi', 'UPI'] }
+      },
+      { $set: { paymentStatus: 'paid' } }
+    );
+    await Transaction.updateMany(
+      { 
+        businessAdminId,
+        paymentStatus: 'pending',
+        paymentMethod: { $in: ['cash', 'CASH', 'upi', 'UPI'] }
+      },
+      { $set: { paymentStatus: 'paid' } }
+    );
 
     const query: any = { businessAdminId };
     if (status) query.paymentStatus = status;

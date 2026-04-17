@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, memo } from 'react';
 import {
-  Wallet, RefreshCcw, TrendingUp,
-  CheckCircle, Clock
+  Wallet, TrendingUp, TrendingDown, Layout, Clock, ShieldCheck, RefreshCcw
 } from 'lucide-react';
 import api from '../services/api';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, CartesianGrid } from 'recharts';
@@ -19,28 +18,38 @@ interface LedgerEntry {
 
 export default function Accounting() {
   const [invoices, setInvoices] = useState<LedgerEntry[]>([]);
+  const [purchases, setPurchases] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalRevenue: 0, paidAmount: 0, pendingAmount: 0, cashIn: 0 });
+  const [unifiedLedger, setUnifiedLedger] = useState<any[]>([]);
+  const [showAllLedger, setShowAllLedger] = useState(false);
   const [chartData, setChartData] = useState<any[]>([]);
   const [methodData, setMethodData] = useState<any[]>([]);
+  const [plData, setPlData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'paid' | 'pending'>('all');
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
-  const [showAllLedger, setShowAllLedger] = useState(false);
-  const LIMIT = 5;
 
   const fetchAll = useCallback(async () => {
-    // Only set loading if we don't have data yet to prevent frequent blinking
     if (invoices.length === 0) setLoading(true); 
     
     try {
-      const [invRes, salesRes] = await Promise.all([
+      const [invRes, salesRes, plRes, purRes] = await Promise.all([
         api.get('/invoices?limit=50'),
-        api.get('/reports/sales')
+        api.get('/reports/sales'),
+        api.get('/reports/pl'),
+        api.get('/purchases?limit=50')
       ]);
 
-      const allInvoices: LedgerEntry[] = invRes.data?.data || [];
+      const allInvoices: any[] = invRes.data?.data || [];
+      const allPurchases: any[] = purRes.data?.data || [];
       
-      // Batch updates together
+      const unified = [
+        ...allInvoices.map(i => ({ ...i, entryType: 'SALE' })),
+        ...allPurchases.map(p => ({ ...p, entryType: 'PURCHASE' }))
+      ].sort((a, b) => new Date(b.createdAt || b.purchaseDate).getTime() - new Date(a.createdAt || a.purchaseDate).getTime());
+
+      setUnifiedLedger(unified);
+      
       const totalRevenue = allInvoices.reduce((s, i) => s + i.grandTotal, 0);
       const paidAmount = allInvoices.filter(i => i.paymentStatus === 'paid').reduce((s, i) => s + i.grandTotal, 0);
       const pendingAmount = allInvoices.filter(i => i.paymentStatus === 'pending').reduce((s, i) => s + i.grandTotal, 0);
@@ -54,17 +63,20 @@ export default function Accounting() {
 
       const methods: Record<string, number> = {};
       allInvoices.forEach(i => {
-        if (i.paymentStatus === 'paid') {
-          methods[i.paymentMethod] = (methods[i.paymentMethod] || 0) + i.grandTotal;
-        }
+        const m = i.paymentMethod || 'CASH';
+        methods[m] = (methods[m] || 0) + i.grandTotal;
       });
-      const methArr = Object.entries(methods).map(([name, value]) => ({ name: name.toUpperCase(), value }));
+      const methArr = Object.entries(methods).map(([name, value]) => ({ 
+        name: name.toUpperCase(), 
+        value 
+      })).sort((a, b) => b.value - a.value);
 
-      // Set all at once to minimize re-renders
       setInvoices(allInvoices);
       setStats({ totalRevenue, paidAmount, pendingAmount, cashIn });
       setChartData(trend);
       setMethodData(methArr);
+      setPlData(plRes.data?.data);
+      setPurchases(allPurchases);
     } catch (err) {
       console.error('Accounting Sync Error:', err);
     } finally {
@@ -77,7 +89,8 @@ export default function Accounting() {
     
     const syncChannel = new BroadcastChannel('nexus_sync');
     const handleSync = (event: any) => {
-      if (event.data === 'SYNC_PURCHASES' || event.data === 'SYNC_PARTIES') {
+      const triggers = ['SYNC_PURCHASES', 'SYNC_PARTIES', 'SYNC_INVOICES', 'SYNC_PRODUCTS'];
+      if (triggers.includes(event.data)) {
         fetchAll();
       }
     };
@@ -89,8 +102,6 @@ export default function Accounting() {
     };
   }, [fetchAll]);
 
-  const filtered = filter === 'all' ? invoices : invoices.filter(i => i.paymentStatus === filter);
-  const displayedLedger = showAllLedger ? filtered : filtered.slice(0, LIMIT);
   const METHOD_COLORS: Record<string, string> = { CASH: '#6366f1', UPI: '#10b981', CARD: '#f59e0b', ONLINE: '#8b5cf6' };
 
   return (
@@ -106,8 +117,8 @@ export default function Accounting() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <AccountingStat label="TOTAL REVENUE" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="rose" />
-        <AccountingStat label="PAID AMOUNT" value={`₹${stats.paidAmount.toLocaleString()}`} icon={CheckCircle} color="amber" />
+        <AccountingStat label="TOTAL REVENUE" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="emerald" />
+        <AccountingStat label="PAID AMOUNT" value={`₹${stats.paidAmount.toLocaleString()}`} icon={ShieldCheck} color="indigo" />
         <AccountingStat label="PENDING DUES" value={`₹${stats.pendingAmount.toLocaleString()}`} icon={Clock} color="amber" />
         <AccountingStat label="CASH IN HAND" value={`₹${stats.cashIn.toLocaleString()}`} icon={Wallet} color="rose" />
       </div>
@@ -133,13 +144,13 @@ export default function Accounting() {
         </div>
 
         <div className="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col h-[360px] overflow-hidden">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">Payment Methods</h2>
+          <h2 className="text-lg font-semibold text-slate-800 mb-4 uppercase tracking-tight">Payment Methods</h2>
           {methodData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
               <ResponsiveContainer width="100%" height={260} minWidth={0}>
                 <BarChart data={methodData} barSize={20}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                  <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
+                  <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 700 }} axisLine={false} tickLine={false} dy={10} />
                   <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString('en-IN')}`, '']} contentStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 900, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                     {methodData.map((entry) => (
@@ -155,128 +166,140 @@ export default function Accounting() {
         </div>
       </div>
 
-      <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden mt-4">
-        <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">Transaction History</h2>
-          <div className="flex gap-2">
-            {(['all', 'paid', 'pending'] as const).map(f => (
-              <button key={f} onClick={() => setFilter(f)} className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all ${filter === f ? 'bg-slate-900 text-white shadow-lg shadow-slate-100' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>
-                {f}
-              </button>
-            ))}
+      <div className="w-full bg-white border-2 border-slate-100 rounded-[2rem] p-4 sm:p-6 shadow-sm my-2 sm:my-4 overflow-hidden">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 sm:mb-8 px-2 sm:px-0">
+            <div>
+               <h2 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight font-inter leading-tight">Profit & Loss Summary</h2>
+               <p className="text-[8px] font-bold text-slate-300 uppercase tracking-[0.2em] mt-1.5">Real-time Fiscal Forensics</p>
+            </div>
+            <span className="inline-block px-3 py-1.5 bg-slate-50 text-[9px] font-black text-slate-400 rounded-xl border border-slate-100 uppercase tracking-widest whitespace-nowrap">
+               All Operations
+            </span>
+         </div>
+         
+         <div className="space-y-3 sm:space-y-4 w-full">
+            <PLRow label="Total Sales" value={plData?.totalSales} color="emerald" type="positive" />
+            <PLRow label="Cost of Goods Sold" value={plData?.cogs} color="rose" type="negative" />
+            <PLRow label="Operating Expenses" value={plData?.operatingExpenses} color="rose" type="negative" />
+            <PLRow label="Tax Liabilities" value={plData?.taxLiabilities} color="rose" type="negative" />
+            
+            <div className="pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-slate-50 flex items-center justify-between px-2 sm:px-0">
+               <span className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight font-inter uppercase">
+                  {plData?.netProfit >= 0 ? 'Net Profit' : 'Net Loss'}
+               </span>
+               <span className={`text-lg sm:text-2xl font-semibold tracking-tighter ${plData?.netProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  {plData?.netProfit >= 0 ? '+' : '-'}₹{Math.abs(plData?.netProfit || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+               </span>
+            </div>
+         </div>
+      </div>
+
+      {/* Unified Financial Activity — The Master Ledger */}
+      <div className="bg-white border-2 border-slate-200 rounded-[2rem] shadow-sm overflow-hidden mt-6 font-inter">
+        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white">
+          <div className="flex items-center gap-4">
+             <div className="w-1.5 h-8 bg-indigo-600 rounded-full" />
+             <div>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Unified Financial Activity</h2>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Dual-Axis Liquidity Protocol</p>
+             </div>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-[9px] font-black text-slate-500 uppercase">Received</span>
+             </div>
+             <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-rose-500" />
+                <span className="text-[9px] font-black text-slate-500 uppercase">Paid Out</span>
+             </div>
           </div>
         </div>
-        {loading ? (
-          <div className="py-20 text-center text-slate-300 font-black uppercase text-[10px] tracking-[0.2em] animate-pulse">Scanning Nodes...</div>
-        ) : (
-          <div className="flex flex-col">
-            {/* Mobile Cards */}
-            <div className="lg:hidden divide-y divide-slate-50">
-              {displayedLedger.length === 0 ? (
-                <div className="py-20 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest">No transactions filed</div>
-              ) : (
-                displayedLedger.map(inv => (
-                  <div key={inv._id} onClick={() => setSelectedInvoice(inv)} className="p-4 active:bg-slate-50 transition-colors flex flex-col gap-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex flex-col">
-                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{inv.invoiceNumber || 'NO_ID'}</span>
-                         <span className="text-sm font-semibold text-slate-900 truncate max-w-[150px]">{inv.customerName || 'Walk-in Client'}</span>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
-                        inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
-                      }`}>
-                        {inv.paymentStatus}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-end border-t border-slate-50 pt-3">
-                       <div className="flex flex-col gap-1">
-                          <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Protocol</span>
-                          <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200 w-fit">
-                            {inv.paymentMethod.toUpperCase()}
-                          </span>
-                       </div>
-                       <div className="text-right">
-                          <p className="text-[8px] font-semibold text-slate-300 uppercase tracking-widest mb-0.5">Settled Amount</p>
-                          <p className="text-lg font-semibold text-slate-900 tracking-tighter">₹ {(Number(inv.grandTotal || 0)).toLocaleString('en-IN')}</p>
-                       </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
 
-            {/* Desktop Table */}
-            <div className="hidden lg:block overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left table-fixed min-w-[900px]">
-                <thead>
-                  <tr className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                    <th className="px-6 py-4 w-[25%]">INVOICE NO</th>
-                    <th className="px-6 py-4 w-[25%]">CUSTOMER</th>
-                    <th className="px-6 py-4 w-[15%]">METHOD</th>
-                    <th className="px-6 py-4 w-[12%] text-center">STATUS</th>
-                    <th className="px-6 py-4 w-[10%]">DATE</th>
-                    <th className="px-6 py-4 w-[13%] text-right">AMOUNT</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {displayedLedger.length === 0 ? (
-                    <tr><td colSpan={6} className="py-20 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest">No transactions filed</td></tr>
-                  ) : displayedLedger.map(inv => (
-                    <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-widest">
-                            {inv.invoiceNumber || '—'}
-                          </span>
-                          <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">
-                            Audit Log Linked
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-widest">{inv.customerName || 'Walk-in'}</span>
-                          <span className="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-widest">Business Entity</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                         <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black uppercase rounded-lg text-slate-500 border border-slate-200">
-                            {inv.paymentMethod.toUpperCase()}
-                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase border transition-all ${
-                          inv.paymentStatus === 'paid' 
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-                            : 'bg-rose-50 text-rose-600 border-rose-100'
-                        }`}>
-                          {inv.paymentStatus}
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left table-fixed min-w-[950px]">
+            <thead>
+              <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
+                <th className="px-8 py-4 w-[7%] text-center">FLOW</th>
+                <th className="px-6 py-4 w-[25%] text-left">TRANSACTION / ID</th>
+                <th className="px-6 py-4 w-[18%] text-left">NAME</th>
+                <th className="px-6 py-4 w-[8%] text-left pl-0">METHOD</th>
+                <th className="px-6 py-4 w-[10%] text-center">STATUS</th>
+                <th className="px-6 py-4 w-[12%] text-center">DATE</th>
+                <th className="px-6 py-4 w-[20%] text-right pr-12">NET VALUE</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {unifiedLedger.length === 0 ? (
+                <tr><td colSpan={7} className="py-24 text-center text-slate-200 font-semibold uppercase text-xs tracking-widest font-inter">Zero fiscal activity on this node</td></tr>
+              ) : (showAllLedger ? unifiedLedger : unifiedLedger.slice(0, 10)).map((entry: any) => {
+                const isSale = entry.entryType === 'SALE';
+                const Icon = isSale ? TrendingUp : TrendingDown;
+                
+                return (
+                  <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
+                    <td className="px-8 py-4 text-center">
+                       <div className={`mx-auto w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform group-hover:scale-110 ${
+                         isSale 
+                           ? 'bg-emerald-50 border-emerald-100 text-emerald-600' 
+                           : 'bg-rose-50 border-rose-100 text-rose-600'
+                       }`}>
+                          <Icon size={14} strokeWidth={3} />
+                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col min-w-0">
+                        <span className={`text-[11px] font-bold transition-all uppercase tracking-tight truncate ${isSale ? 'text-indigo-600 hover:underline' : 'text-emerald-600 hover:underline'}`}>
+                          {entry.invoiceNumber || (isSale ? 'SALE-' : 'PUR-') + entry._id.slice(-6).toUpperCase()}
                         </span>
-                      </td>
-                      <td className="px-6 py-4">
-                         <p className="text-[10px] font-semibold text-slate-900 uppercase">
-                           {new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                         </p>
-                         <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter">Registered</p>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                         <p className="text-base font-semibold text-slate-900">₹ {(Number(inv.grandTotal || 0)).toLocaleString('en-IN')}</p>
-                         <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.1em] mt-0.5">Settled Amt</p>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-        {filtered.length > LIMIT && (
-          <div className="p-6 bg-slate-50/30 border-t border-slate-50 text-center">
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+                          {isSale ? (entry.customerName || 'Walk-in Client') : (entry.vendorName || 'General Node')}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-left pl-0">
+                       <span className="px-2 py-0.5 bg-slate-50 text-[8px] font-black uppercase rounded-lg text-slate-400 border border-slate-100">
+                          {entry.paymentMethod?.toUpperCase() || 'SYSTEM'}
+                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[9px] font-black uppercase border transition-all shadow-sm ${
+                        entry.paymentStatus === 'paid' 
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                          : 'bg-rose-50 text-rose-500 border-rose-100'
+                      }`}>
+                        {entry.paymentStatus || 'pending'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                       <p className="text-[10px] font-bold text-slate-900 uppercase leading-none">
+                         {new Date(entry.createdAt || entry.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                       </p>
+                    </td>
+                    <td className="px-6 py-4 text-right pr-12">
+                       <p className={`text-sm font-semibold tracking-tight ${isSale ? 'text-emerald-600' : 'text-rose-600'}`}>
+                         {isSale ? '+' : '-'} ₹{Math.abs(Number(entry.grandTotal || 0)).toLocaleString('en-IN')}
+                       </p>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {unifiedLedger.length > 10 && (
+          <div className="p-6 bg-slate-50/50 border-t border-slate-100 text-center">
             <button
               onClick={() => setShowAllLedger(!showAllLedger)}
-              className="mx-auto px-8 py-2.5 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center"
+              className="mx-auto px-10 py-3 bg-white border-2 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center active:scale-95"
             >
-              {showAllLedger ? 'Collapse Ledger' : `See All Transactions (${filtered.length})`}
+              <Layout size={14} />
+              {showAllLedger ? 'SEE LESS' : `SEE ALL (${unifiedLedger.length} RECORDS)`}
             </button>
           </div>
         )}
@@ -311,6 +334,17 @@ const AccountingStat = memo(({ label, value, icon: Icon, color, sub }: any) => {
     </div>
   );
 });
+
+const PLRow = memo(({ label, value, color, type }: any) => (
+   <div className="flex flex-row items-center justify-between border-b border-slate-50 pb-3 last:border-0 font-inter gap-2">
+      <span className="text-[11px] sm:text-xs font-semibold text-slate-500 tracking-tight capitalize shrink-0">{label}</span>
+      <div className="flex items-center gap-1 shrink-0">
+         <span className={`text-[12px] sm:text-sm font-semibold tracking-tight whitespace-nowrap ${color === 'emerald' ? 'text-emerald-500' : 'text-rose-500'}`}>
+            {type === 'positive' ? '+' : '-'}₹{Math.abs(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+         </span>
+      </div>
+   </div>
+));
 
 
 

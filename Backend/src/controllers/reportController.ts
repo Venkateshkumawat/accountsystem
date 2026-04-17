@@ -618,4 +618,74 @@ export const getPurchaseReport = async (req: AuthRequest, res: Response): Promis
   }
 };
 
+/**
+ * Nexus P&L Forensics: The Profit & Loss Aggregation Node.
+ * Reconciles Sales Revenue vs COGS and Tax for net margin analysis.
+ */
+export const getProfitLoss = async (req: AuthRequest, res: Response): Promise<void> => {
+   try {
+      if (!req.tenantModels) {
+         res.status(500).json({ success: false, message: "Workspace node offline." });
+         return;
+      }
+      const { Invoice, Purchase } = req.tenantModels;
+      const adminIdStr = getBusinessAdminId(req);
+      const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+
+      // 1. All Lifetime Sales Aggregation (Excl. Tax)
+      const salesResult = await Invoice.aggregate([
+         { $match: { businessAdminId: businessAdminId as any } },
+         { $group: { 
+            _id: null, 
+            totalSales: { $sum: "$subtotal" }, 
+            outputGST: { $sum: "$totalGST" },
+            cogs: { 
+              $sum: { 
+                $reduce: {
+                  input: "$items",
+                  initialValue: 0,
+                  in: { $add: ["$$value", { $multiply: [{ $ifNull: ["$$this.purchasePrice", 0] }, "$$this.qty"] }] }
+                }
+              }
+            }
+         }}
+      ]);
+
+      const salesData = salesResult[0] || { totalSales: 0, outputGST: 0, cogs: 0 };
+
+      // 2. All Lifetime Purchases Aggregation (Excl. Tax)
+      const purchaseResult = await Purchase.aggregate([
+         { $match: { businessAdminId: businessAdminId as any } },
+         { $group: { 
+            _id: null, 
+            totalPurchase: { $sum: "$subtotal" },
+            inputGST: { $sum: "$totalGST" }
+         } }
+      ]);
+      
+      const purchaseData = purchaseResult[0] || { totalPurchase: 0, inputGST: 0 };
+      
+      // Calculate Net Profit: (Sales Revenue Excl. Tax) - (Purchase Costs Excl. Tax)
+      // Note: We use totalPurchase here as 'Operating Expenses' if we don't have separate expense nodes.
+      const netProfit = salesData.totalSales - purchaseData.totalPurchase;
+
+      // Net Tax Liability: GST from Sales - GST from Purchases (ITC)
+      const taxLiability = salesData.outputGST - purchaseData.inputGST;
+
+      res.status(200).json({
+         success: true,
+         data: {
+            period: "All Operations",
+            totalSales: salesData.totalSales,
+            cogs: salesData.cogs,
+            operatingExpenses: purchaseData.totalPurchase,
+            taxLiabilities: taxLiability,
+            netProfit: netProfit
+         }
+      });
+   } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+   }
+};
+
 

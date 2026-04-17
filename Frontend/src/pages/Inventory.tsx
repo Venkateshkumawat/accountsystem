@@ -377,7 +377,7 @@ export default function Inventory() {
               <Box size={32} className="text-slate-200" />
             </div>
             <h2 className="text-xl font-bold text-slate-900 tracking-tight">Protocol: No Nodes Found</h2>
-            <p className="text-sm font-medium text-slate-400 mt-1 uppercase tracking-widest">Selected spectrum contains zero data items.</p>
+            <p className="text-sm font-semibold font-inter tracking-tight text-slate-400 mt-1 uppercase tracking-widest">Selected spectrum contains zero data items.</p>
             {(searchTerm || activeFilter !== 'all' || selectedCategory) && (
               <button 
                 onClick={() => {setSearchTerm(''); setActiveFilter('all'); setSelectedCategory(null);}}
@@ -564,7 +564,7 @@ export default function Inventory() {
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Enter product title..."
-                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-base font-medium focus:bg-white focus:border-indigo-600 outline-none transition-all shadow-sm"
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-base font-semibold font-inter tracking-tight focus:bg-white focus:border-indigo-600 outline-none transition-all shadow-sm"
                   />
                 </div>
                 <div className="space-y-1.5">

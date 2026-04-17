@@ -95,6 +95,7 @@ const invoiceSchema = new Schema<IInvoice>(
         discount: { type: Number, default: 0 },
         freeQty: { type: Number, default: 0 },
         offerType: { type: String },
+        purchasePrice: { type: Number, required: true, default: 0 },
         total: { type: Number, required: true },
       },
     ],

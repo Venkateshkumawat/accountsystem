@@ -6,7 +6,8 @@ import {
   getInventoryReport,
   getTransactionReport,
   getGSTReport,
-  getPurchaseReport
+  getPurchaseReport,
+  getProfitLoss
 } from "../controllers/reportController.js";
 
 const router = express.Router();
@@ -23,5 +24,6 @@ router.get("/inventory", getInventoryReport);
 router.get("/transactions", getTransactionReport);
 router.get("/gst", getGSTReport);
 router.get("/purchase", getPurchaseReport);
+router.get("/pl", getProfitLoss);
 
 export default router;

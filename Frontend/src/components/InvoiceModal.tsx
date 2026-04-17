@@ -26,8 +26,17 @@ const numberToWords = (num: number) => {
 };
 
 export default function InvoiceModal({ invoice, onClose, type = 'sale' }: InvoiceModalProps) {
-  const [zoom, setZoom] = useState(0.4);
+  const [zoom, setZoom] = useState(window.innerWidth < 768 ? 0.35 : 0.85);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) setZoom(0.35);
+      else setZoom(0.85);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (!invoice) return null;
 
@@ -245,16 +254,16 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
                      </div>
                   </div>
 
-                  <div className="bg-sky-600 p-5 rounded-2xl shadow-lg shadow-sky-600/10 flex justify-between items-center text-white group hover:bg-sky-500 transition-colors cursor-default">
-                    <div className="flex items-center gap-4">
-                       <div className="w-1.5 h-8 bg-sky-300/40 rounded-full" />
-                       <div>
-                          <span className="text-[11px] font-black uppercase tracking-[0.2em] mb-0.5 block leading-none">Final Payable Bill</span>
-                          <p className="text-[7px] font-bold text-sky-100/40 uppercase leading-none italic">Net amount inclusive of all taxes</p>
+                  <div className="bg-sky-600 p-5 rounded-2xl shadow-lg shadow-sky-600/10 flex justify-between items-center text-white group hover:bg-sky-500 transition-colors cursor-default overflow-hidden">
+                    <div className="flex items-center gap-3 min-w-0">
+                       <div className="w-1.5 h-8 bg-sky-300/40 rounded-full shrink-0" />
+                       <div className="min-w-0 overflow-hidden">
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 block leading-none truncate">Final Payable</span>
+                          <p className="text-[7px] font-bold text-sky-100/40 uppercase leading-none italic truncate">Inclusive of all taxes</p>
                        </div>
                     </div>
-                    <div className="text-right">
-                       <span className="text-3xl font-black text-white tracking-tighter drop-shadow-sm">₹{displayGrandTotal.toFixed(2)}</span>
+                    <div className="text-right shrink-0 ml-4">
+                       <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter drop-shadow-sm whitespace-nowrap">₹{displayGrandTotal.toFixed(2)}</span>
                     </div>
                   </div>
                </div>

@@ -34,7 +34,8 @@ export default function GSTPortal() {
    const [loading, setLoading] = useState(true);
    const [period, setPeriod] = useState<'month' | 'quarter' | 'year'>('month');
    const [historyTab, setHistoryTab] = useState<'ALL' | 'INPUT' | 'OUTPUT'>('ALL');
-   const [historyLimit, setHistoryLimit] = useState(50); // Increased default for visibility
+   const [showAllHistory, setShowAllHistory] = useState(false);
+   const [historyLimit, setHistoryLimit] = useState(50);
 
    const filteredHistory = useMemo(() => {
       if (!gstData?.history) return [];
@@ -313,13 +314,18 @@ export default function GSTPortal() {
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 font-inter">
-                     {filteredHistory.length > 0 ? filteredHistory.map((item: any) => (
+                     {filteredHistory.length > 0 ? (showAllHistory ? filteredHistory : filteredHistory.slice(0, 10)).map((item: any) => (
                         <tr key={item._id} className="group hover:bg-slate-50/50 transition-all">
                            <td className="py-5 px-4">
-                              <div className="flex items-center gap-3">
+                              <div 
+                                onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}
+                                className="flex items-center gap-3 cursor-pointer group/link"
+                              >
                                  <div className={`w-1.5 h-8 rounded-full ${item.type === 'SALES' ? 'bg-indigo-600' : 'bg-emerald-600'}`} />
                                  <div className="flex flex-col">
-                                    <span className="text-xs font-bold text-slate-900 tracking-tight">{item.ref}</span>
+                                    <span className="text-xs font-bold text-slate-900 group-hover/link:text-indigo-600 group-hover/link:underline tracking-tight transition-all">
+                                       {item.ref}
+                                    </span>
                                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">{item.type}</span>
                                  </div>
                               </div>
@@ -377,6 +383,18 @@ export default function GSTPortal() {
                </table>
             </div>
          </div>
+
+         {filteredHistory.length > 10 && (
+           <div className="mt-8 mb-4 text-center">
+             <button
+               onClick={() => setShowAllHistory(!showAllHistory)}
+               className="mx-auto px-10 py-3 bg-white border-2 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center active:scale-95"
+             >
+               <Activity size={14} />
+               {showAllHistory ? 'SEE LESS' : `SEE ALL (${filteredHistory.length} EVENTS)`}
+             </button>
+           </div>
+         )}
 
          {/* Risk Notice Protocol */}
          <div className="bg-amber-50/50 border border-amber-100 p-8 rounded-[3rem] flex items-center gap-6">

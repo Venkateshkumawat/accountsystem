@@ -91,7 +91,10 @@ export default function Dashboard() {
 
     const syncChannel = new BroadcastChannel('nexus_sync');
     syncChannel.onmessage = (event) => {
-      if (event.data === 'FETCH_DASHBOARD') fetchDashboard(true);
+      const triggers = ['SYNC_PURCHASES', 'SYNC_PARTIES', 'SYNC_INVOICES', 'SYNC_PRODUCTS', 'FETCH_DASHBOARD'];
+      if (triggers.includes(event.data)) {
+        fetchDashboard(true);
+      }
     };
 
     return () => {
@@ -198,7 +201,7 @@ export default function Dashboard() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10, fontWeight: 500 }} />
                 <Tooltip cursor={{ fill: '#F8FAFC' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -1px rgb(0 0 0 / 0.1)', fontWeight: 600, fontSize: 10 }} />
                 <Bar dataKey="revenue" radius={[6, 6, 0, 0]} barSize={24}>
-                  {chartData.map((_e, i) => <Cell key={i} fill={i === 3 ? '#4F46E5' : '#e2e8f0'} />)}
+                  {chartData.map((_e, i) => <Cell key={i} fill={i === chartData.length - 1 ? '#4F46E5' : '#e2e8f0'} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
