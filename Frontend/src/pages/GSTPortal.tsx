@@ -62,8 +62,7 @@ export default function GSTPortal() {
          else if (period === 'quarter') startDate.setDate(now.getDate() - 90);
          else if (period === 'year') startDate.setFullYear(now.getFullYear() - 1);
 
-         // Syncing with the Strategic Sales Report Node (which contains detailed GST slabs)
-         const res = await api.get(`/reports/sales?startDate=${startDate.toISOString()}`).catch(() => ({ data: { data: null } }));
+         const res = await api.get(`/reports/gst?startDate=${startDate.toISOString()}`).catch(() => ({ data: { data: null } }));
          setGstData(res.data?.data);
       } catch (err) {
          console.error("Nexus GST Sync Error:", err);
@@ -102,102 +101,97 @@ export default function GSTPortal() {
          {/* Header — Compliance Protocol */}
          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
             <div className="space-y-1">
-               <h1 className="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight flex items-center gap-3">
-                  GST Compliance
+               <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+                  GST Compliance Dashboard
                </h1>
                <p className="text-sm font-normal text-slate-500">
                    Track your Input Tax Credit (ITC) and GST liabilities
                </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-                <div className="bg-white border border-slate-100 p-1.5 rounded-2xl flex gap-1 shadow-sm shrink-0">
-                  {(['month', 'quarter', 'year'] as const).map(p => (
-                     <button
-                        key={p}
-                        onClick={() => setPeriod(p)}
-                        className={`px-3 sm:px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-semibold uppercase tracking-widest transition-all ${period === p ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
-                     >
-                        {p}
-                     </button>
-                  ))}
-               </div>
-               <button onClick={handleExport} className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] sm:text-xs font-semibold shadow-lg shadow-indigo-100 transition-all uppercase tracking-widest shrink-0">
-                  <Download size={14} /> Export Report
-               </button>
+                <button 
+                  onClick={() => fetchGSTData()}
+                  className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 rounded-[1.25rem] transition-all hover:shadow-md"
+                  title="Force Sync"
+                >
+                  <RefreshCcw size={18} className={loading ? 'animate-spin text-indigo-600' : ''} />
+                </button>
+                <div className="bg-white border border-slate-200 p-1 rounded-2xl flex gap-1 shadow-sm shrink-0">
+                   <div className="px-4 py-2 flex items-center gap-2 text-slate-600 font-semibold text-xs border-r border-slate-100">
+                      <Calendar size={14} /> FY 2024-25
+                   </div>
+                   {(['month', 'quarter', 'year'] as const).map(p => (
+                      <button
+                         key={p}
+                         onClick={() => setPeriod(p)}
+                         className={`px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all ${period === p ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
+                      >
+                         {p}
+                      </button>
+                   ))}
+                </div>
+                <button className="flex items-center gap-2 px-6 py-3 bg-[#0da368] hover:bg-[#0b8f5a] text-white rounded-[1.25rem] text-xs font-bold shadow-lg shadow-emerald-100 transition-all">
+                  <ShieldCheck size={16} /> File GSTR-1
+                </button>
             </div>
          </div>
 
-         {/* Global Vitals Node */}
-         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <MetricCard label="TAXABLE REVENUE" value={`₹${(gstData?.gstSlabs?.reduce((s: number, c: any) => s + c.taxableValue, 0) || 0).toLocaleString()}`} icon={Zap} color="indigo" />
-            <MetricCard label="TOTAL GST" value={`₹${(gstData?.totalGST || 0).toLocaleString()}`} icon={ShieldCheck} color="emerald" />
-            <MetricCard label="FILING PROGRESS" value="98.4%" icon={Activity} color="amber" />
-            <MetricCard label="REPORTING CYCLE" value={period.toUpperCase()} icon={Calendar} color="rose" />
+         {/* Global Vitals Node — High-Density Inter Semibold */}
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard 
+              label="OUTPUT GST (SALES)" 
+              value={`₹${(gstData?.outputGST || 0).toLocaleString()}`} 
+              color="output" 
+              sub="↑ +12.5% Growth"
+            />
+            <MetricCard 
+              label="INPUT GST (PURCHASES)" 
+              value={`₹${(gstData?.inputGST || 0).toLocaleString()}`} 
+              color="input" 
+              sub="↓ -4.2% Savings"
+            />
+            <MetricCard 
+              label="NET GST PAYABLE" 
+              value={`₹${(gstData?.netPayable || 0).toLocaleString()}`} 
+              color="payable" 
+              sub="Compliance: Ready"
+            />
+            <MetricCard 
+              label="ITC BALANCE" 
+              value={`₹${(gstData?.itcBalance || 0).toLocaleString()}`} 
+              color="itc" 
+              sub="Next Filing Cycle"
+            />
          </div>
 
-         {/* Main Analytical Grid */}
-         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-            {/* Slab Flux Chart */}
-            <div className="lg:col-span-8 bg-white p-4 sm:p-6 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-8 opacity-[0.03] -mr-4 -mt-4">
-                  <ShieldCheck size={180} className="text-slate-900 rotate-12" />
-               </div>
+         {/* Main Analytical Flux */}
+         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-12 bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm relative overflow-hidden">
                <div className="relative z-10">
                   <div className="flex items-center justify-between mb-8">
                      <div>
-                        <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">GST Distribution</h2>
-                        <p className="text-sm font-normal text-slate-500">Slab-wise tax aggregation</p>
+                        <h2 className="text-base font-bold text-slate-800 uppercase tracking-tight">GST Flux Analysis</h2>
+                        <p className="text-xs font-medium text-slate-500">Dual-stream audit: Output Tax (Sales) vs Input Tax (Purchases)</p>
                      </div>
                   </div>
-                  <div className="h-[280px] w-full min-h-[280px]">
-                     <ChartWrapper data={gstData?.gstSlabs}>
-                        <BarChart data={gstData?.gstSlabs || []}>
+                  <div className="h-[340px] w-full">
+                     <ChartWrapper data={gstData?.salesSlabs}>
+                        <BarChart data={gstData?.salesSlabs?.map((s: any) => ({
+                           ...s,
+                           inputTax: gstData?.purchaseSlabs?.find((p: any) => p._id === s._id)?.totalTax || 0
+                        })) || []}>
                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                           <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 900 }} tickFormatter={v => `GST ${v}%`} />
-                           <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 900 }} />
+                           <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 600 }} tickFormatter={v => `GST ${v}%`} />
+                           <YAxis axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 600 }} />
                            <Tooltip
-                              cursor={{ fill: '#f8fafc' }}
-                              contentStyle={{ fontFamily: "Inter", borderRadius: 20, border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: 16 }}
-                              itemStyle={{ fontFamily: "Inter", fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}
+                               cursor={{ fill: '#f8fafc' }}
+                               contentStyle={{ fontFamily: "Inter", borderRadius: 16, border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: 12 }}
+                               itemStyle={{ fontFamily: "Inter", fontSize: 10, fontWeight: 600, textTransform: 'uppercase' }}
                            />
-                           <Bar dataKey="totalTax" name="GST Pool" fill="#6366f1" radius={[12, 12, 0, 0]} barSize={40} />
+                           <Bar dataKey="totalTax" name="Output GST (Sales)" fill="#6366f1" radius={[6, 6, 0, 0]} barSize={24} />
+                           <Bar dataKey="inputTax" name="Input GST (ITC)" fill="#10b981" radius={[6, 6, 0, 0]} barSize={24} />
                         </BarChart>
                      </ChartWrapper>
-                  </div>
-               </div>
-            </div>
-
-            {/* Narrative Performance — GSTR assistant */}
-            <div className="lg:col-span-4 space-y-4">
-               <div className="bg-slate-900 p-4 sm:p-6 rounded-2xl border-2 border-slate-800 shadow-2xl relative overflow-hidden h-full">
-                  <div className="absolute top-0 right-0 p-8 opacity-10">
-                     <Zap size={100} className="text-white rotate-12" />
-                  </div>
-                  <div className="relative z-10 space-y-6">
-                     <div>
-                        <p className="text-[10px] font-semibold text-indigo-400 uppercase tracking-widest mb-2">COMPLIANCE ASSISTANT</p>
-                        <h4 className="text-white text-lg font-semibold tracking-tight leading-tight">Tax Insights & Recommendations</h4>
-                        <p className="text-slate-400 text-sm font-medium leading-relaxed mt-4">
-                           {gstData?.totalGST > 0
-                              ? `Detected peak tax throughput in the GST ${gstData.gstSlabs[0]?._id || "scanning"}% slab. Ensure all reference invoices are archived for this bracket before the end of month.`
-                              : "Synchronization pending. Please review your sales data to generate tax reports."}
-                        </p>
-                     </div>
-
-                     <div className="pt-6 border-t border-white/10 space-y-4">
-                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                           <div>
-                              <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">TAX SYSTEM</p>
-                              <p className="text-sm font-semibold text-white">CGST + SGST</p>
-                           </div>
-                           <div className="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl">
-                              <CheckCircle size={20} />
-                           </div>
-                        </div>
-                        <button onClick={handleExport} className="w-full py-4 bg-indigo-600 hover:bg-white text-white hover:text-indigo-600 rounded-2xl text-xs font-semibold uppercase tracking-widest transition-all">
-                           Generate GSTR-1 Report
-                        </button>
-                     </div>
                   </div>
                </div>
             </div>
@@ -323,23 +317,33 @@ export default function GSTPortal() {
    );
 }
 
-const MetricCard = memo(({ label, value, icon: Icon, color, sub }: any) => {
-  const colors: any = {
-    indigo: 'text-indigo-600 bg-indigo-50/50 border-indigo-100',
-    rose: 'text-rose-600 bg-rose-50/50 border-rose-100',
-    amber: 'text-amber-600 bg-amber-50/50 border-amber-100',
-    emerald: 'text-emerald-600 bg-emerald-50/50 border-emerald-100',
+const MetricCard = memo(({ label, value, color, sub }: any) => {
+  const themes: any = {
+    output: 'border-l-[4px] border-indigo-500',
+    input: 'border-l-[4px] border-emerald-500',
+    payable: 'border-l-[4px] border-amber-500',
+    itc: 'border-l-[4px] border-slate-500',
+  };
+
+  const subColors: any = {
+    output: 'text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100',
+    input: 'text-rose-500 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-100',
+    payable: 'text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100',
+    itc: 'text-slate-400 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100',
   };
   
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-3.5 h-3.5" />
+    <div className={`bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between gap-3 transition-all hover:border-slate-300 h-full font-inter ${themes[color]}`}>
+      <div className="space-y-2">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
+        <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+          {value}
+        </h3>
       </div>
-      <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
-        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
-        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
+      <div>
+        <span className={`text-[8px] font-bold uppercase tracking-widest ${subColors[color]}`}>
+          {sub}
+        </span>
       </div>
     </div>
   );

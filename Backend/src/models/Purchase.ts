@@ -5,6 +5,8 @@ export interface IPurchaseItem {
   name: string;
   qty: number;
   purchasePrice: number;
+  gstRate: number;
+  gstAmount: number;
   total: number;
 }
 
@@ -46,6 +48,8 @@ const purchaseSchema = new Schema<IPurchase>(
         name: { type: String, required: true },
         qty: { type: Number, required: true },
         purchasePrice: { type: Number, required: true },
+        gstRate: { type: Number, default: 0 },
+        gstAmount: { type: Number, default: 0 },
         total: { type: Number, required: true },
       },
     ],

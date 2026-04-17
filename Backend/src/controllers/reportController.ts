@@ -361,7 +361,7 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
       res.status(500).json({ success: false, message: "Workspace node offline." });
       return;
     }
-    const { Invoice } = req.tenantModels;
+    const { Invoice, Purchase } = req.tenantModels;
     const adminIdStr = getBusinessAdminId(req);
     const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
     const { startDate, endDate } = req.query;
@@ -377,21 +377,84 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
       }
     }
 
-    const slabs = await Invoice.aggregate([
-      { $match: match },
-      { $unwind: "$items" },
-      {
-        $group: {
-          _id: "$items.gstRate",
-          totalGST: { $sum: "$items.gstAmount" },
-          taxableValue: { $sum: { $subtract: ["$items.total", "$items.gstAmount"] } },
-          itemCount: { $sum: "$items.qty" }
-        }
-      },
-      { $sort: { _id: 1 } }
+    const [salesSlabs, purchaseSlabs] = await Promise.all([
+      Invoice.aggregate([
+        { $match: match },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.gstRate",
+            totalTax: { $sum: "$items.gstAmount" },
+            taxableValue: { $sum: { $subtract: ["$items.total", "$items.gstAmount"] } },
+            count: { $sum: "$items.qty" }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+      Purchase.aggregate([
+        { $match: match },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.gstRate",
+            totalTax: { $sum: { $multiply: ["$items.purchasePrice", "$items.qty", { $divide: ["$items.gstRate", 100] }] } },
+            taxableValue: { $sum: { $multiply: ["$items.purchasePrice", "$items.qty"] } },
+            count: { $sum: "$items.qty" }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ])
     ]);
 
-    res.status(200).json({ success: true, data: { slabs } });
+    const outputGST = salesSlabs.reduce((s, c) => s + c.totalTax, 0);
+    const inputGST = purchaseSlabs.reduce((s, c) => s + c.totalTax, 0);
+
+     // Fetch History Ledger: Unified Sales and Purchases
+     const [recentSales, recentPurchases] = await Promise.all([
+       Invoice.find({ ...match, totalGST: { $gt: 0 } }).sort({ createdAt: -1 }).limit(10).lean(),
+       Purchase.find({ 
+         businessAdminId: businessAdminId as any,
+         totalGST: { $gt: 0 },
+         $or: [
+           { purchaseDate: match.createdAt },
+           { createdAt: match.createdAt }
+         ]
+       }).sort({ createdAt: -1 }).limit(10).lean()
+     ]);
+
+     const history = [
+       ...recentSales.map((s: any) => ({
+         _id: s._id,
+         type: 'SALES',
+         ref: s.invoiceNumber,
+         date: s.createdAt,
+         taxable: s.subtotal,
+         gst: s.totalGST,
+         status: 'COLLECTED'
+       })),
+       ...recentPurchases.map((p: any) => ({
+         _id: p._id,
+         type: 'PURCHASE',
+         ref: p.billNumber,
+         date: p.purchaseDate || p.createdAt,
+         taxable: p.subtotal,
+         gst: p.totalGST,
+         status: 'PAID'
+       }))
+     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+     res.status(200).json({ 
+       success: true, 
+       data: { 
+         salesSlabs, 
+         purchaseSlabs,
+         outputGST,
+         inputGST,
+         netPayable: Math.max(0, outputGST - inputGST),
+         itcBalance: Math.max(0, inputGST - outputGST),
+         history
+       } 
+     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

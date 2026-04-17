@@ -48,9 +48,6 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
       const product = await Product.findOne({ _id: item.productId }).session(session);
       if (!product) throw new Error(`Product not found: ${item.productId}`);
 
-      const itemTotal = item.purchasePrice * item.qty;
-      subtotal += itemTotal;
-
       // Increase stock on purchase
       await Product.updateOne(
         { _id: item.productId },
@@ -63,8 +60,12 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
         name: product.name,
         qty: item.qty,
         purchasePrice: item.purchasePrice,
-        total: itemTotal,
+        gstRate: product.gstRate || 0,
+        gstAmount: (item.purchasePrice * item.qty * (product.gstRate || 0)) / 100,
+        total: item.total || (item.purchasePrice * item.qty * (1 + (product.gstRate || 0) / 100)),
       });
+
+      subtotal += (item.purchasePrice * item.qty);
     }
 
     const totalGST = req.body.totalGST || 0;
