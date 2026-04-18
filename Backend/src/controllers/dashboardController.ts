@@ -63,7 +63,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       Staff.countDocuments({ businessAdminId: businessAdminId as any, isActive: true }),
       Activity.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).lean(),
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any } }, { $unwind: "$items" }, { $group: { _id: "$items.name", totalRevenue: { $sum: "$items.total" } } }, { $sort: { totalRevenue: -1 } }, { $limit: 10 }, { $project: { name: "$_id", totalRevenue: 1, _id: 0 } }]),
-      Invoice.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).select('invoiceNumber customerName customerPhone customerAddress customerEmail customerGstin items subtotal totalGST totalDiscount grandTotal paymentStatus paymentMethod businessDetails createdAt').lean(),
+      Invoice.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).select('transactionId invoiceNumber customerName customerPhone customerAddress customerEmail customerGstin items subtotal totalGST totalDiscount grandTotal paymentStatus paymentMethod businessDetails createdAt').lean(),
       Product.find({ businessAdminId: businessAdminId as any, isActive: true, $expr: { $lte: ["$stock", "$lowStockThreshold"] } }).limit(5).select('name stock lowStockThreshold').lean(),
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (15 * 24 * 60 * 60 * 1000)) } } }, { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, revenue: { $sum: "$grandTotal" } } }, { $sort: { _id: 1 } }])
     ]);

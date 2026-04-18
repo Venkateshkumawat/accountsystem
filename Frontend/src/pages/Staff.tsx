@@ -256,7 +256,7 @@ export default function Staff() {
   const activeCount = staff.filter(s => s.isActive).length;
 
   return (
-    <div className="space-y-6  min-h-screen">
+    <div className="space-y-4  min-h-screen">
       {/* Toast */}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {/* Confirm Delete */}

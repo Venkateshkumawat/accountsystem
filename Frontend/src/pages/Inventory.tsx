@@ -165,14 +165,16 @@ export default function Inventory() {
     }
   };
 
-  const lowStockThreshold = 10;
+  const lowStockThreshold = 20;
+  const criticalThreshold = 10;
   
   // 🛰️ Memorialized Analytical Compute Node
   const analytics = React.useMemo(() => {
-    const low = products.filter(p => p.stock > 0 && p.stock <= (p.lowStockThreshold || lowStockThreshold)).length;
+    const critical = products.filter(p => p.stock > 0 && p.stock < criticalThreshold).length;
+    const low = products.filter(p => p.stock >= criticalThreshold && p.stock < lowStockThreshold).length;
     const out = products.filter(p => p.stock <= 0).length;
     const totalVal = products.reduce((acc, p) => acc + ((p.sellingPrice - (p.discount || 0)) * p.stock), 0);
-    return { low, out, totalVal };
+    return { critical, low, out, totalVal };
   }, [products]);
 
   const filteredProducts = React.useMemo(() => {
@@ -182,7 +184,7 @@ export default function Inventory() {
       
       if (!matchesSearch) return false;
       
-      if (activeFilter === 'lowStock') return p.stock > 0 && p.stock <= (p.lowStockThreshold || lowStockThreshold);
+      if (activeFilter === 'lowStock') return p.stock > 0 && p.stock < lowStockThreshold;
       if (activeFilter === 'outOfStock') return p.stock <= 0;
       if (activeFilter === 'category' && selectedCategory) return p.category === selectedCategory;
       return true;
@@ -258,9 +260,9 @@ export default function Inventory() {
   };
 
   return (
-    <div className="space-y-6 min-h-screen p-2 font-inter bg-slate-50/50">
+    <div className="space-y-4 min-h-screen p-2 font-inter bg-slate-50/50">
       {/* Header & Metric Suite */}
-      <div className="space-y-6 px-2">
+      <div className="space-y-4 px-2">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-col gap-1.5">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full w-fit">
@@ -313,10 +315,10 @@ export default function Inventory() {
           <div onClick={() => handleMetricClick('lowStock')} className="cursor-pointer">
             <InventoryStat 
               label="Stock Alarms" 
-              value={(analytics.low + analytics.out).toString()} 
+              value={(analytics.critical + analytics.low + analytics.out).toString()} 
               icon={AlertTriangle} 
-              color={activeFilter === 'lowStock' || activeFilter === 'outOfStock' ? 'rose' : 'slate'} 
-              sub={`${analytics.out} Out of Stock | ${analytics.low} Running Low`}
+              color={analytics.critical > 0 ? 'rose' : analytics.low > 0 ? 'amber' : 'slate'} 
+              sub={`${analytics.out} Out | ${analytics.critical} Critical | ${analytics.low} Low`}
             />
           </div>
           <div onClick={() => handleMetricClick('all')} className="cursor-pointer">
@@ -337,7 +339,7 @@ export default function Inventory() {
               onClick={() => setActiveFilter('lowStock')}
               className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-all ${activeFilter === 'lowStock' ? 'bg-rose-500 text-white border-rose-500' : 'bg-white text-rose-500 border-rose-100 hove:bg-rose-50'}`}
             >
-              Running Low ({analytics.low})
+              Alert Node ({analytics.critical + analytics.low})
             </button>
             <button 
               onClick={() => setActiveFilter('outOfStock')}
@@ -444,8 +446,8 @@ export default function Inventory() {
                                 <span className="font-bold text-slate-900 text-lg tracking-tight leading-none">₹{product.sellingPrice - product.discount}</span>
                               </div>
                             </div>
-                            <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900 animate-pulse' : product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                              {product.stock <= 0 ? 'Out of Stock' : `Stock: ${product.stock}`}
+                            <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900 animate-pulse' : product.stock < criticalThreshold ? 'bg-rose-50 text-rose-600 border-rose-100' : product.stock < lowStockThreshold ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
+                              {product.stock <= 0 ? 'Out of Stock' : `Stock Unit: ${product.stock}`}
                             </div>
                           </div>
                         </div>
@@ -469,7 +471,7 @@ export default function Inventory() {
                   <thead className="bg-slate-50/50">
                     <tr className="text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
                       <th className="px-6 py-4">Product Protocol</th>
-                      <th className="px-6 py-4 text-center">Stock Node</th>
+                      <th className="px-6 py-4 text-center">Stock Unit</th>
                       <th className="px-6 py-4 text-center">Factual Price</th>
                       <th className="px-6 py-4 text-center">Node State</th>
                       <th className="px-6 py-4 text-right">Actions</th>
@@ -479,7 +481,7 @@ export default function Inventory() {
                     {groupedProducts[category].map((product: any) => {
                       const productImg = getImageUrl(product.image);
                       return (
-                        <tr key={product._id} className="hover:bg-slate-50/30 transition-colors group">
+                        <tr key={product._id} className="bg-white hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-3">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
@@ -515,12 +517,12 @@ export default function Inventory() {
                             </div>
                           </td>
                           <td className="px-6 py-3 text-center">
-                            <span className={`${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900' : product.stock > (product.lowStockThreshold || 10) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm`}>
-                              {product.stock <= 0 ? 'OUT OF STOCK' : product.stock > (product.lowStockThreshold || 10) ? 'IN STOCK' : 'LOW STOCK'}
+                            <span className={`${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900' : product.stock < criticalThreshold ? 'bg-rose-50 text-rose-600 border-rose-100' : product.stock < lowStockThreshold ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm`}>
+                              {product.stock <= 0 ? 'OUT OF STOCK' : product.stock < lowStockThreshold ? 'LOW STOCK' : 'IN STOCK'}
                             </span>
                           </td>
                           <td className="px-6 py-3.5 text-right">
-                            <div className="flex justify-end gap-1.5 transition-all">
+                            <div className="flex justify-end gap-1.5 opacity-100 transition-all">
                               {isAuthorized && (
                                 <>
                                   <button onClick={() => handleEdit(product)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-100 rounded-lg transition-all active:scale-75 shadow-sm"><Edit3 size={13} /></button>
@@ -562,7 +564,7 @@ export default function Inventory() {
                   <input
                     required
                     value={formData.name}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    onChange={e => setFormData({ ...formData, name: e.target.value.replace(/[^a-zA-Z0-9\s]/g, '') })}
                     placeholder="Enter product title..."
                     className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-base font-semibold font-inter tracking-tight focus:bg-white focus:border-indigo-600 outline-none transition-all shadow-sm"
                   />
@@ -727,7 +729,7 @@ function InventoryStat({ label, value, icon: Icon, color, sub }: any) {
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2 overflow-hidden text-ellipsis whitespace-nowrap">{label}</p>
-        <h3 className="text-xl font-extrabold text-slate-900 leading-tight truncate tracking-tight">{value}</h3>
+        <h3 className="text-xl font-semibold text-slate-900 leading-tight truncate tracking-tight font-inter">{value}</h3>
         {sub && <p className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${color === 'rose' ? 'text-rose-500' : 'text-slate-400'} truncate`}>{sub}</p>}
       </div>
       {(label === 'Stock Alerts' && value !== '0') && (

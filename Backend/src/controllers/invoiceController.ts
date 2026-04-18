@@ -9,6 +9,7 @@ import { createNotification } from "./notificationController.js";
 import { getIO } from "../socket.js";
 import Business from "../models/Business.js";
 import { applyOffer } from "../utils/offerEngine.js";
+import { generateTransactionId } from "../utils/transactionUtils.js";
 
 /**
  * @desc    Create a new invoice with transactional safety
@@ -144,6 +145,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     const grandTotal = subtotal - totalDiscount + totalGST;
     const adminIdStr = businessAdminId.toString();
     const invoiceNumber = `BB-${adminIdStr.slice(-5)}-${Date.now()}`;
+    const transactionId = await generateTransactionId(Invoice, adminIdStr);
     
     // Auto-finalize 'paid' status for cash or verified digital payments
     const isCashPayment = paymentMethod?.toLowerCase() === 'cash' || paymentMethod?.toLowerCase() === 'upi';
@@ -163,6 +165,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       businessId: businessId as any,
       businessAdminId: businessAdminId as any,
       createdBy: userId as any,
+      transactionId,
       invoiceNumber,
       customerName,
       customerPhone,
@@ -198,7 +201,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
         recordedBy: userId as any,
         amount: grandTotal,
         method: paymentMethod,
-        transactionId: razorpayPaymentId || undefined,
+        transactionId: razorpayPaymentId || transactionId,
         status: 'completed',
         paidAt: new Date()
       }] as any, { session });
@@ -213,6 +216,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     await Transaction.create({
       businessId: businessId as any,
       businessAdminId: businessAdminId as any,
+      transactionId,
       userId: userId as any,
       type: 'sale',
       amount: grandTotal,
@@ -222,7 +226,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       referenceId: invoice._id as any,
       referenceModel: 'Invoice',
       paymentMethod: paymentMethod || 'unknown',
-      description: `Sale to ${customerName || 'Walk-in'} (Ref: ${invoiceNumber})`
+      description: `Sale to ${customerName || 'Walk-in'} (Ref: ${transactionId})`
     });
 
     await logActivity(req, "TRANSACTION", "INVOICE", `Generated invoice ${invoiceNumber}`, (invoice._id as any).toString());

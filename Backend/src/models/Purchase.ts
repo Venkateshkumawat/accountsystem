@@ -11,36 +11,44 @@ export interface IPurchaseItem {
 }
 
 export interface IPurchase extends Document {
-  businessId: mongoose.Types.ObjectId;
-  businessAdminId: mongoose.Types.ObjectId;
-  createdBy: mongoose.Types.ObjectId;
-  billNumber: string;
-  vendorName: string;
-  vendorPhone?: string;
-  vendorGstin?: string;
-  items: IPurchaseItem[];
-  subtotal: number;
-  totalGST: number;
-  grandTotal: number;
-  paymentMethod: 'cash' | 'upi' | 'card' | 'credit' | 'razorpay';
-  paymentStatus: 'paid' | 'pending' | 'partial';
-  note?: string;
-  razorpayPaymentId?: string;
-  razorpayOrderId?: string;
-  razorpaySignature?: string;
-  purchaseDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const purchaseSchema = new Schema<IPurchase>(
-  {
-    businessId: { type: Schema.Types.ObjectId, ref: "Business", required: true },
-    businessAdminId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    billNumber: { type: String, required: true, unique: true },
+   businessId: mongoose.Types.ObjectId;
+   businessAdminId: mongoose.Types.ObjectId;
+   createdBy: mongoose.Types.ObjectId;
+   transactionId: string;
+   billNumber: string;
+   vendorName: string;
+   vendorCompany?: string;
+   vendorPhone?: string;
+   vendorEmail?: string;
+   vendorAddress?: string;
+   vendorGstin?: string;
+   items: IPurchaseItem[];
+   subtotal: number;
+   totalGST: number;
+   grandTotal: number;
+   paymentMethod: 'cash' | 'upi' | 'card' | 'credit' | 'razorpay';
+   paymentStatus: 'paid' | 'pending' | 'partial';
+   note?: string;
+   razorpayPaymentId?: string;
+   razorpayOrderId?: string;
+   razorpaySignature?: string;
+   purchaseDate: Date;
+   createdAt: Date;
+   updatedAt: Date;
+ }
+ 
+ const purchaseSchema = new Schema<IPurchase>(
+   {
+     businessId: { type: Schema.Types.ObjectId, ref: "Business", required: true },
+     businessAdminId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+     transactionId: { type: String, required: true, unique: true },
+     billNumber: { type: String, required: true, unique: true },
     vendorName: { type: String, required: true, trim: true },
+    vendorCompany: { type: String, trim: true },
     vendorPhone: { type: String },
+    vendorEmail: { type: String },
+    vendorAddress: { type: String },
     vendorGstin: { type: String },
     items: [
       {

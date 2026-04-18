@@ -13,6 +13,7 @@ import { useNotify } from '../context/NotificationContext';
 import InvoiceModal from '../components/InvoiceModal';
 
 interface InvoiceReceipt {
+  transactionId: string;
   invoiceNumber: string;
   customerName: string;
   customerPhone: string;

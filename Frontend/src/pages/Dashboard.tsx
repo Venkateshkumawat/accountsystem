@@ -263,7 +263,7 @@ export default function Dashboard() {
             <table className="w-full text-left">
               <thead className="sticky top-0 bg-white z-10 border-b border-slate-50">
                 <tr className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-                  <th className="px-6 py-4">Invoice</th>
+                  <th className="px-6 py-4 text-center">ID</th>
                   <th className="px-6 py-4">Customer</th>
                   <th className="px-6 py-4">Amount</th>
                   <th className="px-6 py-4">Status</th>
@@ -273,7 +273,10 @@ export default function Dashboard() {
               <tbody className="divide-y divide-slate-50">
                 {filteredInvoices.map(inv => (
                   <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
-                    <td className="px-6 py-4"><span className="text-xs font-semibold text-indigo-600 uppercase">{inv.invoiceNumber}</span></td>
+                    <td className="px-6 py-4 text-center font-inter">
+                       <span className="text-[10px] font-semibold text-indigo-600 uppercase leading-none block">{inv.transactionId}</span>
+                       <span className="text-[8px] font-bold text-slate-300 uppercase mt-0.5 block">{inv.invoiceNumber}</span>
+                    </td>
                     <td className="px-6 py-4"><span className="text-xs font-semibold text-slate-900">{inv.customerName || 'Walk-in Client'}</span></td>
                     <td className="px-6 py-4"><span className="text-sm font-semibold text-slate-900">₹ {(inv.grandTotal || inv.totalAmount || 0).toLocaleString('en-IN')}</span></td>
                     <td className="px-6 py-4"><span className={`px-2 py-0.5 rounded text-[9px] font-semibold uppercase tracking-widest border ${inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>{inv.paymentStatus}</span></td>

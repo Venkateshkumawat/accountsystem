@@ -8,7 +8,9 @@ import InvoiceModal from '../components/InvoiceModal';
 
 interface LedgerEntry {
   _id: string;
+  transactionId?: string;
   invoiceNumber?: string;
+  billNumber?: string;
   customerName?: string;
   grandTotal: number;
   paymentStatus: string;
@@ -184,10 +186,10 @@ export default function Accounting() {
             <PLRow label="Tax Liabilities" value={plData?.taxLiabilities} color="rose" type="negative" />
             
             <div className="pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-slate-50 flex items-center justify-between px-2 sm:px-0">
-               <span className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight font-inter uppercase">
+               <span className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight font-inter uppercase">
                   {plData?.netProfit >= 0 ? 'Net Profit' : 'Net Loss'}
                </span>
-               <span className={`text-lg sm:text-2xl font-semibold tracking-tighter ${plData?.netProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+               <span className={`text-sm sm:text-xl font-semibold tracking-tighter ${plData?.netProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                   {plData?.netProfit >= 0 ? '+' : '-'}₹{Math.abs(plData?.netProfit || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}
                </span>
             </div>
@@ -216,17 +218,17 @@ export default function Accounting() {
           </div>
         </div>
 
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left table-fixed min-w-[950px]">
+        <div className="w-full">
+          <table className="w-full text-left table-fixed">
             <thead>
               <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                <th className="px-8 py-4 w-[7%] text-center">FLOW</th>
-                <th className="px-6 py-4 w-[25%] text-left">TRANSACTION / ID</th>
-                <th className="px-6 py-4 w-[18%] text-left">NAME</th>
-                <th className="px-6 py-4 w-[8%] text-left pl-0">METHOD</th>
-                <th className="px-6 py-4 w-[10%] text-center">STATUS</th>
-                <th className="px-6 py-4 w-[12%] text-center">DATE</th>
-                <th className="px-6 py-4 w-[20%] text-right pr-12">NET VALUE</th>
+                <th className="px-4 py-4 w-[6%] text-center">FLOW</th>
+                <th className="px-4 py-4 w-[25%] text-left">TRANSACTION / ID</th>
+                <th className="px-4 py-4 w-[20%] text-left">NAME</th>
+                <th className="px-4 py-4 w-[12%] text-left pl-0">METHOD</th>
+                <th className="px-4 py-4 w-[12%] text-center">STATUS</th>
+                <th className="px-4 py-4 w-[12%] text-right">DATE</th>
+                <th className="px-4 py-4 w-[13%] text-right pr-6">NET VALUE</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -238,7 +240,7 @@ export default function Accounting() {
                 
                 return (
                   <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
-                    <td className="px-8 py-4 text-center">
+                   <td className="px-4 py-4 text-center">
                        <div className={`mx-auto w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform group-hover:scale-110 ${
                          isSale 
                            ? 'bg-emerald-50 border-emerald-100 text-emerald-600' 
@@ -247,26 +249,27 @@ export default function Accounting() {
                           <Icon size={14} strokeWidth={3} />
                        </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <div className="flex flex-col min-w-0">
-                        <span className={`text-[11px] font-bold transition-all uppercase tracking-tight truncate ${isSale ? 'text-indigo-600 hover:underline' : 'text-emerald-600 hover:underline'}`}>
-                          {entry.invoiceNumber || (isSale ? 'SALE-' : 'PUR-') + entry._id.slice(-6).toUpperCase()}
+                        <span className={`text-[11px] font-semibold transition-all uppercase tracking-tight truncate font-inter ${isSale ? 'text-indigo-600 hover:underline' : 'text-emerald-600 hover:underline'}`}>
+                          {entry.transactionId || entry.invoiceNumber || entry.billNumber}
                         </span>
+                        <span className="text-[8px] font-bold text-slate-300 uppercase mt-0.5 block truncate">Ref: {entry.invoiceNumber || entry.billNumber}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <div className="flex flex-col min-w-0">
                         <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
                           {isSale ? (entry.customerName || 'Walk-in Client') : (entry.vendorName || 'General Node')}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-left pl-0">
+                    <td className="px-4 py-4 text-left pl-0">
                        <span className="px-2 py-0.5 bg-slate-50 text-[8px] font-black uppercase rounded-lg text-slate-400 border border-slate-100">
                           {entry.paymentMethod?.toUpperCase() || 'SYSTEM'}
                        </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-4 text-center">
                       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[9px] font-black uppercase border transition-all shadow-sm ${
                         entry.paymentStatus === 'paid' 
                           ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
@@ -275,12 +278,12 @@ export default function Accounting() {
                         {entry.paymentStatus || 'pending'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-4 text-right">
                        <p className="text-[10px] font-bold text-slate-900 uppercase leading-none">
                          {new Date(entry.createdAt || entry.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                        </p>
                     </td>
-                    <td className="px-6 py-4 text-right pr-12">
+                    <td className="px-4 py-4 text-right pr-6">
                        <p className={`text-sm font-semibold tracking-tight ${isSale ? 'text-emerald-600' : 'text-rose-600'}`}>
                          {isSale ? '+' : '-'} ₹{Math.abs(Number(entry.grandTotal || 0)).toLocaleString('en-IN')}
                        </p>

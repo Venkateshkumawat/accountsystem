@@ -537,7 +537,8 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
          taxable: s.subtotal,
          gst: s.totalGST,
          status: 'COLLECTED',
-         customer: s.customerName
+         customer: s.customerName,
+         transactionId: s.transactionId
        })),
        ...recentPurchases.map((p: any) => ({
          _id: p._id,
@@ -547,7 +548,11 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
          taxable: p.subtotal,
          gst: p.totalGST,
          status: 'PAID',
-         customer: p.vendorName
+         customer: p.vendorName,
+         transactionId: p.transactionId,
+          vendorCompany: p.vendorCompany,
+          vendorPhone: p.vendorPhone,
+          vendorAddress: p.vendorAddress
        }))
      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 

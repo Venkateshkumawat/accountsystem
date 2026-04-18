@@ -99,7 +99,7 @@ const productSchema = new Schema<IProduct>(
     },
     lowStockThreshold: {
       type: Number,
-      default: 10,
+      default: 15,
       min: [0, "Threshold cannot be negative"],
     },
     discount: {

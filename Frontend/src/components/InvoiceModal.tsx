@@ -42,10 +42,10 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
 
   // ── DATA PREPARATION ──────────────────────────────────────────────────────
   const items = invoice.items || [];
-  const displaySubtotal = Number(invoice.subtotal || items.reduce((acc: number, item: any) => acc + (Number(item.price || 0) * Number(item.qty || 0)), 0));
+  const displaySubtotal = Number(invoice.subtotal || items.reduce((acc: number, item: any) => acc + (Number(item.price || item.purchasePrice || 0) * Number(item.qty || 0)), 0));
   const displayDiscount = Number(invoice.totalDiscount || invoice.discount || 0);
   const taxableAmount = displaySubtotal - displayDiscount;
-  const displayGST = Number(invoice.totalGST || items.reduce((acc: number, item: any) => acc + ((Number(item.price || 0) * Number(item.qty || 0)) * (Number(item.gstRate || 0) / 100)), 0));
+  const displayGST = Number(invoice.totalGST || items.reduce((acc: number, item: any) => acc + ((Number(item.price || item.purchasePrice || 0) * Number(item.qty || 0)) * (Number(item.gstRate || 0) / 100)), 0));
   const cgst = displayGST / 2;
   const sgst = displayGST / 2;
   const displayGrandTotal = taxableAmount + displayGST;
@@ -58,7 +58,7 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
   const formattedInvoiceNumber = `INV/${year}/${month}/${counter}`;
 
   const handleWhatsAppShare = () => {
-    const text = `*NexusBill Invoice*%0A%0A*No:* ${formattedInvoiceNumber}%0A*Total:* ₹${displayGrandTotal.toFixed(2)}%0A%0A_Generated via Nexus Terminal_`;
+    const text = `*NexusBill Transaction*%0A%0A*ID:* ${invoice.transactionId || formattedInvoiceNumber}%0A*No:* ${formattedInvoiceNumber}%0A*Total:* ₹${displayGrandTotal.toFixed(2)}%0A%0A_Generated via Nexus Terminal_`;
     window.open(`https://wa.me/${invoice.customerPhone ? '91' + invoice.customerPhone : ''}?text=${text}`, '_blank');
   };
 
@@ -130,17 +130,22 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
           {/* 1. HEADER SECTION */}
           <div className="flex justify-between items-start mb-8 pb-8 border-b-2 border-sky-50">
             <div className="space-y-3">
-              <h1 className="text-4xl font-black text-sky-600 tracking-tighter uppercase leading-none">{invoice.businessDetails?.name || 'JIO MART'}</h1>
+              <h1 className="text-4xl font-black text-sky-600 tracking-tighter uppercase leading-none">
+                {type === 'purchase' ? (invoice.vendorName || invoice.vendorCompany || 'SUPPLIER HUB') : (invoice.businessDetails?.name || 'JIO MART')}
+              </h1>
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest space-y-1">
-                <p>{invoice.businessDetails?.address || 'Node Area, Maharashtra'}</p>
-                <p className="bg-sky-600 text-white px-2 py-0.5 rounded inline-block font-black mt-1">GSTIN: {invoice.businessDetails?.gstin || '27AAAAA1234A1Z1'}</p>
+                <p>{type === 'purchase' ? (invoice.vendorAddress || 'Vendor Logistics Area') : (invoice.businessDetails?.address || 'Node Area, Maharashtra')}</p>
+                <p className="bg-sky-600 text-white px-2 py-0.5 rounded inline-block font-black mt-1">
+                  GSTIN: {type === 'purchase' ? (invoice.vendorGstin || 'EXEMPT') : (invoice.businessDetails?.gstin || '27AAAAA1234A1Z1')}
+                </p>
               </div>
             </div>
 
             <div className="text-right space-y-3">
-              <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-lg">
-                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-sky-400 mb-1 leading-none">Tax Invoice</p>
-                <p className="text-xl font-black tracking-tighter leading-none">{formattedInvoiceNumber}</p>
+              <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-lg border-b-4 border-sky-500">
+                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-sky-400 mb-1 leading-none">Transaction Hub</p>
+                <p className="text-xl font-semibold tracking-tighter leading-none font-inter">{invoice.transactionId || formattedInvoiceNumber}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Ref: {formattedInvoiceNumber}</p>
               </div>
               <div className="pt-1 text-right space-y-1">
                 <div className="flex items-center justify-end gap-2">
@@ -158,12 +163,16 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
           {/* 2. CUSTOMER SECTION */}
           <div className="mb-10 p-6 bg-sky-50/30 border-2 border-sky-50 rounded-[2rem] flex justify-between items-end">
             <div className="space-y-2">
-              <p className="text-[10px] font-black text-sky-500 uppercase tracking-[0.3em] leading-none">Bill To</p>
-              <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tight">{invoice.customerName || 'Walk-in Client'}</h4>
+              <p className="text-[10px] font-black text-sky-500 uppercase tracking-[0.3em] leading-none">{type === 'purchase' ? 'Bill To (Buyer)' : 'Bill To'}</p>
+              <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
+                {type === 'purchase' ? (invoice.businessDetails?.name || 'INTERNAL BUSINESS') : (invoice.customerName || 'Walk-in Client')}
+              </h4>
               <div className="text-[11px] font-bold text-slate-500 uppercase space-y-0.5">
-                 <p>📞 {invoice.customerPhone || 'N/A'}</p>
-                 <p>📍 {invoice.customerAddress || 'Local Area Node'}</p>
-                 {invoice.customerGstin && <p className="text-sky-600 font-black pt-1">GSTIN: {invoice.customerGstin}</p>}
+                 <p>📞 {type === 'purchase' ? (invoice.businessDetails?.phone || 'N/A') : (invoice.customerPhone || 'N/A')}</p>
+                 <p>📍 {type === 'purchase' ? (invoice.businessDetails?.address || 'Local HQ') : (invoice.customerAddress || 'Local Area Node')}</p>
+                 {(type === 'purchase' ? invoice.businessDetails?.gstin : invoice.customerGstin) && (
+                   <p className="text-sky-600 font-black pt-1">GSTIN: {type === 'purchase' ? invoice.businessDetails?.gstin : invoice.customerGstin}</p>
+                 )}
               </div>
             </div>
             <div className="text-right border-l-2 border-sky-100 pl-6 space-y-1">
@@ -192,10 +201,10 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
                      <td className="py-3 px-4 text-center text-[10px] text-slate-300 font-black">{(i+1).toString().padStart(2, '0')}</td>
                      <td className="py-3 px-4">
                         <p className="text-[11px] font-black uppercase text-slate-900">{item.name}</p>
-                        <p className="text-[9px] text-slate-400 italic">₹{Number(item.price).toFixed(2)} × {item.qty}</p>
+                        <p className="text-[9px] text-slate-400 italic">₹{Number(item.price || item.purchasePrice).toFixed(2)} × {item.qty}</p>
                      </td>
                      <td className="py-3 px-3 text-right text-[11px] font-black">{item.qty}</td>
-                     <td className="py-3 px-3 text-right text-[11px]">₹{Number(item.price).toFixed(2)}</td>
+                     <td className="py-3 px-3 text-right text-[11px]">₹{Number(item.price || item.purchasePrice).toFixed(2)}</td>
                      <td className="py-3 px-3 text-right text-[11px] text-rose-500">{(Number(item.discount || 0)).toFixed(2)}</td>
                      <td className="py-3 px-3 text-right text-[11px] text-sky-600 font-black">{item.gstRate || 18}%</td>
                      <td className="py-3 px-4 text-right text-[11px] font-black bg-sky-50/30">₹{Number(item.total).toFixed(2)}</td>
@@ -223,9 +232,9 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
                        <ShieldCheck size={24} className="text-sky-600" />
                     </div>
                     <div>
-                       <p className="text-[10px] font-black text-slate-900 uppercase leading-none">Payment Mode: <span className="text-sky-600">{invoice.paymentMethod || 'CASH'}</span></p>
+                       <p className="text-[10px] font-semibold text-slate-900 uppercase leading-none font-inter">Payment Mode: <span className="text-sky-600">{invoice.paymentMethod || 'CASH'}</span></p>
                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 leading-none">Paid On: {createdAt.toLocaleString('en-IN')}</p>
-                       <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5 leading-none tracking-tighter">TXN: NXS-{invoice._id?.slice(-12).toUpperCase() || 'HUB-MANIFEST'}</p>
+                       <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5 leading-none tracking-tighter">TXN: {invoice.transactionId || 'HUB-MANIFEST'}</p>
                     </div>
                  </div>
                </div>

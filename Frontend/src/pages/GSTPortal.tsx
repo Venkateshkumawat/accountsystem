@@ -124,21 +124,21 @@ export default function GSTPortal() {
    const formatCurrency = (val: number) => `₹${Math.abs(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 
    return (
-      <div className="p-2 sm:p-4 space-y-4  bg-[#fcfcfd] min-h-screen">
+      <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
          {/* Header — Compliance Protocol */}
-         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-8 px-2 border-b border-slate-100 mb-6">
-            <div className="space-y-1">
-               <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">
+         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 py-1 px-1 border-b border-slate-50 mb-1">
+            <div className="space-y-0.5">
+               <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                   GST Compliance Dashboard
                </h1>
-               <p className="text-sm font-medium text-slate-500">
-                  Track your Input Tax Credit (ITC) and GST liabilities
+               <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+                  ITC and GST liabilities node
                </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
                <button
                   onClick={() => fetchGSTData()}
-                  className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 rounded-[1.25rem] transition-all hover:shadow-md"
+                  className="p-2.5 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 rounded-xl transition-all"
                   title="Force Sync"
                >
                   <RefreshCcw size={18} className={loading ? 'animate-spin text-indigo-600' : ''} />
@@ -166,14 +166,14 @@ export default function GSTPortal() {
                      if (btn) btn.innerText = 'FILE GSTR-1';
                   }}
                   id="gstr-btn"
-                  className="flex items-center gap-2 px-6 py-3 bg-[#0da368] hover:bg-[#0b8f5a] text-white rounded-[1.25rem] text-xs font-bold shadow-lg shadow-emerald-100 transition-all uppercase tracking-widest active:scale-95">
-                  <ShieldCheck size={16} /> File GSTR-1
+                  className="flex items-center gap-2 px-6 py-3 bg-[#0da368] hover:bg-[#0b8f5a] text-white rounded-xl text-[10px] font-bold shadow-lg shadow-emerald-50 transition-all uppercase tracking-widest active:scale-95">
+                  <ShieldCheck size={14} /> File GSTR-1
                </button>
             </div>
          </div>
 
          {/* Global Vitals Node — High-Density Inter Semibold */}
-         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 px-1">
             <MetricCard
                label="OUTPUT GST (SALES)"
                value={`₹${(gstData?.outputGST || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
@@ -202,10 +202,10 @@ export default function GSTPortal() {
          </div>
 
          {/* Integrated Analytical Flux — High Fidelity Trend Analysis */}
-         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm relative overflow-hidden">
+         <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
+            <div className="lg:col-span-8 bg-white p-4 rounded-3xl border border-slate-50 shadow-sm relative overflow-hidden">
                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center justify-between mb-4">
                      <div>
                         <h2 className="text-base font-bold text-slate-800 uppercase tracking-tight">Input vs Output GST Trend</h2>
                         <p className="text-xs font-medium text-slate-500">6-Month Fiscal Forensics: Tax Flow Analysis</p>
@@ -232,9 +232,9 @@ export default function GSTPortal() {
             </div>
 
             {/* Filing Status Matrix — Real-time Compliance Monitor */}
-            <div className="lg:col-span-4 bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm">
-               <h2 className="text-base font-bold text-slate-800 uppercase tracking-tight mb-6">Filing Status Hub</h2>
-               <div className="space-y-4 mb-8">
+            <div className="lg:col-span-4 bg-white p-4 rounded-3xl border border-slate-50 shadow-sm">
+               <h2 className="text-base font-bold text-slate-800 uppercase tracking-tight mb-4">Filing Status Hub</h2>
+               <div className="space-y-2 mb-4">
                   {(gstData?.filingStatus || []).map((f: any, i: number) => (
                      <div key={i} className="flex items-center justify-between p-3 rounded-2xl border border-slate-50 hover:border-slate-100 transition-all group">
                         <div>
@@ -317,23 +317,35 @@ export default function GSTPortal() {
                      {filteredHistory.length > 0 ? (showAllHistory ? filteredHistory : filteredHistory.slice(0, 10)).map((item: any) => (
                         <tr key={item._id} className="group hover:bg-slate-50/50 transition-all">
                            <td className="py-5 px-4">
-                              <div 
-                                onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}
-                                className="flex items-center gap-3 cursor-pointer group/link"
+                              <div
+                                 onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}
+                                 className="flex items-center gap-3 cursor-pointer group/link"
                               >
                                  <div className={`w-1.5 h-8 rounded-full ${item.type === 'SALES' ? 'bg-indigo-600' : 'bg-emerald-600'}`} />
                                  <div className="flex flex-col">
-                                    <span className="text-xs font-bold text-slate-900 group-hover/link:text-indigo-600 group-hover/link:underline tracking-tight transition-all">
-                                       {item.ref}
+                                    <span className="text-xs font-semibold text-slate-900 font-inter group-hover/link:text-indigo-600 group-hover/link:underline tracking-tight transition-all">
+                                       {item.transactionId || item.ref}
                                     </span>
-                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">{item.type}</span>
+                                    <span className="text-[8px] font-semibold text-slate-400 font-inter uppercase tracking-[0.2em]">{item.type} {item.ref && `• ${item.ref}`}</span>
                                  </div>
                               </div>
                            </td>
-                           <td className="py-5 px-4">
+                           <td className="py-5 px-4 font-inter">
                               <div className="flex flex-col">
-                                 <span className="text-xs font-bold text-slate-700 uppercase tracking-tight">{item.customer || 'Retail Node'}</span>
-                                 <span className="text-[7px] font-bold text-slate-300 uppercase tracking-widest">Digital Record Identified</span>
+                                 <span className="text-xs font-bold text-slate-700 uppercase tracking-tight">
+                                    {item.type === 'PURCHASE' ? (item.vendorCompany || item.customer) : (item.customer || 'Retail Node')}
+                                 </span>
+                                 <div className="flex flex-col gap-0.5 mt-1">
+                                    {item.type === 'PURCHASE' && (
+                                       <>
+                                          {item.vendorPhone && <span className="text-[7px] font-bold text-slate-400 uppercase leading-none">Ph: {item.vendorPhone}</span>}
+                                          {item.vendorAddress && <span className="text-[7px] font-bold text-slate-300 uppercase leading-tight italic max-w-[150px] truncate">{item.vendorAddress}</span>}
+                                       </>
+                                    )}
+                                    {item.type === 'SALES' && (
+                                       <span className="text-[7px] font-bold text-slate-300 uppercase tracking-widest">Digital Record Identified</span>
+                                    )}
+                                 </div>
                               </div>
                            </td>
                            <td className="py-5 px-4 text-center">
@@ -385,15 +397,15 @@ export default function GSTPortal() {
          </div>
 
          {filteredHistory.length > 10 && (
-           <div className="mt-8 mb-4 text-center">
-             <button
-               onClick={() => setShowAllHistory(!showAllHistory)}
-               className="mx-auto px-10 py-3 bg-white border-2 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center active:scale-95"
-             >
-               <Activity size={14} />
-               {showAllHistory ? 'SEE LESS' : `SEE ALL (${filteredHistory.length} EVENTS)`}
-             </button>
-           </div>
+            <div className="mt-8 mb-4 text-center">
+               <button
+                  onClick={() => setShowAllHistory(!showAllHistory)}
+                  className="mx-auto px-10 py-3 bg-white border-2 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center active:scale-95"
+               >
+                  <Activity size={14} />
+                  {showAllHistory ? 'SEE LESS' : `SEE ALL (${filteredHistory.length} EVENTS)`}
+               </button>
+            </div>
          )}
 
          {/* Risk Notice Protocol */}
@@ -429,9 +441,9 @@ const MetricCard = memo(({ label, value, color, sub }: any) => {
    };
 
    return (
-      <div className={`bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between gap-3 transition-all hover:border-slate-300 h-full font-inter ${themes[color]}`}>
+      <div className={`bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between gap-2 transition-all hover:border-slate-300 h-full font-inter ${themes[color]}`}>
          <div className="space-y-2">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
+            <p className="text-[10px] font-semibold text-slate-400 font-inter uppercase tracking-widest">{label}</p>
             <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
                {value}
             </h3>

@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ITransaction extends Document {
-  businessId: mongoose.Types.ObjectId;
-  businessAdminId: mongoose.Types.ObjectId;
-  userId?: mongoose.Types.ObjectId;
+   businessId: mongoose.Types.ObjectId;
+   businessAdminId: mongoose.Types.ObjectId;
+   transactionId: string;
+   userId?: mongoose.Types.ObjectId;
   type: 'sale' | 'purchase' | 'expense' | 'income';
   amount: number;
   originalAmount?: number;
@@ -34,6 +35,12 @@ const transactionSchema = new Schema<ITransaction>(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+    transactionId: {
+       type: String,
+       required: true,
+       unique: true,
+       trim: true
     },
     type: {
       type: String,

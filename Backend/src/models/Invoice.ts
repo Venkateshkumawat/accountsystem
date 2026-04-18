@@ -15,10 +15,11 @@ export interface IInvoiceItem {
 }
 
 export interface IInvoice extends Document {
-  businessId: mongoose.Types.ObjectId;
-  businessAdminId: mongoose.Types.ObjectId;
-  createdBy: mongoose.Types.ObjectId;
-  invoiceNumber: string;
+   businessId: mongoose.Types.ObjectId;
+   businessAdminId: mongoose.Types.ObjectId;
+   createdBy: mongoose.Types.ObjectId;
+   transactionId: string;
+   invoiceNumber: string;
   customerId?: mongoose.Types.ObjectId;
   customerName?: string;
   customerPhone?: string;
@@ -62,6 +63,12 @@ const invoiceSchema = new Schema<IInvoice>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    transactionId: {
+       type: String,
+       required: true,
+       unique: true,
+       trim: true
     },
     invoiceNumber: {
       type: String,
