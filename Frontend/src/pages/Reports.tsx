@@ -113,7 +113,7 @@ export default function Reports() {
   );
 
   return (
-    <div className="space-y-4 select-none print:m-0 print:p-0">
+    <div className="space-y-4 pt-6 select-none print:m-0 print:p-0">
       {/* 🖨️ Print-Only Audit Header */}
       <div className="hidden print:block mb-8 border-b-2 border-slate-900 pb-4">
         <h1 className="text-2xl font-semibold uppercase tracking-tighter">Nexus Node Audit Report</h1>
@@ -129,27 +129,36 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-4 no-print">
+      {/* Header Area - Tightened Spacing */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 border-b border-slate-100 pb-3 no-print">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl">
-            <Activity size={20} className="animate-pulse" />
+          <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <Activity size={18} className="animate-pulse" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900 leading-tight">Business Intelligence</h1>
-            <p className="text-slate-400 font-semibold text-[9px] uppercase tracking-widest mt-1">Real-time Performance Node</p>
+            <h1 className="text-xl font-semibold text-slate-900 leading-tight">Business Intelligence</h1>
+            <p className="text-slate-400 font-semibold text-[8px] uppercase tracking-widest mt-0.5">Real-time Performance Node</p>
           </div>
         </div>
-        <button onClick={fetchAllData} className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all border border-slate-200">
-          <RefreshCcw size={12} /> Refresh Global Sync
+        <button onClick={fetchAllData} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all border border-slate-200">
+          <RefreshCcw size={10} /> Refresh Global Sync
         </button>
       </div>
 
-      {/* Master Filter Registry */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 no-print">
+      {/* Critical Vitals Grid - Hardened Responsiveness */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <MetricCard label="Total Sales" value={`₹${(salesData?.totalSalesAllTime || 0).toLocaleString()}`} icon={Zap} color="indigo" />
+        <MetricCard label="Total Purchases" value={`₹${(salesData?.dailyPurchases?.[0]?.totalPurchases || 0).toLocaleString()}`} icon={CreditCard} color="rose" />
+        <MetricCard label="GST Liability" value={`₹${(salesData?.totalGST || 0).toLocaleString()}`} icon={ShieldCheck} color="amber" />
+        <MetricCard label="Discount Yield" value={`₹${(salesData?.totalDiscounts || 0).toLocaleString()}`} icon={Tag} color="emerald" />
+        <MetricCard label="Stock Valuation" value={`₹${(inventoryData?.stats?.totalValuation || 0).toLocaleString()}`} icon={IndianRupee} color="indigo" />
+      </div>
+
+      {/* Master Filter Registry - Tightened Padding */}
+      <div className="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm space-y-3 no-print">
         <div className="flex items-center gap-2 px-1">
-          <Activity size={14} className="text-indigo-600" />
-          <h2 className="text-base font-semibold text-slate-900 uppercase tracking-tight">Diagnostic Filter Registry</h2>
+          <Activity size={12} className="text-indigo-600" />
+          <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-tight">Diagnostic Filter Registry</h2>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[140px] space-y-1.5">
@@ -197,15 +206,6 @@ export default function Reports() {
             Reset Audit
           </button>
         </div>
-      </div>
-
-      {/* Critical Vitals Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <MetricCard label="Total Sales" value={`₹${(salesData?.totalSalesAllTime || 0).toLocaleString()}`} icon={Zap} color="indigo" />
-        <MetricCard label="Total Purchases" value={`₹${(salesData?.dailyPurchases?.[0]?.totalPurchases || 0).toLocaleString()}`} icon={CreditCard} color="rose" />
-        <MetricCard label="GST Liability" value={`₹${(salesData?.totalGST || 0).toLocaleString()}`} icon={ShieldCheck} color="amber" />
-        <MetricCard label="Discount Yield" value={`₹${(salesData?.totalDiscounts || 0).toLocaleString()}`} icon={Tag} color="emerald" />
-        <MetricCard label="Stock Valuation" value={`₹${(inventoryData?.stats?.totalValuation || 0).toLocaleString()}`} icon={IndianRupee} color="indigo" />
       </div>
 
       {/* Main Analysis Node */}
@@ -405,17 +405,17 @@ export default function Reports() {
               </button>
             </div>
             
-            <div className="flex-1 overflow-x-auto custom-scrollbar p-6">
+            <div className="flex-1 overflow-x-auto custom-scrollbar -mx-2 px-2">
               {hubLoading ? (
                 <div className="h-64 flex flex-col items-center justify-center">
                    <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
                    <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Reconciling Ledger Nodes...</p>
                 </div>
               ) : (
-                <table className="w-full text-left">
+                <table className="w-full text-left min-w-[600px]">
                   <thead>
                     <tr className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-50">
-                      <th className="py-4 px-4">Date Protocol</th>
+                      <th className="py-4 px-4 sticky left-0 bg-white shadow-sm z-10 w-32">Date Protocol</th>
                       <th className="py-4 px-4">Customer Segment</th>
                       <th className="py-4 px-4">Registry ID</th>
                       <th className="py-4 px-4 text-center">Status</th>
@@ -425,15 +425,15 @@ export default function Reports() {
                   <tbody className="divide-y divide-slate-50">
                     {hubTransactions.length > 0 ? hubTransactions.map((tx: any, i: number) => (
                       <tr key={tx._id} className="text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors group">
-                        <td className="py-5 px-4">
+                        <td className="py-5 px-4 sticky left-0 bg-white group-hover:bg-slate-50 transition-colors">
                            <div className="flex items-center gap-3">
                               <span className="text-[10px] text-slate-300 font-bold">#{hubTransactions.length - i}</span>
-                              <span className="uppercase tracking-tighter">{new Date(tx.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                              <span className="uppercase tracking-tighter whitespace-nowrap">{new Date(tx.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                            </div>
                         </td>
-                        <td className="py-5 px-4 uppercase tracking-tighter">
+                        <td className="py-5 px-4 uppercase tracking-tighter whitespace-nowrap">
                            <div className="flex flex-col">
-                              <span className="text-slate-900">{tx.customerName || 'Walk-in Node'}</span>
+                              <span className="text-slate-900 truncate max-w-[150px]">{tx.customerName || 'Walk-in Node'}</span>
                               <span className="text-[9px] text-slate-400 mt-1">{tx.customerPhone || 'NO_PHONE_SYNC'}</span>
                            </div>
                         </td>
@@ -473,8 +473,8 @@ export default function Reports() {
         {/* Compact Insight Matrix (Small Box) */}
         <div className="lg:col-span-4 bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm flex flex-col h-[500px] overflow-hidden">
           <div className="flex items-center justify-between mb-6 border-b border-slate-50 pb-3">
-            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
-              <ShieldCheck size={18} className="text-amber-500" /> Fiscal Insight
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+              <ShieldCheck size={16} className="text-amber-500" /> GST Insight Matrix
             </h3>
           </div>
           <div className="flex-1 w-full min-w-0 h-[220px] relative">
@@ -506,8 +506,8 @@ export default function Reports() {
         {/* Granular Slab Matrix (The Table) */}
         <div className="lg:col-span-8 bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm flex flex-col h-[500px] overflow-hidden">
           <div className="flex items-center justify-between mb-6 border-b border-slate-50 pb-3">
-            <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
-              <ShieldCheck size={18} className="text-amber-500" /> Slab Reconciliation Matrix
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
+              <ShieldCheck size={16} className="text-amber-500" /> Slab Reconciliation Matrix
             </h3>
           </div>
           <div className="flex-1 overflow-x-auto custom-scrollbar">
@@ -619,14 +619,14 @@ function MetricCard({ label, value, icon: Icon, color, sub }: any) {
   };
 
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
-        <Icon className="w-3.5 h-3.5" />
+    <div className="bg-white p-3 sm:p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-indigo-200 group relative overflow-hidden h-full">
+      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colors[color]} border shadow-sm`}>
+        <Icon className="w-3 h-3" />
       </div>
       <div className="min-w-0 text-center sm:text-left flex-1">
-        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
-        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
-        {sub && <p className={`mt-1.5 text-[8px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
+        <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{label}</p>
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 leading-tight truncate" title={value}>{value}</h3>
+        {sub && <p className={`mt-1 text-[7px] font-semibold uppercase tracking-tighter ${color === 'rose' ? 'text-rose-500' : 'text-emerald-600'} truncate`}>{sub}</p>}
       </div>
     </div>
   );

@@ -304,7 +304,7 @@ export default function Inventory() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div onClick={() => handleMetricClick('all')} className="cursor-pointer">
             <InventoryStat 
-              label="Registry Catalog" 
+              label="Total Product" 
               value={products.length.toString()} 
               icon={Box} 
               color={activeFilter === 'all' && !selectedCategory ? 'indigo' : 'slate'} 
@@ -403,8 +403,8 @@ export default function Inventory() {
               <div className="flex items-center gap-4 px-2">
                 <h2 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight">{category}</h2>
                 <div className="h-px flex-1 bg-slate-100" />
-                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
-                  {groupedProducts[category].length} Nodes
+                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic">
+                  {groupedProducts[category].length} TOTAL PRODUCT
                 </span>
               </div>
 
@@ -477,22 +477,22 @@ export default function Inventory() {
               <div className="hidden lg:block bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead className="bg-slate-50/50">
-                    <tr className="text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
-                      <th className="px-6 py-4">Product Protocol</th>
-                      <th className="px-6 py-4 text-center">Stock Unit</th>
-                      <th className="px-6 py-4 text-center">Factual Price</th>
-                      <th className="px-6 py-4 text-center">Node State</th>
-                      <th className="px-6 py-4 text-right">Actions</th>
+                    <tr className="text-[10px] font-bold uppercase text-slate-400 border-b border-slate-100">
+                      <th className="px-6 py-2.5">Product Name</th>
+                      <th className="px-6 py-2.5 text-center">Stock Unit</th>
+                      <th className="px-6 py-2.5 text-center">Price</th>
+                      <th className="px-6 py-2.5 text-center">Item Status</th>
+                      <th className="px-6 py-2.5 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {groupedProducts[category].map((product: any) => {
                       const productImg = getImageUrl(product.image);
                       return (
-                        <tr key={product._id} className="bg-white hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-3">
+                        <tr key={product._id} className="bg-white hover:bg-slate-50 transition-colors group">
+                          <td className="px-6 py-1.5">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                              <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
                                 {productImg ? (
                                   <img
                                     src={productImg}
@@ -505,36 +505,36 @@ export default function Inventory() {
                                     }}
                                   />
                                 ) : null}
-                                <Box size={16} className={`text-slate-300 ${productImg ? 'hidden' : ''}`} />
+                                <Box size={14} className={`text-slate-300 ${productImg ? 'hidden' : ''}`} />
                               </div>
                               <div>
-                                <div className="font-semibold text-slate-900 text-sm leading-tight">{product.name}</div>
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
+                                <div className="font-semibold text-slate-900 text-xs leading-tight">{product.name}</div>
+                                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-3 text-center">
-                            <span className="font-semibold text-slate-900 text-sm">{product.stock} {product.unitType}</span>
+                          <td className="px-6 py-1.5 text-center">
+                            <span className="font-semibold text-slate-900 text-xs">{product.stock} <span className="text-[9px] text-slate-400 font-bold uppercase">{product.unitType}</span></span>
                           </td>
-                          <td className="px-6 py-3 text-center">
+                          <td className="px-6 py-1.5 text-center">
                             <div className="flex flex-col items-center">
                               {product.discount > 0 && (
-                                <span className="text-[10px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
+                                <span className="text-[8px] text-slate-300 line-through leading-none mb-0.5">₹{product.sellingPrice}</span>
                               )}
-                              <span className="font-bold text-slate-900 text-sm">₹{product.sellingPrice - (product.discount || 0)}</span>
+                              <span className="font-bold text-slate-900 text-xs">₹{product.sellingPrice - (product.discount || 0)}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-3 text-center">
-                            <span className={`${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900' : product.stock < criticalThreshold ? 'bg-rose-50 text-rose-600 border-rose-100' : product.stock < lowStockThreshold ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm`}>
-                              {product.stock <= 0 ? 'OUT OF STOCK' : product.stock < lowStockThreshold ? 'LOW STOCK' : 'IN STOCK'}
+                          <td className="px-6 py-1.5 text-center">
+                            <span className={`${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900' : product.stock < criticalThreshold ? 'bg-rose-50 text-rose-600 border-rose-100' : product.stock < lowStockThreshold ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'} px-2.5 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest border shadow-sm inline-block`}>
+                              {product.stock <= 0 ? 'OUT OF STOCK' : product.stock < lowStockThreshold ? 'ALERT' : 'IN STOCK'}
                             </span>
                           </td>
-                          <td className="px-6 py-3.5 text-right">
-                            <div className="flex justify-end gap-1.5 opacity-100 transition-all">
+                          <td className="px-6 py-1.5 text-right">
+                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
                               {isAuthorized && (
                                 <>
-                                  <button onClick={() => handleEdit(product)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-100 rounded-lg transition-all active:scale-75 shadow-sm"><Edit3 size={13} /></button>
-                                  <button onClick={() => deleteProduct(product._id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-100 rounded-lg transition-all active:scale-75 shadow-sm"><Trash2 size={13} /></button>
+                                  <button onClick={() => handleEdit(product)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white border border-transparent hover:border-slate-100 rounded-lg transition-all active:scale-75 shadow-sm"><Edit3 size={12} /></button>
+                                  <button onClick={() => deleteProduct(product._id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-white border border-transparent hover:border-slate-100 rounded-lg transition-all active:scale-75 shadow-sm"><Trash2 size={12} /></button>
                                 </>
                               )}
                             </div>

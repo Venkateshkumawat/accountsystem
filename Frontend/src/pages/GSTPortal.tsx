@@ -9,7 +9,8 @@ import socketService from '../services/socket';
 import { useNavigate } from 'react-router-dom';
 import {
    BarChart, Bar, XAxis, YAxis, Tooltip,
-   ResponsiveContainer, CartesianGrid, Legend
+   ResponsiveContainer, CartesianGrid, Legend,
+   PieChart, Pie, Cell
 } from 'recharts';
 
 const ChartWrapper = memo(({ data, children }: any) => {
@@ -143,20 +144,6 @@ export default function GSTPortal() {
                >
                   <RefreshCcw size={18} className={loading ? 'animate-spin text-indigo-600' : ''} />
                </button>
-               {/* <div className="bg-white border border-slate-200 p-1 rounded-2xl flex gap-1 shadow-sm shrink-0">
-                   <div className="px-4 py-2 flex items-center gap-2 text-slate-600 font-semibold text-xs border-r border-slate-100">
-                      <Calendar size={14} /> FY 2024-25
-                   </div>
-                   {(['month', 'quarter', 'year'] as const).map(p => (
-                      <button
-                         key={p}
-                         onClick={() => setPeriod(p)}
-                         className={`px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all ${period === p ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
-                      >
-                         {p}
-                      </button>
-                   ))}
-                </div> */}
                <button
                   onClick={async () => {
                      const btn = document.getElementById('gstr-btn');
@@ -232,9 +219,8 @@ export default function GSTPortal() {
             </div>
 
             {/* Filing Status Matrix — Real-time Compliance Monitor */}
-            <div className="lg:col-span-4 bg-white p-4 rounded-3xl border border-slate-50 shadow-sm">
-               <h2 className="text-base font-bold text-slate-800 uppercase tracking-tight mb-4">Filing Status Hub</h2>
-               <div className="space-y-2 mb-4">
+            <div className="lg:col-span-4 bg-white p-4 rounded-3xl border border-slate-50 shadow-sm flex flex-col">
+               <div className="space-y-2 flex-1">
                   {(gstData?.filingStatus || []).map((f: any, i: number) => (
                      <div key={i} className="flex items-center justify-between p-3 rounded-2xl border border-slate-50 hover:border-slate-100 transition-all group">
                         <div>
@@ -249,17 +235,39 @@ export default function GSTPortal() {
                         </div>
                      </div>
                   ))}
-                  {(!gstData?.filingStatus) && (
-                     <div className="py-10 text-center text-slate-300 text-[10px] font-black uppercase tracking-widest">
-                        Establishing compliance node...
-                     </div>
-                  )}
                </div>
-               <button
-                  onClick={handleExport}
-                  className="w-full py-4 bg-slate-50 border border-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
-                  <Download size={14} /> Download GST Reports
-               </button>
+
+               {/* Download Node - Elevated above Insight */}
+               <div className="mt-6 mb-4">
+                  <button
+                     onClick={handleExport}
+                     className="w-full py-4 bg-slate-50 border border-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                     <Download size={14} /> Download GST Reports
+                  </button>
+               </div>
+
+               {/* GST Insight Node - Parallel to Reports */}
+               <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+                  <div className="flex items-center justify-between mb-4">
+                     <h3 className="text-xs font-bold text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                        <ShieldCheck size={14} className="text-amber-500" /> GST Insight Matrix
+                     </h3>
+                  </div>
+                  <div className="h-[200px] w-full relative">
+                     <ChartWrapper data={gstData?.salesSlabs}>
+                        <PieChart>
+                           <Pie data={gstData?.salesSlabs || []} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={8} dataKey="totalTax" nameKey="_id">
+                              {(gstData?.salesSlabs || []).map((_e: any, index: number) => <Cell key={index} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'][index % 5]} />)}
+                           </Pie>
+                           <Tooltip contentStyle={{ fontFamily: 'Inter', fontSize: 9, fontWeight: 600, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -1px rgb(0 0 0 / 0.1)' }} />
+                        </PieChart>
+                     </ChartWrapper>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                     <span>Net Yield</span>
+                     <span className="text-slate-900">₹{(gstData?.outputGST || 0).toLocaleString()}</span>
+                  </div>
+               </div>
             </div>
          </div>
 
@@ -270,7 +278,6 @@ export default function GSTPortal() {
                   <h2 className="text-base font-semibold text-slate-800 uppercase tracking-tight">GST Settlement History</h2>
                   <p className="text-xs font-medium text-slate-500 mt-1">Live ledger of GST Received (Sales) and Paid (ITC)</p>
 
-                  {/* Ledger Command Toggles */}
                   <div className="flex gap-2 mt-6">
                      <button
                         onClick={() => setHistoryTab('INPUT')}
