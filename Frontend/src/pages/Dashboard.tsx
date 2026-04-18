@@ -180,8 +180,8 @@ export default function Dashboard() {
           color="amber" 
           sub="COMPLETED NODES" 
         />
-        <Link to="/inventory?filter=low-stock">
-          <StatCard label="LOW STOCK ITEMS" value={`${data?.lowStockCount || 0}`} icon={AlertCircle} color="rose" sub="CRITICAL ITEMS" />
+        <Link to="/inventory?filter=low-stock" className="h-full">
+          <StatCard label="LOW STOCK ITEMS" value={`${data?.lowStockCount || 0}`} icon={AlertCircle} color="rose" sub="CRITICAL INTERVENTION" />
         </Link>
       </div>
 
@@ -241,11 +241,31 @@ export default function Dashboard() {
           </div>
 
           {data?.lowStockProducts?.length ? (
-            <div className="bg-rose-50 border border-rose-100 p-3 rounded-xl">
-              <div className="flex items-center gap-1.5 mb-2"><AlertTriangle size={12} className="text-rose-600" /><p className="text-[8px] font-semibold text-rose-700 uppercase tracking-widest">Critical Stock Flow</p></div>
-              <div className="space-y-1">{data.lowStockProducts.slice(0, 2).map(p => <div key={p._id} className="flex justify-between text-[10px] font-semibold text-rose-800 uppercase tracking-tight"><span>{p.name}</span><span>Lvl: {p.stock}</span></div>)}</div>
+            <div className="bg-rose-50/50 border-2 border-rose-100 p-4 rounded-2xl shadow-sm shadow-rose-500/5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-1.5 h-6 bg-rose-500 rounded-full" />
+                <p className="text-[10px] font-black text-rose-700 uppercase tracking-widest leading-none">Critical Stock Exhaustion</p>
+              </div>
+              <div className="space-y-2">
+                {data.lowStockProducts.slice(0, 3).map(p => (
+                  <div key={p._id} className="flex justify-between items-center text-[11px] font-black text-slate-800 uppercase tracking-tight py-1 border-b border-rose-100/50 last:border-0 leading-none">
+                    <span className="truncate max-w-[120px]">{p.name}</span>
+                    <span className="text-rose-600 bg-white border border-rose-100 px-2 py-0.5 rounded-full text-[9px]">LVL: {p.stock}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="bg-emerald-50/50 border-2 border-emerald-100 p-4 rounded-2xl flex items-center gap-3">
+               <div className="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center shrink-0">
+                  <CheckCircle2 size={16} />
+               </div>
+               <div>
+                  <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest leading-none">Inventory Healthy</p>
+                  <p className="text-[8px] font-bold text-emerald-600/60 uppercase mt-1">All nodes operational</p>
+               </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -307,36 +327,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-          <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Recent Activity</h2>
-          <div className="flex-wrap flex gap-2">
-            {['ALL', 'CREATE', 'UPDATE', 'DELETE', 'TRANSACTION'].map(f => (
-              <button key={f} onClick={() => setActivityFilter(f)} className={`px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase tracking-widest transition-all ${activityFilter === f ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}>{f}</button>
-            ))}
-          </div>
-        </div>
-        <div className="h-[400px] overflow-y-auto custom-scrollbar divide-y divide-slate-50">
-          {filteredActivities.map(act => {
-            const Icon = ACTION_ICONS[act.action] || Settings;
-            const colorClass = ACTION_COLORS[act.action] || 'bg-slate-100 text-slate-500';
-            return (
-              <div key={act._id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition-all group">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorClass} border border-current/10`}><Icon size={14} /></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-slate-900 uppercase tracking-tight group-hover:text-indigo-600 mb-1">{act.description}</p>
-                  <div className="flex items-center gap-2 text-[9px] font-semibold text-slate-400 uppercase tracking-widest">
-                    <span className="flex items-center gap-1"><Users size={10} />{act.userName}</span>
-                    <span>·</span>
-                    <span>{new Date(act.createdAt).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                </div>
-                <span className={`text-[8px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-md ${colorClass} border border-current/10`}>{act.action}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+
 
       <PlanModal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} currentPlan={currentPlan} />
       <InvoiceModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />

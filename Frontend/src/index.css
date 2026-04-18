@@ -14,7 +14,7 @@
 
 @layer base {
   body {
-    @apply text-slate-600 bg-slate-50/50;
+    @apply text-slate-600 bg-slate-50/50 font-semibold;
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

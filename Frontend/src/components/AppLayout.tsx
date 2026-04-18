@@ -9,7 +9,7 @@ import {
 import api from '../services/api';
 import socketService from '../services/socket';
 import { useAuth } from '../hooks/useAuth';
-import NotificationCenter from './NotificationCenter';
+
 
 interface AppLayoutProps { children?: React.ReactNode; }
 
@@ -32,7 +32,7 @@ const NAV_ITEMS = [
   { label: 'Staff Node', path: '/staff', icon: Users, roles: ['businessAdmin', 'manager'], permission: 'STAFF' },
   { label: 'GST Portal', path: '/gst', icon: Shield, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'GST_PORTAL' },
   { label: 'REPORTS', path: '/reports', icon: BarChart2, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'REPORTS' },
-  { label: 'Audit Logs', path: '/notifications', icon: Bell, roles: ['businessAdmin', 'manager', 'accountant', 'cashier'], permission: 'AUDIT_LOGS' },
+
   { label: 'Settings', path: '/settings', icon: Cog, roles: ['businessAdmin'], permission: null },
 ];
 
@@ -310,7 +310,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                  <span className="text-sm font-semibold text-slate-900 max-w-[150px] truncate">{user?.businessName || 'Nexus Node'}</span>
                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">Verified GST</span>
               </div>
-              <NotificationCenter />
             </div>
           </header>
 

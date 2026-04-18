@@ -299,6 +299,13 @@ export const getInvoices = async (req: AuthRequest, res: Response): Promise<void
 
     const query: any = { businessAdminId };
     if (status) query.paymentStatus = status;
+    if (req.query.paymentMethod) query.paymentMethod = String(req.query.paymentMethod).toLowerCase();
+    if (req.query.customerName) {
+      query.$or = [
+        { customerName: { $regex: String(req.query.customerName), $options: 'i' } },
+        { customerPhone: { $regex: String(req.query.customerName), $options: 'i' } }
+      ];
+    }
 
     const total    = await Invoice.countDocuments(query);
     const invoices = await Invoice.find(query)

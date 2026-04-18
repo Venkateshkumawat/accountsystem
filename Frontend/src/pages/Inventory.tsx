@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Plus,
   AlertTriangle,
@@ -45,7 +46,14 @@ export default function Inventory() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'lowStock' | 'outOfStock' | 'category'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const location = useLocation();
+
   useEffect(() => {
+    // ── Handle Incoming Navigation State ──
+    if (location.state?.alarmFocus) {
+      setActiveFilter('lowStock');
+    }
+
     const handleSync = (payload: any) => {
       console.log('📡 Inventory Sync Received:', payload);
       refreshAll();
