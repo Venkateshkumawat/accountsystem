@@ -1,7 +1,7 @@
 import { AuthRequest } from "../middleware/auth.js";
 
 type Action = "CREATE" | "UPDATE" | "DELETE" | "TRANSACTION";
-type Resource = "PRODUCT" | "STAFF" | "INVOICE" | "PAYMENT" | "BUSINESS" | "PARTY";
+type Resource = "PRODUCT" | "STAFF" | "INVOICE" | "PAYMENT" | "BUSINESS" | "PARTY" | "PURCHASE";
 
 /**
  * Log a system activity in the tenant-specific database node
@@ -42,6 +42,29 @@ export const logActivity = async (
       description,
       metadata
     });
+
+    // 📡 Nexus Unified Dispatcher: Bridge to Real-time Notifications
+    const { Notification } = authReq.tenantModels;
+    const notifyType = (action === 'DELETE' || action === 'TRANSACTION') ? 'warning' : 'info';
+    const category = resource.toLowerCase() as any;
+
+    const notification = await Notification.create({
+      businessAdminId: businessAdminId as any,
+      message: `${action}: ${description}`,
+      type: notifyType,
+      category: ['product', 'invoice', 'payment', 'staff'].includes(category) ? category : 'alert',
+      isRead: false
+    });
+
+    // ⚡ Real-time Socket Emission
+    const io = req.app.get('socketio');
+    if (io) {
+      const room = authReq.user?.businessObjectId || authReq.user?.businessId;
+      if (room) {
+        io.to(room.toString()).emit('notification-received', notification);
+      }
+    }
+
   } catch (error) {
     console.error("🌊 Activity Telemetry Failed:", error);
   }

@@ -26,7 +26,7 @@ const UserPlan = lazy(() => import('./pages/superadmin/UserPlan'));
 const MasterAccount = lazy(() => import('./pages/superadmin/MasterAccount'));
 const AdminSetting = lazy(() => import('./pages/superadmin/AdminSetting'));
 const SuperAdminLayout = lazy(() => import('./components/superadmin/SuperAdminLayout'));
-const Notifications = lazy(() => import('./pages/Notifications'));
+const AuditCenter = lazy(() => import('./pages/AuditCenter'));
 const SuperAdminLogin = lazy(() => import('./pages/SuperAdminLogin'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 
@@ -93,7 +93,6 @@ const App = () => {
                 <Route path="user-plan" element={<UserPlan />} />
                 <Route path="accounts" element={<MasterAccount />} />
                 <Route path="settings" element={<AdminSetting />} />
-                <Route path="notifications" element={<Notifications />} />
               </Route>
 
               {/* -- Business Operational Nodes (Authenticated Staff/Admin ONLY) -- */}
@@ -157,9 +156,9 @@ const App = () => {
                 </ProtectedRoute>
               } />
 
-              <Route path="/notifications" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="AUDIT_LOGS"><Notifications /></PermissionRoute></AppLayout>
+              <Route path="/audit-center" element={
+                <ProtectedRoute allowedRoles={['businessAdmin']} redirectTo="/dashboard">
+                  <AppLayout><AuditCenter /></AppLayout>
                 </ProtectedRoute>
               } />
 

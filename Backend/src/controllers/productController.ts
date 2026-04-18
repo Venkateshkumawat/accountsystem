@@ -254,6 +254,19 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
     // 📡 Nexus Protocol: Real-time Data Sync Signal
     if (businessId) {
       getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
+
+      // Infrastructure Monitoring: Immediate Stock Check
+      if (product.stock <= product.lowStockThreshold && product.stock >= 0) {
+        await createNotification(
+          businessId,
+          `Critical Inventory Alarm: ${product.name} initialized with low stock (${product.stock} units).`,
+          product.stock === 0 ? "error" : "warning",
+          "businessAdmin",
+          undefined,
+          "alert"
+        );
+      }
+
       if (updatedBiz) {
         const payload = {
           businessAdminId: businessAdminId.toString(),
@@ -520,6 +533,18 @@ export const adjustStock = async (req: AuthRequest, res: Response): Promise<void
       undefined,
       "product"
     );
+
+    // Infrastructure Monitoring: Dynamic Stock Check
+    if (product.stock <= product.lowStockThreshold && product.stock >= 0) {
+      await createNotification(
+        req.user?.businessId,
+        `Inventory Alarm Post-Adjustment: ${product.name} is now ${product.stock === 0 ? 'Out of Stock' : 'Low on Stock'} (${product.stock} units).`,
+        product.stock === 0 ? "error" : "warning",
+        "businessAdmin",
+        undefined,
+        "alert"
+      );
+    }
 
     // 📡 Real-time Data Sync
     if (req.user?.businessId) {

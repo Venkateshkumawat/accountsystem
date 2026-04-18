@@ -19,7 +19,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ success: false, message: "Workspace node offline." });
     return;
   }
-  const { Product, Invoice, Payment, Transaction, Offer } = req.tenantModels;
+  const { Product, Invoice, Payment, Transaction, Offer, Party } = req.tenantModels;
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -145,7 +145,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
     const grandTotal = subtotal - totalDiscount + totalGST;
     const adminIdStr = businessAdminId.toString();
     const invoiceNumber = `BB-${adminIdStr.slice(-5)}-${Date.now()}`;
-    const transactionId = await generateTransactionId(Invoice, adminIdStr);
+    const transactionId = await generateTransactionId(Transaction, adminIdStr);
     
     // Auto-finalize 'paid' status for cash or verified digital payments
     const isCashPayment = paymentMethod?.toLowerCase() === 'cash' || paymentMethod?.toLowerCase() === 'upi';
@@ -205,6 +205,39 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
         status: 'completed',
         paidAt: new Date()
       }] as any, { session });
+    }
+
+    // 🛰️ INTEGRATED PARTY SYNC: Ensure customer node exists in Parties registry
+    if (customerPhone && customerPhone.length === 10) {
+      const existingParty = await Party.findOne({ 
+        businessAdminId: new mongoose.Types.ObjectId(businessAdminId), 
+        phone: customerPhone,
+        type: 'Customer'
+      }).session(session);
+
+      if (existingParty) {
+        await Party.updateOne(
+          { _id: existingParty._id },
+          { 
+            $inc: { 
+              currentBalance: grandTotal,
+              totalSales: grandTotal 
+            } 
+          },
+          { session }
+        );
+      } else {
+        await Party.create([{
+          businessAdminId: new mongoose.Types.ObjectId(businessAdminId),
+          name: customerName || 'Retail Customer',
+          phone: customerPhone,
+          type: 'Customer',
+          openingBalance: 0,
+          currentBalance: grandTotal,
+          totalSales: grandTotal,
+          address: { street: customerAddress || '' }
+        }], { session });
+      }
     }
 
     await session.commitTransaction();

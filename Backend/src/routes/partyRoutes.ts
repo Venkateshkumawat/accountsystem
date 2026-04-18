@@ -4,7 +4,10 @@ import {
   getParties,
   createParty,
   updateParty,
-  deleteParty
+  deleteParty,
+  recordPartyPayment,
+  syncPartiesWithTransactions,
+  purgeParties
 } from "../controllers/partyController.js";
 
 const router = express.Router();
@@ -15,15 +18,12 @@ const router = express.Router();
  * 🛰️ Channel: /api/parties
  */
 router.use(protect);
-router.use(verifySubscription);
-router.use(tenantHandler);
-
-router.route("/")
-  .get(getParties)
-  .post(createParty);
-
-router.route("/:id")
-  .put(updateParty)
-  .delete(deleteParty);
+router.get("/", protect, verifySubscription, tenantHandler, getParties);
+router.post("/", protect, verifySubscription, tenantHandler, createParty);
+router.put("/:id", protect, verifySubscription, tenantHandler, updateParty);
+router.delete("/:id", protect, verifySubscription, tenantHandler, deleteParty);
+router.post("/:id/payment", protect, verifySubscription, tenantHandler, recordPartyPayment);
+router.post("/sync-lifecycle", protect, verifySubscription, tenantHandler, syncPartiesWithTransactions);
+router.delete("/purge-all", protect, verifySubscription, tenantHandler, purgeParties);
 
 export default router;

@@ -17,7 +17,7 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
     res.status(500).json({ success: false, message: "Workspace node offline." });
     return;
   }
-  const { Purchase, Product, Transaction } = req.tenantModels;
+  const { Purchase, Product, Transaction, Party } = req.tenantModels;
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -119,7 +119,7 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
     const grandTotal = subtotal + totalGST;
     const randomHex = Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, '0').toUpperCase();
     const billNumber = `PRC-${shortBusinessId || 'NODE'}-${randomHex}`;
-    const transactionId = await generateTransactionId(Purchase, adminId.toString());
+    const transactionId = await generateTransactionId(Transaction, adminId.toString());
 
     // Auto-set paid for razorpay
     const finalStatus = (paymentMethod === 'razorpay' && razorpayPaymentId) ? 'paid' : (paymentStatus || 'paid');
@@ -148,6 +148,41 @@ export const createPurchase = async (req: AuthRequest, res: Response): Promise<v
       razorpaySignature,
       purchaseDate: purchaseDate ? new Date(purchaseDate) : new Date(),
     }] as any, { session });
+
+    // 🛰️ INTEGRATED PARTY SYNC: Ensure vendor node exists in Parties registry
+    if (vendorPhone && vendorPhone.length === 10) {
+      const existingParty = await Party.findOne({ 
+        businessAdminId: adminId, 
+        phone: vendorPhone,
+        type: 'Supplier'
+      }).session(session);
+
+      if (existingParty) {
+        await Party.updateOne(
+          { _id: existingParty._id },
+          { 
+            $inc: { 
+              currentBalance: grandTotal,
+              totalPurchases: grandTotal 
+            } 
+          },
+          { session }
+        );
+      } else {
+        await Party.create([{
+          businessAdminId: adminId,
+          name: vendorName || vendorCompany || 'Unknown Vendor',
+          phone: vendorPhone,
+          email: req.body.vendorEmail,
+          gstin: vendorGstin,
+          type: 'Supplier',
+          openingBalance: 0,
+          currentBalance: grandTotal,
+          totalPurchases: grandTotal,
+          address: { street: req.body.vendorAddress || '' }
+        }], { session });
+      }
+    }
 
     await session.commitTransaction();
     session.endSession();

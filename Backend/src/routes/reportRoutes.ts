@@ -2,6 +2,7 @@ import express from "express";
 import { protect, verifySubscription, tenantHandler } from "../middleware/auth.js";
 import {
   getActivityLog,
+  deleteActivity,
   getSalesReport,
   getInventoryReport,
   getTransactionReport,
@@ -19,6 +20,7 @@ const router = express.Router();
 router.use(protect, verifySubscription, tenantHandler);
 
 router.get("/activity", getActivityLog);
+router.delete("/activity/:id", deleteActivity);
 router.get("/sales", getSalesReport);
 router.get("/inventory", getInventoryReport);
 router.get("/transactions", getTransactionReport);

@@ -9,7 +9,8 @@ import {
 import api from '../services/api';
 import socketService from '../services/socket';
 import { useAuth } from '../hooks/useAuth';
-
+import { useNotify } from '../context/NotificationContext';
+import { IndianRupee, CreditCard, MessageSquare, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface AppLayoutProps { children?: React.ReactNode; }
 
@@ -32,7 +33,7 @@ const NAV_ITEMS = [
   { label: 'Staff Node', path: '/staff', icon: Users, roles: ['businessAdmin', 'manager'], permission: 'STAFF' },
   { label: 'GST Portal', path: '/gst', icon: Shield, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'GST_PORTAL' },
   { label: 'REPORTS', path: '/reports', icon: BarChart2, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'REPORTS' },
-
+  { label: 'Audit Center', path: '/audit-center', icon: Shield, roles: ['businessAdmin'], permission: null },
   { label: 'Settings', path: '/settings', icon: Cog, roles: ['businessAdmin'], permission: null },
 ];
 
@@ -40,6 +41,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, hasPermission, isBusinessAdmin } = useAuth();
+  const { unreadCount } = useNotify();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [planStatus, setPlanStatus] = useState<any>(null);
 
@@ -306,9 +308,17 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </div>
 
             <div className="flex items-center gap-3 lg:gap-5">
+              <Link to="/audit-center" className="p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all relative">
+                 <Bell size={20} />
+                 {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white animate-in zoom-in-50 duration-300 shadow-sm">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                 )}
+              </Link>
               <div className="hidden sm:flex flex-col items-end">
                  <span className="text-sm font-semibold text-slate-900 max-w-[150px] truncate">{user?.businessName || 'Nexus Node'}</span>
-                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">Verified GST</span>
+                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none font-inter">Verified GST</span>
               </div>
             </div>
           </header>
@@ -368,10 +378,11 @@ const SidebarItem = React.memo(({ item, isActive, onClick }: { item: any, isActi
       }`}
     >
       <Icon size={18} className={`shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-      <span className={`text-[13px] font-${isActive ? 'bold' : 'semibold'} uppercase tracking-tight`}>{item.label}</span>
+      <span className={`text-[13px] font-${isActive ? 'bold' : 'semibold'} uppercase tracking-tight font-inter`}>{item.label}</span>
       {isActive && (
         <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
       )}
     </Link>
   );
 });
+

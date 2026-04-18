@@ -18,12 +18,14 @@ export const getActivityLog = async (req: AuthRequest, res: Response): Promise<v
     const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
     const action   = req.query.action   ? String(req.query.action)   : undefined;
     const resource = req.query.resource ? String(req.query.resource) : undefined;
+    const search   = req.query.search   ? String(req.query.search)   : undefined;
     const page     = Number(req.query.page  || 1);
     const limit    = Number(req.query.limit || 50);
 
     const query: any = { businessAdminId: businessAdminId as any };
     if (action)   query.action   = action;
     if (resource) query.resource = resource;
+    if (search)   query.description = { $regex: search, $options: 'i' };
 
     const total      = await Activity.countDocuments(query);
     const activities = await Activity.find(query)
@@ -32,6 +34,33 @@ export const getActivityLog = async (req: AuthRequest, res: Response): Promise<v
       .limit(limit);
 
     res.status(200).json({ success: true, total, data: activities });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Delete a specific audit node
+ * @route   DELETE /api/reports/activity/:id
+ */
+export const deleteActivity = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.tenantModels) {
+      res.status(500).json({ success: false, message: "Workspace node offline." });
+      return;
+    }
+    const { Activity } = req.tenantModels;
+    const adminIdStr = getBusinessAdminId(req);
+    const businessAdminId = new mongoose.Types.ObjectId(adminIdStr);
+
+    const result = await Activity.deleteOne({ _id: req.params.id, businessAdminId: businessAdminId as any });
+    
+    if (result.deletedCount === 0) {
+      res.status(404).json({ success: false, message: "Node not found or unauthorized." });
+      return;
+    }
+
+    res.status(200).json({ success: true, message: "Audit node decommissioned." });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

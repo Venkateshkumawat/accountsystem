@@ -5,7 +5,7 @@ export interface IActivity extends Document {
   userId: mongoose.Types.ObjectId;
   userName: string;
   action: "CREATE" | "UPDATE" | "DELETE" | "TRANSACTION";
-  resource: "PRODUCT" | "STAFF" | "INVOICE" | "PAYMENT" | "BUSINESS";
+  resource: "PRODUCT" | "STAFF" | "INVOICE" | "PAYMENT" | "BUSINESS" | "PARTY" | "PURCHASE";
   resourceId?: string;
   description: string;
   metadata?: any;
@@ -18,7 +18,7 @@ const activitySchema = new Schema<IActivity>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: false },
     userName: { type: String, required: true },
     action: { type: String, enum: ["CREATE", "UPDATE", "DELETE", "TRANSACTION"], required: true },
-    resource: { type: String, enum: ["PRODUCT", "STAFF", "INVOICE", "PAYMENT", "BUSINESS"], required: true },
+    resource: { type: String, enum: ["PRODUCT", "STAFF", "INVOICE", "PAYMENT", "BUSINESS", "PARTY", "PURCHASE"], required: true },
     resourceId: { type: String },
     description: { type: String, required: true },
     metadata: { type: Schema.Types.Mixed },
