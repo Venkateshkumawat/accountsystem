@@ -31,11 +31,33 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) setZoom(0.35);
-      else setZoom(0.85);
+      if (window.innerWidth < 768) {
+        setZoom((window.innerWidth - 24) / 850);
+      } else {
+        setZoom(0.85);
+      }
     };
+
+    const container = scrollContainerRef.current;
+    const preventDefault = (e: WheelEvent) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.05 : 0.05;
+        setZoom(prev => Math.min(Math.max(prev + delta, 0.1), 2));
+      }
+    };
+
+    if (container) {
+      container.addEventListener('wheel', preventDefault, { passive: false });
+    }
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    handleResize(); // Initial call
+    
+    return () => {
+      if (container) container.removeEventListener('wheel', preventDefault);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   if (!invoice) return null;
@@ -64,25 +86,31 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
 
   const handlePrint = () => window.print();
   const adjustZoom = (delta: number) => setZoom(prev => Math.min(Math.max(prev + delta, 0.1), 2));
-  const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey) {
-      e.preventDefault();
-      adjustZoom(e.deltaY > 0 ? -0.05 : 0.05);
-    }
-  };
-
   return (
-    <div className="fixed inset-0 z-[9999] bg-white flex flex-col font-inter overflow-hidden" onWheel={handleWheel}>
+    <div className="fixed inset-0 z-[9999] bg-white flex flex-col font-inter overflow-hidden">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         .no-scrollbar::-webkit-scrollbar { display: none; }
         @media print {
           @page { size: A4; margin: 10mm; }
-          html, body { height: auto !important; overflow: visible !important; }
+          html, body { 
+            height: auto !important; 
+            overflow: visible !important; 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          * { 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
           body * { visibility: hidden; }
           #receipt-content, #receipt-content * { visibility: visible !important; }
           #receipt-content { 
-            position: relative !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             display: block !important;
             width: 100% !important; 
             padding: 0 !important; 
@@ -97,35 +125,47 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
         }
       `}</style>
 
-      {/* Action Dock */}
-      <div className="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-[10000] no-print shrink-0">
+      {/* Action Dock - Top Navigation */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 py-3 sm:p-4 sticky top-0 z-[10000] no-print shrink-0">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-             <div className="w-9 h-9 bg-sky-500 rounded-xl flex items-center justify-center">
-                <ShieldCheck size={20} className="text-white" />
-             </div>
-             <div className="hidden sm:block">
-               <h3 className="text-[11px] font-black uppercase tracking-widest text-white leading-none">GST Terminal</h3>
-               <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">H-FIDELITY Protocol</p>
+             <button onClick={onClose} className="p-2.5 bg-slate-800 text-slate-100 rounded-xl hover:bg-slate-700 transition-all active:scale-95">
+                <ArrowLeft size={18} />
+             </button>
+             <div className="hidden md:block">
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-white leading-none">GST Terminal</h3>
+                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">H-FIDELITY Protocol</p>
              </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+          <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700 scale-90 sm:scale-100">
              <button onClick={() => adjustZoom(-0.1)} className="p-2 text-slate-400 hover:text-white rounded-lg"><ZoomOut size={16} /></button>
              <button onClick={() => setZoom(1)} className="px-3 text-[10px] font-black text-slate-500 hover:text-sky-400 min-w-[50px]">{Math.round(zoom * 100)}%</button>
              <button onClick={() => adjustZoom(0.1)} className="p-2 text-slate-400 hover:text-white rounded-lg"><ZoomIn size={16} /></button>
           </div>
           
-          <div className="flex items-center gap-2">
-            <button onClick={onClose} className="px-4 h-10 bg-slate-800 text-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"><ArrowLeft size={14} /> <span>Back</span></button>
-            <button onClick={handleWhatsAppShare} className="px-4 h-10 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"><Share2 size={14} /> <span>WhatsApp</span></button>
-            <button onClick={handlePrint} className="px-5 h-10 bg-sky-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"><Printer size={16} /> <span>Print Bill</span></button>
+          <div className="hidden sm:flex items-center gap-2">
+            <button onClick={handleWhatsAppShare} className="px-4 h-10 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/10">
+              <Share2 size={14} /> <span>WhatsApp</span>
+            </button>
+            <button onClick={handlePrint} className="px-5 h-10 bg-sky-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-sky-500/10">
+              <Printer size={16} /> <span>Print Bill</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto no-scrollbar bg-slate-50/50 p-4" ref={scrollContainerRef}>
-        <div id="receipt-content" className="max-w-4xl mx-auto bg-white border border-slate-200 shadow-2xl p-10 md:p-16 flex flex-col min-h-[1100px] transition-transform duration-200 origin-top" style={{ transform: `scale(${zoom})` }}>
+      <div className="flex-1 overflow-x-hidden overflow-y-auto no-scrollbar bg-slate-50/50 p-0 sm:p-4 pb-32 sm:pb-4 scroll-smooth" ref={scrollContainerRef}>
+        <div 
+          id="receipt-content" 
+          className="relative left-1/2 bg-white border border-slate-200 shadow-2xl p-6 sm:p-10 md:p-16 flex flex-col min-h-[1100px] transition-transform duration-200" 
+          style={{ 
+            width: '850px',
+            transform: `translateX(-50%) scale(${zoom})`,
+            transformOrigin: 'top',
+            marginBottom: `-${1100 * (1 - zoom)}px` 
+          }}
+        >
           
           {/* 1. HEADER SECTION */}
           <div className="flex justify-between items-start mb-8 pb-8 border-b-2 border-sky-50">
@@ -307,6 +347,23 @@ export default function InvoiceModal({ invoice, onClose, type = 'sale' }: Invoic
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Action Hub - Bottom Dock */}
+      <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 p-4 pb-8 flex items-center gap-3 z-[11000] no-print">
+        <button 
+          onClick={handleWhatsAppShare} 
+          className="flex-1 h-14 bg-emerald-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-emerald-500/20 active:scale-95 transition-all"
+        >
+          <Share2 size={18} />
+          <span>WhatsApp Share</span>
+        </button>
+        <button 
+          onClick={handlePrint} 
+          className="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
+        >
+          <Printer size={20} />
+        </button>
       </div>
     </div>
   );

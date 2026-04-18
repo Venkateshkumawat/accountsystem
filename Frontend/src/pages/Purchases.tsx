@@ -252,7 +252,7 @@ export default function Purchases() {
         <div className="lg:col-span-8 bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm relative overflow-hidden">
            <h3 className="text-base font-semibold text-slate-900 uppercase mb-8">Sales Overview</h3>
            <div className="h-[340px] w-full min-h-[340px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                  <AreaChart data={chartData}>
                     <defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -297,17 +297,17 @@ export default function Purchases() {
                {showAllPurchases ? 'See Less' : 'See All'}
             </button>
          </div>
-         <div className="w-full">
-            <table className="w-full text-left table-fixed border-collapse">
+         <div className="w-full overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[900px]">
                <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-100">
-                     <th className="w-[18%] px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Reference ID</th>
-                     <th className="w-[22%] px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Supplier Base</th>
-                     <th className="w-[12%] px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Net Settlement</th>
-                     <th className="w-[12%] px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Payment Status</th>
-                     <th className="w-[12%] px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Buy Protocol</th>
-                     <th className="w-[12%] px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Manifest</th>
-                     <th className="w-[12%] px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right pr-6">Date</th>
+                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[120px]">Reference ID</th>
+                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[180px]">Supplier Base</th>
+                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[110px]">Net Settlement</th>
+                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[110px]">Payment Status</th>
+                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[100px]">Buy Protocol</th>
+                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[100px]">Manifest</th>
+                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right pr-6 min-w-[110px]">Date</th>
                   </tr>
                </thead>
                <tbody className="divide-y divide-slate-50 font-inter">

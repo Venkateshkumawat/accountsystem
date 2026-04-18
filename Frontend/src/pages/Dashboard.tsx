@@ -194,7 +194,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex-1 w-full min-h-[250px] relative mt-2">
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={250} minWidth={0}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10, fontWeight: 500 }} />
@@ -259,12 +259,12 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
-          <div className="h-[500px] overflow-y-auto custom-scrollbar">
-            <table className="w-full text-left">
+          <div className="h-[500px] overflow-auto custom-scrollbar">
+            <table className="w-full text-left min-w-[600px]">
               <thead className="sticky top-0 bg-white z-10 border-b border-slate-50">
-                <tr className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-                  <th className="px-6 py-4 text-center">ID</th>
-                  <th className="px-6 py-4">Customer</th>
+                <tr className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                  <th className="px-6 py-4 text-center min-w-[100px]">ID / Ref</th>
+                  <th className="px-6 py-4 min-w-[150px]">Customer</th>
                   <th className="px-6 py-4">Amount</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Date</th>

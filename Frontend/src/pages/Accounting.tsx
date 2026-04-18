@@ -218,17 +218,62 @@ export default function Accounting() {
           </div>
         </div>
 
-        <div className="w-full">
-          <table className="w-full text-left table-fixed">
+        {/* Mobile Ledger Cards — Visible Only on Mobile/Tablet */}
+        <div className="lg:hidden divide-y divide-slate-100 border-t border-slate-50">
+          {unifiedLedger.length === 0 ? (
+            <div className="py-20 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">No Fiscal Nodes Found</div>
+          ) : (showAllLedger ? unifiedLedger : unifiedLedger.slice(0, 10)).map((entry: any) => {
+            const isSale = entry.entryType === 'SALE';
+            const Icon = isSale ? TrendingUp : TrendingDown;
+            return (
+              <div key={entry._id} onClick={() => setSelectedInvoice(entry)} className="p-5 flex flex-col gap-4 active:bg-slate-50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${isSale ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-rose-50 border-rose-100 text-rose-600'}`}>
+                      <Icon size={16} strokeWidth={3} />
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-bold text-slate-900 tracking-tight uppercase truncate max-w-[150px]">
+                        {entry.transactionId || entry.invoiceNumber || entry.billNumber}
+                      </h4>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                        {isSale ? (entry.customerName || 'Walk-in Client') : (entry.vendorName || 'General Node')}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${entry.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-500 border-rose-100'}`}>
+                    {entry.paymentStatus || 'pending'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-end pt-2 border-t border-slate-50/50">
+                  <div>
+                    <p className="text-[8px] font-bold text-slate-300 uppercase tracking-[0.2em] mb-1">Settlement</p>
+                    <p className={`text-base font-bold tracking-tight ${isSale ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {isSale ? '+' : '-'} ₹{Math.abs(Number(entry.grandTotal || 0)).toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-slate-900 uppercase">{new Date(entry.createdAt || entry.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter mt-0.5">{entry.paymentMethod?.toUpperCase() || 'SYSTEM NODE'}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop Master Ledger Table — Hidden on Mobile */}
+        <div className="hidden lg:block w-full overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[950px]">
             <thead>
               <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                <th className="px-4 py-4 w-[6%] text-center">FLOW</th>
-                <th className="px-4 py-4 w-[25%] text-left">TRANSACTION / ID</th>
-                <th className="px-4 py-4 w-[20%] text-left">NAME</th>
-                <th className="px-4 py-4 w-[12%] text-left pl-0">METHOD</th>
-                <th className="px-4 py-4 w-[12%] text-center">STATUS</th>
-                <th className="px-4 py-4 w-[12%] text-right">DATE</th>
-                <th className="px-4 py-4 w-[13%] text-right pr-6">NET VALUE</th>
+                <th className="px-4 py-5 text-center min-w-[60px]">FLOW</th>
+                <th className="px-4 py-5 text-left min-w-[200px]">TRANSACTION / ID</th>
+                <th className="px-4 py-5 text-left min-w-[200px]">NAME</th>
+                <th className="px-4 py-5 text-left pl-0 min-w-[100px]">METHOD</th>
+                <th className="px-4 py-5 text-center min-w-[100px]">STATUS</th>
+                <th className="px-4 py-5 text-right min-w-[100px]">DATE</th>
+                <th className="px-4 py-5 text-right pr-6 min-w-[120px]">NET VALUE</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">

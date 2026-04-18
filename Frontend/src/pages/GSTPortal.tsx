@@ -21,7 +21,7 @@ const ChartWrapper = memo(({ data, children }: any) => {
          </div>
       );
    }
-   return <ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer>;
+   return <ResponsiveContainer width="100%" height="100%" minWidth={0}>{children}</ResponsiveContainer>;
 });
 
 /**
@@ -300,17 +300,17 @@ export default function GSTPortal() {
                </div>
             </div>
 
-            <div className="overflow-x-auto">
-               <table className="w-full text-left">
+            <div className="overflow-x-auto custom-scrollbar">
+               <table className="w-full text-left min-w-[1000px] border-collapse">
                   <thead>
                      <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-50">
-                        <th className="py-4 px-4">Audit Type / Ref</th>
-                        <th className="py-4 px-4">Counterparty Name</th>
-                        <th className="py-4 px-4 text-center">Protocol Date / Time</th>
-                        <th className="py-4 px-4 text-right">Taxable Value</th>
-                        <th className="py-4 px-4 text-right">GST Settlement</th>
-                        <th className="py-4 px-4 text-center">Status</th>
-                        <th className="py-4 px-4 text-right">Inspection</th>
+                        <th className="py-4 px-4 min-w-[150px]">Audit Type / Ref</th>
+                        <th className="py-4 px-4 min-w-[220px]">Counterparty Name</th>
+                        <th className="py-4 px-4 text-center min-w-[140px]">Protocol Date / Time</th>
+                        <th className="py-4 px-4 text-right min-w-[100px]">Taxable Value</th>
+                        <th className="py-4 px-4 text-right min-w-[100px]">GST Settlement</th>
+                        <th className="py-4 px-4 text-center min-w-[100px]">Status</th>
+                        <th className="py-4 px-4 text-right min-w-[100px]">Inspection</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 font-inter">
