@@ -118,8 +118,8 @@ export default function GSTPortal() {
       document.body.removeChild(link);
    };
 
-   const outputGst = gstData?.totals?.outputGST || 0;
-   const inputGst = gstData?.totals?.inputGST || 0;
+   const outputGst = gstData?.outputGST || 0;
+   const inputGst = gstData?.inputGST || 0;
    const netPayable = outputGst - inputGst;
 
    const formatCurrency = (val: number) => `₹${Math.abs(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
@@ -129,11 +129,11 @@ export default function GSTPortal() {
          {/* Header — Compliance Protocol */}
          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 py-1 px-1 border-b border-slate-50 mb-1">
             <div className="space-y-0.5">
-               <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+               <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight font-inter">
                   GST Compliance Dashboard
                </h1>
-               <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">
-                  ITC and GST liabilities node
+               <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest font-inter">
+                  Verified ITC & Revenue Settlement Node
                </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
@@ -218,55 +218,33 @@ export default function GSTPortal() {
                </div>
             </div>
 
-            {/* Filing Status Matrix — Real-time Compliance Monitor */}
-            <div className="lg:col-span-4 bg-white p-4 rounded-3xl border border-slate-50 shadow-sm flex flex-col">
-               <div className="space-y-2 flex-1">
-                  {(gstData?.filingStatus || []).map((f: any, i: number) => (
-                     <div key={i} className="flex items-center justify-between p-3 rounded-2xl border border-slate-50 hover:border-slate-100 transition-all group">
-                        <div>
-                           <h4 className="text-xs font-bold text-slate-900 leading-none">{f.form}</h4>
-                           <p className="text-[10px] font-medium text-slate-400 mt-1">{f.period}</p>
-                        </div>
-                        <div className="text-right">
-                           <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${f.color}`}>
-                              {f.status}
-                           </span>
-                           <p className="text-[8px] font-bold text-slate-300 mt-1 uppercase tracking-tighter">{f.date}</p>
-                        </div>
-                     </div>
-                  ))}
+            {/* GST Insight Matrix — Advanced Tax Distribution */}
+            <div className="lg:col-span-4 bg-white p-5 rounded-3xl border border-slate-50 shadow-sm flex flex-col">
+               <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-bold text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                     <ShieldCheck size={14} className="text-amber-500" /> GST Insight Matrix
+                  </h3>
                </div>
-
-               {/* Download Node - Elevated above Insight */}
-               <div className="mt-6 mb-4">
+               <div className="h-[200px] w-full relative">
+                  <ChartWrapper data={gstData?.salesSlabs}>
+                     <PieChart>
+                        <Pie data={gstData?.salesSlabs || []} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={8} dataKey="totalTax" nameKey="_id">
+                           {(gstData?.salesSlabs || []).map((_e: any, index: number) => <Cell key={index} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'][index % 5]} />)}
+                        </Pie>
+                        <Tooltip contentStyle={{ fontFamily: 'Inter', fontSize: 9, fontWeight: 600, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -1px rgb(0 0 0 / 0.1)' }} />
+                     </PieChart>
+                  </ChartWrapper>
+               </div>
+               <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                  <span>Net Yield</span>
+                  <span className="text-slate-900 font-inter font-black">₹{(gstData?.outputGST || 0).toLocaleString()}</span>
+               </div>
+               <div className="mt-6 flex-1 flex items-end">
                   <button
                      onClick={handleExport}
                      className="w-full py-4 bg-slate-50 border border-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
                      <Download size={14} /> Download GST Reports
                   </button>
-               </div>
-
-               {/* GST Insight Node - Parallel to Reports */}
-               <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
-                  <div className="flex items-center justify-between mb-4">
-                     <h3 className="text-xs font-bold text-slate-800 uppercase tracking-tight flex items-center gap-2">
-                        <ShieldCheck size={14} className="text-amber-500" /> GST Insight Matrix
-                     </h3>
-                  </div>
-                  <div className="h-[200px] w-full relative">
-                     <ChartWrapper data={gstData?.salesSlabs}>
-                        <PieChart>
-                           <Pie data={gstData?.salesSlabs || []} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={8} dataKey="totalTax" nameKey="_id">
-                              {(gstData?.salesSlabs || []).map((_e: any, index: number) => <Cell key={index} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'][index % 5]} />)}
-                           </Pie>
-                           <Tooltip contentStyle={{ fontFamily: 'Inter', fontSize: 9, fontWeight: 600, borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -1px rgb(0 0 0 / 0.1)' }} />
-                        </PieChart>
-                     </ChartWrapper>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
-                     <span>Net Yield</span>
-                     <span className="text-slate-900">₹{(gstData?.outputGST || 0).toLocaleString()}</span>
-                  </div>
                </div>
             </div>
          </div>

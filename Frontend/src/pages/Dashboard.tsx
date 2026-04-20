@@ -3,7 +3,7 @@ import {
   IndianRupee, FileText, Package, Users, AlertTriangle, AlertCircle,
   Plus, ShoppingCart, TrendingUp, XCircle,
   Settings, ChevronDown, RefreshCw, Filter,
-  CheckCircle2, Zap
+  CheckCircle2, Zap, Activity
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -181,7 +181,7 @@ export default function Dashboard() {
           sub="COMPLETED NODES" 
         />
         <Link to="/inventory?filter=low-stock" className="h-full">
-          <StatCard label="LOW STOCK ITEMS" value={`${data?.lowStockCount || 0}`} icon={AlertCircle} color="rose" sub="CRITICAL INTERVENTION" />
+          <StatCard label="ALERT ITEMS" value={`${data?.lowStockCount || 0}`} icon={AlertCircle} color="rose" sub="CRITICAL INTERVENTION" />
         </Link>
       </div>
 
@@ -193,8 +193,8 @@ export default function Dashboard() {
               <p className="text-sm font-normal text-slate-500">Weekly revenue trend analysis</p>
             </div>
           </div>
-          <div className="flex-1 w-full min-h-[250px] relative mt-2">
-            <ResponsiveContainer width="100%" height={250} minWidth={0}>
+          <div className="flex-1 w-full min-h-[350px] relative mt-2">
+            <ResponsiveContainer width="100%" height={350} minWidth={0}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10, fontWeight: 500 }} />
@@ -216,21 +216,7 @@ export default function Dashboard() {
             <FileText size={100} className="absolute -right-2 -bottom-2 opacity-5 scale-110 rotate-12" />
           </div>
 
-          <div className="bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-200 relative overflow-hidden group">
-            <div className="flex justify-between items-end relative z-10">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">NODE CAPACITY (PRODUCT)</p>
-                <h3 className="text-xl font-semibold text-slate-900">{data?.usedProduct ?? 0} <span className="text-slate-300 text-lg">/ {data?.ProductLimit || '∞'}</span></h3>
-              </div>
-              <div className="text-right">
-                <p className="text-[8px] font-semibold uppercase text-slate-400">Remaining</p>
-                <p className={`text-xs font-semibold ${(data?.remainingProduct ?? 10) < 10 ? 'text-rose-500' : 'text-emerald-500'}`}>{data?.remainingProduct ?? 'Stable'}</p>
-              </div>
-            </div>
-            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
-              <div className={`h-full transition-all duration-1000 ${((data?.usedProduct || 0) / (data?.ProductLimit || 1)) > 0.9 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(((data?.usedProduct || 0) / (data?.ProductLimit || 1)) * 100, 100)}%` }} />
-            </div>
-          </div>
+
 
           <div className="bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-200 flex justify-between items-center group">
             <div>
@@ -242,15 +228,20 @@ export default function Dashboard() {
 
           {data?.lowStockProducts?.length ? (
             <div className="bg-rose-50/50 border-2 border-rose-100 p-4 rounded-2xl shadow-sm shadow-rose-500/5">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1.5 h-6 bg-rose-500 rounded-full" />
-                <p className="text-[10px] font-black text-rose-700 uppercase tracking-widest leading-none">Critical Stock Exhaustion</p>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-rose-500 rounded-full" />
+                  <p className="text-[10px] font-black text-rose-700 uppercase tracking-widest leading-none">Alert Items (Action Required)</p>
+                </div>
+                <AlertCircle size={14} className="text-rose-500 animate-pulse" />
               </div>
-              <div className="space-y-2">
-                {data.lowStockProducts.slice(0, 3).map(p => (
-                  <div key={p._id} className="flex justify-between items-center text-[11px] font-black text-slate-800 uppercase tracking-tight py-1 border-b border-rose-100/50 last:border-0 leading-none">
-                    <span className="truncate max-w-[120px]">{p.name}</span>
-                    <span className="text-rose-600 bg-white border border-rose-100 px-2 py-0.5 rounded-full text-[9px]">LVL: {p.stock}</span>
+              <div className="space-y-2 max-h-[180px] overflow-y-auto custom-scrollbar pr-1">
+                {data.lowStockProducts.map(p => (
+                  <div key={p._id} className="flex justify-between items-center text-[11px] font-black text-slate-800 uppercase tracking-tight py-2 border-b border-rose-100/50 last:border-0 leading-none">
+                    <span className="truncate max-w-[150px]">{p.name}</span>
+                    <div className="flex items-center gap-2">
+                       <span className="text-rose-600 bg-white border border-rose-100 px-2 py-0.5 rounded text-[8px]">STOCK: {p.stock}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -261,8 +252,8 @@ export default function Dashboard() {
                   <CheckCircle2 size={16} />
                </div>
                <div>
-                  <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest leading-none">Inventory Healthy</p>
-                  <p className="text-[8px] font-bold text-emerald-600/60 uppercase mt-1">All nodes operational</p>
+                  <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest leading-none">All Nodes Stable</p>
+                  <p className="text-[8px] font-bold text-emerald-600/60 uppercase mt-1">Zero critical alerts</p>
                </div>
             </div>
           )}
@@ -327,7 +318,48 @@ export default function Dashboard() {
         </div>
       </div>
 
-
+      {/* Recent Activity — Full-Width Forensic Ledger */}
+      <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden flex flex-col font-inter mt-3">
+         <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
+            <h2 className="text-[11px] font-semibold text-slate-800 uppercase tracking-[0.2em]">Recent Activity</h2>
+            <div className="flex items-center gap-2">
+               <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">Live Registry Status</span>
+               <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />
+            </div>
+         </div>
+         <div className="p-0 max-h-[500px] overflow-y-auto custom-scrollbar">
+            {data?.recentActivities?.length ? data.recentActivities.map((activity, idx) => (
+               <div key={idx} className="flex items-center gap-6 px-6 py-4 border-b border-slate-50 hover:bg-slate-50/80 transition-all hover:pl-8 group">
+                  <div className={`p-2 rounded-xl shrink-0 ${activity.action === 'DELETE' ? 'bg-rose-50 text-rose-500' : 'bg-indigo-50 text-indigo-500'}`}>
+                     {ACTION_ICONS[activity.action] ? React.createElement(ACTION_ICONS[activity.action], { size: 16 }) : <RefreshCw size={16} />}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                     <div className="lg:col-span-2">
+                        <span className={`inline-block px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border whitespace-nowrap min-w-[90px] text-center ${activity.action === 'DELETE' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                           {activity.action}
+                        </span>
+                     </div>
+                     <div className="lg:col-span-6">
+                        <p className="text-[11px] font-semibold text-slate-800 uppercase leading-none tracking-tight truncate" title={activity.description}>{activity.description}</p>
+                     </div>
+                     <div className="lg:col-span-2">
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-right lg:text-left truncate">{activity.userName}</p>
+                     </div>
+                     <div className="lg:col-span-2 text-right">
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter whitespace-nowrap">
+                           {new Date(activity.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                        </p>
+                     </div>
+                  </div>
+               </div>
+            )) : (
+               <div className="py-20 text-center">
+                  <p className="text-[10px] text-slate-300 italic uppercase tracking-widest">No Activity Logged in registry</p>
+               </div>
+            )}
+         </div>
+      </div>
 
       <PlanModal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} currentPlan={currentPlan} />
       <InvoiceModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />

@@ -231,8 +231,8 @@ export default function Purchases() {
       
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900 uppercase tracking-tight">Purchases Terminal</h1>
-          <p className="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-widest italic">Linked to GST Portal History</p>
+          <h1 className="text-2xl font-semibold text-slate-900 uppercase tracking-tight font-inter">Purchases Terminal</h1>
+          <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-widest font-inter">Verified Fiscal Node · v2.1</p>
         </div>
         <div className="flex items-center gap-3">
            <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-semibold hover:bg-indigo-700 transition-all uppercase tracking-widest shadow-lg shadow-indigo-100">
@@ -242,10 +242,10 @@ export default function Purchases() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 font-inter">
-        <StatCard label="Total Outbound" value={`₹${(stats.totalSpend || 0).toLocaleString()}`} icon={IndianRupee} color="#6366f1" sub="Global Spend Node" trend="neutral" />
-        <StatCard label="ITC (Input GST)" value={`₹${(stats.totalITC || 0).toLocaleString()}`} icon={Zap} color="#10B981" sub="Linked to GST Portal" trend="neutral" />
-        <StatCard label="Monthly Spend" value={`₹${(stats.monthSpend || 0).toLocaleString()}`} icon={Users} color="#F59E0B" sub="Current Cycle Flux" trend="neutral" />
-        <StatCard label="Order Volume" value={stats.totalCount?.toString() || '0'} icon={ShoppingCart} color="#1E293B" sub="Total Ledger Entries" trend="neutral" />
+        <StatCard label="Total Outbound" value={`₹${(stats.totalSpend || 0).toLocaleString()}`} icon={IndianRupee} color="#6366f1" sub="Global Procurement Node" trend="neutral" />
+        <StatCard label="ITC (Input GST)" value={`₹${(stats.totalITC || 0).toLocaleString()}`} icon={Zap} color="#10B981" sub="Verified Tax Credit Node" trend="neutral" />
+        <StatCard label="Monthly Spend" value={`₹${(stats.monthSpend || 0).toLocaleString()}`} icon={Users} color="#F59E0B" sub="Current Operational Node" trend="neutral" />
+        <StatCard label="Order Manifests" value={stats.totalCount?.toString() || '0'} icon={ShoppingCart} color="#1E293B" sub="Total Registry Entries" trend="neutral" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 font-inter">
@@ -374,6 +374,7 @@ export default function Purchases() {
              submitting={submitting} 
              subtotal={subtotal} 
              categories={categories}
+             prevVendors={prevVendors}
           />
        )}
        
@@ -568,7 +569,7 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                <div className="relative pt-2">
                   <div className="relative group">
                      <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
-                     <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="SEARCH PRODUCT REGISTRY..." className="w-full pl-12 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest focus:border-indigo-600 outline-none shadow-xl shadow-indigo-100/20" />
+                     <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="INVENTORY REGISTRY: SEARCH OR PROVISION NEW NODE..." className="w-full pl-12 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:border-indigo-600 outline-none shadow-xl shadow-indigo-100/20 font-inter" />
                      {(products.length > 0 || productSearch.length > 1) && (
                         <div className="absolute z-50 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl mt-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
                            {products.map(p => (

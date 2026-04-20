@@ -125,7 +125,7 @@ export const getSalesReport = async (req: AuthRequest, res: Response): Promise<v
 
     const [dailySales, dailyPurchases, topSoldItems, leastSoldItems, topPurchasedItems, leastPurchasedItems, paymentMetrics, gstLiability, totalSalesAllTime, lowStockItems, activities, totalDiscounts] = await Promise.all([
       // ... previous 11 promises ...
-      // 1. Daily Sales Trend
+      // 1. Daily Sales trend
       Invoice.aggregate([
         { $match: salesMatch },
         {
@@ -138,7 +138,7 @@ export const getSalesReport = async (req: AuthRequest, res: Response): Promise<v
         { $sort: { _id: 1 } }
       ]),
 
-      // 2. Daily Purchase Trend
+      // 2. Daily Purchase trend
       Purchase.aggregate([
         { $match: purchaseMatch },
         {
@@ -435,7 +435,7 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
       ])
     ]);
 
-     // 3. Generate Analytical Trend: 6-Month Fiscal Forecaster
+     // 3. Generate Analytical trend: 6-Month Fiscal Forecaster
      const sixMonthsAgo = new Date();
      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -508,41 +508,6 @@ export const getGSTReport = async (req: AuthRequest, res: Response): Promise<voi
 
      const outputGST = outputGSTResult[0]?.total || 0;
      const inputGST = inputGSTResult[0]?.total || 0;
-
-     // 5. Generate Dynamic Filing Matrix
-     const now = new Date();
-     const filingStatus = [];
-     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-     for (let i = 0; i < 4; i++) {
-       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-       const m = d.getMonth();
-       const y = d.getFullYear();
-       const period = `${monthNames[m]} ${y}`;
-       
-       // Form 1: Sales
-       const gstr1Status = i === 0 ? "PENDING" : "FILED";
-       const gstr1Date = i === 0 ? `Due by 11 ${monthNames[(m+1)%12]}` : `10 ${monthNames[m]} ${y}`;
-       
-       // Form 3B: Summary
-       const gstr3bStatus = i === 0 ? "DUE" : "FILED";
-       const gstr3bDate = i === 0 ? `Due by 20 ${monthNames[(m+1)%12]}` : `20 ${monthNames[m]} ${y}`;
-
-       filingStatus.push({ 
-          form: 'GSTR-1 (Sales)', 
-          period, 
-          status: gstr1Status, 
-          date: gstr1Date, 
-          color: gstr1Status === 'FILED' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500' 
-       });
-       filingStatus.push({ 
-          form: 'GSTR-3B (Summary)', 
-          period, 
-          status: gstr3bStatus, 
-          date: gstr3bDate, 
-          color: gstr3bStatus === 'FILED' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500' 
-       });
-     }
 
      // 4. Fetch History Ledger: Unified Sales and Purchases
      const historyLimit = Number(req.query.limit || 10);
