@@ -35,7 +35,7 @@ const StatCard = ({ label, value, icon: Icon, color, sub, trend }: any) => (
         </div>
       </div>
       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-      <h3 className="text-xl font-bold text-slate-900 mt-1 tracking-tight">{value}</h3>
+      <h3 className="text-xl font-semibold font-inter text-slate-900 mt-1 tracking-tight">{value}</h3>
       <p className="text-[9px] text-slate-400 mt-2 font-medium italic opacity-70">{sub}</p>
     </div>
   </div>
@@ -313,7 +313,7 @@ export default function Purchases() {
                </thead>
                  <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
                   {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
-                     <tr key={p._id} className="hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0 group cursor-pointer">
+                     <tr key={p._id} className="hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0 group cursor-pointer">
                         <td className="px-2 py-3 text-center">
                             <div className="flex flex-col items-center">
                                <span className="text-[10px] font-bold text-slate-900 leading-none">{p.transactionId}</span>
@@ -327,7 +327,7 @@ export default function Purchases() {
                            </div>
                         </td>
                         <td className="px-2 py-3 text-center">
-                           <span className="text-[11px] font-bold text-slate-900 tracking-tighter">₹{p.grandTotal.toLocaleString()}</span>
+                           <span className="text-[11px] font-semibold font-inter text-slate-900 tracking-tighter">₹{p.grandTotal.toLocaleString()}</span>
                         </td>
                         <td className="px-2 py-3 text-center">
                            <span className={`px-2 py-0.5 rounded text-[8.5px] font-black uppercase border transition-all shadow-sm ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>

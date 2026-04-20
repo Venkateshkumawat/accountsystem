@@ -286,7 +286,7 @@ export default function Accounting() {
                 const Icon = isSale ? TrendingUp : TrendingDown;
                 
                 return (
-                  <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-100 last:border-0">
+                  <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-slate-100 transition-all cursor-pointer group border-b border-slate-100 last:border-0">
                     <td className="px-2 py-3 text-center">
                        <div className={`mx-auto w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform group-hover:scale-110 ${
                          isSale 

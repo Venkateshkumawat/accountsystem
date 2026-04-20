@@ -281,9 +281,9 @@ export default function Dashboard() {
                   <th className="px-6 py-4">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-100">
                 {filteredInvoices.map(inv => (
-                  <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
+                  <tr key={inv._id} onClick={() => setSelectedInvoice(inv)} className="hover:bg-slate-100 transition-colors cursor-pointer group border-b border-slate-100 last:border-0">
                     <td className="px-6 py-4 text-center font-inter">
                        <span className="text-[10px] font-semibold text-indigo-600 uppercase leading-none block">{inv.transactionId}</span>
                        <span className="text-[8px] font-bold text-slate-300 uppercase mt-0.5 block">{inv.invoiceNumber}</span>

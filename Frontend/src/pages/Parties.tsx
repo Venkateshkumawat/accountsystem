@@ -349,7 +349,7 @@ export default function Parties() {
                         </thead>
                         <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
                             {(showAllParties || search || activeFilter !== 'All' ? filteredParties : filteredParties.slice(0, 10)).map((party) => (
-                                <tr key={party._id} className="group hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0">
+                                <tr key={party._id} className="group hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0">
                                     <td className="py-3 px-3">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 font-semibold group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all cursor-pointer font-inter text-[11px] shrink-0">
@@ -611,7 +611,7 @@ const SummaryCard = memo(({ label, value, variant, icon: Icon, sub }: any) => {
         <div className={`p-5 rounded-[2rem] border-2 shadow-sm flex items-center justify-between group transition-all hover:scale-[1.02] ${variants[variant]}`}>
             <div className="space-y-1.5">
                 <p className="text-[9px] font-black uppercase tracking-widest opacity-60">{label}</p>
-                <h3 className="text-xl sm:text-2xl font-bold tracking-tight">{value}</h3>
+                <h3 className="text-xl sm:text-2xl font-semibold font-inter tracking-tight">{value}</h3>
                 <p className="text-[8px] font-bold uppercase tracking-tight opacity-40">{sub}</p>
             </div>
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white shadow-sm border border-black/5 transition-transform group-hover:rotate-12`}>

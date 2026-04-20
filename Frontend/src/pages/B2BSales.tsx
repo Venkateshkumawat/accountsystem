@@ -213,7 +213,7 @@ export default function B2BSales() {
                                     </td>
                                 </tr>
                             ) : displayedInvoices.map((inv) => (
-                                <tr key={inv._id} className="group hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0 cursor-pointer">
+                                <tr key={inv._id} className="group hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0 cursor-pointer">
                                     <td className="px-3 py-3.5">
                                         <div className="flex flex-col">
                                             <span className="text-xs font-semibold text-slate-900">{inv.invoiceNumber}</span>

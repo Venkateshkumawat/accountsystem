@@ -300,7 +300,7 @@ export default function GSTPortal() {
                   </thead>
                   <tbody className="divide-y divide-slate-50 font-inter">
                      {filteredHistory.length > 0 ? (showAllHistory ? filteredHistory : filteredHistory.slice(0, 10)).map((item: any) => (
-                        <tr key={item._id} className="group hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0 cursor-pointer">
+                        <tr key={item._id} className="group hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0 cursor-pointer">
                            <td className="py-3.5 px-2">
                               <div
                                  onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}

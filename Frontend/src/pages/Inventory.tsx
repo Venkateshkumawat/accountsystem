@@ -489,7 +489,7 @@ export default function Inventory() {
                     {groupedProducts[category].map((product: any) => {
                       const productImg = getImageUrl(product.image);
                       return (
-                        <tr key={product._id} className="bg-white hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0 cursor-pointer">
+                        <tr key={product._id} className="bg-white hover:bg-slate-100 transition-colors group border-b border-slate-100 last:border-0 cursor-pointer">
                           <td className="px-6 py-1.5">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
