@@ -9,6 +9,8 @@ import {
 import api from '../services/api';
 import { useNotify } from '../context/NotificationContext';
 import { useProducts } from '../context/ProductContext';
+import { useRazorpay } from '../hooks/useRazorpay';
+import { Banknote, CreditCard as CardIcon } from 'lucide-react';
 
 /**
  * B2B Sales Terminal: GST-Compliant Nodal Invoicing.
@@ -265,6 +267,8 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
     const { products, fetchProducts } = useProducts();
     const [searchParty, setSearchParty] = useState('');
     const [searchProduct, setSearchProduct] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'online'>('cash');
+    const { handlePayment } = useRazorpay();
     const [selectedParty, setSelectedParty] = useState<any>(null);
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
     const [dueDate, setDueDate] = useState('');
@@ -316,35 +320,55 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
 
     const handleCreate = async () => {
         if (!selectedParty) return notifyError("Protocol Block: Please select a party node.");
-        if (items.length === 0) return notifyError("Protocol Block: Empty item list.");
+        if (items.length === 0) return notifyError("Protocol Block: No items detected.");
 
-        setSubmitting(true);
-        try {
-            const payload = {
-                customerId: selectedParty._id,
-                customerName: selectedParty.name,
-                customerPhone: selectedParty.phone,
-                customerAddress: `${selectedParty.address.street}, ${selectedParty.address.city}, ${selectedParty.address.state}, ${selectedParty.address.pincode}`,
-                customerGstin: selectedParty.gstin,
-                items: items.map(i => ({
-                    productId: i.productId,
-                    qty: i.qty,
-                    price: i.price,
-                    name: i.name,
-                    gstRate: i.gstRate
-                })),
-                paymentMethod: 'cash',
-                paymentStatus: 'pending'
-            };
+        const executeCreation = async (razorDetails?: any) => {
+            setSubmitting(true);
+            try {
+                const payload = {
+                    customerId: selectedParty._id,
+                    customerName: selectedParty.name,
+                    customerPhone: selectedParty.phone,
+                    customerAddress: `${selectedParty.address.street}, ${selectedParty.address.city}, ${selectedParty.address.state}, ${selectedParty.address.pincode}`,
+                    customerGstin: selectedParty.gstin,
+                    items: items.map(i => ({
+                        productId: i.productId,
+                        qty: i.qty,
+                        price: i.price,
+                        name: i.name,
+                        gstRate: i.gstRate
+                    })),
+                    paymentMethod,
+                    paymentStatus: 'paid',
+                    razorpayPaymentId: razorDetails?.razorpay_payment_id || null,
+                    note: razorDetails ? `Verified Online Transaction ID: ${razorDetails.razorpay_payment_id}` : 'Standard Cash Handshake'
+                };
 
-            await api.post('/invoices', payload);
-            notifySuccess("B2B Invoice Initialized Successfully");
-            onSuccess();
-            onClose();
-        } catch (e: any) {
-            notifyError(e.response?.data?.message || "Internal Node Sync Failure");
-        } finally {
-            setSubmitting(false);
+                await api.post('/invoices', payload);
+                notifySuccess("B2B Invoice Initialized Successfully");
+                onSuccess();
+                onClose();
+            } catch (e: any) {
+                notifyError(e.response?.data?.message || "Internal Node Sync Failure");
+            } finally {
+                setSubmitting(false);
+            }
+        };
+
+        if (paymentMethod === 'online') {
+            try {
+                await handlePayment({
+                    amount: Math.round(totals.grandTotal),
+                    name: 'BharatBill B2B',
+                    description: `Professional Invoice - ${selectedParty.name}`,
+                    onSuccess: (details: any) => executeCreation(details),
+                    onError: (err: any) => notifyError(err.message || "Integrated Payment Failed")
+                });
+            } catch (err: any) {
+                notifyError("Integrated Gateway Error");
+            }
+        } else {
+            executeCreation();
         }
     };
 
@@ -519,6 +543,29 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-center text-inter">Draft Empty: Search items to begin</p>
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Payment Mode Selector Hub */}
+                    {selectedParty && items.length > 0 && (
+                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-500">
+                            <label className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1 text-inter">SETTLEMENT PROTOCOL</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button 
+                                    onClick={() => setPaymentMethod('cash')}
+                                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'cash' ? 'bg-emerald-50 border-emerald-500/50 text-emerald-700 shadow-sm' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
+                                >
+                                    <Banknote size={20} />
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-inter">Point-of-Cash</span>
+                                </button>
+                                <button 
+                                    onClick={() => setPaymentMethod('online')}
+                                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'online' ? 'bg-indigo-50 border-indigo-500/50 text-indigo-700 shadow-sm' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
+                                >
+                                    <CardIcon size={20} />
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-inter">Digital Verify</span>
+                                </button>
                             </div>
                         </div>
                     )}
