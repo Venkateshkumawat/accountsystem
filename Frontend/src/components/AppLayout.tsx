@@ -142,7 +142,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     navigate('/login');
   };
 
-  const visibleNavItems = NAV_ITEMS.filter(item => {
+  const visibleNavItems = useMemo(() => NAV_ITEMS.filter(item => {
     if (item.roles !== null) {
       if (isBusinessAdmin && item.roles.includes('businessAdmin')) return true;
       if (user?.role && item.roles.includes(user.role)) return true;
@@ -153,7 +153,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         return hasPermission(item.permission);
     }
     return true; 
-  });
+  }), [isBusinessAdmin, user, hasPermission]);
 
   const getInitials = (name: string) =>
     name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'BB';

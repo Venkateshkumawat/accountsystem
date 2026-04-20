@@ -286,7 +286,7 @@ export default function GSTPortal() {
             </div>
 
             <div className="overflow-hidden">
-               <table className="w-full text-left border-collapse table-auto">
+               <table className="w-full text-left border-collapse table-fixed">
                   <thead>
                      <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
                         <th className="py-4 px-2 w-[220px]">Audit Type / Reference</th>
