@@ -245,9 +245,10 @@ export default function POS() {
           // Synchronize system alerts after successful transaction
           fetchNotifications();
 
-          // Real-time Global Sync Pulse
+          // Real-time Global Sync Pulse: Hand-to-Hand Data Propagation
           const sync = new BroadcastChannel('nexus_sync');
           sync.postMessage('FETCH_DASHBOARD');
+          sync.postMessage('SYNC_PARTIES');
           sync.postMessage({ type: 'SYNC_NOTIFICATIONS' });
           sync.close();
         }

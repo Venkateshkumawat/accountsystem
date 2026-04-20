@@ -61,9 +61,11 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
        return;
     }
     const { 
+      customerId,
       customerName, 
       customerPhone, 
       customerAddress,
+      customerGstin,
       items, 
       paymentMethod, 
       note, 
@@ -167,9 +169,11 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       createdBy: userId as any,
       transactionId,
       invoiceNumber,
+      customerId,
       customerName,
       customerPhone,
       customerAddress,
+      customerGstin,
       items: detailedItems,
       subtotal,
       totalGST,
@@ -207,7 +211,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       }] as any, { session });
     }
 
-    // 🛰️ INTEGRATED PARTY SYNC: Ensure customer node exists in Parties registry
+    // 🛰️ INTEGRATED PARTY SYNC: Automated Registry Control
     if (customerPhone && customerPhone.length === 10) {
       const existingParty = await Party.findOne({ 
         businessAdminId: new mongoose.Types.ObjectId(businessAdminId), 
@@ -216,6 +220,7 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       }).session(session);
 
       if (existingParty) {
+        // Known Party Node: Synchronize total sales and ledger balance
         await Party.updateOne(
           { _id: existingParty._id },
           { 
@@ -226,12 +231,14 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
           },
           { session }
         );
-      } else {
+      } else if (customerGstin) {
+        // High-Profile B2B Customer: Initialize new Party node in CRM
         await Party.create([{
           businessAdminId: new mongoose.Types.ObjectId(businessAdminId),
-          name: customerName || 'Retail Customer',
+          name: customerName || 'B2B Client',
           phone: customerPhone,
           type: 'Customer',
+          gstin: customerGstin,
           openingBalance: 0,
           currentBalance: grandTotal,
           totalSales: grandTotal,

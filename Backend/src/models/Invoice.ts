@@ -76,7 +76,7 @@ const invoiceSchema = new Schema<IInvoice>(
     },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Party",
     },
     customerName: {
       type: String,
