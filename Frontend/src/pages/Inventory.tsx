@@ -477,19 +477,19 @@ export default function Inventory() {
               <div className="hidden lg:block bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead className="bg-slate-50/50">
-                    <tr className="text-[10px] font-bold uppercase text-slate-400 border-b border-slate-100">
-                      <th className="px-6 py-2.5">Product Name</th>
-                      <th className="px-6 py-2.5 text-center">Stock Unit</th>
-                      <th className="px-6 py-2.5 text-center">Price</th>
-                      <th className="px-6 py-2.5 text-center">Item Status</th>
-                      <th className="px-6 py-2.5 text-right">Actions</th>
+                    <tr className="text-[10px] font-bold uppercase text-slate-400 border-b border-slate-100 bg-slate-50/50">
+                      <th className="px-6 py-4">Product Identity Node</th>
+                      <th className="px-6 py-4 text-center w-[160px]">Stock Unit</th>
+                      <th className="px-6 py-4 text-center w-[160px]">Market Price</th>
+                      <th className="px-6 py-4 text-center w-[160px]">Item Status</th>
+                      <th className="px-6 py-4 text-right w-[140px] pr-8">Actions Hub</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {groupedProducts[category].map((product: any) => {
                       const productImg = getImageUrl(product.image);
                       return (
-                        <tr key={product._id} className="bg-white hover:bg-slate-50 transition-colors group">
+                        <tr key={product._id} className="bg-white hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0 cursor-pointer">
                           <td className="px-6 py-1.5">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">

@@ -197,14 +197,14 @@ export default function Accounting() {
          </div>
       </div>
 
-      {/* Unified Financial Activity — The Master Ledger */}
+      {/* Financial Activity — The Master Ledger */}
       <div className="bg-white border-2 border-slate-200 rounded-[2rem] shadow-sm overflow-hidden mt-6 font-inter">
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white">
           <div className="flex items-center gap-4">
              <div className="w-1.5 h-8 bg-indigo-600 rounded-full" />
              <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Unified Financial Activity</h2>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Dual-Axis Liquidity Protocol</p>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Financial Activity</h2>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Real-time Fiscal Activity Protocol</p>
              </div>
           </div>
           <div className="flex items-center gap-3">
@@ -264,17 +264,18 @@ export default function Accounting() {
         </div>
 
         {/* Desktop Master Ledger Table — Hidden on Mobile */}
-        <div className="hidden lg:block w-full overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[950px]">
+        <div className="hidden lg:block w-full overflow-hidden">
+          {/* Table uses fixed layout for balanced column distribution */}
+          <table className="w-full text-left border-collapse table-fixed">
             <thead>
               <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                <th className="px-4 py-5 text-center min-w-[60px]">FLOW</th>
-                <th className="px-4 py-5 text-left min-w-[200px]">TRANSACTION / ID</th>
-                <th className="px-4 py-5 text-left min-w-[200px]">NAME</th>
-                <th className="px-4 py-5 text-left pl-0 min-w-[100px]">METHOD</th>
-                <th className="px-4 py-5 text-center min-w-[100px]">STATUS</th>
-                <th className="px-4 py-5 text-right min-w-[100px]">DATE</th>
-                <th className="px-4 py-5 text-right pr-6 min-w-[120px]">NET VALUE</th>
+                <th className="px-2 py-4 text-center w-[50px]">FLOW</th>
+                <th className="px-2 py-4 text-left">TRANS ID</th>
+                <th className="px-2 py-4 text-left">ENTITY NAME</th>
+                <th className="px-2 py-4 text-left">METHOD</th>
+                <th className="px-2 py-4 text-center">STATUS</th>
+                <th className="px-2 py-4 text-right">DATE</th>
+                <th className="px-2 py-4 text-right pr-4">VALUE</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -285,8 +286,8 @@ export default function Accounting() {
                 const Icon = isSale ? TrendingUp : TrendingDown;
                 
                 return (
-                  <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-50 last:border-0">
-                   <td className="px-4 py-4 text-center">
+                  <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-slate-50/80 transition-all cursor-pointer group border-b border-slate-100 last:border-0">
+                    <td className="px-2 py-3 text-center">
                        <div className={`mx-auto w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform group-hover:scale-110 ${
                          isSale 
                            ? 'bg-emerald-50 border-emerald-100 text-emerald-600' 
@@ -295,28 +296,28 @@ export default function Accounting() {
                           <Icon size={14} strokeWidth={3} />
                        </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-2 py-3 truncate">
                       <div className="flex flex-col min-w-0">
-                        <span className={`text-[11px] font-semibold transition-all uppercase tracking-tight truncate font-inter ${isSale ? 'text-indigo-600 hover:underline' : 'text-emerald-600 hover:underline'}`}>
+                        <span className={`text-[10.5px] font-semibold transition-all uppercase tracking-tight truncate font-inter ${isSale ? 'text-indigo-600' : 'text-emerald-600'}`}>
                           {entry.transactionId || entry.invoiceNumber || entry.billNumber}
                         </span>
-                        <span className="text-[8px] font-bold text-slate-300 uppercase mt-0.5 block truncate">Ref: {entry.invoiceNumber || entry.billNumber}</span>
+                        <span className="text-[7.5px] font-bold text-slate-300 uppercase mt-0.5 block truncate">Ref: {entry.invoiceNumber || entry.billNumber}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-2 py-3 truncate">
                       <div className="flex flex-col min-w-0">
-                        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">
+                        <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-tight truncate whitespace-nowrap">
                           {isSale ? (entry.customerName || 'Walk-in Client') : (entry.vendorName || 'General Node')}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-left pl-0">
-                       <span className="px-2 py-0.5 bg-slate-50 text-[8px] font-black uppercase rounded-lg text-slate-400 border border-slate-100">
+                    <td className="px-2 py-3 text-left pl-0">
+                       <span className="px-2 py-0.5 bg-slate-50 text-[7.5px] font-black uppercase rounded text-slate-400 border border-slate-100 whitespace-nowrap">
                           {entry.paymentMethod?.toUpperCase() || 'SYSTEM'}
                        </span>
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[9px] font-black uppercase border transition-all shadow-sm ${
+                    <td className="px-2 py-3 text-center">
+                      <span className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[8.5px] font-black uppercase border transition-all shadow-sm ${
                         entry.paymentStatus === 'paid' 
                           ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                           : 'bg-rose-50 text-rose-500 border-rose-100'
@@ -324,14 +325,14 @@ export default function Accounting() {
                         {entry.paymentStatus || 'pending'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-right">
-                       <p className="text-[10px] font-bold text-slate-900 uppercase leading-none">
+                    <td className="px-2 py-3 text-right">
+                       <p className="text-[9px] font-bold text-slate-900 uppercase leading-none">
                          {new Date(entry.createdAt || entry.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                        </p>
                     </td>
-                    <td className="px-4 py-4 text-right pr-6">
-                       <p className={`text-sm font-semibold tracking-tight ${isSale ? 'text-emerald-600' : 'text-rose-600'}`}>
-                         {isSale ? '+' : '-'} ₹{Math.abs(Number(entry.grandTotal || 0)).toLocaleString('en-IN')}
+                    <td className="px-2 py-3 text-right pr-4">
+                       <p className={`text-[12px] font-semibold tracking-tight ${isSale ? 'text-emerald-600' : 'text-rose-600'}`}>
+                         {isSale ? '+' : '-'}₹{Math.abs(Number(entry.grandTotal || 0)).toLocaleString('en-IN')}
                        </p>
                     </td>
                   </tr>

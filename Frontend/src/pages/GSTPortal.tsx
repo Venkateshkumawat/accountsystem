@@ -285,23 +285,23 @@ export default function GSTPortal() {
                </div>
             </div>
 
-            <div className="overflow-x-auto custom-scrollbar">
-               <table className="w-full text-left min-w-[1000px] border-collapse">
+            <div className="overflow-hidden">
+               <table className="w-full text-left border-collapse table-auto">
                   <thead>
-                     <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-50">
-                        <th className="py-4 px-4 min-w-[150px]">Audit Type / Ref</th>
-                        <th className="py-4 px-4 min-w-[220px]">Counterparty Name</th>
-                        <th className="py-4 px-4 text-center min-w-[140px]">Protocol Date / Time</th>
-                        <th className="py-4 px-4 text-right min-w-[100px]">Taxable Value</th>
-                        <th className="py-4 px-4 text-right min-w-[100px]">GST Settlement</th>
-                        <th className="py-4 px-4 text-center min-w-[100px]">Status</th>
-                        <th className="py-4 px-4 text-right min-w-[100px]">Inspection</th>
+                     <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
+                        <th className="py-4 px-2 w-[220px]">Audit Type / Reference</th>
+                        <th className="py-4 px-2">Counterparty Hub Identity</th>
+                        <th className="py-4 px-2 text-center w-[160px]">Protocol Date</th>
+                        <th className="py-4 px-2 text-right w-[140px]">Taxable Node</th>
+                        <th className="py-4 px-2 text-right w-[140px]">GST Value</th>
+                        <th className="py-4 px-2 text-center w-[120px]">Status</th>
+                        <th className="py-4 px-2 text-right pr-4 w-[120px]">Audit Node</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 font-inter">
                      {filteredHistory.length > 0 ? (showAllHistory ? filteredHistory : filteredHistory.slice(0, 10)).map((item: any) => (
-                        <tr key={item._id} className="group hover:bg-slate-50/50 transition-all">
-                           <td className="py-5 px-4">
+                        <tr key={item._id} className="group hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0 cursor-pointer">
+                           <td className="py-3.5 px-2">
                               <div
                                  onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}
                                  className="flex items-center gap-3 cursor-pointer group/link"
@@ -315,36 +315,30 @@ export default function GSTPortal() {
                                  </div>
                               </div>
                            </td>
-                           <td className="py-5 px-4 font-inter">
-                              <div className="flex flex-col">
-                                 <span className="text-xs font-bold text-slate-700 uppercase tracking-tight">
+                           <td className="py-3.5 px-2 font-inter">
+                              <div className="flex flex-col min-w-0">
+                                 <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-tight truncate max-w-[150px]">
                                     {item.type === 'PURCHASE' ? (item.vendorCompany || item.customer) : (item.customer || 'Retail Node')}
                                  </span>
-                                 <div className="flex flex-col gap-0.5 mt-1">
+                                 <div className="flex flex-col gap-0.5 mt-0.5">
                                     {item.type === 'PURCHASE' && (
-                                       <>
-                                          {item.vendorPhone && <span className="text-[7px] font-bold text-slate-400 uppercase leading-none">Ph: {item.vendorPhone}</span>}
-                                          {item.vendorAddress && <span className="text-[7px] font-bold text-slate-300 uppercase leading-tight italic max-w-[150px] truncate">{item.vendorAddress}</span>}
-                                       </>
+                                       <span className="text-[7.5px] font-bold text-slate-300 uppercase tracking-widest">Verified Supplier</span>
                                     )}
                                     {item.type === 'SALES' && (
-                                       <span className="text-[7px] font-bold text-slate-300 uppercase tracking-widest">Digital Record Identified</span>
+                                       <span className="text-[7.5px] font-bold text-slate-300 uppercase tracking-widest">B2B Sales Protocol</span>
                                     )}
                                  </div>
                               </div>
                            </td>
-                           <td className="py-5 px-4 text-center">
+                           <td className="py-3.5 px-2 text-center">
                               <div className="flex flex-col items-center">
-                                 <span className="text-xs font-bold text-slate-600 tracking-tight">
-                                    {new Date(item.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
-                                 </span>
-                                 <span className="text-[8px] font-black text-indigo-500 uppercase tracking-tight">
-                                    {new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                 <span className="text-[10px] font-bold text-slate-600 tracking-tight">
+                                    {new Date(item.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
                                  </span>
                               </div>
                            </td>
-                           <td className="py-5 px-4 text-right text-xs font-bold text-slate-600">
-                              ₹{item.taxable.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                           <td className="py-3.5 px-2 text-right text-[11px] font-bold text-slate-600">
+                              ₹{item.taxable.toLocaleString()}
                            </td>
                            <td className="py-5 px-4 text-right">
                               <span className={`text-[13px] font-bold tracking-tight ${item.type === 'SALES' ? 'text-indigo-600' : 'text-emerald-600'}`}>

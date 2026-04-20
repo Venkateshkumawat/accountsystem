@@ -17,19 +17,25 @@ import { validateGSTIN, validatePincode } from '../utils/validation';
  */
 export default function Parties() {
     const [parties, setParties] = useState<any[]>([]);
-    const [activeFilter, setActiveFilter] = useState('All');
+    const [activeFilter, setActiveFilter] = useState(() => localStorage.getItem('nexus_party_filter') || 'All');
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showAllParties, setShowAllParties] = useState(false);
     const [showArrangeMenu, setShowArrangeMenu] = useState(false);
-    const [sortBy, setSortBy] = useState('Name');
+    const [sortBy, setSortBy] = useState(() => localStorage.getItem('nexus_party_sort') || 'Name');
     const [editingNode, setEditingNode] = useState<any>(null);
     const [selectedParty, setSelectedParty] = useState<any>(null);
     const [partyHistory, setPartyHistory] = useState<any[]>([]);
     const [historyLoading, setHistoryLoading] = useState(false);
     const { notifySuccess, notifyError } = useNotify();
+
+    // Persist filter and sort state to storage
+    useEffect(() => {
+        localStorage.setItem('nexus_party_filter', activeFilter);
+        localStorage.setItem('nexus_party_sort', sortBy);
+    }, [activeFilter, sortBy]);
 
     const [formData, setFormData] = useState({
         name: '', phone: '', email: '', type: 'Customer', group: 'General', gstin: '', openingBalance: 0,
@@ -205,7 +211,7 @@ export default function Parties() {
         return [...result].sort((a, b) => {
             if (sortBy === 'Name') return a.name.localeCompare(b.name);
             if (sortBy === 'Recent') return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-            if (sortBy === 'Newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            if (sortBy === 'New Added Party') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             if (sortBy === 'High Balance') return (b.currentBalance || 0) - (a.currentBalance || 0);
             if (sortBy === 'Low Balance') return (a.currentBalance || 0) - (b.currentBalance || 0);
             return 0;
@@ -300,7 +306,7 @@ export default function Parties() {
                         </button>
                         {showArrangeMenu && (
                             <div className="absolute left-0 top-full mt-2 w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl z-[50] overflow-hidden animate-in fade-in slide-in-from-top-2">
-                                {['Name', 'Recent', 'Newest', 'High Balance', 'Low Balance'].map(opt => (
+                                {['Name', 'Recent', 'New Added Party', 'High Balance', 'Low Balance'].map(opt => (
                                     <button 
                                         key={opt}
                                         onClick={() => { setSortBy(opt); setShowArrangeMenu(false); }}
@@ -330,20 +336,20 @@ export default function Parties() {
 
             {/* Primary Party Ledger — High Density Terminal */}
             <div className="bg-white rounded-[2.5rem] border-2 border-slate-200 shadow-sm overflow-hidden min-h-[500px]">
-                <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-left border-collapse">
+                <div className="overflow-hidden">
+                    <table className="w-full text-left border-collapse table-fixed">
                         <thead>
-                            <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                                <th className="py-4 px-3 min-w-[200px]">Party Details</th>
-                                <th className="py-4 px-3">Contact Hub</th>
-                                <th className="py-4 px-4 text-center">Protocol Type</th>
-                                <th className="py-4 px-4 text-right">Amount</th>
-                                <th className="py-4 px-6 text-right">Actions</th>
+                            <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
+                                <th className="py-4 px-3">Party Identity Details Hub</th>
+                                <th className="py-4 px-3">Contact Node Hub Node</th>
+                                <th className="py-4 px-4 text-center">Protocol Settlement Type</th>
+                                <th className="py-4 px-4 text-right">Audit Amount Settlement</th>
+                                <th className="py-4 px-6 text-right w-[140px]">Actions Hub Command</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
                             {(showAllParties || search || activeFilter !== 'All' ? filteredParties : filteredParties.slice(0, 10)).map((party) => (
-                                <tr key={party._id} className="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
+                                <tr key={party._id} className="group hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0">
                                     <td className="py-3 px-3">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 font-semibold group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all cursor-pointer font-inter text-[11px] shrink-0">

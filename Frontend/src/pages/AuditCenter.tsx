@@ -179,13 +179,13 @@ const AuditCenter: React.FC = () => {
                 <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-left table-fixed">
                         <thead>
-                            <tr className="border-b border-slate-50 bg-slate-50/30">
-                                <th className="w-[180px] px-8 py-5 text-[9px] font-semibold text-slate-400 uppercase tracking-[0.2em] font-inter">Time</th>
-                                <th className="w-[180px] px-8 py-5 text-[9px] font-semibold text-slate-400 uppercase tracking-[0.2em] font-inter">Classification</th>
-                                <th className="px-8 py-5 text-[9px] font-semibold text-slate-400 uppercase tracking-[0.2em] font-inter">Description</th>
-                                <th className="w-[200px] px-8 py-5 text-[9px] font-semibold text-slate-400 uppercase tracking-[0.2em] font-inter">Authority</th>
-                                <th className="w-[100px] px-8 py-5 text-[9px] font-semibold text-slate-400 uppercase tracking-[0.2em] font-inter text-right">Actions</th>
-                            </tr>
+                             <tr className="border-b border-slate-100 bg-slate-50/30 font-bold italic">
+                                <th className="w-[180px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Protocol Time</th>
+                                <th className="w-[220px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Classification</th>
+                                <th className="px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-center">Audit Description Node</th>
+                                <th className="w-[240px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right">Authority Identity</th>
+                                <th className="w-[120px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right pr-8">Actions</th>
+                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 font-inter">
                             {auditLoading && activities.length === 0 ? (
@@ -202,7 +202,7 @@ const AuditCenter: React.FC = () => {
                                     <tr 
                                         key={`${item.type}-${item.id}`} 
                                         onDoubleClick={() => item.type === 'ALERT' && !item.isRead && markAsRead(item.id)}
-                                        className={`hover:bg-slate-50/50 transition-all cursor-pointer group relative ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-50/10' : ''}`}
+                                        className={`hover:bg-slate-50/80 transition-all cursor-pointer group relative border-b border-slate-100 last:border-0 ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-50/10' : ''}`}
                                     >
                                         <td className="px-8 py-6 align-top relative">
                                             {item.type === 'ALERT' && !item.isRead && (

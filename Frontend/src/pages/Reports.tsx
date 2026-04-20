@@ -513,15 +513,16 @@ export default function Reports() {
           <div className="flex-1 overflow-x-auto custom-scrollbar">
             <table className="w-full text-left">
               <thead className="sticky top-0 bg-white z-10">
-                <tr className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
-                  <th className="py-3 px-2">Tax bracket</th>
-                  <th className="py-3 px-2 text-right">Taxable Supply</th>
-                  <th className="py-3 px-2 text-right">Collected Tax</th>
+                <tr className="uppercase tracking-wider text-slate-400 border-b border-slate-100 font-black italic text-[9px]">
+                  <th className="py-3 px-4">Tax Bracket Node Protocol</th>
+                  <th className="py-3 px-4 text-right w-[180px]">Taxable Supply Hub</th>
+                  <th className="py-3 px-4 text-right w-[180px]">Collected Tax Registry</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {salesData?.gstSlabs?.length > 0 ? salesData.gstSlabs.map((slab: any, i: number) => (
-                  <tr key={i} className="text-[11px] font-bold text-slate-700 uppercase hover:bg-slate-50 transition-colors group">
+                  <tr key={i} className="text-[11px] font-bold text-slate-700 uppercase hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0 cursor-pointer">
+                    {/* GST Protocol Row */}
                     <td className="py-4 px-2 text-slate-400 group-hover:text-amber-600 transition-colors tracking-tight">GST {slab._id}% Protocol</td>
                     <td className="py-4 px-2 text-right">₹{slab.taxableValue.toLocaleString()}</td>
                     <td className="py-4 px-2 text-right text-amber-600 font-black">₹{slab.totalTax.toLocaleString()}</td>

@@ -297,54 +297,55 @@ export default function Purchases() {
                {showAllPurchases ? 'See Less' : 'See All'}
             </button>
          </div>
-         <div className="w-full overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[900px]">
+         {/* Recent purchase registry — High density layout */}
+         <div className="w-full overflow-hidden">
+            <table className="w-full text-left border-collapse table-fixed">
                <thead>
-                  <tr className="bg-slate-50/50 border-b border-slate-100">
-                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[120px]">Reference ID</th>
-                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[180px]">Supplier Base</th>
-                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[110px]">Net Settlement</th>
-                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[110px]">Payment Status</th>
-                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[100px]">Buy Protocol</th>
-                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center min-w-[100px]">Manifest</th>
-                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right pr-6 min-w-[110px]">Date</th>
+                  <tr className="bg-slate-50/50 border-b border-slate-100 italic">
+                     <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Reference ID</th>
+                     <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Supplier Node Identity</th>
+                     <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Settlement Value</th>
+                     <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Protocol Status</th>
+                     <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Inventory Node</th>
+                     <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Node Files</th>
+                     <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right pr-4">Register Date</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-slate-50 font-inter">
+                 <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
                   {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
-                     <tr key={p._id} className="hover:bg-slate-50/80 transition-all border-b border-slate-50 group">
-                        <td className="px-4 py-5 text-center group/id">
+                     <tr key={p._id} className="hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0 group cursor-pointer">
+                        <td className="px-2 py-3 text-center">
                             <div className="flex flex-col items-center">
-                               <span className="text-[10px] font-semibold text-slate-900 leading-none">{p.transactionId}</span>
-                               <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tight">{p.billNumber}</span>
+                               <span className="text-[10px] font-bold text-slate-900 leading-none">{p.transactionId}</span>
+                               <span className="text-[7.5px] font-bold text-slate-400 mt-1 uppercase tracking-tight">{p.billNumber}</span>
                             </div>
                         </td>
-                        <td className="px-4 py-5">
+                        <td className="px-2 py-3">
                            <div className="flex flex-col min-w-0">
-                              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">{p.vendorName || 'General Node'}</span>
-                              <span className="text-[9px] text-slate-400 uppercase tracking-tighter truncate opacity-70 mt-0.5">{p.vendorCompany || 'Nexus Entity'}</span>
+                              <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-tight truncate max-w-[150px]">{p.vendorName || 'General Node'}</span>
+                              <span className="text-[8px] text-slate-400 uppercase tracking-tighter truncate opacity-70 mt-0.5">{p.vendorCompany || 'Nexus Entity'}</span>
                            </div>
                         </td>
-                        <td className="px-4 py-5 text-center">
-                           <span className="text-xs font-semibold text-slate-900 tracking-tighter">₹{p.grandTotal.toLocaleString()}</span>
+                        <td className="px-2 py-3 text-center">
+                           <span className="text-[11px] font-bold text-slate-900 tracking-tighter">₹{p.grandTotal.toLocaleString()}</span>
                         </td>
-                        <td className="px-4 py-5 text-center">
-                           <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase border transition-all shadow-sm ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                        <td className="px-2 py-3 text-center">
+                           <span className={`px-2 py-0.5 rounded text-[8.5px] font-black uppercase border transition-all shadow-sm ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                               {p.paymentStatus || 'pending'}
                            </span>
                         </td>
-                        <td className="px-4 py-5 text-center">
-                           <button onClick={() => handleBuyAgain(p)} className="mx-auto w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all border border-indigo-100/50 active:scale-90 group/buy" title="Buy Again">
-                              <PlusCircle size={14} className="group-hover/buy:rotate-90 transition-transform" />
+                        <td className="px-2 py-3 text-center">
+                           <button onClick={() => handleBuyAgain(p)} className="mx-auto w-7 h-7 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all border border-indigo-100/50 active:scale-90 group/buy" title="Buy Again">
+                              <PlusCircle size={12} className="group-hover/buy:rotate-90 transition-transform" />
                            </button>
                         </td>
-                        <td className="px-4 py-5 text-center">
-                           <button onClick={() => { setSelectedPurchase(p); setShowPrintModal(true); }} className="mx-auto w-8 h-8 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all border border-slate-100 active:scale-90" title="View Hub Invoice">
-                              <Layout size={14} />
+                        <td className="px-2 py-3 text-center">
+                           <button onClick={() => { setSelectedPurchase(p); setShowPrintModal(true); }} className="mx-auto w-7 h-7 flex items-center justify-center bg-slate-50 text-slate-400 rounded-lg hover:bg-slate-900 hover:text-white transition-all border border-slate-100 active:scale-90" title="View Hub Invoice">
+                              <Layout size={12} />
                            </button>
                         </td>
-                        <td className="px-4 py-5 text-right pr-6">
-                           <p className="text-[10px] font-bold text-slate-900 uppercase leading-none">
+                        <td className="px-2 py-3 text-right pr-4">
+                           <p className="text-[9px] font-bold text-slate-900 uppercase leading-none">
                              {new Date(p.createdAt || p.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                            </p>
                         </td>
