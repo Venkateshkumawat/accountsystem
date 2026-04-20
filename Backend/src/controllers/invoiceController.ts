@@ -339,7 +339,15 @@ export const getInvoices = async (req: AuthRequest, res: Response): Promise<void
 
     const query: any = { businessAdminId };
     if (status) query.paymentStatus = status;
-    if (req.query.paymentMethod) query.paymentMethod = String(req.query.paymentMethod).toLowerCase();
+    
+    if (req.query.paymentMethod) {
+      const meth = String(req.query.paymentMethod).toLowerCase();
+      if (meth === 'online' || meth === 'upi' || meth === 'digital') {
+        query.paymentMethod = { $in: ['online', 'upi', 'manual_online', 'digital'] };
+      } else {
+        query.paymentMethod = meth;
+      }
+    }
     if (req.query.customerName) {
       query.$or = [
         { customerName: { $regex: String(req.query.customerName), $options: 'i' } },

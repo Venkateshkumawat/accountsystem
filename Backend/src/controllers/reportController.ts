@@ -216,7 +216,13 @@ export const getSalesReport = async (req: AuthRequest, res: Response): Promise<v
         { $match: salesMatch },
         {
           $group: {
-            _id: "$paymentMethod",
+            _id: {
+              $cond: {
+                if: { $eq: [{ $toLower: "$paymentMethod" }, "upi"] },
+                then: "online",
+                else: { $toLower: "$paymentMethod" }
+              }
+            },
             amount: { $sum: "$grandTotal" },
             count: { $sum: 1 }
           }

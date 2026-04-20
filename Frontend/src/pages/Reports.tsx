@@ -360,12 +360,12 @@ export default function Reports() {
 
 
       {/* Merchant Protocol Audit terminal */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-        {(['CASH', 'UPI', 'CARD'] as const).map(proto => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {(['CASH', 'ONLINE', 'CARD'] as const).map(proto => {
           const metric = (salesData?.paymentMetrics || []).find((m: any) => m._id?.toUpperCase() === proto);
           const themes = {
             CASH: 'text-emerald-600 bg-emerald-50 border-emerald-100',
-            UPI: 'text-indigo-600 bg-indigo-50 border-indigo-100',
+            ONLINE: 'text-indigo-600 bg-indigo-50 border-indigo-100',
             CARD: 'text-rose-600 bg-rose-50 border-rose-100'
           } as any;
           return (
@@ -375,12 +375,12 @@ export default function Reports() {
               className={`bg-white p-3 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-start justify-between group transition-all hover:scale-[1.02] cursor-pointer active:scale-95 ${themes[proto] || 'border-slate-100 text-slate-400'}`}
             >
               <div className="z-10 text-center sm:text-left">
-                <span className="text-[7px] sm:text-[9px] font-semibold uppercase text-slate-400 block mb-1">{proto} Hub</span>
+                <span className="text-[7px] sm:text-[9px] font-semibold uppercase text-slate-400 block mb-1">{proto === 'ONLINE' ? 'Digital' : proto} Hub</span>
                 <h3 className="text-sm sm:text-lg font-semibold tracking-tight text-slate-900 leading-none">₹{(metric?.amount || 0).toLocaleString()}</h3>
                 <p className="text-[6px] sm:text-[8px] font-semibold text-slate-400 mt-1 sm:mt-2 uppercase">Settlements: <span className="text-slate-900">{metric?.count || 0}</span></p>
               </div>
               <div className="p-1.5 sm:p-2 rounded-lg bg-white border border-slate-100 shrink-0 mt-2 sm:mt-0 z-10 transition-all group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-800">
-                {proto === 'CASH' ? <IndianRupee size={12} /> : proto === 'UPI' ? <Zap size={12} /> : <CreditCard size={12} />}
+                {proto === 'CASH' ? <IndianRupee size={12} /> : proto === 'ONLINE' ? <Zap size={12} /> : <CreditCard size={12} />}
               </div>
               <div className="absolute top-0 right-0 p-1 opacity-10 rotate-12 pointer-events-none group-hover:rotate-45 transition-all"> <Zap size={40} /> </div>
             </div>
@@ -569,7 +569,7 @@ export default function Reports() {
               </ChartWrapper>
            </div>
            <div className="flex justify-center gap-4 mt-2 pb-2 border-t border-slate-50 pt-3">
-               {[{p:"UPI",c:"#10b981"},{p:"CASH",c:"#6366f1"},{p:"CARD",c:"#f43f5e"}].map((proto) => (
+               {[{p:"ONLINE",c:"#6366f1"},{p:"CASH",c:"#10b981"},{p:"CARD",c:"#f43f5e"}].map((proto) => (
                   <div key={proto.p} className="flex items-center gap-1.5">
                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: proto.c }} />
                      <span className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest">{proto.p}</span>

@@ -411,7 +411,7 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    await logActivity(req, "DELETE", "PRODUCT", `Decommissioned SKU: ${product.name}`, (product._id as any).toString());
+    await logActivity(req, "DELETE", "PRODUCT", `Deleted SKU: ${product.name}`, (product._id as any).toString());
 
     await createNotification(
       req.user?.businessId,
@@ -427,7 +427,7 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
       getIO()?.to(req.user.businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
     }
 
-    res.status(200).json({ success: true, message: "Product marked as inactive" });
+    res.status(200).json({ success: true, message: "Product deleted" });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

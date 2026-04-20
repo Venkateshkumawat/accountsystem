@@ -120,12 +120,12 @@ export const deleteParty = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    await logActivity(req, "DELETE", "PARTY", `Decommissioned ${party.type}: ${party.name}`, (party._id as any).toString());
+    await logActivity(req, "DELETE", "PARTY", `Deleted ${party.type}: ${party.name}`, (party._id as any).toString());
 
-    res.status(200).json({ success: true, message: "Party decommissioned successfully." });
-  } catch (error: any) {
+    res.status(200).json({ success: true, message: "Party deleted successfully." });
+} catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
-  }
+}
 };
 
 /**
@@ -258,7 +258,7 @@ export const purgeParties = async (req: AuthRequest, res: Response): Promise<voi
 
     console.log(`[PURGE_COMPLETE] Removed ${result.deletedCount} nodes successfully.`);
 
-    await logActivity(req, "DELETE", "PARTY", `ABSOLUTE PURGE: Decommissioned ${result.deletedCount} party nodes.`, "SYSTEM");
+    await logActivity(req, "DELETE", "PARTY", `ABSOLUTE PURGE: Deleted ${result.deletedCount} party nodes.`, "SYSTEM");
 
     res.status(200).json({ success: true, message: `Registry Purged: ${result.deletedCount} nodes removed.` });
   } catch (error: any) {

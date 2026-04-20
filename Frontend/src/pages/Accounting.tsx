@@ -65,11 +65,12 @@ export default function Accounting() {
 
       const methods: Record<string, number> = {};
       allInvoices.forEach(i => {
-        const m = i.paymentMethod || 'CASH';
+        let m = (i.paymentMethod || 'CASH').toUpperCase();
+        if (m === 'UPI') m = 'ONLINE'; // Unified Financial Node
         methods[m] = (methods[m] || 0) + i.grandTotal;
       });
       const methArr = Object.entries(methods).map(([name, value]) => ({ 
-        name: name.toUpperCase(), 
+        name: name, 
         value 
       })).sort((a, b) => b.value - a.value);
 

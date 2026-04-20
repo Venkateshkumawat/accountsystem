@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import {
-    Plus, Search, Download, MoreVertical, Eye, 
+    Plus, Search, Download, MoreVertical, Eye,
     Building2, FileText, CheckCircle2, AlertCircle,
-    Calendar, ArrowRight, X, User, ShoppingBag, 
+    Calendar, ArrowRight, X, User, ShoppingBag,
     RefreshCcw,
     Zap
 } from 'lucide-react';
@@ -11,6 +11,7 @@ import { useNotify } from '../context/NotificationContext';
 import { useProducts } from '../context/ProductContext';
 import { useRazorpay } from '../hooks/useRazorpay';
 import { Banknote, CreditCard as CardIcon } from 'lucide-react';
+import InvoiceModal from '../components/InvoiceModal';
 
 /**
  * B2B Sales Terminal: GST-Compliant Nodal Invoicing.
@@ -23,6 +24,8 @@ export default function B2BSales() {
     const [activeFilter, setActiveFilter] = useState('All');
     const { notifySuccess, notifyError } = useNotify();
     const [showNewInvoice, setShowNewInvoice] = useState(false);
+    const [showAll, setShowAll] = useState(false);
+    const [selectedInvoiceForView, setSelectedInvoiceForView] = useState<any | null>(null);
 
     const fetchInvoices = useCallback(async () => {
         setLoading(true);
@@ -53,21 +56,56 @@ export default function B2BSales() {
         const total = partyInvoices.reduce((sum, inv) => sum + (inv.grandTotal || 0), 0);
         const collected = partyInvoices.filter(inv => inv.paymentStatus === 'paid').reduce((sum, inv) => sum + (inv.grandTotal || 0), 0);
         const pending = partyInvoices.filter(inv => inv.paymentStatus === 'pending').reduce((sum, inv) => sum + (inv.grandTotal || 0), 0);
-        return { total, collected, pending, overdue: 45000 }; 
+
+        // Calculate Reactive Overdue: Pending invoices past their due date
+        const overdue = partyInvoices
+            .filter(inv => inv.paymentStatus === 'pending' && inv.dueDate && new Date(inv.dueDate) < new Date())
+            .reduce((sum, inv) => sum + (inv.grandTotal || 0), 0);
+
+        return { total, collected, pending, overdue };
     }, [invoices]);
+
+    const handleExport = () => {
+        const headers = ["Invoice Number", "Customer", "Date", "Total", "Status", "Payment Method"];
+        const rows = filteredInvoices.map(inv => [
+            inv.invoiceNumber,
+            inv.customerName,
+            new Date(inv.createdAt).toLocaleDateString(),
+            inv.grandTotal,
+            inv.paymentStatus.toUpperCase(),
+            inv.paymentMethod || 'Manual'
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(r => r.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `B2B_Sales_Audit_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        notifySuccess("Forensic CSV Dump Successful");
+    };
 
     const filteredInvoices = useMemo(() => {
         return invoices.filter(inv => {
             // Inclusive Forensic Filter: Show Registered Parties OR GST-Registered Entities
             if (!inv.customerId && !inv.customerGstin) return false;
 
-            const matchesSearch = 
-                inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) || 
+            const matchesSearch =
+                inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
                 (inv.customerName || '').toLowerCase().includes(search.toLowerCase());
             const matchesFilter = activeFilter === 'All' || inv.paymentStatus.toLowerCase() === activeFilter.toLowerCase();
             return matchesSearch && matchesFilter;
         });
     }, [invoices, search, activeFilter]);
+
+    const displayedInvoices = useMemo(() => {
+        return showAll ? filteredInvoices : filteredInvoices.slice(0, 10);
+    }, [filteredInvoices, showAll]);
 
     return (
         <div className="min-h-screen bg-[#FDFDFF] p-4 sm:p-6 font-inter overflow-y-auto h-[calc(100vh-1rem)] custom-scrollbar">
@@ -78,10 +116,13 @@ export default function B2BSales() {
                     <p className="text-slate-500 font-medium text-xs mt-0.5">Manage your GST-compliant business invoices</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg font-semibold text-xs hover:bg-slate-50 transition-all shadow-sm">
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg font-semibold text-xs hover:bg-slate-50 transition-all shadow-sm"
+                    >
                         <Download size={16} /> Export
                     </button>
-                    <button 
+                    <button
                         onClick={() => setShowNewInvoice(true)}
                         className="flex items-center gap-2 px-5 py-2 bg-[#4F46E5] text-white rounded-lg font-semibold text-xs hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-100"
                     >
@@ -92,23 +133,23 @@ export default function B2BSales() {
 
             {/* Metric Flux Nodes */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <MetricCard 
-                    label="TOTAL RECEIVABLES" 
-                    value={`₹${stats.total.toLocaleString()}`} 
-                    icon={FileText} 
-                    color="blue" 
+                <MetricCard
+                    label="TOTAL RECEIVABLES"
+                    value={`₹${stats.total.toLocaleString()}`}
+                    icon={FileText}
+                    color="blue"
                 />
-                <MetricCard 
-                    label="COLLECTED" 
-                    value={`₹${stats.collected.toLocaleString()}`} 
-                    icon={CheckCircle2} 
-                    color="emerald" 
+                <MetricCard
+                    label="COLLECTED"
+                    value={`₹${stats.collected.toLocaleString()}`}
+                    icon={CheckCircle2}
+                    color="emerald"
                 />
-                <MetricCard 
-                    label="OVERDUE" 
-                    value={`₹${stats.overdue.toLocaleString()}`} 
-                    icon={AlertCircle} 
-                    color="rose" 
+                <MetricCard
+                    label="OVERDUE"
+                    value={`₹${stats.overdue.toLocaleString()}`}
+                    icon={AlertCircle}
+                    color="rose"
                 />
             </div>
 
@@ -118,9 +159,9 @@ export default function B2BSales() {
                 <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                        <input 
-                            type="text" 
-                            placeholder="Search invoices, parties..." 
+                        <input
+                            type="text"
+                            placeholder="Search invoices, parties..."
                             className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -131,11 +172,10 @@ export default function B2BSales() {
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
-                                className={`px-5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                                    activeFilter === filter 
-                                    ? 'bg-white text-indigo-600 shadow-sm' 
-                                    : 'text-slate-500 hover:text-slate-700'
-                                }`}
+                                className={`px-5 py-2 rounded-lg text-xs font-semibold transition-all ${activeFilter === filter
+                                        ? 'bg-white text-indigo-600 shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-700'
+                                    }`}
                             >
                                 {filter}
                             </button>
@@ -166,14 +206,14 @@ export default function B2BSales() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : filteredInvoices.length === 0 ? (
+                            ) : displayedInvoices.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-8 py-20 text-center text-slate-400">
                                         No invoices found in this partition.
                                     </td>
                                 </tr>
-                            ) : filteredInvoices.map((inv) => (
-                                <tr key={inv._id} className="group hover:bg-slate-50/50 transition-all cursor-pointer">
+                            ) : displayedInvoices.map((inv) => (
+                                <tr key={inv._id} className="group hover:bg-slate-50/50 transition-all">
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">
                                             <span className="text-xs font-semibold text-slate-900">{inv.invoiceNumber}</span>
@@ -203,21 +243,21 @@ export default function B2BSales() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center">
-                                            <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
-                                                inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' : 
-                                                inv.paymentStatus === 'overdue' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
-                                            }`}>
+                                            <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${inv.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' :
+                                                    inv.paymentStatus === 'overdue' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                                                }`}>
                                                 {inv.paymentStatus || 'PENDING'}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-1 pr-1">
-                                            <button className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-all" title="View Node">
+                                            <button
+                                                onClick={() => setSelectedInvoiceForView(inv)}
+                                                className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-all"
+                                                title="View Node"
+                                            >
                                                 <Eye size={16} />
-                                            </button>
-                                            <button className="p-1.5 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
-                                                <MoreVertical size={16} />
                                             </button>
                                         </div>
                                     </td>
@@ -226,14 +266,41 @@ export default function B2BSales() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* History Paging Hub: Phased Discovery */}
+                {filteredInvoices.length > 10 && (
+                    <div className="p-4 border-t border-slate-50 bg-slate-50/30 flex justify-center">
+                        <button
+                            onClick={() => setShowAll(!showAll)}
+                            className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shadow-sm"
+                        >
+                            {showAll ? 'Show Fewer Nodes' : 'Review Full B2B History'}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* New B2B Invoice Drawer */}
-            <NewInvoiceModal 
-                isOpen={showNewInvoice} 
-                onClose={() => setShowNewInvoice(false)} 
-                onSuccess={fetchInvoices}
+            <NewInvoiceModal
+                isOpen={showNewInvoice}
+                onClose={() => setShowNewInvoice(false)}
+                onSuccess={() => {
+                    fetchInvoices();
+                    // Global Sync Pulse: Pulse platform-wide hand-to-hand consistency
+                    const sync = new BroadcastChannel('nexus_sync');
+                    sync.postMessage('FETCH_DASHBOARD');
+                    sync.postMessage('FETCH_PRODUCTS');
+                    sync.close();
+                }}
             />
+
+            {/* Forensic Audit Modal */}
+            {selectedInvoiceForView && (
+                <InvoiceModal
+                    invoice={selectedInvoiceForView}
+                    onClose={() => setSelectedInvoiceForView(null)}
+                />
+            )}
         </div>
     );
 }
@@ -290,8 +357,8 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
 
     const filteredProducts = useMemo(() => {
         if (!searchProduct || searchProduct.length < 2) return [];
-        return products.filter(p => 
-            p.name.toLowerCase().includes(searchProduct.toLowerCase()) || 
+        return products.filter(p =>
+            p.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
             (p.barcode || '').includes(searchProduct)
         );
     }, [products, searchProduct]);
@@ -307,12 +374,12 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
         if (existing) {
             setItems(items.map(i => i.productId === prod._id ? { ...i, qty: i.qty + 1 } : i));
         } else {
-            setItems([...items, { 
-                productId: prod._id, 
-                name: prod.name, 
-                price: prod.sellingPrice, 
-                qty: 1, 
-                gstRate: prod.gst ?? 0 
+            setItems([...items, {
+                productId: prod._id,
+                name: prod.name,
+                price: prod.sellingPrice,
+                qty: 1,
+                gstRate: prod.gst ?? 0
             }]);
         }
         setSearchProduct('');
@@ -377,7 +444,7 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-2 sm:p-4 backdrop-blur-md bg-slate-900/50">
             <div className="bg-white w-full max-w-xl min-h-[450px] max-h-[95vh] rounded-[2.5rem] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden border border-slate-100 flex flex-col animate-in slide-in-from-bottom-8 duration-500">
-                
+
                 {/* Header Module: Professional Density */}
                 <div className="p-8 pb-4 border-b border-slate-50 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-[1050]">
                     <div>
@@ -412,8 +479,8 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                                     <>
                                         <div className="relative group">
                                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={20} />
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-semibold focus:bg-white focus:border-indigo-400 transition-all outline-none text-inter shadow-sm placeholder:text-slate-300"
                                                 placeholder="Search registered party registry..."
                                                 value={searchParty}
@@ -423,7 +490,7 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                                         {filteredParties.length > 0 && (
                                             <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[2000] overflow-hidden max-h-64 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-1">
                                                 {filteredParties.map(p => (
-                                                    <button 
+                                                    <button
                                                         key={p._id}
                                                         onClick={() => { setSelectedParty(p); setSearchParty(''); }}
                                                         className="w-full px-6 py-4 text-left hover:bg-slate-50 flex items-center justify-between group transition-all border-b border-slate-50 last:border-none"
@@ -455,124 +522,124 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                         {/* Phase 2: Transactional Node Hub (Hidden until Party Selected) */}
                         {selectedParty && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                            {/* Inventory Selector Hub */}
-                            <div className="space-y-2.5">
-                                <label className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1 text-inter">Search Inventory</label>
-                                <div className="relative">
-                                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                                    <input 
-                                        type="text" 
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-semibold focus:bg-white focus:border-indigo-400 transition-all outline-none text-inter shadow-sm placeholder:text-slate-300"
-                                        placeholder="Search products from inventory..."
-                                        value={searchProduct}
-                                        onChange={(e) => setSearchProduct(e.target.value)}
-                                    />
-                                    {filteredProducts.length > 0 && (
-                                        <div className="absolute top-[calc(100%+6px)] left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[2000] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
-                                            {filteredProducts.map(p => (
-                                                <button 
-                                                    key={p._id}
-                                                    onClick={() => handleAddItem(p)}
-                                                    className="w-full px-5 py-3.5 text-left hover:bg-slate-50 flex items-center justify-between group transition-all border-b border-slate-50 last:border-none"
-                                                >
+                                {/* Inventory Selector Hub */}
+                                <div className="space-y-2.5">
+                                    <label className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1 text-inter">Search Inventory</label>
+                                    <div className="relative">
+                                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                                        <input
+                                            type="text"
+                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-semibold focus:bg-white focus:border-indigo-400 transition-all outline-none text-inter shadow-sm placeholder:text-slate-300"
+                                            placeholder="Search products from inventory..."
+                                            value={searchProduct}
+                                            onChange={(e) => setSearchProduct(e.target.value)}
+                                        />
+                                        {filteredProducts.length > 0 && (
+                                            <div className="absolute top-[calc(100%+6px)] left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[2000] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                                                {filteredProducts.map(p => (
+                                                    <button
+                                                        key={p._id}
+                                                        onClick={() => handleAddItem(p)}
+                                                        className="w-full px-5 py-3.5 text-left hover:bg-slate-50 flex items-center justify-between group transition-all border-b border-slate-50 last:border-none"
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-all">
+                                                                <ShoppingBag size={16} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs font-black text-slate-900 group-hover:text-indigo-600 transition-all text-inter">{p.name}</p>
+                                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter text-inter">₹{p.sellingPrice} • Stock: {p.stock}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all shadow-sm">
+                                                            <Plus size={14} />
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Item List Buffer */}
+                                <div className="space-y-2">
+                                    {items.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {items.map((item, idx) => (
+                                                <div key={idx} className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between group shadow-sm">
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[11px] font-bold text-slate-900 truncate uppercase tracking-tight text-inter">{item.name}</p>
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-inter">Qty: {item.qty}</span>
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-inter">₹{item.price}</span>
+                                                            <span className={`text-[9px] font-black uppercase tracking-widest text-inter ${item.gstRate > 0 ? 'text-indigo-500' : 'text-slate-300'}`}>
+                                                                GST {item.gstRate}%
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-all">
-                                                            <ShoppingBag size={16} />
+                                                        <div className="flex items-center bg-white border border-slate-100 rounded-lg overflow-hidden shadow-sm">
+                                                            <button
+                                                                onClick={() => setItems(items.map((it, i) => i === idx ? { ...it, qty: Math.max(1, it.qty - 1) } : it))}
+                                                                className="p-1 px-1.5 hover:bg-slate-50 text-slate-400 transition-colors"
+                                                            >
+                                                                <Minus size={10} />
+                                                            </button>
+                                                            <span className="px-1.5 text-[10px] font-black text-slate-900 border-x border-slate-50 text-inter">{item.qty}</span>
+                                                            <button
+                                                                onClick={() => setItems(items.map((it, i) => i === idx ? { ...it, qty: it.qty + 1 } : it))}
+                                                                className="p-1 px-1.5 hover:bg-slate-50 text-slate-400 transition-colors"
+                                                            >
+                                                                <Plus size={10} />
+                                                            </button>
                                                         </div>
-                                                        <div>
-                                                            <p className="text-xs font-black text-slate-900 group-hover:text-indigo-600 transition-all text-inter">{p.name}</p>
-                                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter text-inter">₹{p.sellingPrice} • Stock: {p.stock}</p>
-                                                        </div>
+                                                        <p className="text-[11px] font-black text-slate-900 min-w-[70px] text-right text-inter">₹{(item.price * item.qty).toLocaleString()}</p>
+                                                        <button
+                                                            onClick={() => setItems(items.filter((_, i) => i !== idx))}
+                                                            className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
                                                     </div>
-                                                    <div className="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all shadow-sm">
-                                                        <Plus size={14} />
-                                                    </div>
-                                                </button>
+                                                </div>
                                             ))}
+                                        </div>
+                                    ) : (
+                                        <div className="py-12 border-2 border-dashed border-slate-100 rounded-[1.5rem] flex flex-col items-center justify-center gap-3 text-slate-300 bg-slate-50/30">
+                                            <Plus size={20} className="opacity-20" />
+                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-center text-inter">Draft Empty: Search items to begin</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
+                        )}
 
-                            {/* Item List Buffer */}
-                            <div className="space-y-2">
-                                {items.length > 0 ? (
-                                    <div className="space-y-2">
-                                        {items.map((item, idx) => (
-                                            <div key={idx} className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between group shadow-sm">
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-[11px] font-bold text-slate-900 truncate uppercase tracking-tight text-inter">{item.name}</p>
-                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-inter">Qty: {item.qty}</span>
-                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-inter">₹{item.price}</span>
-                                                        <span className={`text-[9px] font-black uppercase tracking-widest text-inter ${item.gstRate > 0 ? 'text-indigo-500' : 'text-slate-300'}`}>
-                                                            GST {item.gstRate}%
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex items-center bg-white border border-slate-100 rounded-lg overflow-hidden shadow-sm">
-                                                        <button 
-                                                            onClick={() => setItems(items.map((it, i) => i === idx ? { ...it, qty: Math.max(1, it.qty - 1) } : it))}
-                                                            className="p-1 px-1.5 hover:bg-slate-50 text-slate-400 transition-colors"
-                                                        >
-                                                            <Minus size={10} />
-                                                        </button>
-                                                        <span className="px-1.5 text-[10px] font-black text-slate-900 border-x border-slate-50 text-inter">{item.qty}</span>
-                                                        <button 
-                                                            onClick={() => setItems(items.map((it, i) => i === idx ? { ...it, qty: it.qty + 1 } : it))}
-                                                            className="p-1 px-1.5 hover:bg-slate-50 text-slate-400 transition-colors"
-                                                        >
-                                                            <Plus size={10} />
-                                                        </button>
-                                                    </div>
-                                                    <p className="text-[11px] font-black text-slate-900 min-w-[70px] text-right text-inter">₹{(item.price * item.qty).toLocaleString()}</p>
-                                                    <button 
-                                                        onClick={() => setItems(items.filter((_, i) => i !== idx))}
-                                                        className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
-                                                    >
-                                                        <X size={14} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="py-12 border-2 border-dashed border-slate-100 rounded-[1.5rem] flex flex-col items-center justify-center gap-3 text-slate-300 bg-slate-50/30">
-                                        <Plus size={20} className="opacity-20" />
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-center text-inter">Draft Empty: Search items to begin</p>
-                                    </div>
-                                )}
+                        {/* Payment Mode Selector Hub */}
+                        {selectedParty && items.length > 0 && (
+                            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-500">
+                                <label className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1 text-inter">SETTLEMENT PROTOCOL</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => setPaymentMethod('cash')}
+                                        className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'cash' ? 'bg-emerald-50 border-emerald-500/50 text-emerald-700 shadow-sm' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
+                                    >
+                                        <Banknote size={20} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-inter">Point-of-Cash</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setPaymentMethod('online')}
+                                        className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'online' ? 'bg-indigo-50 border-indigo-500/50 text-indigo-700 shadow-sm' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
+                                    >
+                                        <CardIcon size={20} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-inter">Digital Verify</span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
-
-                    {/* Payment Mode Selector Hub */}
-                    {selectedParty && items.length > 0 && (
-                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-500">
-                            <label className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1 text-inter">SETTLEMENT PROTOCOL</label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button 
-                                    onClick={() => setPaymentMethod('cash')}
-                                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'cash' ? 'bg-emerald-50 border-emerald-500/50 text-emerald-700 shadow-sm' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
-                                >
-                                    <Banknote size={20} />
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-inter">Point-of-Cash</span>
-                                </button>
-                                <button 
-                                    onClick={() => setPaymentMethod('online')}
-                                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'online' ? 'bg-indigo-50 border-indigo-500/50 text-indigo-700 shadow-sm' : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'}`}
-                                >
-                                    <CardIcon size={20} />
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-inter">Digital Verify</span>
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
-            </div>
 
-            {/* Fiscal Summary Hub: Persistent Gating */}
+                {/* Fiscal Summary Hub: Persistent Gating */}
                 {selectedParty && (
                     <div className="p-6 border-t border-slate-50 bg-slate-50/50 backdrop-blur-md space-y-5 animate-in slide-in-from-bottom-4 duration-500">
                         <div className="grid grid-cols-3 gap-6">
@@ -590,7 +657,7 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                             </div>
                         </div>
 
-                        <button 
+                        <button
                             onClick={handleCreate}
                             disabled={submitting || items.length === 0}
                             className="w-full py-4 bg-[#4F46E5] text-white rounded-[1.25rem] font-black text-sm shadow-[0_8px_20px_-8px_rgba(79,70,229,0.5)] hover:bg-[#4338CA] transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-30 disabled:grayscale text-inter"

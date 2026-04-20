@@ -60,7 +60,7 @@ export const deleteBusiness = async (req: AuthRequest, res: Response): Promise<v
     if (!business) throw new Error("Not found");
 
     // ── Nexus Protocol: Shared Shard Purge ───────────────────────────────
-    // Decommission all associated telemetry across shared collections
+    // Delete all associated telemetry across shared collections
     const models = getTenantModels(mongoose.connection);
     const filter = { businessId: businessId as any };
 
@@ -212,7 +212,7 @@ export const resetMyWorkspace = async (req: AuthRequest, res: Response): Promise
       models.Notification.deleteMany(filter)
     ]);
 
-    await logActivity(req, "UPDATE", "BUSINESS", `GLOBAL_WORKSPACE_RESET: Node ${business.businessName} telemetry decommissioned for fresh rollout.`, business._id.toString());
+    await logActivity(req, "UPDATE", "BUSINESS", `GLOBAL_WORKSPACE_RESET: Node ${business.businessName} telemetry deleted for fresh rollout.`, business._id.toString());
     res.status(200).json({ success: true, message: "Workspace data successfully purged from shared registry." });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
