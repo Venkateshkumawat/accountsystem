@@ -11,9 +11,9 @@ export interface AuthRequest extends Request {
     userId: string;
     name: string;
     role: string;
-    businessId: string | null;       // MongoDB ObjectId of Business doc
-    shortBusinessId: string | null;  // 5-char human-readable ref e.g. K9P3Z
-    businessAdminId: string | null;
+    businessId: string | undefined;       // MongoDB ObjectId of Business doc
+    shortBusinessId: string | undefined;  // 5-char human-readable ref e.g. K9P3Z
+    businessAdminId: string | undefined;
     permissions: string[];           // Module permissions for staff users
   };
   tenantModels?: TenantModels;
@@ -34,7 +34,8 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction): vo
   const decoded = decodeJWT(token);
 
   if (!decoded) {
-    res.status(403).json({ message: "Invalid or Expired Token" });
+    console.warn(`[NexusAuth] Security Protocol Breach: Invalid or Expired Token attempt from ${req.ip}`);
+    res.status(401).json({ message: "Invalid or Expired Token" });
     return;
   }
 
@@ -85,10 +86,9 @@ export const authorizeRoles = role;
  */
 export const verifySubscription = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // No bypass for superadmin here. They should not be in business-restricted routes.
     const businessId = req.user?.businessId;
     if (!businessId) {
-      // If it's a staff user but no business ID attached yet
+      console.warn(`[NexusAuth] Subscription Audit Failure: Missing businessId for user ${req.user?.userId}`);
       res.status(401).json({ success: false, message: "Workspace ID missing." });
       return;
     }
@@ -96,6 +96,7 @@ export const verifySubscription = async (req: AuthRequest, res: Response, next: 
     // 2. Fetch Business Node Status
     const business = await Business.findById(businessId);
     if (!business) {
+      console.warn(`[NexusAuth] Subscription Audit Failure: Business node ${businessId} not found.`);
       res.status(404).json({ success: false, message: "Enterprise node not found." });
       return;
     }
@@ -105,6 +106,7 @@ export const verifySubscription = async (req: AuthRequest, res: Response, next: 
     const isExpired = business.planEndDate && new Date(business.planEndDate) < today;
 
     if (!business.isActive || isExpired) {
+      console.warn(`[NexusAuth] Subscription Audit Blocked: Business ${business.businessName} [${businessId}] is ${business.isActive ? 'EXPIRED' : 'INACTIVE'}.`);
       res.status(403).json({
         success: false,
         isExpired: true,

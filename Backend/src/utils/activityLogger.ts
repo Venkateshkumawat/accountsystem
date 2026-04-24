@@ -26,7 +26,7 @@ export const logActivity = async (
     
     const { Activity } = authReq.tenantModels;
 
-    const businessAdminId = customAdminId || req.user?.businessAdminId || req.user?.userId;
+    const businessAdminId = customAdminId || authReq.user?.businessAdminId || authReq.user?.userId;
 
     // Only store userId if it's a valid 24-char hex ObjectId
     const rawUserId = req.user?.userId;
@@ -49,7 +49,7 @@ export const logActivity = async (
     const category = resource.toLowerCase() as any;
 
     const notification = await Notification.create({
-      businessAdminId: businessAdminId as any,
+      businessId: authReq.user?.businessId as any,
       message: `${action}: ${description}`,
       type: notifyType,
       category: ['product', 'invoice', 'payment', 'staff'].includes(category) ? category : 'alert',
@@ -59,7 +59,7 @@ export const logActivity = async (
     // ⚡ Real-time Socket Emission
     const io = req.app.get('socketio');
     if (io) {
-      const room = authReq.user?.businessObjectId || authReq.user?.businessId;
+      const room = authReq.user?.businessId;
       if (room) {
         io.to(room.toString()).emit('notification-received', notification);
       }

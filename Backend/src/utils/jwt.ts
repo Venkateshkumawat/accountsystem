@@ -9,16 +9,16 @@ interface JWTPayload {
   userId: string;
   name: string;
   role: string;
-  businessId: string | null;       // MongoDB ObjectId of the Business document
-  shortBusinessId: string | null;  // 5-char human-readable reference e.g. K9P3Z
-  businessAdminId: string | null;
+  businessId: string | undefined;       // MongoDB ObjectId of the Business document
+  shortBusinessId: string | undefined;  // 5-char human-readable reference e.g. K9P3Z
+  businessAdminId: string | undefined;
   /**
    * Module permissions (only populated for staff roles; empty for businessAdmin/superadmin).
    * Values mirror the ALL_PERMISSIONS constant on the frontend:
    * 'POS' | 'INVENTORY' | 'PURCHASES' | 'REPORTS' | 'ACCOUNTING' | 'GST_PORTAL' | 'CUSTOMERS' | 'SETTINGS'
    */
   permissions: string[];
-  planEndDate?: Date | string | null;
+  planEndDate?: Date | string | undefined;
 }
 
 /**
