@@ -221,9 +221,9 @@ export default function Parties() {
     return (
         <div className="p-2 sm:p-4 space-y-4 bg-[#fcfcfd] min-h-screen font-inter select-none">
             {/* Header Area — High Density Protocol */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1 no-print">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-1 no-print">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-slate-900/10">
+                    <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-slate-900/10 shrink-0">
                         <Users size={20} className="animate-pulse" />
                     </div>
                     <div>
@@ -231,30 +231,32 @@ export default function Parties() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">CRM & Fiscal Ledger Hub</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <button 
                         onClick={() => { resetForm(); setEditingNode(null); setShowModal(true); }}
-                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-bold shadow-lg shadow-indigo-100 transition-all uppercase tracking-widest active:scale-95"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-bold shadow-lg shadow-indigo-100 transition-all uppercase tracking-widest active:scale-95"
                     >
-                        <Plus size={14} /> Initialize Party
+                        <Plus size={14} /> <span className="hidden xs:inline">Initialize</span> Party
                     </button>
-                    <button 
-                        onClick={handleSyncLifecycle}
-                        disabled={loading}
-                        className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50"
-                    >
-                        <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} /> Sync History
-                    </button>
-                    <button 
-                        onClick={handlePurgeAll}
-                        disabled={loading}
-                        className="flex items-center gap-2 px-5 py-3 bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50"
-                    >
-                        <Trash2 size={14} /> Purge Records
-                    </button>
-                    <button onClick={fetchParties} className="p-3 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 rounded-xl transition-all h-[42px] flex items-center shadow-sm">
-                        <History size={16} />
-                    </button>
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <button 
+                            onClick={handleSyncLifecycle}
+                            disabled={loading}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-5 py-3 bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                        >
+                            <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} /> <span className="hidden xs:inline">Sync</span>
+                        </button>
+                        <button 
+                            onClick={handlePurgeAll}
+                            disabled={loading}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-5 py-3 bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                        >
+                            <Trash2 size={14} /> <span className="hidden xs:inline">Purge</span>
+                        </button>
+                        <button onClick={fetchParties} className="p-3 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 rounded-xl transition-all h-[42px] flex items-center shadow-sm">
+                            <History size={16} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -284,9 +286,9 @@ export default function Parties() {
             </div>
 
             {/* Registry Search & Audit Filter */}
-            <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="relative w-full sm:w-80 group">
+            <div className="bg-white p-2 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 no-print">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                    <div className="relative flex-1 lg:w-80 group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={16} />
                         <input 
                             value={search}
@@ -299,13 +301,16 @@ export default function Parties() {
                     <div className="relative">
                         <button 
                             onClick={() => setShowArrangeMenu(!showArrangeMenu)}
-                            className="flex items-center gap-2 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold tracking-widest uppercase hover:bg-indigo-50 hover:text-indigo-600 transition-all shadow-sm"
+                            className="w-full flex items-center justify-between sm:justify-start gap-2 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold tracking-widest uppercase hover:bg-indigo-50 hover:text-indigo-600 transition-all shadow-sm"
                         >
-                            <ArrowUpRight size={14} className={showArrangeMenu ? 'rotate-90' : ''} />
-                            Arrange: {sortBy}
+                            <span className="flex items-center gap-2">
+                                <ArrowUpRight size={14} className={showArrangeMenu ? 'rotate-90' : ''} />
+                                Arrange: {sortBy}
+                            </span>
+                            <ChevronDown size={14} className="sm:hidden" />
                         </button>
                         {showArrangeMenu && (
-                            <div className="absolute left-0 top-full mt-2 w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl z-[50] overflow-hidden animate-in fade-in slide-in-from-top-2">
+                            <div className="absolute left-0 top-full mt-2 w-full sm:w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl z-[50] overflow-hidden animate-in fade-in slide-in-from-top-2">
                                 {['Name', 'Recent', 'New Added Party', 'High Balance', 'Low Balance'].map(opt => (
                                     <button 
                                         key={opt}
@@ -319,12 +324,12 @@ export default function Parties() {
                         )}
                     </div>
                 </div>
-                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100/50">
+                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100/50 w-full lg:w-auto overflow-x-auto scrollbar-hide">
                     {['All', 'Customers', 'Vendors'].map(filter => (
                         <button 
                             key={filter}
                             onClick={() => setActiveFilter(filter)}
-                            className={`px-6 py-2 rounded-xl text-[10px] font-bold transition-all uppercase tracking-widest ${
+                            className={`flex-1 lg:flex-none px-4 sm:px-6 py-2 rounded-xl text-[10px] font-bold transition-all uppercase tracking-widest whitespace-nowrap ${
                                 activeFilter === filter ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-100' : 'text-slate-400 hover:text-slate-600'
                             }`}
                         >
@@ -335,16 +340,17 @@ export default function Parties() {
             </div>
 
             {/* Primary Party Ledger — High Density Terminal */}
-            <div className="bg-white rounded-[2.5rem] border-2 border-slate-200 shadow-sm overflow-hidden min-h-[500px]">
-                <div className="overflow-hidden">
+            <div className="bg-white rounded-3xl sm:rounded-[2.5rem] border-2 border-slate-200 shadow-sm overflow-hidden min-h-[500px]">
+                {/* Desktop View Table */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse table-fixed">
                         <thead>
                             <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                                <th className="py-4 px-3">Party Identity Details Hub</th>
-                                <th className="py-4 px-3">Contact Node Hub Node</th>
-                                <th className="py-4 px-4 text-center">Protocol Settlement Type</th>
-                                <th className="py-4 px-4 text-right">Audit Amount Settlement</th>
-                                <th className="py-4 px-6 text-right w-[140px]">Actions Hub Command</th>
+                                <th className="py-4 px-3">Party</th>
+                                <th className="py-4 px-3">Contact</th>
+                                <th className="py-4 px-4 text-center">Type</th>
+                                <th className="py-4 px-4 text-right">Balance</th>
+                                <th className="py-4 px-6 text-right w-[140px]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
@@ -435,18 +441,84 @@ export default function Parties() {
                             ))}
                         </tbody>
                     </table>
-                    {filteredParties.length === 0 && (
-                        <div className="py-24 text-center">
-                            <Users size={32} className="mx-auto text-slate-200 mb-2" />
-                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No matching party nodes identified</p>
-                        </div>
-                    )}
                 </div>
+
+                {/* Mobile View Card Layout */}
+                <div className="md:hidden divide-y divide-slate-100">
+                    {(showAllParties || search || activeFilter !== 'All' ? filteredParties : filteredParties.slice(0, 10)).map((party) => (
+                        <div key={party._id} className="p-4 space-y-4 hover:bg-slate-50 transition-colors">
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
+                                        {party.name.charAt(0)}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h4 className="text-sm font-bold text-slate-900 truncate tracking-tight">{party.name}</h4>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{party.phone}</p>
+                                    </div>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-widest border ${
+                                    (party.type === 'Vendor' || party.type === 'Supplier') ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                }`}>
+                                    {party.type === 'Supplier' ? 'Vendor' : party.type}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Current Balance</p>
+                                    <p className={`text-xs font-bold ${(party.currentBalance || 0) >= 0 ? ((party.type === 'Vendor' || party.type === 'Supplier') ? 'text-rose-600' : 'text-emerald-600') : 'text-slate-400'}`}>
+                                        ₹{Math.abs(party.currentBalance || 0).toLocaleString()}
+                                    </p>
+                                </div>
+                                <div className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">GSTIN Status</p>
+                                    <p className="text-[10px] font-bold text-slate-600 truncate">{party.gstin || 'No GST Registered'}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 pt-1">
+                                <button 
+                                    onClick={() => { 
+                                        setSelectedParty(party); 
+                                        setPartyHistory([]); 
+                                        fetchPartyHistory(party);
+                                        setShowPaymentModal(true); 
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-bold uppercase tracking-widest active:scale-95 transition-all"
+                                >
+                                    <History size={12} /> History
+                                </button>
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => { setEditingNode(party); setFormData(party); setShowModal(true); }}
+                                        className="p-2.5 bg-slate-50 text-slate-600 rounded-xl hover:bg-slate-100 active:scale-95 transition-all border border-slate-100"
+                                    >
+                                        <Edit2 size={14} />
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDelete(party._id)}
+                                        className="p-2.5 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 active:scale-95 transition-all border border-rose-100"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {filteredParties.length === 0 && (
+                    <div className="py-24 text-center px-4">
+                        <Users size={32} className="mx-auto text-slate-200 mb-2" />
+                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No matching party nodes identified</p>
+                    </div>
+                )}
                 {filteredParties.length > 10 && !search && activeFilter === 'All' && (
-                    <div className="p-6 bg-slate-50 border-t border-slate-100/50 text-center">
+                    <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-100/50 text-center">
                         <button 
                             onClick={() => setShowAllParties(!showAllParties)}
-                            className="mx-auto px-10 py-3 bg-white border-2 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center active:scale-95"
+                            className="w-full sm:w-auto mx-auto px-10 py-3 bg-white border-2 border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 justify-center active:scale-95"
                         >
                             <History size={14} />
                             {showAllParties ? 'SEE LESS' : `SEE ALL PARTIES (${filteredParties.length})`}
@@ -530,11 +602,11 @@ export default function Parties() {
 
             {/* Add/Edit Modal — Consistent Architecture */}
             {showModal && (
-                <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[90vh]">
-                        <header className="px-8 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4">
+                    <div className="bg-white w-full max-w-2xl rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+                        <header className="px-6 sm:px-8 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">{editingNode ? 'Edit Party Node' : 'Initialize Party'}</h3>
+                                <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight">{editingNode ? 'Edit Party Node' : 'Initialize Party'}</h3>
                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Digital Ledger Deployment</p>
                             </div>
                             <button onClick={() => setShowModal(false)} className="p-2 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition-all">
@@ -542,7 +614,7 @@ export default function Parties() {
                             </button>
                         </header>
 
-                        <form onSubmit={handleSave} className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+                        <form onSubmit={handleSave} className="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormItem label="Party Name" icon={Users} value={formData.name} onChange={(v: string) => setFormData({...formData, name: v})} required />
                                 <FormItem label="Contact Node" icon={Phone} value={formData.phone} onChange={(v: string) => setFormData({...formData, phone: v})} required maxLength={10} />
@@ -564,13 +636,13 @@ export default function Parties() {
                                 <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-tight">
                                     <MapPin size={14} className="text-indigo-500" /> Geolocation Matrix
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="md:col-span-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    <div className="sm:col-span-2">
                                         <FormItem label="Physical Address" value={formData.address.street} onChange={(v: string) => setFormData({...formData, address: {...formData.address, street: v}})} required />
                                     </div>
                                     <FormItem label="Zip Protocol" value={formData.address.pincode} onChange={(v: string) => setFormData({...formData, address: {...formData.address, pincode: v}})} required />
                                     <FormItem label="City Hub" value={formData.address.city} onChange={(v: string) => setFormData({...formData, address: {...formData.address, city: v}})} required />
-                                    <div className="md:col-span-1">
+                                    <div className="sm:col-span-2 md:col-span-1">
                                         <div className="space-y-1.5">
                                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">State Territory</label>
                                             <select 
@@ -588,9 +660,9 @@ export default function Parties() {
                             </div>
                         </form>
 
-                        <footer className="p-8 border-t border-slate-50 bg-slate-50/50 flex gap-4">
-                            <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
-                            <button onClick={handleSave} className="flex-[2] py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all active:scale-95">
+                        <footer className="p-6 sm:p-8 border-t border-slate-50 bg-slate-50/50 flex flex-col sm:flex-row gap-4">
+                            <button type="button" onClick={() => setShowModal(false)} className="order-2 sm:order-1 flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
+                            <button onClick={handleSave} className="order-1 sm:order-2 flex-[2] py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all active:scale-95">
                                 {editingNode ? 'Update Node' : 'Initialize Node'}
                             </button>
                         </footer>

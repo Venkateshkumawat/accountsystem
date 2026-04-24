@@ -22,21 +22,21 @@ interface Purchase { _id: string; transactionId: string; billNumber: string; ven
 
 // ─── Sub-Components ─────────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: Icon, color, sub, trend }: any) => (
-  <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm relative overflow-hidden group hover:border-indigo-100 transition-all duration-300">
+  <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border-2 border-slate-50 shadow-sm relative overflow-hidden group hover:border-indigo-100 transition-all duration-300">
     <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110" />
     <div className="relative z-10">
-      <div className="flex items-center justify-between mb-4">
-        <div className="p-3 rounded-2xl" style={{ backgroundColor: `${color}10`, color }}>
-          <Icon size={20} />
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl" style={{ backgroundColor: `${color}10`, color }}>
+          <Icon size={18} />
         </div>
         <div className={`flex items-center gap-1 text-[10px] font-bold ${trend === 'up' ? 'text-emerald-500' : trend === 'down' ? 'text-rose-500' : 'text-slate-400'}`}>
           {trend === 'up' ? <ArrowUpRight size={12} /> : trend === 'down' ? <ArrowDownRight size={12} /> : <Activity size={12} />}
           {trend !== 'neutral' && '12%'}
         </div>
       </div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-      <h3 className="text-xl font-semibold font-inter text-slate-900 mt-1 tracking-tight">{value}</h3>
-      <p className="text-[9px] text-slate-400 mt-2 font-medium italic opacity-70">{sub}</p>
+      <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+      <h3 className="text-lg sm:text-xl font-semibold font-inter text-slate-900 mt-1 tracking-tight">{value}</h3>
+      <p className="text-[9px] text-slate-400 mt-2 font-medium italic opacity-70 hidden sm:block">{sub}</p>
     </div>
   </div>
 );
@@ -229,19 +229,30 @@ export default function Purchases() {
   return (
     <div className="space-y-6 min-h-screen p-1 sm:p-4 bg-[#fcfcfd] font-inter">
       
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900 uppercase tracking-tight font-inter">Purchases Terminal</h1>
-          <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-widest font-inter">Verified Fiscal Node · v2.1</p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-3">
-           <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-semibold hover:bg-indigo-700 transition-all uppercase tracking-widest shadow-lg shadow-indigo-100">
-             <Plus size={16} /> New Purchase
+          <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-slate-900/10 shrink-0">
+             <Package size={20} className="animate-pulse" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 uppercase tracking-tight font-inter leading-tight">Purchases Terminal</h1>
+            <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest font-inter">Verified Fiscal Node · v2.1</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+           <button 
+             onClick={() => setShowForm(true)} 
+             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-bold hover:bg-indigo-700 transition-all uppercase tracking-widest shadow-lg shadow-indigo-100 active:scale-95"
+           >
+             <Plus size={16} /> <span className="inline">New Purchase</span>
+           </button>
+           <button onClick={() => fetchAll(true)} className="p-3 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 rounded-xl transition-all shadow-sm active:scale-95">
+             <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
            </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 font-inter">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 px-4 font-inter">
         <StatCard label="Total Outbound" value={`₹${(stats.totalSpend || 0).toLocaleString()}`} icon={IndianRupee} color="#6366f1" sub="Global Procurement Node" trend="neutral" />
         <StatCard label="ITC (Input GST)" value={`₹${(stats.totalITC || 0).toLocaleString()}`} icon={Zap} color="#10B981" sub="Verified Tax Credit Node" trend="neutral" />
         <StatCard label="Monthly Spend" value={`₹${(stats.monthSpend || 0).toLocaleString()}`} icon={Users} color="#F59E0B" sub="Current Operational Node" trend="neutral" />
@@ -249,17 +260,23 @@ export default function Purchases() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 font-inter">
-        <div className="lg:col-span-8 bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm relative overflow-hidden">
-           <h3 className="text-base font-semibold text-slate-900 uppercase mb-8">Sales Overview</h3>
-           <div className="h-[340px] w-full min-h-[340px]">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+        <div className="lg:col-span-8 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border-2 border-slate-50 shadow-sm relative overflow-hidden">
+           <div className="flex items-center justify-between mb-8">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Procurement Trend</h3>
+              <div className="flex items-center gap-2">
+                 <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">Real-time Node</span>
+              </div>
+           </div>
+           <div className="h-[280px] sm:h-[340px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
                  <AreaChart data={chartData}>
                     <defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} dx={-10} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 600 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 600 }} dx={-10} />
                     <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontSize: 10, fontWeight: 700 }} />
-                    <Area type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={4} fill="url(#p)" />
+                    <Area type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={3} fill="url(#p)" />
                  </AreaChart>
               </ResponsiveContainer>
            </div>
@@ -290,15 +307,16 @@ export default function Purchases() {
         </div>
       </div>
 
-      <div className="bg-white rounded-[2rem] border-2 border-slate-50 shadow-sm mx-4 overflow-hidden mt-4">
-         <div className="px-10 py-6 border-b border-slate-50 flex items-center justify-between bg-[#fbfcfd]">
-            <h3 className="text-base font-semibold text-slate-900 uppercase">Recent Transactions</h3>
-            <button className="text-[10px] font-bold text-indigo-600 uppercase" onClick={() => setShowAllPurchases(!showAllPurchases)}>
+      <div className="bg-white rounded-2xl sm:rounded-[2rem] border-2 border-slate-50 shadow-sm mx-4 overflow-hidden mt-4">
+         <div className="px-6 sm:px-10 py-6 border-b border-slate-50 flex items-center justify-between bg-[#fbfcfd]">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 uppercase">Recent Transactions</h3>
+            <button className="text-[10px] font-bold text-indigo-600 uppercase hover:underline" onClick={() => setShowAllPurchases(!showAllPurchases)}>
                {showAllPurchases ? 'See Less' : 'See All'}
             </button>
          </div>
-         {/* Recent purchase registry — High density layout */}
-         <div className="w-full overflow-hidden">
+         
+         {/* Desktop Registry Table */}
+         <div className="hidden md:block w-full overflow-hidden">
             <table className="w-full text-left border-collapse table-fixed">
                <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-100 italic">
@@ -311,7 +329,7 @@ export default function Purchases() {
                      <th className="px-2 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right pr-4">Register Date</th>
                   </tr>
                </thead>
-                 <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
+               <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
                   {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
                      <tr key={p._id} className="hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0 group cursor-pointer">
                         <td className="px-2 py-3 text-center">
@@ -354,6 +372,54 @@ export default function Purchases() {
                </tbody>
             </table>
          </div>
+
+         {/* Mobile Registry Cards */}
+         <div className="md:hidden divide-y divide-slate-100">
+            {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
+               <div key={p._id} className="p-4 space-y-4 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                     <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                           <span className="text-[10px] font-black text-indigo-600 uppercase tracking-tighter">{p.transactionId}</span>
+                           <span className={`px-1.5 py-0.5 rounded text-[7px] font-black uppercase border ${p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                              {p.paymentStatus}
+                           </span>
+                        </div>
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-tight truncate max-w-[200px]">{p.vendorName}</h4>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5">{p.vendorCompany || 'Nexus Entity'}</p>
+                     </div>
+                     <div className="text-right shrink-0">
+                        <p className="text-sm font-black text-slate-900 tabular-nums leading-none">₹{p.grandTotal.toLocaleString()}</p>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">
+                           {new Date(p.createdAt || p.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                        </p>
+                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                     <button 
+                        onClick={() => { setSelectedPurchase(p); setShowPrintModal(true); }}
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest active:scale-95"
+                     >
+                        <Layout size={12} /> View Invoice
+                     </button>
+                     <button 
+                        onClick={() => handleBuyAgain(p)}
+                        className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 active:scale-95"
+                     >
+                        <PlusCircle size={14} />
+                     </button>
+                  </div>
+               </div>
+            ))}
+         </div>
+
+         {purchases.length === 0 && (
+            <div className="py-20 text-center px-4">
+               <Package size={32} className="mx-auto text-slate-200 mb-2" />
+               <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No procurement nodes identified</p>
+            </div>
+         )}
       </div>
 
        {showForm && (
@@ -378,36 +444,43 @@ export default function Purchases() {
              prevVendors={prevVendors}
           />
        )}
-       
-        {showPrintModal && selectedPurchase && (
-           <InvoiceModal 
-              invoice={selectedPurchase} 
-              onClose={() => { setShowPrintModal(false); setSelectedPurchase(null); }} 
-              type="purchase" 
-           />
-        )}
-       
+        
+       {showPrintModal && selectedPurchase && (
+          <InvoiceModal 
+             invoice={selectedPurchase} 
+             onClose={() => { setShowPrintModal(false); setSelectedPurchase(null); }} 
+             type="purchase" 
+          />
+       )}
+
        {showLowStock && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-             <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden font-inter">
-                <div className="px-8 py-6 bg-rose-600 text-white flex justify-between items-center">
-                   <h3 className="text-xl font-bold uppercase">Critical Stock Node Alerts</h3>
+          <div className="fixed inset-0 z-[300] flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-md">
+             <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-[2rem] shadow-2xl overflow-hidden font-inter animate-in slide-in-from-bottom duration-300">
+                <div className="px-6 sm:px-8 py-5 sm:py-6 bg-rose-600 text-white flex justify-between items-center">
+                   <h3 className="text-base sm:text-xl font-bold uppercase">Critical Stock Alerts</h3>
                    <button onClick={() => setShowLowStock(false)} className="hover:bg-white/10 p-2 rounded-xl"><X size={20} /></button>
                 </div>
-                <div className="p-8 max-h-[60vh] overflow-y-auto space-y-4">
+                <div className="p-6 sm:p-8 max-h-[60vh] overflow-y-auto space-y-3">
                    {lowStock.map(i => (
                       <div key={i._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                         <div><p className="text-sm font-bold text-slate-800 uppercase">{i.name}</p> <p className="text-[10px] text-slate-400">Barcode: {i.barcode}</p></div>
-                         <div className="text-right"><p className="text-xs font-bold text-rose-600">Stock: {i.stock}</p></div>
+                         <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-bold text-slate-800 uppercase truncate">{i.name}</p>
+                            <p className="text-[9px] sm:text-[10px] text-slate-400 font-bold">NODE ID: {i.barcode || i._id.slice(-6)}</p>
+                         </div>
+                         <div className="text-right shrink-0">
+                            <p className="text-xs font-black text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">STOCK: {i.stock}</p>
+                         </div>
                       </div>
                    ))}
+                   {lowStock.length === 0 && <p className="text-center py-10 text-[10px] font-bold text-slate-400 uppercase tracking-widest">No inventory violations detected</p>}
                 </div>
-                <div className="p-6 bg-slate-50 border-t flex justify-end">
-                   <button onClick={() => setShowLowStock(false)} className="px-8 py-2 bg-slate-200 text-slate-600 text-[10px] font-bold uppercase rounded-xl">Close</button>
+                <div className="p-4 sm:p-6 bg-slate-50 border-t flex justify-end">
+                   <button onClick={() => setShowLowStock(false)} className="w-full sm:w-auto px-8 py-3 bg-slate-200 text-slate-600 text-[10px] font-bold uppercase rounded-xl active:scale-95 transition-all">Dismiss Terminal</button>
                 </div>
              </div>
           </div>
        )}
+
 
         {receiptConfig.show && (
            <div className="fixed inset-0 z-[400] flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-xl overflow-y-auto">
@@ -528,17 +601,17 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
    const grandTotal = subtotal + totalGst + Number(vendor.shippingCharges);
 
    return (
-      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300 font-inter">
-         <div className="bg-white w-[98%] sm:max-w-3xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 max-h-[96vh]">
-            <div className="px-8 py-5 bg-[#1e293b] text-white flex justify-between items-center shrink-0">
+      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300 font-inter">
+         <div className="bg-white w-full sm:max-w-3xl rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 max-h-[96vh] sm:max-h-[90vh]">
+            <div className="px-6 sm:px-8 py-5 bg-[#1e293b] text-white flex justify-between items-center shrink-0">
                <div>
-                  <h3 className="text-lg font-bold tracking-tight uppercase px-1">Procurement Node</h3>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-70 italic px-1">Linkage to GST Ledger Active</p>
+                  <h3 className="text-base sm:text-lg font-bold tracking-tight uppercase">Procurement Node</h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-70 italic">Linkage to GST Ledger Active</p>
                </div>
                <button onClick={onCancel} className="p-2 hover:bg-white/10 rounded-xl transition-all border border-white/10"><X size={18} /></button>
             </div>
 
-            <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 custom-scrollbar">
+            <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar">
                <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
                   <div className="col-span-full sm:col-span-3 space-y-1.5">
                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Vendor Name</label>
@@ -570,7 +643,7 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                <div className="relative pt-2">
                   <div className="relative group">
                      <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
-                     <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="INVENTORY REGISTRY: SEARCH OR PROVISION NEW NODE..." className="w-full pl-12 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:border-indigo-600 outline-none shadow-xl shadow-indigo-100/20 font-inter" />
+                     <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="SEARCH OR PROVISION NEW NODE..." className="w-full pl-12 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:border-indigo-600 outline-none shadow-xl shadow-indigo-100/20 font-inter" />
                      {(products.length > 0 || productSearch.length > 1) && (
                         <div className="absolute z-50 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl mt-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
                            {products.map(p => (
@@ -591,22 +664,22 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                </div>
 
                {cartItems.length > 0 && (
-                  <div className="rounded-2xl border border-slate-100 overflow-hidden shadow-sm bg-slate-50/50">
-                     <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
+                  <div className="rounded-2xl border border-slate-100 overflow-x-auto shadow-sm bg-slate-50/50 scrollbar-hide">
+                     <div className="min-w-[500px]">
                         <table className="w-full border-collapse">
                            <thead className="sticky top-0 bg-[#f8fafc] text-slate-400 text-[8px] font-bold uppercase border-b border-slate-100">
                               <tr>
-                                 <th className="px-3 sm:px-6 py-3 text-left uppercase whitespace-nowrap">Internal Node</th>
-                                 <th className="px-3 sm:px-6 py-3 text-center uppercase whitespace-nowrap">Price / Unit</th>
-                                 <th className="px-3 sm:px-6 py-3 text-center uppercase whitespace-nowrap">Qty</th>
-                                 <th className="px-3 sm:px-6 py-3 text-right uppercase whitespace-nowrap">Total</th>
-                                 <th className="px-3 sm:px-6 py-3"></th>
+                                 <th className="px-6 py-3 text-left uppercase whitespace-nowrap">Internal Node</th>
+                                 <th className="px-6 py-3 text-center uppercase whitespace-nowrap">Price / Unit</th>
+                                 <th className="px-6 py-3 text-center uppercase whitespace-nowrap">Qty</th>
+                                 <th className="px-6 py-3 text-right uppercase whitespace-nowrap">Total</th>
+                                 <th className="px-6 py-3"></th>
                               </tr>
                            </thead>
                            <tbody className="divide-y divide-slate-100 bg-white">
                               {cartItems.map(item => (
                                  <tr key={item.productId} className="hover:bg-slate-50 transition-all font-inter">
-                                    <td className="px-3 sm:px-6 py-3">
+                                    <td className="px-6 py-3">
                                        <div className="flex flex-col gap-1">
                                           <span className="text-[10px] font-bold text-slate-800 uppercase">{item.name}</span>
                                           {item.isNewNode && (
@@ -628,10 +701,10 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                                           )}
                                        </div>
                                     </td>
-                                    <td className="px-2 sm:px-6 py-3"><input type="number" min="0" value={item.purchasePrice} onChange={e => updateCartItem(item.productId, 'purchasePrice', Number(e.target.value))} className="w-full py-1.5 bg-slate-50 rounded-lg text-center font-bold text-[10px] text-indigo-600 border border-transparent focus:border-indigo-200 outline-none transition-all" /></td>
-                                    <td className="px-2 sm:px-6 py-3"><input type="number" min="1" value={item.qty} onChange={e => updateCartItem(item.productId, 'qty', Number(e.target.value))} className="w-full py-1.5 bg-slate-50 rounded-lg text-center font-bold text-[10px] text-slate-800 border border-transparent focus:border-indigo-200 outline-none transition-all" /></td>
-                                    <td className="px-2 sm:px-6 py-3 text-right font-bold text-slate-950 text-xs">₹{item.total.toLocaleString()}</td>
-                                    <td className="px-2 sm:px-6 py-3 text-center"><button type="button" onClick={() => removeFromCart(item.productId)} className="text-slate-300 hover:text-rose-500 transition-all"><X size={16} /></button></td>
+                                    <td className="px-6 py-3"><input type="number" min="0" value={item.purchasePrice} onChange={e => updateCartItem(item.productId, 'purchasePrice', Number(e.target.value))} className="w-full py-1.5 bg-slate-50 rounded-lg text-center font-bold text-[10px] text-indigo-600 border border-transparent focus:border-indigo-200 outline-none transition-all" /></td>
+                                    <td className="px-6 py-3"><input type="number" min="1" value={item.qty} onChange={e => updateCartItem(item.productId, 'qty', Number(e.target.value))} className="w-full py-1.5 bg-slate-50 rounded-lg text-center font-bold text-[10px] text-slate-800 border border-transparent focus:border-indigo-200 outline-none transition-all" /></td>
+                                    <td className="px-6 py-3 text-right font-bold text-slate-950 text-xs">₹{item.total.toLocaleString()}</td>
+                                    <td className="px-6 py-3 text-center"><button type="button" onClick={() => removeFromCart(item.productId)} className="text-slate-300 hover:text-rose-500 transition-all"><X size={16} /></button></td>
                                  </tr>
                               ))}
                            </tbody>
@@ -640,7 +713,7 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                   </div>
                )}
 
-               <div className="grid grid-cols-12 gap-6 pt-2 border-t border-slate-100 items-end">
+               <div className="grid grid-cols-12 gap-4 pt-2 border-t border-slate-100 items-end">
                   <div className="col-span-full md:col-span-5 space-y-3">
                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><CreditCard size={10} /> Payment Protocol</label>
                      <div className="flex gap-2">
@@ -653,16 +726,16 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                      </div>
                   </div>
 
-                  <div className="col-span-full md:col-span-7 flex items-center justify-between p-4 sm:p-6 bg-slate-900 rounded-[1.2rem] sm:rounded-[1.5rem] shadow-xl shadow-slate-200">
-                     <div className="space-y-0.5 text-left">
-                        <p className="text-[7px] sm:text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em]">Settlement Balance</p>
-                        <h2 className="text-xl sm:text-3xl font-bold text-white tracking-tighter tabular-nums mb-1">₹{grandTotal.toLocaleString()}</h2>
-                        <div className="flex gap-2 sm:gap-3">
-                           <span className="text-[6px] sm:text-[7px] font-bold text-emerald-400 uppercase">ITC: ₹{totalGst.toLocaleString()}</span>
-                           <span className="text-[6px] sm:text-[7px] font-bold text-slate-500 uppercase">Taxable: ₹{subtotal.toLocaleString()}</span>
+                  <div className="col-span-full md:col-span-7 flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200 gap-4">
+                     <div className="space-y-0.5 text-center sm:text-left w-full sm:w-auto">
+                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em]">Settlement Balance</p>
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tighter tabular-nums leading-tight">₹{grandTotal.toLocaleString()}</h2>
+                        <div className="flex justify-center sm:justify-start gap-3">
+                           <span className="text-[7px] font-bold text-emerald-400 uppercase">ITC: ₹{totalGst.toLocaleString()}</span>
+                           <span className="text-[7px] font-bold text-slate-500 uppercase">Taxable: ₹{subtotal.toLocaleString()}</span>
                         </div>
                      </div>
-                     <button type="submit" disabled={submitting || cartItems.length === 0} className="px-4 sm:px-8 py-2.5 sm:py-3.5 bg-indigo-600 text-white font-bold rounded-xl text-[9px] sm:text-[10px] uppercase shadow-lg shadow-indigo-600/30 hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50">
+                     <button type="submit" disabled={submitting || cartItems.length === 0} className="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 text-white font-bold rounded-xl text-[10px] uppercase shadow-lg shadow-indigo-600/30 hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50">
                         {submitting ? 'RECONCILING...' : 'PAY & DONE'}
                      </button>
                   </div>
