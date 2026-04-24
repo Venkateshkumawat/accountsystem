@@ -4,7 +4,7 @@ import {
     UserPlus, Users, X, Edit2, Trash2, ShieldCheck, 
     Activity, MapPin, CreditCard, Search, Plus, 
     IndianRupee, ChevronDown, MessageSquare, RefreshCcw,
-    CheckCircle2, AlertCircle, History
+    CheckCircle2, AlertCircle, History, CheckCircle, Clock
 } from 'lucide-react';
 import api from '../services/api';
 import { useNotify } from '../context/NotificationContext';
@@ -143,6 +143,8 @@ export default function Parties() {
                 amount: doc.grandTotal,
                 date: doc.createdAt,
                 status: doc.paymentStatus,
+                method: doc.paymentMethod || 'N/A',
+                items: (doc.items || []).map((i: any) => i.name).join(', '),
                 type: party.type === 'Customer' ? 'SALE' : 'PURCHASE'
             }));
 
@@ -150,12 +152,14 @@ export default function Parties() {
                 .filter((act: any) => act.action === 'TRANSACTION')
                 .map((act: any) => {
                     const amtMatch = act.description.match(/₹(\d+)/);
+                    const methodMatch = act.description.match(/Recorded (\w+) settlement/);
                     return {
                         id: act._id,
-                        title: 'Direct Settlement',
+                        title: 'Manual Settlement',
                         amount: amtMatch ? parseInt(amtMatch[1]) : 0,
                         date: act.createdAt,
                         status: 'paid',
+                        method: methodMatch ? methodMatch[1] : 'Cash',
                         type: 'SETTLEMENT',
                         note: act.description
                     };
@@ -165,7 +169,7 @@ export default function Parties() {
                 new Date(b.date).getTime() - new Date(a.date).getTime()
             );
 
-            setPartyHistory(combined.slice(0, 10));
+            setPartyHistory(combined.slice(0, 15));
         } catch (err) { console.error('History Rebalancing Failed'); }
         finally { setHistoryLoading(false); }
     };
@@ -527,75 +531,119 @@ export default function Parties() {
                 )}
             </div>
 
-            {/* Settlement Modal — Professional Fiscal Record */}
+            {/* Protocol History Terminal — Pure Read-Only Audit Hub */}
             {showPaymentModal && selectedParty && (
-                <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
-                        <header className="px-8 py-6 border-b border-slate-50 bg-slate-50/50">
-                            <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">Record Settlement</h3>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                                {(selectedParty.type === 'Vendor' || selectedParty.type === 'Supplier') ? 'Direct Payment to Vendor' : 'Direct Receipt from Customer'}
-                            </p>
-                        </header>
-                        <form onSubmit={handlePayment} className="p-8 space-y-6">
-                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target Balance</p>
-                                <h4 className="text-xl font-bold text-slate-900">₹{Math.abs(selectedParty.currentBalance || 0).toLocaleString()}</h4>
-                                <p className="text-[8px] font-bold text-indigo-600 uppercase mt-1">
-                                    {(selectedParty.type === 'Vendor' || selectedParty.type === 'Supplier') ? 'Currently Payable' : 'Currently Receivable'}
-                                </p>
+                <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[92vh] sm:max-h-[90vh]">
+                        <header className="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-lg shadow-lg">
+                                    {selectedParty.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight leading-none">{selectedParty.name}</h3>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
+                                        <MapPin size={10} className="text-indigo-500" /> {selectedParty.address?.city || 'Global Hub'}, {selectedParty.address?.state || 'Verified Node'}
+                                    </p>
+                                </div>
                             </div>
-                            <FormItem label="Settlement Amount (₹)" icon={IndianRupee} type="number" value={paymentForm.amount.toString()} onChange={(v: string) => setPaymentForm({...paymentForm, amount: Number(v) || 0})} required />
-                            <FormItem label="Payment Method" icon={CreditCard} isSelect>
-                                <select 
-                                    value={paymentForm.method} 
-                                    onChange={(e) => setPaymentForm({...paymentForm, method: e.target.value})}
-                                    className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-semibold outline-none focus:bg-white focus:border-indigo-600 transition-all"
-                                >
-                                    {['Cash', 'UPI', 'Bank Card', 'Net Banking', 'Cheque'].map(m => <option key={m} value={m}>{m}</option>)}
-                                </select>
-                            </FormItem>
-                            <FormItem label="Memo / Note" icon={MessageSquare} value={paymentForm.note} onChange={(v: string) => setPaymentForm({...paymentForm, note: v})} placeholder="Ref order # or reason" />
+                            <button 
+                                onClick={() => setShowPaymentModal(false)}
+                                className="p-2.5 bg-white border border-slate-100 text-slate-400 hover:text-rose-500 rounded-xl transition-all shadow-sm active:scale-95"
+                            >
+                                <X size={20} />
+                            </button>
+                        </header>
+
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 space-y-6">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Net Exposure</p>
+                                    <h4 className={`text-xl font-black tabular-nums tracking-tighter ${Math.abs(selectedParty.currentBalance || 0) > 0 ? 'text-indigo-600' : 'text-slate-300'}`}>
+                                        ₹{Math.abs(selectedParty.currentBalance || 0).toLocaleString()}
+                                    </h4>
+                                    <p className="text-[7px] font-bold text-slate-400 uppercase mt-1">Outstanding Ledger Val</p>
+                                </div>
+                                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Identity Node</p>
+                                    <h4 className="text-xl font-black text-slate-900 tracking-tighter">{selectedParty.phone}</h4>
+                                    <p className="text-[7px] font-bold text-slate-400 uppercase mt-1">Primary Contact Point</p>
+                                </div>
+                            </div>
                             
-                            {/* Forensic Party History Section */}
-                            <div className="pt-4 border-t border-slate-100">
-                                <h5 className="text-[10px] font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <History size={12} className="text-indigo-600" /> Recent Protocol History
-                                </h5>
-                                <div className="space-y-2 max-h-[120px] overflow-y-auto custom-scrollbar pr-1">
+                            {/* Forensic Protocol History */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h5 className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                        <History size={14} className="text-indigo-600" /> Forensic Registry History
+                                    </h5>
+                                    <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[8px] font-black rounded-lg uppercase tracking-widest">
+                                        {partyHistory.length} Logged Transactions
+                                    </span>
+                                </div>
+
+                                <div className="space-y-3">
                                     {historyLoading ? (
-                                        <div className="py-4 text-center animate-pulse text-[8px] font-black text-slate-300 uppercase tracking-widest">Reconciling Ledger...</div>
-                                    ) : partyHistory.length > 0 ? partyHistory.map((h: any) => (
-                                        <div key={h.id} className="flex justify-between items-center p-2 bg-slate-50 rounded-xl border border-slate-100 hover:border-indigo-100 transition-colors">
-                                            <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className={`text-[5px] font-black px-1 py-0.5 rounded-[2px] border leading-none ${
-                                                        h.type === 'SETTLEMENT' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 
-                                                        h.type === 'SALE' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
-                                                        'bg-amber-50 text-amber-600 border-amber-100'
-                                                    }`}>{h.type}</span>
-                                                    <p className="text-[8px] font-bold text-slate-700 uppercase tracking-tight truncate max-w-[150px]">{h.title}</p>
-                                                </div>
-                                                <p className="text-[6px] font-semibold text-slate-400 uppercase tracking-wide ml-1">{new Date(h.date).toLocaleDateString()}</p>
+                                        <div className="py-12 text-center animate-pulse">
+                                            <div className="flex justify-center gap-1 mb-3">
+                                                {[1,2,3].map(i => <div key={i} className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-[9px] font-bold text-slate-950">₹{h.amount.toLocaleString()}</p>
-                                                <span className={`text-[6px] font-black uppercase px-1 py-0.5 rounded-[2px] border leading-none ${h.status === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                                                    {h.status}
-                                                </span>
+                                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Synchronizing Protocol History...</p>
+                                        </div>
+                                    ) : partyHistory.length > 0 ? partyHistory.map((h: any) => (
+                                        <div key={h.id} className="p-4 bg-slate-50/50 rounded-[1.5rem] border border-slate-100 hover:border-indigo-100 hover:bg-white transition-all group relative overflow-hidden">
+                                            <div className="flex justify-between items-start relative z-10">
+                                                <div className="space-y-2 flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[7px] font-black px-2 py-0.5 rounded-lg border uppercase tracking-widest ${
+                                                            h.type === 'SETTLEMENT' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 
+                                                            h.type === 'SALE' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                                            'bg-amber-50 text-amber-600 border-amber-100'
+                                                        }`}>{h.type}</span>
+                                                        <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight truncate">{h.title}</p>
+                                                    </div>
+                                                    
+                                                    {h.items && (
+                                                        <p className="text-[10px] font-bold text-slate-500 leading-snug line-clamp-2 italic pr-4">
+                                                            {h.items}
+                                                        </p>
+                                                    )}
+
+                                                    <div className="flex flex-wrap items-center gap-3">
+                                                        <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase">
+                                                            <Clock size={10} /> {new Date(h.date).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-[9px] font-bold text-indigo-500 uppercase">
+                                                            <CreditCard size={10} /> {h.method}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right shrink-0">
+                                                    <p className="text-sm font-black text-slate-950 tabular-nums leading-none mb-2">₹{h.amount.toLocaleString()}</p>
+                                                    <span className={`text-[8px] font-black uppercase px-2 py-1 rounded-lg border ${h.status === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                                                        {h.status}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     )) : (
-                                        <div className="py-4 text-center text-[8px] font-bold text-slate-300 uppercase italic">No historical settlements identified</div>
+                                        <div className="py-20 text-center bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100">
+                                            <ShieldCheck size={32} className="mx-auto text-slate-200 mb-3" />
+                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">No historical audit trails identified</p>
+                                        </div>
                                     )}
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={() => setShowPaymentModal(false)} className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
-                                <button type="submit" className="flex-1 py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl hover:bg-indigo-600 transition-all active:scale-95">Record</button>
-                            </div>
-                        </form>
+                        <footer className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
+                            <button 
+                                onClick={() => setShowPaymentModal(false)} 
+                                className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-200 active:scale-95 transition-all"
+                            >
+                                Exit History Terminal
+                            </button>
+                        </footer>
                     </div>
                 </div>
             )}

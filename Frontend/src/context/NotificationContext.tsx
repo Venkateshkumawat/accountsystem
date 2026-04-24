@@ -160,10 +160,32 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
        setNotifications(prev => [notification, ...prev]);
        setUnreadCount(prev => prev + 1);
 
+       // 🛡️ User Preference Enforcement (Settings Panel)
+       let shouldToast = true;
+       try {
+           const savedConfig = localStorage.getItem('bb_alerts');
+           if (savedConfig) {
+               const config = JSON.parse(savedConfig);
+               const msg = notification.message.toLowerCase();
+               const cat = notification.category;
+
+               if ((cat === 'product' || msg.includes('stock')) && msg.includes('low')) shouldToast = config.lowStock ?? true;
+               else if ((cat === 'invoice' || cat === 'payment') && msg.includes('paid')) shouldToast = config.invoicePaid ?? true;
+               else if (cat === 'staff' && msg.includes('login') && !msg.includes('failed')) shouldToast = config.newStaffLogin ?? false;
+               else if (msg.includes('failed login')) shouldToast = config.failedLogin ?? true;
+               else if (msg.includes('plan') && msg.includes('expir')) shouldToast = config.planExpiry ?? true;
+               else if (msg.includes('summary') || msg.includes('digest')) shouldToast = config.dailySummary ?? false;
+           }
+       } catch (e) {
+           console.warn("Failed to parse alert preferences.");
+       }
+
        // Toast Alert Strategy
-       if (notification.type === 'error') notifyError(notification.message);
-       else if (notification.type === 'success') notifySuccess(notification.message);
-       else notifyInfo(notification.message);
+       if (shouldToast) {
+           if (notification.type === 'error') notifyError(notification.message);
+           else if (notification.type === 'success') notifySuccess(notification.message);
+           else notifyInfo(notification.message);
+       }
     });
 
     // 📡 Nexus Global Sync: Multi-partition signaling

@@ -44,6 +44,7 @@ export default function Settings() {
   const [renewing, setRenewing] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [resetConfirmText, setResetConfirmText] = useState('');
 
   // ── Plan Watch (Live Countdown) ──────────────────────────────────────────
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
@@ -429,21 +430,39 @@ export default function Settings() {
                 This will permanently purge ALL Product data and Transactions. This cannot be undone.
               </p>
             </div>
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={handleResetWorkspace}
-                disabled={resetting}
-                className="w-full py-4 rounded-2xl bg-rose-600 text-white font-black text-xs uppercase tracking-widest hover:bg-rose-700 transition shadow-xl shadow-rose-100 active:scale-95 disabled:opacity-50"
-              >
-                {resetting ? 'Decommissioning...' : 'Yes, Purge Workspace'}
-              </button>
-              <button
-                onClick={() => setShowResetConfirm(false)}
-                disabled={resetting}
-                className="w-full py-3 rounded-2xl bg-slate-50 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition"
-              >
-                Cancel Protocol
-              </button>
+            <div className="flex flex-col gap-4">
+              <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
+                <label className="text-[10px] font-black text-rose-700 uppercase tracking-widest block mb-2">
+                  To proceed, type your Business ID: <span className="font-mono text-rose-900 bg-rose-200 px-1 py-0.5 rounded">{user?.businessId}</span>
+                </label>
+                <input 
+                  type="text" 
+                  value={resetConfirmText}
+                  onChange={(e) => setResetConfirmText(e.target.value)}
+                  placeholder="Enter Business ID"
+                  className="w-full px-4 py-3 rounded-xl border border-rose-200 text-sm font-semibold focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all text-center uppercase"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleResetWorkspace}
+                  disabled={resetting || resetConfirmText !== user?.businessId}
+                  className="w-full py-4 rounded-2xl bg-rose-600 text-white font-black text-xs uppercase tracking-widest hover:bg-rose-700 transition shadow-xl shadow-rose-100 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {resetting ? 'Decommissioning...' : 'Yes, Purge Workspace'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowResetConfirm(false);
+                    setResetConfirmText('');
+                  }}
+                  disabled={resetting}
+                  className="w-full py-3 rounded-2xl bg-slate-50 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition"
+                >
+                  Cancel Protocol
+                </button>
+              </div>
             </div>
           </div>
         </div>
