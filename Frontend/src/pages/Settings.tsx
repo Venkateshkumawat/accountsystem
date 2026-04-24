@@ -889,124 +889,121 @@ export default function Settings() {
 
           {/* ════ SUBSCRIPTION TAB ════ */}
           {activeTab === 'Subscription' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Plan Status Card */}
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="bg-slate-900 p-8 text-white relative">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden max-w-5xl">
+                <div className="bg-slate-900 p-6 text-white relative">
                   <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="px-3 py-1 bg-indigo-500 rounded-full text-[10px] font-black uppercase tracking-widest">Current Plan</span>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="px-2 py-0.5 bg-indigo-500 rounded-md text-[8px] font-black uppercase tracking-widest">Protocol Active</span>
                     </div>
-                    <h2 className="text-4xl font-black tracking-tighter mb-2 capitalize">{planData?.plan || 'Loading…'}</h2>
-                    <p className="text-slate-400 text-sm font-medium mb-8">Your subscription gives you full access to all NexusBill modules.</p>
+                    <div className="flex items-baseline gap-3 mb-1">
+                      <h2 className="text-3xl font-black tracking-tighter capitalize">{planData?.plan || 'Loading…'}</h2>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Subscription Node</span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-medium mb-6">Full administrative access to all NexusBill synchronized modules.</p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
-                           <Clock size={14} />
-                           <span className="text-[10px] font-black uppercase tracking-widest">Protocol Deadline</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-slate-400 mb-1.5">
+                           <Clock size={12} />
+                           <span className="text-[9px] font-black uppercase tracking-widest">Deadline</span>
                         </div>
-                        <p className="text-xl font-black">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m</p>
-                        <div className="mt-2 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">{planData?.expiryDate ? new Date(planData.expiryDate).toLocaleDateString() : '—'}</div>
+                        <p className="text-lg font-black">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m</p>
+                        <div className="mt-1 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">{planData?.expiryDate ? new Date(planData.expiryDate).toLocaleDateString() : '—'}</div>
                       </div>
 
-                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
-                           <ShieldCheck size={14} />
-                           <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Inventory Hub (Products)</span>
+                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-slate-400 mb-1.5">
+                           <ShieldCheck size={12} />
+                           <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Inventory</span>
                         </div>
-                        <p className="text-xl font-black">{Math.max(0, (planData?.ProductLimit || 0) - (planData?.currentProductCount || 0))} Nodes Left</p>
-                        <div className="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
+                        <p className="text-lg font-black">{Math.max(0, (planData?.ProductLimit || 0) - (planData?.currentProductCount || 0))} Left</p>
+                        <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
                            <div 
                             className="h-full bg-indigo-500 transition-all duration-1000" 
                             style={{ width: `${Math.min(100, ((planData?.currentProductCount || 0) / (planData?.ProductLimit || 1)) * 100)}%` }}
                            />
                         </div>
-                        <div className="mt-2 flex justify-between text-[8px] font-semibold text-slate-500 uppercase">
-                          <span>Usage</span>
-                          <span>{planData?.currentProductCount} / {planData?.ProductLimit}</span>
-                        </div>
                       </div>
 
-                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
-                           <Zap size={14} />
-                           <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Fiscal Units (Invoices)</span>
+                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-slate-400 mb-1.5">
+                           <Zap size={12} />
+                           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Fiscal</span>
                         </div>
-                        <p className="text-xl font-black">{Math.max(0, (planData?.invoiceLimit || 0) - (planData?.currentInvoiceCount || 0))} Remaining</p>
-                        <div className="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
+                        <p className="text-lg font-black">{Math.max(0, (planData?.invoiceLimit || 0) - (planData?.currentInvoiceCount || 0))} Left</p>
+                        <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
                            <div 
                             className="h-full bg-emerald-500 transition-all duration-1000" 
                             style={{ width: `${Math.min(100, ((planData?.currentInvoiceCount || 0) / (planData?.invoiceLimit || 1)) * 100)}%` }}
                            />
                         </div>
-                        <div className="mt-2 flex justify-between text-[8px] font-semibold text-slate-500 uppercase">
-                          <span>Units Synthesized</span>
-                          <span>{planData?.currentInvoiceCount} / {planData?.invoiceLimit}</span>
-                        </div>
                       </div>
 
-                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
-                           <Check size={14} className="text-emerald-400" />
-                           <span className="text-[10px] font-black uppercase tracking-widest">Protocol Status</span>
+                      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-slate-400 mb-1.5">
+                           <Check size={12} className="text-emerald-400" />
+                           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Status</span>
                         </div>
-                        <p className={`text-xl font-black uppercase ${planData?.status === 'active' ? 'text-emerald-400' : 'text-rose-400 animate-pulse'}`}>
+                        <p className={`text-lg font-black uppercase ${planData?.status === 'active' ? 'text-emerald-400' : 'text-rose-400 animate-pulse'}`}>
                            {planData?.status || '—'}
                         </p>
-                        <div className="mt-2 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">{planData?.status === 'suspended' ? 'Infrastructure Locked' : 'Nodes operational'}</div>
+                        <div className="mt-1 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">Protocol Operational</div>
                       </div>
                     </div>
                   </div>
-                  {/* Decorative Zap */}
-                  <Zap size={200} className="absolute -right-10 -bottom-10 text-white/5 rotate-12" />
+                  <Zap size={150} className="absolute -right-8 -bottom-8 text-white/5 rotate-12" />
                 </div>
 
                 {/* Billing Alert if near expiry */}
                 {planData?.isNearExpiry && (
-                  <div className="p-4 bg-rose-50 border-y border-rose-100 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
-                      <AlertTriangle size={20} className="text-rose-600 animate-pulse" />
+                  <div className="p-3 bg-rose-50 border-y border-rose-100 flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
+                      <AlertTriangle size={16} className="text-rose-600 animate-pulse" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-rose-900 text-sm font-black">Plan Expiring Soon!</p>
-                      <p className="text-rose-600 text-xs font-medium">Your access will end in {planData.remainingDays} days. Please renew to avoid service interruption.</p>
+                      <p className="text-rose-900 text-xs font-black">Plan Expiring Soon!</p>
+                      <p className="text-rose-600 text-[10px] font-medium">Access expires in {planData.remainingDays} days. Pay now to avoid lock.</p>
                     </div>
-                    <button onClick={() => showToast('Please contact SuperAdmin to process your renewal.', 'error')}
-                      className="px-6 py-2 bg-rose-600 text-white rounded-xl text-sm font-black hover:bg-rose-700 transition active:scale-95">
-                      Contact SuperAdmin
+                    <button onClick={() => handleRenewPlan(planData?.plan)} disabled={renewing}
+                      className="px-4 py-1.5 bg-rose-600 text-white rounded-lg text-[10px] font-black hover:bg-rose-700 transition active:scale-95">
+                      {renewing ? 'Processing...' : 'Pay & Renew'}
                     </button>
                   </div>
                 )}
 
-                <div className="p-8">
-                  <h3 className="text-lg font-black text-slate-900 mb-6">Manage Subscription</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="p-6 border border-slate-100 rounded-3xl group hover:border-indigo-600 transition">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition">
-                          <RefreshCw size={24} />
+                <div className="p-6">
+                  <h3 className="text-sm font-black text-slate-900 mb-4 uppercase tracking-widest">Administrative Control</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Same Plan Renewal */}
+                    <div className="p-4 border border-slate-100 rounded-2xl group hover:border-indigo-600 transition">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition">
+                          <RefreshCw size={18} />
                         </div>
-                        <span className="text-xs font-black text-indigo-600">30 Days Extension</span>
+                        <span className="text-[9px] font-black text-indigo-600 uppercase">30-Day Extension</span>
                       </div>
-                      <h4 className="font-black text-slate-900 mb-1">Renew Package</h4>
-                      <p className="text-slate-500 text-sm font-medium mb-6">Continue your current {planData?.plan} access for another month.</p>
-                      <button onClick={() => showToast('Please contact SuperAdmin to process your renewal.', 'error')}
-                        className="w-full py-3 bg-slate-100 text-slate-500 rounded-2xl font-black text-sm hover:bg-slate-200 transition">
-                        Request Renewal
+                      <h4 className="font-black text-slate-900 text-xs mb-1">Renew {planData?.plan} Plan</h4>
+                      <p className="text-slate-500 text-[10px] font-medium mb-4">Extend your current synchronized node access.</p>
+                      <button onClick={() => handleRenewPlan(planData?.plan)} disabled={renewing}
+                        className="w-full py-2 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition">
+                        {renewing ? 'Processing...' : 'Pay & Renew'}
                       </button>
                     </div>
 
-                    <div className="p-6 border border-slate-100 rounded-3xl group hover:border-amber-500 transition bg-slate-50 border-dashed">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition">
-                          <ArrowUpCircle size={24} />
+                    {/* Big Plan / Upgrade */}
+                    <div className="p-4 border border-slate-100 rounded-2xl group hover:border-amber-500 transition bg-slate-50/50">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition">
+                          <ArrowUpCircle size={18} />
                         </div>
-                        <span className="text-xs font-black text-amber-600">Upgrade Required</span>
+                        <span className="text-[9px] font-black text-amber-600 uppercase">Tier Expansion</span>
                       </div>
-                      <h4 className="font-black text-slate-900 mb-1">Upgrade to Enterprise</h4>
-                      <p className="text-slate-500 text-sm font-medium mb-6">Get unlimited users, custom reports, and 24/7 support.</p>
-                      <button className="w-full py-3 border border-slate-200 text-slate-400 rounded-2xl font-black text-sm cursor-not-allowed">
+                      <h4 className="font-black text-slate-900 text-xs mb-1">Upgrade Tier</h4>
+                      <p className="text-slate-500 text-[10px] font-medium mb-4">Request transition to Enterprise level protocol.</p>
+                      <button onClick={() => showToast('Contacting SuperAdmin for tier upgrade...', 'success')}
+                        className="w-full py-2 bg-white border border-slate-200 text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:border-amber-500 transition">
                         Contact SuperAdmin
                       </button>
                     </div>
