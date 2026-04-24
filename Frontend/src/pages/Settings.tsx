@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   User, Shield, Bell, Save, Users, Plus, X, Trash2, Edit3,
   Eye, EyeOff, CheckCircle, XCircle, AlertTriangle,
@@ -34,7 +35,11 @@ const ALL_PERMISSIONS = ['POS', 'INVENTORY', 'PURCHASES', 'REPORTS', 'ACCOUNTING
 export default function Settings() {
   const { role } = useAuth();
   const { handlePayment } = useRazorpay();
-  const [activeTab, setActiveTab] = useState('Profile');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('tab') || 'Profile';
+  });
   const [user, setUser] = useState<any>(null);
   const [business, setBusiness] = useState<any>(null);
   const [staff, setStaff] = useState<any[]>([]);
@@ -967,9 +972,9 @@ export default function Settings() {
                       <p className="text-rose-900 text-sm font-black">Plan Expiring Soon!</p>
                       <p className="text-rose-600 text-xs font-medium">Your access will end in {planData.remainingDays} days. Please renew to avoid service interruption.</p>
                     </div>
-                    <button onClick={() => handleRenewPlan(planData?.plan)} disabled={renewing}
+                    <button onClick={() => showToast('Please contact SuperAdmin to process your renewal.', 'error')}
                       className="px-6 py-2 bg-rose-600 text-white rounded-xl text-sm font-black hover:bg-rose-700 transition active:scale-95">
-                      Renew Now
+                      Contact SuperAdmin
                     </button>
                   </div>
                 )}
@@ -986,9 +991,9 @@ export default function Settings() {
                       </div>
                       <h4 className="font-black text-slate-900 mb-1">Renew Package</h4>
                       <p className="text-slate-500 text-sm font-medium mb-6">Continue your current {planData?.plan} access for another month.</p>
-                      <button onClick={() => handleRenewPlan(planData?.plan)} disabled={renewing}
-                        className="w-full py-3 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-indigo-600 transition">
-                        {renewing ? 'Processing…' : 'Purchase Renewal'}
+                      <button onClick={() => showToast('Please contact SuperAdmin to process your renewal.', 'error')}
+                        className="w-full py-3 bg-slate-100 text-slate-500 rounded-2xl font-black text-sm hover:bg-slate-200 transition">
+                        Request Renewal
                       </button>
                     </div>
 
