@@ -325,20 +325,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </header>
 
           <div className="pt-0 pb-6 px-4 lg:px-8 relative">
-            {isBusinessAdmin && planStatus && (planStatus.isNearExpiry || planStatus.status === 'expired') && (
-              <div className={`mb-6 p-6 rounded-[2rem] border-2 flex items-center gap-6 animate-in slide-in-from-top-4 duration-500 shadow-xl ${
+            {isBusinessAdmin && location.pathname === '/dashboard' && planStatus && (planStatus.isNearExpiry || planStatus.status === 'expired') && (
+              <div className={`mb-4 p-3.5 rounded-2xl border flex items-center gap-4 animate-in slide-in-from-top-4 duration-500 shadow-sm ${
                 planStatus.status === 'expired' ? 'bg-rose-600 border-rose-500 text-white' : 'bg-amber-400 border-amber-300 text-slate-900'
               }`}>
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   planStatus.status === 'expired' ? 'bg-white/20' : 'bg-black/10'
                 }`}>
-                  <AlertTriangle size={28} />
+                  <AlertTriangle size={18} />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold uppercase tracking-tight leading-none">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xs font-bold uppercase tracking-tight leading-none truncate">
                     {planStatus.status === 'expired' ? 'Infrastructure Suspended' : 'Subscription Ending Soon'}
                   </h3>
-                  <p className="text-sm font-semibold opacity-90 mt-1.5">
+                  <p className="text-[10px] font-semibold opacity-90 mt-1 truncate">
                     {planStatus.status === 'expired' 
                       ? 'Critical failure: Nexus protocol halted. Restore billing to resume operations.'
                       : `Sync anomaly: Your plan expires in ${planStatus.remainingDays} days. Visit settings to renew.`
@@ -347,7 +347,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 </div>
                 <Link 
                   to="/settings" 
-                  className={`px-8 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg ${
+                  className={`px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-sm shrink-0 ${
                     planStatus.status === 'expired' ? 'bg-white text-rose-600' : 'bg-slate-900 text-white'
                   }`}
                 >
