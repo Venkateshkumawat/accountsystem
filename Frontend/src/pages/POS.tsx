@@ -39,13 +39,16 @@ interface CartItem {
 
 export default function POS() {
   const { products, categories, fetchProducts, fetchCategories, loading } = useProducts();
+  const [offers, setOffers] = useState<any[]>([]);
+
   const {
     cart, addItem, removeItem, updateQty, clearCart, applyDiscount,
     subtotal: cartSubtotal,
     totalGST: cartGST,
     totalDiscount: cartDiscount,
     grandTotal: cartTotal
-  } = useCart();
+  } = useCart(offers);
+
   const { handlePayment } = useRazorpay();
   const { fetchNotifications } = useNotify();
   const [search, setSearch] = useState('');
@@ -71,14 +74,35 @@ export default function POS() {
     barcodeRef.current?.focus();
   }, [fetchProducts, fetchCategories]);
 
+  useEffect(() => {
+    api.get('/auth/me').catch(() => { });
+    fetchOffers();
+  }, []);
+
+  const fetchOffers = async () => {
+    try {
+      const res = await api.get('/offers');
+      if (res.data?.success) {
+        const now = Date.now();
+        setOffers(res.data.data.filter((o: any) => {
+           if (!o.isActive) return false;
+           const start = new Date(o.startDate).getTime();
+           const end = new Date(o.endDate).getTime();
+           return now >= start && now <= end;
+        }));
+      }
+    } catch { }
+  };
+
   // Terminal Sync Node: Listen for platform-wide updates
   useEffect(() => {
     const syncChannel = new BroadcastChannel('nexus_sync');
     const handleSync = (event: MessageEvent) => {
-      // Only fetch products if the sync event is specifically for products
-      // OR if it's a general DASHBOARD sync that might involve stock changes
       if (event.data === 'FETCH_PRODUCTS' || event.data === 'FETCH_DASHBOARD') {
         fetchProducts();
+      }
+      if (event.data === 'FETCH_OFFERS' || event.data?.type === 'OFFER_UPDATE') {
+        fetchOffers();
       }
     };
     syncChannel.addEventListener('message', handleSync);
@@ -88,13 +112,6 @@ export default function POS() {
       syncChannel.close();
     };
   }, [fetchProducts]);
-
-
-
-
-  useEffect(() => {
-    api.get('/auth/me').catch(() => { });
-  }, []);
 
 
   const [visibleCount, setVisibleCount] = useState(24);
@@ -406,6 +423,7 @@ export default function POS() {
                 onRemove={removeItem}
                 inCartItem={cart.find(i => i.productId === product._id)}
                 isFlash={addedFlash === product._id}
+                offers={offers.filter((o: any) => !o.productId || o.productId === product._id || o.productId?._id === product._id)}
               />
             ))}
           </div>
@@ -784,7 +802,7 @@ export default function POS() {
   );
 }
 
-const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash }: any) => {
+const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offers }: any) => {
   const outOfStock = product.stock === 0;
   const inCart = !!inCartItem;
   
@@ -823,6 +841,13 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash }: any
         ) : isSaleActive && (
           <div className="bg-rose-600 text-white text-[8px] font-black px-2 py-0.5 rounded-lg shadow-md border border-white uppercase tracking-widest translate-x-1 -rotate-12">
             SALE
+          </div>
+        )}
+        {(!inCart && offers && offers.length > 0) && (
+          <div className="bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-lg shadow-md border border-white uppercase tracking-widest translate-x-1 -rotate-6 mt-0.5">
+            {offers[0].type === 'PERCENTAGE' ? `${offers[0].value}% OFF` :
+             offers[0].type === 'B2G1' || offers[0].type === 'BOGO' ? 'BOGO' :
+             offers[0].type === 'BULK_DISCOUNT' || offers[0].type === 'BULK' ? 'BULK' : 'OFFER'}
           </div>
         )}
       </div>

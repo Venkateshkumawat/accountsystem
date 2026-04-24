@@ -11,6 +11,7 @@ export interface IInvoiceItem {
   discount: number;
   freeQty: number;
   offerType?: string;
+  purchasePrice?: number;
   total: number;
 }
 

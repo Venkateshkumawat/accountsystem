@@ -19,7 +19,7 @@ export interface CartItem {
  * NexusBill POS Hook: useCart
  * Custom hook to manage the billing cart state and real-time calculations.
  */
-export const useCart = () => {
+export const useCart = (activeOffers: any[] = []) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   // 1. Add item to cart (or increment if exists)
@@ -36,7 +36,7 @@ export const useCart = () => {
         );
       }
 
-      // Calculate initial discount (only if sale is active)
+      // Calculate initial manual discount (only if sale is active)
       let initialDiscount = product.discount || 0;
       if (product.saleEndDate && new Date(product.saleEndDate).setHours(23, 59, 59, 999) < Date.now()) {
         initialDiscount = 0;
@@ -105,29 +105,42 @@ export const useCart = () => {
       let itemPrice = item.sellingPrice;
       let itemQty = item.qty;
       let automatedDiscount = 0;
-      let freeQty = 0;
 
-      // 1. BUY 2 GET 1 (B2G1) Protocol
-      // Logic: floor(itemQty / 3) items are free
-      if (itemQty >= 3) {
-        freeQty = Math.floor(itemQty / 3);
-        automatedDiscount += (freeQty * itemPrice);
-      }
+      // ── Dynamic Dynamic Offers Resolution ──
+      const applicableOffers = activeOffers.filter(o => 
+         !o.productId || o.productId === item.productId || o.productId?._id === item.productId
+      );
 
-      // 2. BULK SLAB Protocol (Applied on non-free chargeable total)
-      if (itemQty >= 25 && freeQty === 0) { // Bulk only if not B2G1 (Best Offer strategy)
-        let bulkRate = 0;
-        if (itemQty >= 100) bulkRate = 0.20;
-        else if (itemQty >= 75) bulkRate = 0.15;
-        else if (itemQty >= 50) bulkRate = 0.10;
-        else if (itemQty >= 25) bulkRate = 0.05;
+      // Apply the best offer (highest discount value)
+      applicableOffers.forEach(offer => {
+         let currentOfferDiscount = 0;
+         
+         if (offer.type === 'B2G1' || offer.type === 'BOGO') {
+            const buyQ = offer.buyQty || 2;
+            const getQ = offer.getQty || 1;
+            const setSize = buyQ + getQ;
+            const numSets = Math.floor(itemQty / setSize);
+            currentOfferDiscount = numSets * getQ * itemPrice;
+         } 
+         else if (offer.type === 'BULK_DISCOUNT' || offer.type === 'BULK') {
+            if (itemQty >= (offer.minQty || 10)) {
+               const rate = (offer.value || 0) / 100;
+               currentOfferDiscount = (itemPrice * itemQty) * rate;
+            }
+         }
+         else if (offer.type === 'PERCENTAGE') {
+            const rate = (offer.value || 0) / 100;
+            currentOfferDiscount = (itemPrice * itemQty) * rate;
+         }
+         else if (offer.type === 'FLAT') {
+            // Flat cash-off applies globally to the line total
+            currentOfferDiscount = offer.value || 0;
+         }
 
-        const bulkDiscount = (itemPrice * itemQty) * bulkRate;
-        if (bulkDiscount > automatedDiscount) {
-          automatedDiscount = bulkDiscount;
-          freeQty = 0; // Reset freeQty if Bulk is better
-        }
-      }
+         if (currentOfferDiscount > automatedDiscount) {
+            automatedDiscount = currentOfferDiscount;
+         }
+      });
 
       const manualDiscount = (item.discount || 0) * item.qty;
       const finalDiscount = automatedDiscount + manualDiscount;

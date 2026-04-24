@@ -68,9 +68,9 @@ export const loginSuperAdmin = async (req: Request, res: Response): Promise<void
       userId: 'SUPER_ADMIN_MASTER',
       name: 'Nexus Master',
       role: 'superadmin',
-      businessId: null,
-      shortBusinessId: null,
-      businessAdminId: null,
+      businessId: undefined,
+      shortBusinessId: undefined,
+      businessAdminId: undefined,
       permissions: []
     });
 

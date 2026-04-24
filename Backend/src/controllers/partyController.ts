@@ -159,7 +159,7 @@ export const recordPartyPayment = async (req: AuthRequest, res: Response): Promi
     
     await party.save();
 
-    await logActivity(req, "TRANSACTION", "PARTY", `Recorded ${method} settlement of ₹${amount} for ${party.name}. Note: ${note || 'N/A'}`, id);
+    await logActivity(req, "TRANSACTION", "PARTY", `Recorded ${method} settlement of ₹${amount} for ${party.name}. Note: ${note || 'N/A'}`, id as string);
 
     res.status(200).json({ success: true, data: party });
   } catch (error: any) {
