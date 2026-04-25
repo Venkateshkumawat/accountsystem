@@ -111,16 +111,70 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
     sevenDaysFromNow.setDate(now.getDate() + 7);
 
     const expiredCount = await Business.countDocuments({ planEndDate: { $lt: now } });
+
+    // ── Global Revenue Telemetry ─────────────────────────────────────────
+    const revenueStats = await Business.aggregate([
+      { $unwind: "$planHistory" },
+      { $group: { _id: null, totalRevenue: { $sum: "$planHistory.amountPaid" } } }
+    ]);
+    const totalRevenue = revenueStats.length > 0 ? revenueStats[0].totalRevenue : 0;
+
+    // ── Monthly Revenue Flux (Last 6 Months) ────────────────────────────
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const monthlyRevenue = await Business.aggregate([
+      { $unwind: "$planHistory" },
+      { $match: { "planHistory.assignedAt": { $gte: sixMonthsAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m", date: "$planHistory.assignedAt" } },
+          revenue: { $sum: "$planHistory.amountPaid" }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
     
     // 🚩 Actionable Intelligence: Businesses requiring attention
     const expiringSoon = await Business.find({ 
       planEndDate: { $gte: now, $lte: sevenDaysFromNow },
       status: 'active'
-    }).select('name ownerFullName plan planEndDate businessId').limit(10);
+    }).select('businessName ownerFullName plan planEndDate businessId').limit(10);
 
     const recentlyExpired = await Business.find({ 
       planEndDate: { $lt: now } 
-    }).sort({ planEndDate: -1 }).select('name ownerFullName plan planEndDate businessId').limit(10);
+    }).sort({ planEndDate: -1 }).select('businessName ownerFullName plan planEndDate businessId').limit(10);
+
+    // ── Granular Registry Feed: Recent Signups ───────────────────────────
+    const recentRegistrations = await Business.find()
+      .sort({ createdAt: -1 })
+      .select('businessId businessName plan createdAt')
+      .limit(10);
+
+    // ── Platform Pulse: Registration Trend (Last 30 Days) ──────────────────
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const registrationTrend = await Business.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    // ── Plan Distribution: Market Share ───────────────────────────────────
+    const planDistribution = await Business.aggregate([
+      {
+        $group: {
+          _id: "$plan",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
     res.status(200).json({
       success: true,
@@ -130,8 +184,13 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
         activeSubscriptions, 
         securityAlert: 0, 
         expiredCount,
+        totalRevenue,
         expiringSoon,
-        recentlyExpired
+        recentlyExpired,
+        recentRegistrations,
+        registrationTrend,
+        planDistribution,
+        monthlyRevenue
       }
     });
   } catch (error: any) {

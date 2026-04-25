@@ -33,12 +33,11 @@ import { createNotification } from "./controllers/notificationController.js";
 import { createServer } from "http";
 import { initSocket } from "./socket.js";
 
-// Connect and start server immediately
-await connectDB();
+// Initialization logic moved to bottom bootstrap block
 
 // -- Nightly Plan Cycle (12:00 AM) ---------------------------------------------
 cron.schedule('0 0 * * *', async () => {
-  console.log('?? Nexus Engine: Processing Nightly Subscription Cycle...');
+  console.log('📡 Nexus Engine: Processing Nightly Subscription Cycle...');
   try {
     const today = new Date();
     
@@ -53,7 +52,7 @@ cron.schedule('0 0 * * *', async () => {
       for (const biz of expiredBusinesses) {
         await createNotification(
           null,
-          `Critical Alert: Node ${biz.name} (ID: ${biz.businessId}) has expired and was decommissioned.`,
+          `Critical Alert: Node ${biz.businessName} (ID: ${biz.businessId}) has expired and was decommissioned.`,
           "error",
           "superadmin",
           "/superadmin/accounts",
@@ -76,16 +75,16 @@ cron.schedule('0 0 * * *', async () => {
     for (const biz of expiringSoon) {
       await createNotification(
         null,
-        `Proactive Governance: Node ${biz.name} (ID: ${biz.businessId}) will expire in 7 days.`,
+        `Proactive Governance: Node ${biz.businessName} (ID: ${biz.businessId}) will expire in 7 days.`,
         "warning",
         "superadmin",
         "/superadmin/accounts",
         "alert"
       );
     }
-    console.log('? Cycle Complete: Expired nodes decommissioned.');
+    console.log('✅ Cycle Complete: Expired nodes decommissioned and alerts dispatched.');
   } catch (err) {
-    console.error('? Nightly Cycle Failed:', err);
+    console.error('❌ Nightly Cycle Failed:', err);
   }
 });
 
@@ -148,30 +147,38 @@ let port = Number(process.env.PORT) || 5000;
 
 const startServer = (p: number) => {
   httpServer.listen(p, '0.0.0.0', () => {
-    console.log(`?? Nexus Engine Online: http://localhost:${p} (Industrial Bound to 0.0.0.0)`);
+    console.log(`🚀 Nexus Engine Online: http://localhost:${p} (Industrial Bound to 0.0.0.0)`);
   }).on('error', (err: any) => {
     if (err.code === 'EADDRINUSE') {
-      console.warn(`??? Port ${p} is busy. Nexus Protocol shifting to node ${p + 1}...`);
+      console.warn(`⚠️ Port ${p} is busy. Nexus Protocol shifting to node ${p + 1}...`);
       startServer(p + 1);
     } else {
-      console.error('? Nexus Engine Deep Failure:', err);
+      console.error('🛑 Nexus Engine Deep Failure:', err);
       process.exit(1);
     }
   });
 };
 
-startServer(port);
+// Server startup moved to bootstrap block
 
 // ── Background Nexus Initialization ──────────────────────────────────────────
 (async () => {
     try {
+        console.log('📡 Nexus Engine: Initializing Core Infrastructure...');
+        await connectDB();
+        
         console.log('📡 Nexus Engine: Initializing Background Registry Audit...');
         await healRegistry();
         await seedSuperAdmin();
         await seedPlans();
         await initializeExistingProducts();
+        
         console.log('✅ Nexus Registry: All nodes successfully re-synchronized.');
+        
+        // Start Server after DB is ready
+        startServer(port);
     } catch (err) {
-        console.error('🌊 Nexus Background Tasks Failure:', err);
+        console.error('🌊 Nexus Bootstrap Failure:', err);
+        process.exit(1);
     }
 })();

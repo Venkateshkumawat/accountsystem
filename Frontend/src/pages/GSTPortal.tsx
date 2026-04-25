@@ -153,7 +153,7 @@ export default function GSTPortal() {
                      if (btn) btn.innerText = 'FILE GSTR-1';
                   }}
                   id="gstr-btn"
-                  className="flex items-center gap-2 px-6 py-3 bg-[#0da368] hover:bg-[#0b8f5a] text-white rounded-xl text-[10px] font-bold shadow-lg shadow-emerald-50 transition-all uppercase tracking-widest active:scale-95">
+                  className="flex items-center gap-2 px-6 py-3 bg-[#0da368] hover:bg-[#0b8f5a] text-white rounded-xl text-[10px] font-semibold shadow-lg shadow-emerald-50 transition-all uppercase tracking-widest active:scale-95">
                   <ShieldCheck size={14} /> File GSTR-1
                </button>
             </div>
@@ -194,7 +194,7 @@ export default function GSTPortal() {
                <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
                      <div>
-                        <h2 className="text-base font-bold text-slate-800 uppercase tracking-tight">Input vs Output GST Trend</h2>
+                        <h2 className="text-base font-semibold text-slate-800 uppercase tracking-tight">Input vs Output GST Trend</h2>
                         <p className="text-xs font-medium text-slate-500">6-Month Fiscal Forensics: Tax Flow Analysis</p>
                      </div>
                   </div>
@@ -221,7 +221,7 @@ export default function GSTPortal() {
             {/* GST Insight Matrix — Advanced Tax Distribution */}
             <div className="lg:col-span-4 bg-white p-5 rounded-3xl border border-slate-50 shadow-sm flex flex-col">
                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xs font-bold text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                  <h3 className="text-xs font-semibold text-slate-800 uppercase tracking-tight flex items-center gap-2">
                      <ShieldCheck size={14} className="text-amber-500" /> GST Insight Matrix
                   </h3>
                </div>
@@ -235,14 +235,14 @@ export default function GSTPortal() {
                      </PieChart>
                   </ChartWrapper>
                </div>
-               <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+               <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-semibold text-slate-500 uppercase">
                   <span>Net Yield</span>
-                  <span className="text-slate-900 font-inter font-black">₹{(gstData?.outputGST || 0).toLocaleString()}</span>
+                  <span className="text-slate-900 font-inter font-semibold">₹{(gstData?.outputGST || 0).toLocaleString()}</span>
                </div>
                <div className="mt-6 flex-1 flex items-end">
                   <button
                      onClick={handleExport}
-                     className="w-full py-4 bg-slate-50 border border-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                     className="w-full py-4 bg-slate-50 border border-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 rounded-2xl text-[10px] font-semibold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
                      <Download size={14} /> Download GST Reports
                   </button>
                </div>
