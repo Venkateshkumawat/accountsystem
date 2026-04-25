@@ -59,12 +59,12 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       ]),
       Purchase.aggregate([{ $match: { businessAdminId: businessAdminId as any } }, { $group: { _id: null, totalPurchases: { $sum: "$grandTotal" }, purchaseCount: { $sum: 1 } } }]),
       Transaction.countDocuments({ businessAdminId: businessAdminId as any }),
-      Product.aggregate([{ $match: { businessAdminId: businessAdminId as any, isActive: true } }, { $group: { _id: null, totalProducts: { $sum: 1 }, inventoryValue: { $sum: { $multiply: ["$stock", { $ifNull: ["$purchasePrice", 0] }] } }, lowStockCount: { $sum: { $cond: [{ $lte: ["$stock", "$lowStockThreshold"] }, 1, 0] } } } }]),
+      Product.aggregate([{ $match: { businessAdminId: businessAdminId as any, isActive: true } }, { $group: { _id: null, totalProducts: { $sum: 1 }, inventoryValue: { $sum: { $multiply: ["$stock", { $ifNull: ["$purchasePrice", 0] }] } }, lowStockCount: { $sum: { $cond: [{ $lt: ["$stock", 20] }, 1, 0] } } } }]),
       Staff.countDocuments({ businessAdminId: businessAdminId as any, isActive: true }),
       Activity.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).lean(),
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any } }, { $unwind: "$items" }, { $group: { _id: "$items.name", totalRevenue: { $sum: "$items.total" } } }, { $sort: { totalRevenue: -1 } }, { $limit: 10 }, { $project: { name: "$_id", totalRevenue: 1, _id: 0 } }]),
       Invoice.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).select('transactionId invoiceNumber customerName customerPhone customerAddress customerEmail customerGstin items subtotal totalGST totalDiscount grandTotal paymentStatus paymentMethod businessDetails createdAt').lean(),
-      Product.find({ businessAdminId: businessAdminId as any, isActive: true, $expr: { $lte: ["$stock", "$lowStockThreshold"] } }).limit(5).select('name stock lowStockThreshold').lean(),
+      Product.find({ businessAdminId: businessAdminId as any, isActive: true, stock: { $lt: 20 } }).select('name stock lowStockThreshold').lean(),
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (15 * 24 * 60 * 60 * 1000)) } } }, { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, revenue: { $sum: "$grandTotal" } } }, { $sort: { _id: 1 } }])
     ]);
 
@@ -77,7 +77,19 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
     const topProducts = results[6];
     const recentInvoices = results[7];
     const lowStockProducts = results[8];
-    const revenueTrend = results[9].map((d: any) => ({ name: new Date(d._id).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }), revenue: d.revenue }));
+    // 📊 Generate a continuous 15-day revenue timeline (including today)
+    const rawTrend = results[9];
+    const trendMap = new Map(rawTrend.map((d: any) => [d._id, d.revenue]));
+    const revenueTrend = [];
+    for (let i = 14; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateKey = d.toISOString().split('T')[0];
+      revenueTrend.push({
+        name: d.toLocaleDateString('en-IN', { day: '2-digit' }),
+        revenue: trendMap.get(dateKey) || 0
+      });
+    }
 
     const bizDoc = await mongoose.model("Business").findById(req.user?.businessId);
     const calcVar = (curr: number, prev: number) => (prev === 0 ? (curr > 0 ? 100 : 0) : ((curr - prev) / prev) * 100);

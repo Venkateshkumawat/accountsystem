@@ -133,7 +133,7 @@ const SuperAdminLayout: React.FC = () => {
         transform transition-transform duration-500 lg:translate-x-0 lg:static lg:w-56 lg:shadow-sm
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-6 pb-4 flex items-center justify-between">
+        <NavLink to="/superadmin/dashboard" className="p-6 pb-4 flex items-center justify-between group cursor-pointer no-underline">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg font-black text-xl">
               N
@@ -150,7 +150,7 @@ const SuperAdminLayout: React.FC = () => {
           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
             <X size={20} />
           </button>
-        </div>
+        </NavLink>
 
         <nav className="flex-1 px-3 space-y-1 overflow-y-auto no-scrollbar py-4">
           {navItems.map((item) => (

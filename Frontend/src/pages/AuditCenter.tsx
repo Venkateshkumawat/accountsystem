@@ -285,7 +285,7 @@ const AuditCenter: React.FC = () => {
                                     <tr 
                                         key={`${item.type}-${item.id}`} 
                                         onDoubleClick={() => item.type === 'ALERT' && !item.isRead && markAsRead(item.id)}
-                                        className={`hover:bg-slate-100 transition-all cursor-pointer group relative border-b border-slate-100 last:border-0 ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-50/10' : ''}`}
+                                        className={`hover:bg-indigo-50/50 transition-all duration-300 cursor-pointer group relative border-b-2 border-slate-100 last:border-0 ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-50/20' : ''}`}
                                     >
                                         <td className="px-8 py-6 align-top relative">
                                             {item.type === 'ALERT' && !item.isRead && (
@@ -370,7 +370,7 @@ const AuditCenter: React.FC = () => {
                             <div 
                                 key={`${item.type}-${item.id}`}
                                 onClick={() => item.type === 'ALERT' && !item.isRead && markAsRead(item.id)}
-                                className={`p-4 transition-all relative ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-50/20' : ''}`}
+                                className={`p-5 transition-all relative border-b-2 border-slate-50 last:border-0 hover:bg-indigo-50/30 ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-50/20' : ''}`}
                             >
                                 {item.type === 'ALERT' && !item.isRead && (
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600" />

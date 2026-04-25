@@ -632,7 +632,7 @@ export default function Settings() {
                 ) : (
                   <div className="divide-y divide-slate-50">
                     {staff.map(s => (
-                      <div key={s._id} className="p-5 flex items-center justify-between gap-4 group">
+                      <div key={s._id} className="p-5 flex items-center justify-between gap-4 group border-b-2 border-slate-100 last:border-b-0 hover:bg-indigo-50/50 transition-colors">
                         <div className="flex items-center gap-4 min-w-0">
                           <div className="w-10 h-10 rounded-2xl bg-indigo-100 flex items-center justify-center shrink-0">
                             <User size={18} className="text-indigo-600" />
@@ -692,7 +692,7 @@ export default function Settings() {
                 ) : (
                   <div className="divide-y divide-slate-50">
                     {offers.map(o => (
-                      <div key={o._id} className="p-6 flex items-center justify-between gap-4 group hover:bg-slate-50/30">
+                      <div key={o._id} className="p-6 flex items-center justify-between gap-4 group border-b-2 border-slate-100 last:border-b-0 hover:bg-indigo-50/50 transition-colors">
                         <div className="flex items-center gap-4">
                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${o.isActive ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-400 opacity-50'}`}>
                             <Award size={20} />
@@ -823,7 +823,7 @@ export default function Settings() {
                     { label: 'Password Encryption', value: 'bcrypt (10 salt rounds)', ok: true },
                     { label: 'Last Updated', value: user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString('en-IN') : '—', ok: true },
                   ].map(row => (
-                    <div key={row.label} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
+                    <div key={row.label} className="flex items-center justify-between py-3 border-b-2 border-slate-100 last:border-0 hover:bg-indigo-50/50 transition-colors px-2 rounded-lg">
                       <p className="text-sm font-semibold text-slate-600">{row.label}</p>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-black text-slate-900">{row.value}</span>
@@ -861,7 +861,7 @@ export default function Settings() {
                     violet: 'bg-violet-100 text-violet-600',
                   };
                   return (
-                    <div key={a.key} className="flex items-center justify-between p-5 gap-4 group hover:bg-slate-50/50 transition">
+                    <div key={a.key} className="flex items-center justify-between p-5 gap-4 group border-b-2 border-slate-100 last:border-b-0 hover:bg-indigo-50/50 transition">
                       <div className="flex items-center gap-4 min-w-0">
                         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${colorMap[a.color]}`}>
                           <AlertIcon size={18} />
@@ -1045,7 +1045,7 @@ export default function Settings() {
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {planData.planHistory.slice().reverse().map((h: any, i: number) => (
-                          <tr key={i} className="hover:bg-indigo-50/30 transition">
+                          <tr key={i} className="hover:bg-indigo-50/50 transition-colors group">
                             <td className="p-4">
                               <span className="px-2.5 py-1 bg-slate-100 text-slate-900 rounded-lg text-[10px] font-black uppercase tracking-tighter">
                                 {h.plan}

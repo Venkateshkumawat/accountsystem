@@ -269,7 +269,7 @@ export default function Purchases() {
               </div>
            </div>
            <div className="h-[280px] sm:h-[340px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                  <AreaChart data={chartData}>
                     <defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -286,7 +286,7 @@ export default function Purchases() {
            <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm flex flex-col items-center">
               <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4 w-full text-center">Supplier Distribution</h3>
               <div className="h-[200px] w-full relative min-h-[200px]">
-                 <ResponsiveContainer width="100%" height="100%">
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                        <Pie data={supplierData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                           {supplierData.map((e, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
@@ -331,7 +331,7 @@ export default function Purchases() {
                </thead>
                <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
                   {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
-                     <tr key={p._id} className="hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0 group cursor-pointer">
+                     <tr key={p._id} className="hover:bg-indigo-50/50 transition-all duration-300 border-b-2 border-slate-100 last:border-0 group cursor-pointer">
                         <td className="px-2 py-3 text-center">
                             <div className="flex flex-col items-center">
                                <span className="text-[10px] font-bold text-slate-900 leading-none">{p.transactionId}</span>
@@ -376,7 +376,7 @@ export default function Purchases() {
          {/* Mobile Registry Cards */}
          <div className="md:hidden divide-y divide-slate-100">
             {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
-               <div key={p._id} className="p-4 space-y-4 hover:bg-slate-50 transition-colors">
+               <div key={p._id} className="p-5 space-y-4 border-b-2 border-slate-100 last:border-0 hover:bg-indigo-50/30 transition-all duration-300">
                   <div className="flex items-start justify-between">
                      <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">

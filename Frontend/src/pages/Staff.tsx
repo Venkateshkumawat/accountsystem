@@ -363,7 +363,7 @@ export default function Staff() {
             const Icon = meta.icon;
             return (
               <div key={member._id}
-                className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                className="bg-white border-b-2 border-slate-200 rounded-2xl shadow-sm overflow-hidden group hover:shadow-md hover:bg-indigo-50/30 transition-all duration-300">
 
                 {/* Card top bar */}
                 <div className={`h-1.5 ${meta.bg}`} />

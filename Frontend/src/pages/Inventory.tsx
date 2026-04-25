@@ -413,7 +413,7 @@ export default function Inventory() {
                 {groupedProducts[category].map((product: any) => {
                   const productImg = getImageUrl(product.image);
                   return (
-                    <div key={product._id} className="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm hover:border-indigo-200 transition-all flex flex-col gap-4 group relative overflow-hidden">
+                    <div key={product._id} className="bg-white p-5 rounded-2xl border-b-2 border-slate-200 shadow-sm hover:bg-indigo-50/30 transition-all duration-300 flex flex-col gap-4 group relative overflow-hidden">
                       <div className="flex gap-4">
                         <div className="w-20 h-20 rounded-[1.5rem] bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center relative">
                           {productImg ? (
@@ -489,7 +489,7 @@ export default function Inventory() {
                     {groupedProducts[category].map((product: any) => {
                       const productImg = getImageUrl(product.image);
                       return (
-                        <tr key={product._id} className="bg-white hover:bg-slate-100 transition-colors group border-b border-slate-100 last:border-0 cursor-pointer">
+                        <tr key={product._id} className="bg-white hover:bg-indigo-50/50 transition-all duration-300 group border-b-2 border-slate-100 last:border-0 cursor-pointer">
                           <td className="px-6 py-1.5">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">

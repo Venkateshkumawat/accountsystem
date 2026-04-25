@@ -179,7 +179,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       >
         <div className="h-full flex flex-col overflow-hidden">
           <div className="h-[64px] px-6 flex items-center justify-between border-b border-slate-100 shrink-0">
-            <Link to="/" className="flex items-center gap-3">
+            <Link to="/dashboard" className="flex items-center gap-3">
               <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                 <span className="text-xl font-black">N</span>
               </div>
@@ -325,36 +325,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </header>
 
           <div className="pt-0 pb-6 px-4 lg:px-8 relative">
-            {isBusinessAdmin && location.pathname === '/dashboard' && planStatus && (planStatus.isNearExpiry || planStatus.status === 'expired') && (
-              <div className={`mb-4 p-3.5 rounded-2xl border flex items-center gap-4 animate-in slide-in-from-top-4 duration-500 shadow-sm ${
-                planStatus.status === 'expired' ? 'bg-rose-600 border-rose-500 text-white' : 'bg-amber-400 border-amber-300 text-slate-900'
-              }`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  planStatus.status === 'expired' ? 'bg-white/20' : 'bg-black/10'
-                }`}>
-                  <AlertTriangle size={18} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xs font-bold uppercase tracking-tight leading-none truncate">
-                    {planStatus.status === 'expired' ? 'Infrastructure Suspended' : 'Subscription Ending Soon'}
-                  </h3>
-                  <p className="text-[10px] font-semibold opacity-90 mt-1 truncate">
-                    {planStatus.status === 'expired' 
-                      ? 'Critical failure: Nexus protocol halted. Restore billing to resume operations.'
-                      : `Sync anomaly: Your plan expires in ${planStatus.remainingDays} days. Visit settings to renew.`
-                    }
-                  </p>
-                </div>
-                <Link 
-                  to="/settings" 
-                  className={`px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-sm shrink-0 ${
-                    planStatus.status === 'expired' ? 'bg-white text-rose-600' : 'bg-slate-900 text-white'
-                  }`}
-                >
-                  Configure
-                </Link>
-              </div>
-            )}
+
             
             <div className="relative">
                {children}

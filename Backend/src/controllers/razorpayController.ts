@@ -53,11 +53,11 @@ export const createRazorpayOrder = async (req: AuthRequest, res: Response): Prom
       statusCode: error.statusCode,
       stack: error.stack
     });
-    
+
     // Pass along the Razorpay failure context
     const status = error.statusCode || 500;
     const message = error.description || error.message || "Integrated Gateway Protocol Failure";
-    
+
     res.status(status).json({ success: false, message });
   }
 };
@@ -68,10 +68,10 @@ export const createRazorpayOrder = async (req: AuthRequest, res: Response): Prom
  */
 export const verifyRazorpayPayment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { 
-      razorpay_order_id, 
-      razorpay_payment_id, 
-      razorpay_signature 
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
     } = req.body;
 
     const secret = process.env.RAZORPAY_KEY_SECRET || '';
@@ -86,8 +86,8 @@ export const verifyRazorpayPayment = async (req: AuthRequest, res: Response): Pr
     if (isAuthentic) {
       // Here you would typically update your database (e.g., mark subscription as paid)
       // For now, we return success as requested
-      res.status(200).json({ 
-        success: true, 
+      res.status(200).json({
+        success: true,
         message: "Payment verified successfully",
         razorpay_payment_id,
         razorpay_order_id,

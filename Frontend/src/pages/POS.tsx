@@ -466,7 +466,7 @@ export default function POS() {
               const lineTotal = (item.sellingPrice - (item.discount || 0)) * item.qty;
               const lineGST = ((item.sellingPrice - (item.discount || 0)) * (item.gstRate || 0) / 100) * item.qty;
               return (
-                <div key={item.productId} className="bg-slate-50 rounded-xl p-2 border border-slate-100 hover:border-indigo-200 transition-all group flex flex-col min-h-[90px] justify-between">
+                <div key={item.productId} className="bg-white p-3 border-b-2 border-slate-100 hover:bg-indigo-50/30 transition-all duration-300 group flex flex-col min-h-[90px] justify-between cursor-pointer">
                   {/* Top: Name and Unit Details (Small Font) */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0 pr-2">

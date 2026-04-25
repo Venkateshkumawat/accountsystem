@@ -359,7 +359,7 @@ export default function Parties() {
                         </thead>
                         <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
                             {(showAllParties || search || activeFilter !== 'All' ? filteredParties : filteredParties.slice(0, 10)).map((party) => (
-                                <tr key={party._id} className="group hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0">
+                                <tr key={party._id} className="group hover:bg-indigo-50/50 transition-all duration-300 border-b-2 border-slate-100 last:border-0">
                                     <td className="py-3 px-3">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 font-semibold group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all cursor-pointer font-inter text-[11px] shrink-0">
@@ -450,7 +450,7 @@ export default function Parties() {
                 {/* Mobile View Card Layout */}
                 <div className="md:hidden divide-y divide-slate-100">
                     {(showAllParties || search || activeFilter !== 'All' ? filteredParties : filteredParties.slice(0, 10)).map((party) => (
-                        <div key={party._id} className="p-4 space-y-4 hover:bg-slate-50 transition-colors">
+                        <div key={party._id} className="p-5 space-y-4 border-b-2 border-slate-100 last:border-0 hover:bg-indigo-50/30 transition-all duration-300">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-sm">

@@ -131,7 +131,7 @@ export default function Accounting() {
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Revenue Trend</h2>
           {chartData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height={260} minWidth={0}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
@@ -150,7 +150,7 @@ export default function Accounting() {
           <h2 className="text-lg font-semibold text-slate-800 mb-4 uppercase tracking-tight">Payment Methods</h2>
           {methodData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height={260} minWidth={0}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
                 <BarChart data={methodData} barSize={20}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 700 }} axisLine={false} tickLine={false} dy={10} />
@@ -227,7 +227,7 @@ export default function Accounting() {
             const isSale = entry.entryType === 'SALE';
             const Icon = isSale ? TrendingUp : TrendingDown;
             return (
-              <div key={entry._id} onClick={() => setSelectedInvoice(entry)} className="p-5 flex flex-col gap-4 active:bg-slate-50 transition-colors">
+              <div key={entry._id} onClick={() => setSelectedInvoice(entry)} className="p-5 flex flex-col gap-4 border-b-2 border-slate-50 hover:bg-indigo-50/30 transition-all duration-300 cursor-pointer">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${isSale ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-rose-50 border-rose-100 text-rose-600'}`}>
@@ -286,7 +286,7 @@ export default function Accounting() {
                 const Icon = isSale ? TrendingUp : TrendingDown;
                 
                 return (
-                  <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-slate-100 transition-all cursor-pointer group border-b border-slate-100 last:border-0">
+                  <tr key={entry._id} onClick={() => setSelectedInvoice(entry)} className="hover:bg-indigo-50/50 transition-all duration-300 cursor-pointer group border-b-2 border-slate-100 last:border-0">
                     <td className="px-2 py-3 text-center">
                        <div className={`mx-auto w-8 h-8 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform group-hover:scale-110 ${
                          isSale 

@@ -22,7 +22,7 @@ const ChartWrapper = memo(({ data, children }: any) => {
          </div>
       );
    }
-   return <ResponsiveContainer width="100%" height="100%" minWidth={0}>{children}</ResponsiveContainer>;
+   return <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>{children}</ResponsiveContainer>;
 });
 
 /**
@@ -259,12 +259,12 @@ export default function GSTPortal() {
                   <div className="flex gap-2 mt-6">
                      <button
                         onClick={() => setHistoryTab('INPUT')}
-                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${historyTab === 'INPUT' ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'}`}>
+                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border cursor-pointer active:scale-95 ${historyTab === 'INPUT' ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50 hover:border-emerald-200'}`}>
                         Input GST (Purchases)
                      </button>
                      <button
                         onClick={() => setHistoryTab('OUTPUT')}
-                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${historyTab === 'OUTPUT' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'}`}>
+                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border cursor-pointer active:scale-95 ${historyTab === 'OUTPUT' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50 hover:border-indigo-200'}`}>
                         Output GST (Sales)
                      </button>
                   </div>
@@ -275,7 +275,7 @@ export default function GSTPortal() {
                         setHistoryLimit(200);
                         setHistoryTab('ALL');
                      }}
-                     className="flex items-center gap-2 py-2 px-6 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-slate-100 transition-all">
+                     className="flex items-center gap-2 py-2 px-6 bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-600 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-slate-100 transition-all cursor-pointer active:scale-95 shadow-sm hover:shadow-lg">
                      See All History <ChevronRight size={14} />
                   </button>
                   <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100">
@@ -290,18 +290,17 @@ export default function GSTPortal() {
                   <thead>
                      <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
                         <th className="py-4 px-2 w-[220px]">Audit Type / Reference</th>
-                        <th className="py-4 px-2">Counterparty Hub Identity</th>
-                        <th className="py-4 px-2 text-center w-[160px]">Protocol Date</th>
+                        <th className="py-4 px-2">Name</th>
+                        <th className="py-4 px-2 text-center w-[160px]">Date</th>
                         <th className="py-4 px-2 text-right w-[140px]">Taxable Node</th>
                         <th className="py-4 px-2 text-right w-[140px]">GST Value</th>
                         <th className="py-4 px-2 text-center w-[120px]">Status</th>
-                        <th className="py-4 px-2 text-right pr-4 w-[120px]">Audit Node</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 font-inter">
                      {filteredHistory.length > 0 ? (showAllHistory ? filteredHistory : filteredHistory.slice(0, 10)).map((item: any) => (
-                        <tr key={item._id} className="group hover:bg-slate-100 transition-all border-b border-slate-100 last:border-0 cursor-pointer">
-                           <td className="py-3.5 px-2">
+                        <tr key={item._id} className="group hover:bg-indigo-50/50 transition-all duration-300 border-b-2 border-slate-100 last:border-0 cursor-pointer">
+                           <td className="py-4 px-2">
                               <div
                                  onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}
                                  className="flex items-center gap-3 cursor-pointer group/link"
@@ -311,52 +310,35 @@ export default function GSTPortal() {
                                     <span className="text-xs font-semibold text-slate-900 font-inter group-hover/link:text-indigo-600 group-hover/link:underline tracking-tight transition-all">
                                        {item.transactionId || item.ref}
                                     </span>
-                                    <span className="text-[8px] font-semibold text-slate-400 font-inter uppercase tracking-[0.2em]">{item.type} {item.ref && `• ${item.ref}`}</span>
                                  </div>
                               </div>
                            </td>
-                           <td className="py-3.5 px-2 font-inter">
+                           <td className="py-4 px-2 font-inter">
                               <div className="flex flex-col min-w-0">
-                                 <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-tight truncate max-w-[150px]">
+                                 <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-tight">
                                     {item.type === 'PURCHASE' ? (item.vendorCompany || item.customer) : (item.customer || 'Retail Node')}
                                  </span>
-                                 <div className="flex flex-col gap-0.5 mt-0.5">
-                                    {item.type === 'PURCHASE' && (
-                                       <span className="text-[7.5px] font-bold text-slate-300 uppercase tracking-widest">Verified Supplier</span>
-                                    )}
-                                    {item.type === 'SALES' && (
-                                       <span className="text-[7.5px] font-bold text-slate-300 uppercase tracking-widest">B2B Sales Protocol</span>
-                                    )}
-                                 </div>
                               </div>
                            </td>
-                           <td className="py-3.5 px-2 text-center">
+                           <td className="py-4 px-2 text-center">
                               <div className="flex flex-col items-center">
                                  <span className="text-[10px] font-bold text-slate-600 tracking-tight">
                                     {new Date(item.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
                                  </span>
                               </div>
                            </td>
-                           <td className="py-3.5 px-2 text-right text-[11px] font-bold text-slate-600">
+                           <td className="py-4 px-2 text-right text-[11px] font-bold text-slate-600">
                               ₹{item.taxable.toLocaleString()}
                            </td>
-                           <td className="py-5 px-4 text-right">
+                           <td className="py-4 px-2 text-right">
                               <span className={`text-[13px] font-bold tracking-tight ${item.type === 'SALES' ? 'text-indigo-600' : 'text-emerald-600'}`}>
                                  ₹{item.gst.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                               </span>
                            </td>
-                           <td className="py-5 px-4 text-center">
+                           <td className="py-4 px-2 text-center">
                               <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest outline outline-1 ${item.type === 'SALES' ? 'bg-indigo-50 text-indigo-600 outline-indigo-100' : 'bg-emerald-50 text-emerald-600 outline-emerald-100'}`}>
                                  {item.status || (item.type === 'SALES' ? 'COLLECTED' : 'PAID')}
                               </span>
-                           </td>
-                           <td className="py-5 px-4 text-right">
-                              <button
-                                 onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}
-                                 className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-100 active:scale-95"
-                              >
-                                 <Eye size={12} /> Audit Info
-                              </button>
                            </td>
                         </tr>
                      )) : (
@@ -420,7 +402,7 @@ const MetricCard = memo(({ label, value, color, sub }: any) => {
    };
 
    return (
-      <div className={`bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between gap-2 transition-all hover:border-slate-300 h-full font-inter ${themes[color]}`}>
+      <div className={`bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between gap-2 transition-all hover:border-indigo-400 hover:shadow-md cursor-pointer active:scale-[0.98] h-full font-inter ${themes[color]}`}>
          <div className="space-y-2">
             <p className="text-[10px] font-semibold text-slate-400 font-inter uppercase tracking-widest">{label}</p>
             <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">

@@ -223,7 +223,7 @@ export default function Reports() {
             </div>
             <div className="flex-1 w-full min-w-0 relative">
               <ChartWrapper data={salesData?.dailySales} height={240}>
-                <ResponsiveContainer width="100%" height={240} minWidth={0}>
+                <ResponsiveContainer width="100%" height={240} minWidth={0} minHeight={0}>
                   <AreaChart data={salesData?.dailySales || []}>
                     <defs>
                       <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -424,7 +424,7 @@ export default function Reports() {
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {hubTransactions.length > 0 ? hubTransactions.map((tx: any, i: number) => (
-                      <tr key={tx._id} className="text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors group">
+                      <tr key={tx._id} className="text-xs font-semibold text-slate-700 hover:bg-indigo-50/50 transition-all duration-300 border-b-2 border-slate-100 last:border-0 group cursor-pointer">
                         <td className="py-5 px-4 sticky left-0 bg-white group-hover:bg-slate-50 transition-colors">
                            <div className="flex items-center gap-3">
                               <span className="text-[10px] text-slate-300 font-bold">#{hubTransactions.length - i}</span>
@@ -479,7 +479,7 @@ export default function Reports() {
           </div>
           <div className="flex-1 w-full min-w-0 h-[220px] relative">
             <ChartWrapper data={salesData?.gstSlabs} height={220}>
-              <ResponsiveContainer width="100%" height={220} minWidth={0}>
+              <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie data={salesData?.gstSlabs || []} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="totalTax" nameKey="_id">
                     {(salesData?.gstSlabs || []).map((_e: any, index: number) => <Cell key={index} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'][index % 5]} />)}
@@ -521,7 +521,7 @@ export default function Reports() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {salesData?.gstSlabs?.length > 0 ? salesData.gstSlabs.map((slab: any, i: number) => (
-                  <tr key={i} className="text-[11px] font-bold text-slate-700 uppercase hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0 cursor-pointer">
+                  <tr key={i} className="text-[11px] font-bold text-slate-700 uppercase hover:bg-indigo-50/50 transition-all duration-300 group border-b-2 border-slate-100 last:border-0 cursor-pointer">
                     {/* GST Protocol Row */}
                     <td className="py-4 px-2 text-slate-400 group-hover:text-amber-600 transition-colors tracking-tight">GST {slab._id}% Protocol</td>
                     <td className="py-4 px-2 text-right">₹{slab.taxableValue.toLocaleString()}</td>
@@ -556,7 +556,7 @@ export default function Reports() {
            </div>
            <div className="flex-1 w-full relative">
               <ChartWrapper data={salesData?.paymentMetrics} height={200}>
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0}>
                   <PieChart>
                     <Pie data={salesData?.paymentMetrics || []} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="amount" nameKey="_id">
                         {(salesData?.paymentMetrics || []).map((entry:any, index:number) => {
@@ -590,7 +590,7 @@ export default function Reports() {
            <div className="flex-1 w-full relative overflow-x-auto custom-scrollbar-thin">
               <div style={{ minWidth: (inventoryData?.categoryDistribution?.length || 0) * 55 + 'px', height: '100%' }}>
                 <ChartWrapper data={inventoryData?.categoryDistribution} height={220}>
-                  <ResponsiveContainer width="100%" height={220}>
+                  <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
                     <BarChart data={inventoryData?.categoryDistribution || []} margin={{ left: 5, right: 5, bottom: 25 }}>
                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                        <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 7, fill: '#94A3B8', fontWeight: 600 }} interval={0} angle={-35} textAnchor="end" />

@@ -42,9 +42,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <>{children}</>;
   }
 
-  // Instant redirect for SuperAdmin if they drift into business territory
-  if (userRole === 'superadmin') {
+  // 🛡️ Nexus Guard: Prevent cross-node drift and loops
+  if (userRole === 'superadmin' && !location.pathname.startsWith('/superadmin')) {
     return <Navigate to="/superadmin/dashboard" replace />;
+  }
+  if (userRole && userRole !== 'superadmin' && location.pathname.startsWith('/superadmin')) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Denied — show blocked screen then redirect
