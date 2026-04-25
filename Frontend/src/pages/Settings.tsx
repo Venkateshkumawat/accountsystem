@@ -845,8 +845,8 @@ export default function Settings() {
                     <Bell size={18} className="text-violet-600" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-slate-900">Notification Preferences</h2>
-                    <p className="text-slate-500 text-sm font-medium">Configure which business events trigger alerts</p>
+                    <h2 className="text-lg font-semibold font-inter text-slate-900">Notification Preferences</h2>
+                    <p className="text-slate-500 text-sm font-semibold font-inter">Configure which business events trigger alerts</p>
                   </div>
                 </div>
               </div>
@@ -867,8 +867,8 @@ export default function Settings() {
                           <AlertIcon size={18} />
                         </div>
                         <div>
-                          <p className="text-sm font-black text-slate-900">{a.label}</p>
-                          <p className="text-xs text-slate-400 font-medium mt-0.5">{a.desc}</p>
+                          <p className="text-sm font-semibold font-inter text-slate-900">{a.label}</p>
+                          <p className="text-xs text-slate-400 font-semibold font-inter mt-0.5">{a.desc}</p>
                         </div>
                       </div>
                       <button onClick={() => toggleAlert(a.key)}
