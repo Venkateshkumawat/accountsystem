@@ -34,7 +34,7 @@ const NAV_ITEMS = [
   { label: 'Staff Node', path: '/staff', icon: Users, roles: ['businessAdmin', 'manager'], permission: 'STAFF' },
   { label: 'GST Portal', path: '/gst', icon: Shield, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'GST_PORTAL' },
   { label: 'REPORTS', path: '/reports', icon: BarChart2, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'REPORTS' },
-  { label: 'Audit Center', path: '/audit-center', icon: Shield, roles: ['businessAdmin'], permission: null },
+  { label: 'Message Center', path: '/audit-center', icon: Shield, roles: ['businessAdmin'], permission: null },
   { label: 'Settings', path: '/settings', icon: Cog, roles: ['businessAdmin'], permission: null },
 ];
 

@@ -134,9 +134,9 @@ const AuditCenter: React.FC = () => {
                 <div className="flex items-center justify-between w-full md:w-auto">
                     <div>
                         <h1 className="text-xl md:text-2xl font-semibold text-slate-900 tracking-tight flex items-center gap-3 font-inter">
-                            <Bell className="text-indigo-600 shrink-0" size={24} /> Notifications
+                            <Bell className="text-indigo-600 shrink-0" size={24} /> Message Center
                         </h1>
-                        <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-[0.2em] leading-none font-inter">Unified Activity Stream</p>
+                        <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-[0.2em] leading-none font-inter">Verified Communication Stream</p>
                     </div>
                     {/* Mobile Clear All Action */}
                     <button 
@@ -179,10 +179,10 @@ const AuditCenter: React.FC = () => {
                 <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-left table-fixed">
                         <thead>
-                             <tr className="border-b border-slate-100 bg-slate-50/30 font-bold italic">
+                             <tr className="border-b border-slate-100 bg-slate-50/30 font-bold">
                                 <th className="w-[180px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Protocol Time</th>
                                 <th className="w-[220px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Classification</th>
-                                <th className="px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-center">Audit Description Node</th>
+                                <th className="px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-center">Message Description</th>
                                 <th className="w-[240px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right">Authority Identity</th>
                                 <th className="w-[120px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right pr-8">Actions</th>
                              </tr>

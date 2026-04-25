@@ -187,7 +187,7 @@ export default function B2BSales() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 border-b border-slate-100 bg-slate-50/50 italic">
+                            <tr className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 border-b border-slate-100 bg-slate-50/50">
                                 <th className="px-3 py-4 w-[160px]">Invoice Node</th>
                                 <th className="px-3 py-4">Entity Identity</th>
                                 <th className="px-3 py-4 w-[130px]">Protocol Date</th>
