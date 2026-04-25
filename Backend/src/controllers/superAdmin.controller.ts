@@ -118,10 +118,16 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
 
 /**
  * Global Activity Log Auditing
+ * RESTRICTED: Only shows system-level administrative events (Nexus Master actions)
  */
 export const getGlobalActivityLogs = async (req: Request, res: Response): Promise<void> => {
   try {
-    const logs = await Activity.find().sort({ createdAt: -1 }).limit(100);
+    // Strictly isolate business-level audit logs from the SuperAdmin view unless explicitly scoped.
+    // By default, only show actions performed by 'superadmin' identity.
+    const logs = await Activity.find({ businessAdminId: '000000000000000000000000' as any })
+      .sort({ createdAt: -1 })
+      .limit(100);
+      
     res.status(200).json({ success: true, logs });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -199,6 +205,14 @@ export const createBusinessAdmin = async (req: Request, res: Response): Promise<
     await newBusiness.save({ session });
     await newUser.save({ session });
 
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'CREATE',
+      resource: 'BUSINESS',
+      description: `Provisioned new business node: ${validatedData.businessName} (${businessId})`
+    });
+
     await createNotification(
       null,
       `New Node Provisioned: ${validatedData.businessName} initialized under ID ${businessId}.`,
@@ -238,6 +252,14 @@ export const updateBusinessFeatures = async (req: Request, res: Response): Promi
 
     biz.features = { ...biz.features, ...features };
     await biz.save();
+
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'UPDATE',
+      resource: 'BUSINESS',
+      description: `Modified capability matrix for node ${businessId}`
+    });
 
     await createNotification(
       null,
@@ -288,6 +310,14 @@ export const updateBusinessStatus = async (req: Request, res: Response): Promise
       io.to(businessId.toString()).emit('DATA_SYNC', { type: 'PLAN_UPDATE' });
     }
 
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'UPDATE',
+      resource: 'BUSINESS',
+      description: `Shifted operational state of node ${businessId} to ${action.toUpperCase()}`
+    });
+
     await createNotification(
       null,
       `Operational Shift: Node ${businessId} status shifted to ${action.toUpperCase()}.`,
@@ -333,6 +363,14 @@ export const updateBusinessPlan = async (req: Request, res: Response): Promise<v
     if (io) {
       io.to(businessId.toString()).emit('DATA_SYNC', { type: 'PLAN_UPDATE' });
     }
+
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'UPDATE',
+      resource: 'BUSINESS',
+      description: `Subscription Override: Node ${businessId} assigned to ${plan.toUpperCase()} protocol`
+    });
 
     await createNotification(
       null,
@@ -396,6 +434,14 @@ export const updateBusinessDetails = async (req: Request, res: Response): Promis
     }
 
     // Notify SuperAdmin Audit Log
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'UPDATE',
+      resource: 'BUSINESS',
+      description: `Configuration Sync: Updated metadata and limits for Node ${businessId}`
+    });
+
     await createNotification(
       null,
       `Master Protocol Sync: Configuration override executed for Node ${businessId}.`,
@@ -430,6 +476,14 @@ export const resetBusinessPassword = async (req: Request, res: Response): Promis
     if (!user) { res.status(404).json({ message: "Primary Admin not found." }); return; }
     user.password = newPassword; await user.save();
 
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'UPDATE',
+      resource: 'BUSINESS',
+      description: `Security Override: Deployed new administrative credentials for node ${businessId}`
+    });
+
     await createNotification(
       null,
       `Security Override: Administrative credentials reset for node ${businessId}.`,
@@ -453,6 +507,14 @@ export const deleteBusinessPermanently = async (req: Request, res: Response): Pr
     await User.deleteMany({ businessId }).session(session);
     await Business.deleteOne({ businessId }).session(session);
     await session.commitTransaction();
+
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'DELETE',
+      resource: 'BUSINESS',
+      description: `Nuclear Purge: Decommissioned and deleted node ${businessId} permanently`
+    });
 
     await createNotification(
       null,

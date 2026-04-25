@@ -40,6 +40,8 @@ const AuditCenter: React.FC = () => {
     const [activities, setActivities] = useState<any[]>([]);
     const [auditLoading, setAuditLoading] = useState(false);
     const [search, setSearch] = useState('');
+    const [activeFilter, setActiveFilter] = useState('All');
+    const [selectedDate, setSelectedDate] = useState('');
     const [showAll, setShowAll] = useState(false);
 
     const fetchAuditHistory = async () => {
@@ -74,27 +76,58 @@ const AuditCenter: React.FC = () => {
             id: n._id,
             type: 'ALERT',
             severity: n.type,
-            title: n.category?.toUpperCase() || 'SYSTEM',
+            title: 'ALERT',
             description: n.message,
             authority: 'SYSTEM',
             createdAt: n.createdAt,
-            isRead: n.isRead
+            isRead: n.isRead,
+            resource: n.category?.toUpperCase() || 'SYSTEM'
         }));
 
         const mappedAudit: StreamItem[] = activities.map(a => ({
             id: a._id,
             type: 'AUDIT',
             severity: (a.action === 'DELETE' || a.action === 'TRANSACTION') ? 'warning' : 'info',
-            title: `${a.action} · ${a.resource}`,
-            description: a.description,
+            title: a.action === 'CREATE' ? 'ADD' : a.action,
+            description: a.transactionId ? `${a.description} (TX: ${a.transactionId.slice(-6).toUpperCase()})` : a.description,
             authority: a.userName,
             createdAt: a.createdAt,
             resource: a.resource
         }));
 
-        const combined = [...mappedAlerts, ...mappedAudit].sort((a, b) => 
+        // Deduplicate by ID to prevent ghost nodes
+        const uniqueNodes = new Map();
+        [...mappedAlerts, ...mappedAudit].forEach(item => {
+            if (!uniqueNodes.has(item.id)) uniqueNodes.set(item.id, item);
+        });
+
+        let combined = Array.from(uniqueNodes.values()).map(item => {
+            // Intelligent Re-Categorization
+            let finalTitle = item.title;
+            if (item.resource?.toUpperCase().includes('SALE') || item.resource?.toUpperCase().includes('INVOICE')) finalTitle = 'SALE';
+            if (item.resource?.toUpperCase().includes('PURCHASE')) finalTitle = 'PURCHASE';
+            
+            return { ...item, title: finalTitle };
+        }).sort((a, b) => 
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
+
+        // Apply Status Filter
+        if (activeFilter === 'Alerts') {
+            combined = combined.filter(item => item.type === 'ALERT');
+        } else if (activeFilter === 'Audit') {
+            combined = combined.filter(item => item.type === 'AUDIT');
+        } else if (activeFilter === 'Critical') {
+            combined = combined.filter(item => item.severity === 'error' || item.severity === 'warning');
+        }
+
+        // Apply Date Filter
+        if (selectedDate) {
+            combined = combined.filter(item => {
+                const itemDate = new Date(item.createdAt).toISOString().split('T')[0];
+                return itemDate === selectedDate;
+            });
+        }
 
         if (search.trim()) {
             return combined.filter(item => 
@@ -105,12 +138,19 @@ const AuditCenter: React.FC = () => {
         }
 
         return combined;
-    }, [notifications, activities, search]);
+    }, [notifications, activities, search, activeFilter, selectedDate]);
 
     const displayedStream = showAll ? unifiedStream : unifiedStream.slice(0, 10);
 
-    const getSeverityStyles = (severity: string) => {
-        switch (severity) {
+    const getSeverityStyles = (item: any) => {
+        const t = item.title;
+        if (t === 'SALE') return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+        if (t === 'PURCHASE') return 'bg-blue-50 text-blue-600 border-blue-100';
+        if (t === 'DELETE') return 'bg-rose-50 text-rose-600 border-rose-100';
+        if (t === 'ALERT') return 'bg-amber-50 text-amber-600 border-amber-100';
+        if (t === 'UPDATE') return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+        
+        switch (item.severity) {
             case 'success': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
             case 'error': return 'bg-rose-50 text-rose-600 border-rose-100';
             case 'warning': return 'bg-amber-50 text-amber-600 border-amber-100';
@@ -118,10 +158,17 @@ const AuditCenter: React.FC = () => {
         }
     };
 
-    const getIcon = (type: string, severity: string) => {
-        if (type === 'ALERT') {
-            if (severity === 'error') return <XCircle size={14} />;
-            if (severity === 'warning') return <AlertTriangle size={14} />;
+    const getIcon = (item: any) => {
+        const t = item.title;
+        if (t === 'SALE') return <FileText size={14} />;
+        if (t === 'PURCHASE') return <Tag size={14} />;
+        if (t === 'DELETE') return <Trash2 size={14} />;
+        if (t === 'ADD') return <Zap size={14} />;
+        if (t === 'UPDATE') return <ActivityIcon size={14} />;
+        
+        if (item.type === 'ALERT') {
+            if (item.severity === 'error') return <XCircle size={14} />;
+            if (item.severity === 'warning') return <AlertTriangle size={14} />;
             return <Bell size={14} />;
         }
         return <ActivityIcon size={14} />;
@@ -161,16 +208,53 @@ const AuditCenter: React.FC = () => {
                 </div>
             </header>
 
-            {/* ── SEARCH ────────────────────────────────────────────────────────── */}
-            <div className="relative mb-6 md:mb-8">
-                <input 
-                    type="text" 
-                    placeholder="Search recent activity..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-12 pr-6 py-3.5 md:py-4 bg-white border border-slate-100 rounded-[1rem] md:rounded-[1.5rem] text-[13px] font-semibold text-slate-600 placeholder:text-slate-300 focus:border-indigo-500 shadow-sm transition-all font-inter"
-                />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+            {/* ── SEARCH & FILTER ────────────────────────────────────────────────────────── */}
+            <div className="space-y-4 mb-6 md:mb-8">
+                <div className="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Search recent activity..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full pl-12 pr-6 py-3.5 md:py-4 bg-white border border-slate-100 rounded-[1rem] md:rounded-[1.5rem] text-[13px] font-semibold text-slate-600 placeholder:text-slate-300 focus:border-indigo-500 shadow-sm transition-all font-inter"
+                    />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                        {['All', 'Alerts', 'Audit', 'Critical'].map((f) => (
+                            <button
+                                key={f}
+                                onClick={() => setActiveFilter(f)}
+                                className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border ${
+                                    activeFilter === f 
+                                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100' 
+                                    : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                                }`}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={12} />
+                            <input 
+                                type="date" 
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="pl-9 pr-4 py-1.5 bg-white border border-slate-100 rounded-xl text-[10px] font-semibold text-slate-600 focus:border-indigo-500 outline-none transition-all uppercase"
+                            />
+                        </div>
+                        {selectedDate && (
+                            <button onClick={() => setSelectedDate('')} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition-all">
+                                <XCircle size={16} />
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* ── UNIFIED TIMELINE ────────────────────────────────────────────────────────── */}
@@ -180,10 +264,9 @@ const AuditCenter: React.FC = () => {
                     <table className="w-full text-left table-fixed">
                         <thead>
                              <tr className="border-b border-slate-100 bg-slate-50/30 font-bold">
-                                <th className="w-[180px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Protocol Time</th>
+                                <th className="w-[180px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Message Time</th>
                                 <th className="w-[220px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Classification</th>
                                 <th className="px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-center">Message Description</th>
-                                <th className="w-[240px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right">Authority Identity</th>
                                 <th className="w-[120px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right pr-8">Actions</th>
                              </tr>
                         </thead>
@@ -192,7 +275,7 @@ const AuditCenter: React.FC = () => {
                                 Array(5).fill(0).map((_, i) => <tr key={i} className="animate-pulse h-20 bg-slate-50/20" />)
                             ) : displayedStream.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-32 text-center text-slate-300">
+                                    <td colSpan={4} className="py-32 text-center text-slate-300">
                                         <Zap size={32} className="mx-auto mb-4 opacity-20" />
                                         <p className="text-[10px] font-semibold uppercase tracking-widest font-inter">No Notifications Found</p>
                                     </td>
@@ -225,7 +308,7 @@ const AuditCenter: React.FC = () => {
                                         <td className="px-8 py-6 align-top">
                                             <div className="flex flex-col gap-2.5">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`px-2 py-0.5 rounded-lg border text-[8px] uppercase tracking-widest inline-flex w-fit font-semibold ${getSeverityStyles(item.severity)}`}>
+                                                    <span className={`px-2 py-0.5 rounded-lg border text-[8px] uppercase tracking-widest inline-flex w-fit font-semibold ${getSeverityStyles(item)}`}>
                                                         {item.type}
                                                     </span>
                                                     {item.type === 'ALERT' && !item.isRead && (
@@ -233,34 +316,25 @@ const AuditCenter: React.FC = () => {
                                                     )}
                                                 </div>
                                                 <div className={`flex items-center gap-2 text-[10px] uppercase tracking-tight truncate transition-colors font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-indigo-700' : 'text-slate-500 group-hover:text-slate-900'}`}>
-                                                    {getIcon(item.type, item.severity)}
+                                                    {getIcon(item)}
                                                     <span>{item.title}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 align-top">
-                                            <div className="flex flex-col gap-1.5">
-                                                <p className={`text-[13px] tracking-tight leading-relaxed break-words line-clamp-2 uppercase transition-all font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-slate-900' : 'text-slate-600'}`}>
+                                            <div className="flex flex-col gap-1.5 text-center">
+                                                <p className={`text-[13px] tracking-tight leading-relaxed break-words transition-all ${
+                                                    item.type === 'ALERT' && !item.isRead 
+                                                    ? 'font-black text-slate-900 scale-[1.02] origin-center' 
+                                                    : 'font-medium text-slate-400'
+                                                }`}>
                                                     {item.description}
                                                 </p>
                                                 {item.type === 'ALERT' && !item.isRead && (
-                                                    <p className="text-[9px] font-semibold text-indigo-600 italic uppercase tracking-[0.05em] flex items-center gap-2 animate-pulse">
+                                                    <p className="text-[9px] font-black text-indigo-600 italic uppercase tracking-[0.05em] flex items-center justify-center gap-2 animate-pulse">
                                                         <ArrowRight size={10} /> Double-Tap to Acknowledge
                                                     </p>
                                                 )}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6 align-top">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 shrink-0 border rounded-xl flex items-center justify-center text-[11px] font-semibold shadow-sm transition-all ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-600 border-indigo-700 text-white scale-110' : 'bg-indigo-50 border-indigo-100 text-indigo-600'}`}>
-                                                    {item.authority[0].toUpperCase()}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className={`text-[11px] uppercase tracking-tight truncate font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-slate-900' : 'text-slate-700'}`}>{item.authority}</p>
-                                                    <p className={`text-[9px] uppercase tracking-tighter font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-indigo-500' : 'text-slate-400'}`}>
-                                                        {item.type === 'ALERT' && !item.isRead ? 'Unread System Node' : 'Verified Node'}
-                                                    </p>
-                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 align-top text-right">
@@ -316,7 +390,7 @@ const AuditCenter: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className={`px-2 py-0.5 rounded-lg border text-[8px] font-semibold uppercase tracking-widest ${getSeverityStyles(item.severity)}`}>
+                                        <span className={`px-2 py-0.5 rounded-lg border text-[8px] font-semibold uppercase tracking-widest ${getSeverityStyles(item)}`}>
                                             {item.type}
                                         </span>
                                         <button 
@@ -332,19 +406,17 @@ const AuditCenter: React.FC = () => {
                                     </div>
                                 </div>
                                 <h3 className={`text-[10px] uppercase tracking-tight mb-2 flex items-center gap-2 ${item.type === 'ALERT' && !item.isRead ? 'font-black text-indigo-700' : 'font-bold text-slate-400'}`}>
-                                    {getIcon(item.type, item.severity)}
+                                    {getIcon(item)}
                                     {item.title}
                                 </h3>
-                                <p className={`text-[13px] leading-relaxed uppercase break-words px-1 ${item.type === 'ALERT' && !item.isRead ? 'font-black text-slate-900' : 'font-bold text-slate-600'}`}>
+                                <p className={`text-[13px] leading-relaxed break-words px-1 ${
+                                    item.type === 'ALERT' && !item.isRead 
+                                    ? 'font-black text-slate-900' 
+                                    : 'font-medium text-slate-400'
+                                }`}>
                                     {item.description}
                                 </p>
-                                <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-6 h-6 bg-indigo-50 rounded-lg flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                                            {item.authority[0].toUpperCase()}
-                                        </div>
-                                        <span className="text-[10px] font-semibold text-slate-500 uppercase">{item.authority}</span>
-                                    </div>
+                                <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-end">
                                     {item.type === 'ALERT' && !item.isRead && (
                                         <span className="text-[8px] font-bold text-indigo-600 uppercase italic">Tap to Read</span>
                                     )}
