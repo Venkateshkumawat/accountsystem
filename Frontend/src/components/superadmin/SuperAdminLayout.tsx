@@ -344,7 +344,17 @@ const SuperAdminLayout: React.FC = () => {
                <ShieldCheck size={10} className="text-indigo-600" />
                <span className="text-[10px] font-medium uppercase text-slate-500 tracking-widest">Protocol V4.2 Locked</span>
             </div>
-            <button onClick={() => navigate('/superadmin/notifications')} className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+            <button 
+              onClick={() => {
+                const auditEl = document.getElementById('global-audit-log');
+                if (auditEl && location.pathname === '/superadmin/dashboard') {
+                  auditEl.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  navigate('/superadmin/dashboard#global-audit-log');
+                }
+              }} 
+              className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+            >
               <Bell size={18} />
               {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full shadow-sm ring-2 ring-white">

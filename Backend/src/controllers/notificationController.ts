@@ -47,15 +47,24 @@ export const getNotifications = async (req: AuthRequest, res: Response): Promise
       }
     }
 
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 100;
+    const skip = (page - 1) * limit;
+
     const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
-      .limit(100);
+      .skip(skip)
+      .limit(limit);
 
+    const total = await Notification.countDocuments(query);
     const unreadCount = await Notification.countDocuments({ ...query, isRead: false });
 
     res.status(200).json({
       success: true,
       unreadCount,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
       notifications,
     });
   } catch (error: any) {

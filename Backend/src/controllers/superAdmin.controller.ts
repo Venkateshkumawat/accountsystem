@@ -104,12 +104,35 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
   try {
     const businessCount = await Business.countDocuments();
     const userCount = await User.countDocuments({ role: { $ne: 'superadmin' } });
-    const activeSubscriptions = await Business.countDocuments({ status: 'active' });
-    const expiredCount = await Business.countDocuments({ planEndDate: { $lt: new Date() } });
+    const activeSubscriptions = await Business.countDocuments({ status: 'active', planEndDate: { $gte: new Date() } });
+    
+    const now = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(now.getDate() + 7);
+
+    const expiredCount = await Business.countDocuments({ planEndDate: { $lt: now } });
+    
+    // 🚩 Actionable Intelligence: Businesses requiring attention
+    const expiringSoon = await Business.find({ 
+      planEndDate: { $gte: now, $lte: sevenDaysFromNow },
+      status: 'active'
+    }).select('name ownerFullName plan planEndDate businessId').limit(10);
+
+    const recentlyExpired = await Business.find({ 
+      planEndDate: { $lt: now } 
+    }).sort({ planEndDate: -1 }).select('name ownerFullName plan planEndDate businessId').limit(10);
 
     res.status(200).json({
       success: true,
-      stats: { businessCount, userCount, activeSubscriptions, securityAlert: 0, expiredCount }
+      stats: { 
+        businessCount, 
+        userCount, 
+        activeSubscriptions, 
+        securityAlert: 0, 
+        expiredCount,
+        expiringSoon,
+        recentlyExpired
+      }
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

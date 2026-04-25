@@ -28,6 +28,7 @@ import { healRegistry } from "./utils/healRegistry.js";
 import mongoose from "mongoose";
 import cron from "node-cron";
 import Business from "./models/Business.js";
+import { createNotification } from "./controllers/notificationController.js";
 
 import { createServer } from "http";
 import { initSocket } from "./socket.js";
@@ -40,10 +41,48 @@ cron.schedule('0 0 * * *', async () => {
   console.log('?? Nexus Engine: Processing Nightly Subscription Cycle...');
   try {
     const today = new Date();
-    await Business.updateMany(
-      { planEndDate: { $lt: today }, isActive: true },
-      { $set: { status: 'inactive', isActive: false } }
-    );
+    
+    // 1. Decommission Expired Nodes
+    const expiredBusinesses = await Business.find({ planEndDate: { $lt: today }, isActive: true });
+    if (expiredBusinesses.length > 0) {
+      await Business.updateMany(
+        { planEndDate: { $lt: today }, isActive: true },
+        { $set: { status: 'inactive', isActive: false } }
+      );
+      
+      for (const biz of expiredBusinesses) {
+        await createNotification(
+          null,
+          `Critical Alert: Node ${biz.name} (ID: ${biz.businessId}) has expired and was decommissioned.`,
+          "error",
+          "superadmin",
+          "/superadmin/accounts",
+          "alert"
+        );
+      }
+    }
+
+    // 2. Alert SuperAdmin for Expiring Soon (7 Days)
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(today.getDate() + 7);
+    const startOf7thDay = new Date(sevenDaysFromNow.setHours(0,0,0,0));
+    const endOf7thDay = new Date(sevenDaysFromNow.setHours(23,59,59,999));
+
+    const expiringSoon = await Business.find({
+      planEndDate: { $gte: startOf7thDay, $lte: endOf7thDay },
+      status: 'active'
+    });
+
+    for (const biz of expiringSoon) {
+      await createNotification(
+        null,
+        `Proactive Governance: Node ${biz.name} (ID: ${biz.businessId}) will expire in 7 days.`,
+        "warning",
+        "superadmin",
+        "/superadmin/accounts",
+        "alert"
+      );
+    }
     console.log('? Cycle Complete: Expired nodes decommissioned.');
   } catch (err) {
     console.error('? Nightly Cycle Failed:', err);
