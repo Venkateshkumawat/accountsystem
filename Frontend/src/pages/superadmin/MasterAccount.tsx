@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit3, Zap, Lock, Filter, Search, ShieldCheck, ShieldAlert, Settings, Package, FileText, RefreshCcw, Trash2, ToggleRight, ToggleLeft } from 'lucide-react';
+import { Edit3, Zap, Lock, Filter, Search, ShieldCheck, ShieldAlert, Settings, Package, FileText, RefreshCcw, Trash2, ToggleRight, ToggleLeft, X } from 'lucide-react';
 import api from '../../services/api';
 import socketService from '../../services/socket';
 import { useNotify } from '../../context/NotificationContext';
@@ -108,12 +108,22 @@ const MasterAccount: React.FC = () => {
     return true;
   });
 
+  // ── Modal Presence Protocol ──────────────────────────────────────────
+  useEffect(() => {
+    if (showFeatureModal || editModal) {
+      document.body.classList.add('modal-open-nexus');
+    } else {
+      document.body.classList.remove('modal-open-nexus');
+    }
+    return () => document.body.classList.remove('modal-open-nexus');
+  }, [showFeatureModal, editModal]);
+
   return (
-    <div className="space-y-6 pb-20 relative ">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+    <div className="space-y-4 pb-10 relative font-inter">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
-           <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Master Accounts</h1>
-           <p className="text-sm font-normal text-slate-500 mt-1">Manage business admin accounts and subscription limits</p>
+           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Master Accounts</h1>
+           <p className="text-xs font-medium text-slate-400 mt-0.5">Manage business admin accounts and subscription limits</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -133,7 +143,7 @@ const MasterAccount: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex gap-2 px-2">
+      <div className="flex gap-2">
         {['all', 'active', 'suspended', 'expired'].map(f => (
           <button
             key={f} onClick={() => setFilter(f as any)}
@@ -166,21 +176,31 @@ const MasterAccount: React.FC = () => {
               ) : filtered.map(biz => (
                 <tr key={biz._id} className="hover:bg-slate-50/50 transition-colors group">
                   <td className="px-6 py-4">
-                    <p className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors mb-1">{biz.businessName}</p>
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">ID: {biz.businessId}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-semibold text-slate-900">{biz.ownerFullName}</p>
-                    <p className="text-xs font-medium text-slate-400 mt-1">{biz.email}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 mb-1.5">
-                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold uppercase ${biz.plan === 'enterprise' ? 'bg-violet-50 text-violet-600' : biz.plan === 'pro' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-500'}`}>{biz.plan}</span>
-                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold uppercase ${biz.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>{biz.status}</span>
+                    <p className="text-sm font-semibold text-slate-900 leading-tight mb-1">{biz.businessName}</p>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{biz.businessId}</span>
                     </div>
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase">
-                      Expires in: <CountdownTimer endDate={biz.planEndDate} />
-                    </p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-semibold text-slate-900 leading-none">{biz.ownerFullName}</p>
+                    <p className="text-[11px] font-medium text-slate-400 mt-2 hover:text-indigo-600 transition-colors cursor-pointer">{biz.email}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 mb-2">
+                       <span className={`px-2 py-0.5 rounded-md text-[9px] font-semibold uppercase tracking-wider ${biz.plan === 'enterprise' ? 'bg-violet-600 text-white shadow-sm' : biz.plan === 'pro' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>{biz.plan}</span>
+                       <span className={`px-2 py-0.5 rounded-md text-[9px] font-semibold uppercase tracking-wider ${biz.status === 'active' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-rose-500 text-white shadow-sm'}`}>{biz.status}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                        Start: <span className="text-slate-900">{biz.planStartDate ? new Date(biz.planStartDate).toLocaleDateString('en-IN') : 'N/A'}</span>
+                      </p>
+                      <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                        Exp: <CountdownTimer endDate={biz.planEndDate} />
+                      </p>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <button onClick={() => setShowFeatureModal(biz)} className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-indigo-600 hover:text-white transition-all border border-slate-200">
@@ -221,7 +241,7 @@ const MasterAccount: React.FC = () => {
                       {biz.status === 'active' ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />}
                     </button>
                     <button
-                      onClick={() => { setEditModal(biz); setEditFormData({ ...biz, planEndDate: biz.planEndDate?.slice(0, 16) || '' }); }}
+                      onClick={() => { setEditModal(biz); setEditFormData({ ...biz, planStartDate: biz.planStartDate?.slice(0, 16) || '', planEndDate: biz.planEndDate?.slice(0, 16) || '' }); }}
                       className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
                     >
                       <Edit3 size={14} />
@@ -285,7 +305,7 @@ const MasterAccount: React.FC = () => {
                 <h3 className="text-base font-semibold text-white">Privilege Settings</h3>
                 <p className="text-indigo-400 text-xs font-medium mt-1">{showFeatureModal.businessName}</p>
               </div>
-              <button onClick={() => setShowFeatureModal(null)} className="p-2 text-white/40 hover:text-white transition-colors"><Trash2 size={18} className="rotate-45" /></button>
+              <button onClick={() => setShowFeatureModal(null)} className="p-2 text-white/40 hover:text-white transition-colors"><X size={20} /></button>
             </div>
 
             <div className="p-4 space-y-2 overflow-y-auto no-scrollbar">
@@ -328,6 +348,10 @@ const MasterAccount: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex justify-between items-center border-t border-slate-50 pt-2">
+                  <span className="text-[9px] font-semibold uppercase text-slate-400">Activation</span>
+                  <span className="text-[9px] font-medium text-slate-500 uppercase">{showFeatureModal.planStartDate ? new Date(showFeatureModal.planStartDate).toLocaleDateString('en-IN') : 'N/A'}</span>
+                </div>
+                <div className="flex justify-between items-center pt-1">
                   <span className="text-[9px] font-semibold uppercase text-slate-400">Deadline</span>
                   <div className="text-right flex items-center gap-1.5 justify-end">
                     <span className="text-[9px] font-medium text-slate-300">{showFeatureModal.planEndDate ? new Date(showFeatureModal.planEndDate).toLocaleDateString('en-IN') : 'N/A'}</span>
@@ -351,7 +375,7 @@ const MasterAccount: React.FC = () => {
                 <h3 className="text-base font-semibold text-white">Account Details</h3>
                 <p className="text-indigo-400 text-xs font-medium mt-1">Edit business node</p>
               </div>
-              <button onClick={() => setEditModal(null)} className="p-2 text-white/40 hover:text-white"><Trash2 size={18} className="rotate-45" /></button>
+              <button onClick={() => setEditModal(null)} className="p-2 text-white/40 hover:text-white"><X size={20} /></button>
             </div>
 
             <form onSubmit={handleUpdateNode} className="p-4 space-y-3 overflow-y-auto no-scrollbar">
@@ -386,6 +410,15 @@ const MasterAccount: React.FC = () => {
                     <option value="pro">Pro</option>
                     <option value="enterprise">Enterprise</option>
                   </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold uppercase text-slate-400 tracking-widest">Plan Start Date</label>
+                  <input
+                    type="datetime-local"
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm font-medium outline-none"
+                    value={editFormData.planStartDate}
+                    onChange={e => setEditFormData({ ...editFormData, planStartDate: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-semibold uppercase text-slate-400 tracking-widest">Expiry Date & Time</label>

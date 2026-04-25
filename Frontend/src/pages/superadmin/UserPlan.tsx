@@ -126,17 +126,17 @@ const UserPlan: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+    <div className="bg-[#F8FAFC]/50 pb-10 font-inter">
+      <div className="max-w-5xl mx-auto px-4 py-4 space-y-4">
         {/* Header Protocol */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-6 mb-2">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Account Provisioning</h1>
-            <p className="text-sm font-normal text-slate-500 mt-1">Create business accounts and configure subscription limits</p>
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">User Plan Configuration</h1>
+            <p className="text-xs font-medium text-slate-400 mt-0.5">Provision business accounts and configure resource boundaries</p>
           </div>
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
-            <ShieldCheck size={16} />
-            <span className="text-xs font-semibold uppercase tracking-widest">Master Control Active</span>
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+            <ShieldCheck size={14} />
+            <span className="text-[10px] font-semibold uppercase tracking-widest">Master Control Active</span>
           </div>
         </div>
 

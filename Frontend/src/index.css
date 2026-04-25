@@ -212,3 +212,16 @@
 .metric-accent-border {
   @apply border-l-4 border-slate-200 transition-all duration-300;
 }
+
+/* ── Modal Focus Protocol: Auto-Hide Navbar ── */
+body.modal-open-nexus header {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.modal-open-nexus .sidebar {
+  filter: blur(2px) grayscale(0.5);
+  opacity: 0.8;
+  pointer-events: none;
+}

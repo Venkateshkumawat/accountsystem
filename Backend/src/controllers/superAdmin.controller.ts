@@ -488,6 +488,7 @@ export const updateBusinessDetails = async (req: Request, res: Response): Promis
       plan,
       skuLimit,
       invoiceLimit,
+      planStartDate,
       planEndDate,
       status
     } = req.body;
@@ -500,6 +501,7 @@ export const updateBusinessDetails = async (req: Request, res: Response): Promis
     if (plan) biz.plan = plan;
     if (skuLimit !== undefined) biz.skuLimit = skuLimit;
     if (invoiceLimit !== undefined) biz.invoiceLimit = invoiceLimit;
+    if (planStartDate) biz.planStartDate = new Date(planStartDate);
     if (planEndDate) biz.planEndDate = new Date(planEndDate);
     if (status) {
       biz.status = status;
