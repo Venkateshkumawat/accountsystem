@@ -83,7 +83,7 @@ const Login = () => {
             disabled={loading}
             className={`w-full h-12 bg-slate-900 text-white rounded-xl font-semibold text-sm uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 active:scale-[0.98] transition-all mt-6 shadow-lg shadow-slate-900/10 border border-slate-700 ${loading ? 'opacity-50 grayscale' : ''}`}
           >
-            {loading ? 'SYNCING...' : 'LOGIN NODE'}
+            {loading ? 'SYNCING...' : 'LOGIN'}
             {!loading && <ArrowRight size={14} />}
           </button>
         </form>
