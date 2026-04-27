@@ -102,10 +102,12 @@ app.use(express.json());
 // High-Performance CORS Registry: Supports Vercel Previews and Production Nodes
 app.use(cors({
   origin: [
-    /^https:\/\/account-billing-system.*\.vercel\.app$/, // Trust all Vercel subdomains
-    "https://account-billing-system.vercel.app",        // Primary Production
-    "http://localhost:5173",                            // Local Dev
-    "http://127.0.0.1:5173"                             // Local Dev IP
+    process.env.CORS_ORIGIN || "*",
+    /^https:\/\/.*\.vercel\.app$/,
+    "https://nexusbill.vercel.app",
+    "https://account-billing-system.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],

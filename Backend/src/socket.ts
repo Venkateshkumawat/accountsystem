@@ -7,7 +7,9 @@ export const initSocket = (server: HttpServer) => {
     io = new Server(server, {
     cors: {
       origin: [
-        /^https:\/\/account-billing-system.*\.vercel\.app$/,
+        process.env.CORS_ORIGIN || "*", // Fallback to * for initial debugging or use env
+        /^https:\/\/.*\.vercel\.app$/,  // Trust all Vercel subdomains
+        "https://nexusbill.vercel.app", // User's primary domain
         "https://account-billing-system.vercel.app", 
         "http://localhost:5173",
         "http://127.0.0.1:5173",
