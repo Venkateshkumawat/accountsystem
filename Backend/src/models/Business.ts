@@ -26,6 +26,7 @@ export interface IBusiness extends Document {
   activatedAt?: Date;
   planHistory: Array<{
     plan: string;
+    transactionId: string;
     startDate: Date;
     endDate: Date;
     assignedBy: string;
