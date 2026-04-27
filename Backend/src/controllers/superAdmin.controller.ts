@@ -7,6 +7,7 @@ import Activity from '../models/Activity.js';
 import Plan from '../models/Plan.js';
 import SuperAdminConfig from '../models/SuperAdminConfig.js';
 import { generateBusinessId } from '../utils/generateBusinessId.js';
+import { generateSubscriptionId } from '../utils/generateTransactionId.js';
 import { createNotification } from './notificationController.js';
 import { generateToken } from '../utils/jwt.js';
 
@@ -30,6 +31,7 @@ const createBusinessAdminSchema = z.object({
   gstin: z.string().optional(),
   skuLimit: z.number().optional().default(100),
   invoiceLimit: z.number().optional().default(500),
+  amountPaid: z.number().optional().default(0),
 });
 
 // --- CONTROLLERS ---
@@ -271,10 +273,12 @@ export const createBusinessAdmin = async (req: Request, res: Response): Promise<
       createdBySuperAdmin: true,
       planHistory: [{
         plan: validatedData.plan,
+        transactionId: await generateSubscriptionId(),
         startDate: startDate,
         endDate: endDate,
         assignedBy: 'superadmin',
-        assignedAt: new Date()
+        assignedAt: new Date(),
+        amountPaid: validatedData.amountPaid
       }],
       skuLimit: validatedData.skuLimit,
       invoiceLimit: validatedData.invoiceLimit
@@ -428,15 +432,16 @@ export const updateBusinessStatus = async (req: Request, res: Response): Promise
 export const updateBusinessPlan = async (req: Request, res: Response): Promise<void> => {
   try {
     const { businessId } = req.params;
-    const { plan, planStartDate, planEndDate } = req.body;
+    const { plan, planStartDate, planEndDate, amountPaid } = req.body;
     const start = new Date(planStartDate); const end = new Date(planEndDate);
     if (end <= start) { res.status(400).json({ message: "Expiry must be after activation." }); return; }
 
     const biz = await Business.findOne({ businessId });
     if (!biz) { res.status(404).json({ message: "Node not found." }); return; }
 
+    const txnId = await generateSubscriptionId();
     biz.plan = plan; biz.planStartDate = start; biz.planEndDate = end; biz.status = 'active'; biz.isActive = true;
-    biz.planHistory.push({ plan, startDate: start, endDate: end, assignedBy: 'superadmin', assignedAt: new Date() });
+    biz.planHistory.push({ plan, transactionId: txnId, startDate: start, endDate: end, assignedBy: 'superadmin', assignedAt: new Date(), amountPaid: amountPaid || 0 });
     await biz.save();
     await User.updateOne({ businessId, role: 'businessAdmin' }, { isActive: true });
 
@@ -633,4 +638,43 @@ export const updatePlan = async (req: Request, res: Response) => {
 export const deletePlan = async (req: Request, res: Response) => {
   try { await Plan.findByIdAndDelete(req.params.id); res.json({ success: true, message: "Plan archived." }); }
   catch (e: any) { res.status(500).json({ message: e.message }); }
+};
+
+/**
+ * Master Transaction Registry: Global subscription flow forensics
+ */
+export const getSuperAdminTransactions = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const transactions = await Business.aggregate([
+      { $unwind: "$planHistory" },
+      {
+        $project: {
+          _id: 0,
+          businessId: 1,
+          businessName: 1,
+          ownerFullName: 1,
+          email: 1,
+          mobileNumber: 1,
+          location: 1,
+          gstin: 1,
+          transactionId: "$planHistory.transactionId",
+          plan: "$planHistory.plan",
+          startDate: "$planHistory.startDate",
+          endDate: "$planHistory.endDate",
+          assignedBy: "$planHistory.assignedBy",
+          assignedAt: "$planHistory.assignedAt",
+          amountPaid: "$planHistory.amountPaid",
+          razorpayPaymentId: "$planHistory.razorpayPaymentId",
+          razorpayOrderId: "$planHistory.razorpayOrderId",
+          razorpaySignature: "$planHistory.razorpaySignature"
+        }
+      },
+      { $sort: { assignedAt: -1 } },
+      { $limit: 100 } // Safety throttle
+    ]);
+
+    res.status(200).json({ success: true, transactions });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };

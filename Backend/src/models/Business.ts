@@ -132,6 +132,7 @@ const businessSchema = new Schema<IBusiness>(
     planHistory: [
       {
         plan: String,
+        transactionId: { type: String, unique: true, sparse: true },
         startDate: Date,
         endDate: Date,
         assignedBy: String,

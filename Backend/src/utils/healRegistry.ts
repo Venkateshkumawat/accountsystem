@@ -40,7 +40,35 @@ export const healRegistry = async () => {
       }
     }
 
-    console.log(`🏁 Healing Complete: ${healedCount} nodes successfully re-synchronized.`);
+    console.log(`🏁 Identity Healing Complete: ${healedCount} nodes successfully re-synchronized.`);
+    
+    // ── Transaction ID Migration Protocol ───────────────────────────────
+    console.log('📡 Nexus Engine: Initiating Subscription Transaction ID Migration...');
+    const businesses = await Business.find();
+    let migratedTxCount = 0;
+    
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const generateId = () => {
+      const segment = () => Array.from({ length: 4 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+      return `NXB-${segment()}-${segment()}-${segment()}`;
+    };
+
+    for (const biz of businesses) {
+      let bizModified = false;
+      if (biz.planHistory && biz.planHistory.length > 0) {
+        for (const plan of biz.planHistory) {
+          if (!plan.transactionId || !plan.transactionId.startsWith('NXB-')) {
+            plan.transactionId = generateId();
+            bizModified = true;
+            migratedTxCount++;
+          }
+        }
+      }
+      if (bizModified) {
+        await biz.save();
+      }
+    }
+    console.log(`🏁 Migration Complete: ${migratedTxCount} subscription artifacts successfully upgraded to NXB standard.`);
   } catch (err) {
     console.error('❌ Registry Healing Failed:', err);
   }

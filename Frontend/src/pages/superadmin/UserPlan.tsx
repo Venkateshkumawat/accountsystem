@@ -31,7 +31,7 @@ const UserPlan: React.FC = () => {
     location: { address: '', city: '', state: '', pincode: '' },
     plan: 'free', price: 0, customDuration: 30,
     planStartDate: new Date().toISOString().slice(0, 16),
-    planEndDate: '', gstin: '', skuLimit: 100, invoiceLimit: 500,
+    planEndDate: '', gstin: '', skuLimit: 100, invoiceLimit: 500, amountPaid: 0
   });
 
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'completed' | 'none'>('none');
@@ -47,7 +47,7 @@ const UserPlan: React.FC = () => {
     setLoading(true);
     setSuccess(false);
 
-    let finalData = { ...formData };
+    let finalData = { ...formData, amountPaid: formData.price };
     if (!finalData.planEndDate) {
       const start = new Date(finalData.planStartDate);
       start.setDate(start.getDate() + finalData.customDuration);

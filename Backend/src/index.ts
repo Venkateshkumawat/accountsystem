@@ -167,16 +167,17 @@ const startServer = (p: number) => {
         console.log('📡 Nexus Engine: Initializing Core Infrastructure...');
         await connectDB();
         
-        console.log('📡 Nexus Engine: Initializing Background Registry Audit...');
-        await healRegistry();
-        await seedSuperAdmin();
-        await seedPlans();
-        await initializeExistingProducts();
-        
-        console.log('✅ Nexus Registry: All nodes successfully re-synchronized.');
-        
-        // Start Server after DB is ready
+        // Start Server immediately after DB is ready to accept connections
         startServer(port);
+
+        console.log('📡 Nexus Engine: Performing Background Registry Audit & Migrations...');
+        // These run in the background while the server is online
+        healRegistry().catch(err => console.error('⚠️ Background Heal Failed:', err));
+        seedSuperAdmin().catch(err => console.error('⚠️ Background Seed Failed:', err));
+        seedPlans().catch(err => console.error('⚠️ Background Plan Seed Failed:', err));
+        initializeExistingProducts().catch(err => console.error('⚠️ Background Product Init Failed:', err));
+        
+        console.log('✅ Nexus Gateway: Online and accepting telemetry.');
     } catch (err) {
         console.error('🌊 Nexus Bootstrap Failure:', err);
         process.exit(1);

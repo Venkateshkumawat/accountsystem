@@ -241,7 +241,7 @@ const MasterAccount: React.FC = () => {
                       {biz.status === 'active' ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />}
                     </button>
                     <button
-                      onClick={() => { setEditModal(biz); setEditFormData({ ...biz, planStartDate: biz.planStartDate?.slice(0, 16) || '', planEndDate: biz.planEndDate?.slice(0, 16) || '' }); }}
+                      onClick={() => { setEditModal(biz); setEditFormData({ ...biz, planStartDate: biz.planStartDate?.slice(0, 16) || '', planEndDate: biz.planEndDate?.slice(0, 16) || '', amountPaid: biz.planHistory?.[biz.planHistory.length - 1]?.amountPaid || 0 }); }}
                       className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
                     >
                       <Edit3 size={14} />
@@ -421,12 +421,21 @@ const MasterAccount: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-semibold uppercase text-slate-400 tracking-widest">Expiry Date & Time</label>
+                  <label className="text-[10px] font-semibold uppercase text-slate-400 tracking-widest">Plan End Date</label>
                   <input
                     type="datetime-local"
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-lg text-sm font-medium outline-none"
+                    className="w-full px-3 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium outline-none"
                     value={editFormData.planEndDate}
                     onChange={e => setEditFormData({ ...editFormData, planEndDate: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold uppercase text-slate-400 tracking-widest">Amount Paid (₹)</label>
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-semibold outline-none"
+                    value={editFormData.amountPaid || 0}
+                    onChange={e => setEditFormData({ ...editFormData, amountPaid: parseInt(e.target.value) || 0 })}
                   />
                 </div>
               </div>

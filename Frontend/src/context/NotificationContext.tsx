@@ -58,8 +58,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const fetchNotifications = async () => {
-    setLoading(true);
+  const fetchNotifications = async (retryCount = 0) => {
+    if (retryCount === 0) setLoading(true);
     try {
       const response = await api.get('/notifications?page=1&limit=20');
       if (response.data.success) {
@@ -69,9 +69,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         setPage(1);
       }
     } catch (error) {
-      console.error("Failed to sync system alerts:", error);
+      console.error(`[NexusSync] Alert sync failed (Attempt ${retryCount + 1}):`, error);
+      if (retryCount < 2) {
+        // Retry after 3 seconds for initial boot synchronization
+        setTimeout(() => fetchNotifications(retryCount + 1), 3000);
+      }
     } finally {
-      setLoading(false);
+      if (retryCount >= 2 || !loading) setLoading(false);
     }
   };
 

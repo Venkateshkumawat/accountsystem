@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import { logActivity } from "../utils/activityLogger.js";
 import { verifyRazorpaySignature } from "../utils/paymentUtils.js";
 import { getTenantModels } from "../config/tenantModels.js";
+import { generateSubscriptionId } from "../utils/generateTransactionId.js";
 import mongoose from "mongoose";
 
 export const createBusiness = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -152,9 +153,10 @@ export const renewPlan = async (req: AuthRequest, res: Response): Promise<void> 
     const baseDate = new Date(business.planEndDate || Date.now()) > new Date() ? new Date(business.planEndDate) : new Date();
     const newExpiry = new Date(baseDate.getTime() + subscriptionMonths * 30 * 24 * 60 * 60 * 1000);
 
+    const txnId = await generateSubscriptionId();
     business.plan = planType || (business.plan as string);
     business.planEndDate = newExpiry;
-    business.planHistory.push({ plan: business.plan as string, startDate: baseDate, endDate: newExpiry, assignedBy: "Self", assignedAt: new Date(), amountPaid, razorpayPaymentId, razorpayOrderId, razorpaySignature });
+    business.planHistory.push({ plan: business.plan as string, transactionId: txnId, startDate: baseDate, endDate: newExpiry, assignedBy: "Self", assignedAt: new Date(), amountPaid, razorpayPaymentId, razorpayOrderId, razorpaySignature });
 
     await business.save();
     await logActivity(req, "UPDATE", "BUSINESS", `Self-Renewal: Extended to ${newExpiry.toLocaleDateString()}`, business._id.toString());
@@ -176,11 +178,12 @@ export const superAdminExtendPlan = async (req: AuthRequest, res: Response): Pro
     const baseDate = new Date(business.planEndDate || Date.now()) > new Date() ? new Date(business.planEndDate) : new Date();
     const newExpiry = new Date(baseDate.getTime() + subscriptionMonths * 30 * 24 * 60 * 60 * 1000);
 
+    const txnId = await generateSubscriptionId();
     business.plan = planType || (business.plan as string);
     business.planEndDate = newExpiry;
     business.isActive = true;
     business.status = 'active';
-    business.planHistory.push({ plan: business.plan as string, startDate: baseDate, endDate: newExpiry, assignedBy: "SuperAdmin", assignedAt: new Date(), amountPaid: Number(amountPaid) });
+    business.planHistory.push({ plan: business.plan as string, transactionId: txnId, startDate: baseDate, endDate: newExpiry, assignedBy: "SuperAdmin", assignedAt: new Date(), amountPaid: Number(amountPaid) });
 
     await business.save();
     res.status(200).json({ success: true, newExpiry });

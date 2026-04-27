@@ -10,7 +10,10 @@ import {
   Trash2,
   X,
   TrendingUp,
-  PieChart as PieIcon
+  PieChart as PieIcon,
+  Printer,
+  MessageCircle,
+  QrCode
 } from 'lucide-react';
 import {
   LineChart,
@@ -33,13 +36,20 @@ const SuperAdminDashboard: React.FC = () => {
   const location = useLocation();
   const { notifications, unreadCount, markAllAsRead, deleteAllNotifications, markAsRead, deleteNotification, loadMore, hasMore, loading: notificationsLoading } = useNotify();
   const [stats, setStats] = useState<any>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTx, setSelectedTx] = useState<any>(null);
+  const [showInvoice, setShowInvoice] = useState(false);
 
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/superadmin/auth/stats');
-      setStats(res.data.stats);
+      const [statsRes, transRes] = await Promise.all([
+        api.get('/superadmin/auth/stats'),
+        api.get('/superadmin/auth/transactions')
+      ]);
+      setStats(statsRes.data.stats);
+      setTransactions(transRes.data.transactions);
     } catch { } finally { setLoading(false); }
   };
 
@@ -58,6 +68,7 @@ const SuperAdminDashboard: React.FC = () => {
   }, [location.hash, notifications]); // Trigger on hash change or notification load
 
   return (
+    <>
     <div className="space-y-4 min-h-screen pb-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
         <div>
@@ -92,7 +103,7 @@ const SuperAdminDashboard: React.FC = () => {
             </div>
           </div>
           <div className="h-[180px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <LineChart data={stats?.registrationTrend || []}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis 
@@ -158,7 +169,7 @@ const SuperAdminDashboard: React.FC = () => {
           </div>
           <div className="flex-1 flex items-center">
             <div className="h-[140px] w-1/2">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <PieChart>
                   <Pie
                     data={stats?.planDistribution || []}
@@ -356,7 +367,7 @@ const SuperAdminDashboard: React.FC = () => {
               </div>
 
               <div className="h-[240px] w-full">
-                 <ResponsiveContainer width="100%" height="100%">
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <BarChart data={stats?.monthlyRevenue || []}>
                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                        <XAxis 
@@ -399,7 +410,235 @@ const SuperAdminDashboard: React.FC = () => {
            </div>
         </div>
       </div>
+
+      {/* ── Master Transaction Registry: Global Subscription Flow ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 px-2">
+         <div className="lg:col-span-10 bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+               <div>
+                  <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-[0.2em] flex items-center gap-2">
+                     <CreditCard size={14} className="text-emerald-500" /> Master Transaction Registry
+                  </h3>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Global Subscription History & Fiscal Forensics</p>
+               </div>
+            </div>
+
+            <div className="overflow-x-auto no-scrollbar">
+               <table className="w-full text-left border-separate border-spacing-y-2">
+                  <thead>
+                     <tr className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <th className="px-4 pb-2">Business</th>
+                        <th className="px-4 pb-2">Plan</th>
+                        <th className="px-4 pb-2">Date</th>
+                        <th className="px-4 pb-2 text-right">Amount</th>
+                        <th className="px-4 pb-2">Transaction ID</th>
+                        <th className="px-4 pb-2">Source</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {transactions.length === 0 ? (
+                        <tr>
+                           <td colSpan={6} className="text-center py-20 opacity-20">
+                              <Activity size={48} className="mx-auto mb-4 text-slate-300" />
+                              <p className="text-[10px] font-semibold uppercase tracking-widest">No Fiscal Records Synchronized</p>
+                           </td>
+                        </tr>
+                     ) : transactions.map((tx, idx) => (
+                        <tr key={idx} className="group hover:bg-slate-50 transition-all rounded-2xl">
+                           <td className="px-4 py-4 bg-slate-50/50 group-hover:bg-white border-y border-l border-slate-100 rounded-l-2xl">
+                              <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 bg-white border border-slate-200 text-slate-600 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm">
+                                    {tx.businessName?.charAt(0)}
+                                 </div>
+                                 <div className="min-w-0">
+                                    <p className="text-[11px] font-bold text-slate-800 truncate uppercase">{tx.businessName}</p>
+                                    <p className="text-[9px] font-semibold text-indigo-500 tracking-widest">{tx.businessId}</p>
+                                 </div>
+                              </div>
+                           </td>
+                           <td className="px-4 py-4 bg-slate-50/50 group-hover:bg-white border-y border-slate-100">
+                              <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-tighter ${
+                                 tx.plan === 'enterprise' ? 'bg-indigo-100 text-indigo-700' :
+                                 tx.plan === 'pro'        ? 'bg-emerald-100 text-emerald-700' :
+                                                            'bg-slate-200 text-slate-600'
+                              }`}>{tx.plan} Protocol</span>
+                              <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase">Validity: {new Date(tx.startDate).toLocaleDateString()} - {new Date(tx.endDate).toLocaleDateString()}</p>
+                           </td>
+                           <td className="px-4 py-4 bg-slate-50/50 group-hover:bg-white border-y border-slate-100">
+                              <p className="text-[11px] font-bold text-slate-800 uppercase">{new Date(tx.assignedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                              <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{new Date(tx.assignedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                           </td>
+                           <td className="px-4 py-4 bg-slate-50/50 group-hover:bg-white border-y border-slate-100 text-right">
+                              <p className="text-[13px] font-black text-slate-900 leading-none">₹{(tx.amountPaid || 0).toLocaleString()}</p>
+                              <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Settled</p>
+                           </td>
+                           <td className="px-4 py-4 bg-slate-50/50 group-hover:bg-white border-y border-slate-100">
+                              <div className="space-y-1">
+                                 <button 
+                                    onClick={() => { setSelectedTx(tx); setShowInvoice(true); }}
+                                    className="flex items-center gap-1.5 hover:text-indigo-600 transition-colors"
+                                 >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                                    <p className="text-[9px] font-bold font-mono">{tx.transactionId || 'LEGACY-TXN'}</p>
+                                 </button>
+                                 {tx.razorpayPaymentId && (
+                                    <p className="text-[8px] font-semibold text-slate-400 pl-3 uppercase">Gateway: {tx.razorpayPaymentId}</p>
+                                 )}
+                              </div>
+                           </td>
+                           <td className="px-4 py-4 bg-slate-50/50 group-hover:bg-white border-y border-r border-slate-100 rounded-r-2xl">
+                              <div className="flex items-center gap-2">
+                                 <ShieldCheck size={12} className={tx.assignedBy === 'superadmin' ? 'text-indigo-500' : 'text-slate-400'} />
+                                 <span className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">{tx.assignedBy}</span>
+                              </div>
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
     </div>
+
+    {/* ── Nexus Subscription Invoice Modal ── */}
+    {showInvoice && selectedTx && (
+      <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto pt-20 pb-10">
+        <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden relative animate-in fade-in slide-in-from-top-10 duration-500">
+          {/* Close Button - Optimized Placement */}
+          <button 
+            onClick={() => setShowInvoice(false)}
+            className="absolute top-4 right-4 p-1.5 bg-white/10 text-white/40 hover:text-white hover:bg-white/20 rounded-full transition-all z-[210] border border-white/5 backdrop-blur-md"
+          >
+            <X size={16} />
+          </button>
+
+          {/* Invoice Header */}
+          <div className="bg-slate-900 pt-12 pb-8 px-8 text-white relative overflow-hidden shrink-0 border-b border-white/5">
+             <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
+             <div className="relative z-10 flex justify-between items-center pr-10">
+                <div>
+                   <div className="flex items-center gap-2 mb-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                      <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-400">Master Node Issued</span>
+                   </div>
+                   <h2 className="text-xl font-black tracking-tighter text-indigo-400 leading-none">NEXUS<span className="text-white">BILL</span></h2>
+                   <p className="text-[7px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Authorized Fiscal Artifact</p>
+                </div>
+                <div className="text-right">
+                   <p className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Digital Manifest ID</p>
+                   <h3 className="text-sm font-mono font-bold tracking-tight">{selectedTx.transactionId || 'LEGACY-TXN'}</h3>
+                   <p className="text-[7px] font-medium text-slate-500 uppercase mt-1">Issued By: Nexus Global Master Admin</p>
+                </div>
+             </div>
+          </div>
+
+          {/* Invoice Body */}
+          <div className="p-8 space-y-6">
+             <div className="grid grid-cols-2 gap-8">
+                <div>
+                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Billed Recipient</p>
+                   <h4 className="text-xs font-bold text-slate-900 uppercase">{selectedTx.businessName}</h4>
+                   <p className="text-[10px] text-slate-600 font-medium mt-1">{selectedTx.ownerFullName}</p>
+                   <p className="text-[10px] text-slate-500">{selectedTx.email}</p>
+                   <p className="text-[10px] text-slate-500">{selectedTx.mobileNumber}</p>
+                   {selectedTx.location && (
+                      <p className="text-[10px] text-slate-400 mt-1 italic">
+                         {selectedTx.location.city}, {selectedTx.location.state}
+                      </p>
+                   )}
+                </div>
+                <div className="text-right">
+                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Fiscal Timeline</p>
+                   <p className="text-[10px] text-slate-600 font-semibold">Processed: {new Date(selectedTx.assignedAt).toLocaleDateString()}</p>
+                   <p className="text-[10px] text-slate-600 font-semibold mt-0.5">Gateway: {selectedTx.razorpayPaymentId ? 'Razorpay' : 'Nexus Internal'}</p>
+                   {selectedTx.gstin && <p className="text-[10px] text-slate-600 font-semibold mt-0.5 uppercase">GSTIN: {selectedTx.gstin}</p>}
+                </div>
+             </div>
+
+             <div className="border-y border-slate-100 py-6">
+                <table className="w-full">
+                   <thead>
+                      <tr className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                         <th className="text-left pb-4">Description</th>
+                         <th className="text-center pb-4">Period</th>
+                         <th className="text-right pb-4">Amount</th>
+                      </tr>
+                   </thead>
+                   <tbody>
+                      <tr>
+                         <td className="py-2">
+                            <p className="text-sm font-bold text-slate-800 uppercase">Nexus {selectedTx.plan} Subscription</p>
+                            <p className="text-[10px] text-slate-500 font-medium mt-0.5">Full infrastructure access with managed nodes</p>
+                         </td>
+                         <td className="text-center py-2">
+                            <p className="text-xs font-semibold text-slate-600 uppercase tracking-tighter">
+                               {new Date(selectedTx.startDate).toLocaleDateString()} - {new Date(selectedTx.endDate).toLocaleDateString()}
+                            </p>
+                         </td>
+                         <td className="text-right py-2">
+                            <p className="text-sm font-black text-slate-900">₹{(selectedTx.amountPaid || 0).toLocaleString()}</p>
+                         </td>
+                      </tr>
+                   </tbody>
+                </table>
+             </div>
+
+             <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                <div className="flex items-center gap-4">
+                   <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-1 grid grid-cols-4 grid-rows-4 gap-0.5 opacity-20">
+                         {Array.from({ length: 16 }).map((_, i) => (
+                            <div key={i} className="bg-slate-900 rounded-[1px]"></div>
+                         ))}
+                      </div>
+                      <p className="text-[6px] font-bold text-slate-400 uppercase text-center leading-none z-10 px-1">Fiscal<br/>Verify</p>
+                   </div>
+                   <div className="max-w-[180px]">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase leading-relaxed">
+                         This is a cryptographically signed artifact from the Nexus Node. No physical signature required.
+                      </p>
+                   </div>
+                </div>
+                <div className="text-right">
+                   <div className="bg-indigo-50 px-5 py-3 rounded-2xl min-w-[160px]">
+                      <p className="text-[9px] font-bold text-indigo-600 uppercase tracking-widest">Total Yield</p>
+                      <h2 className="text-2xl font-black text-slate-900 mt-0.5">₹{(selectedTx.amountPaid || 0).toLocaleString()}</h2>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+             <div className="flex gap-2">
+                <button 
+                  onClick={() => {
+                    const text = `*NexusBill Subscription Invoice*%0A%0A*Business:* ${selectedTx.businessName}%0A*Plan:* ${selectedTx.plan.toUpperCase()}%0A*Amount:* ₹${selectedTx.amountPaid}%0A*Date:* ${new Date(selectedTx.assignedAt).toLocaleDateString()}%0A*Transaction ID:* ${selectedTx.transactionId}%0A%0A_Generated by Nexus Master Node_`;
+                    window.open(`https://wa.me/?text=${text}`, '_blank');
+                  }}
+                  className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center gap-2 shadow-md active:scale-95"
+                >
+                   <MessageCircle size={14} /> WhatsApp
+                </button>
+                <button 
+                  onClick={() => window.print()}
+                  className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2 shadow-md active:scale-95"
+                >
+                   <Printer size={14} /> Print
+                </button>
+             </div>
+             <button 
+               onClick={() => setShowInvoice(false)}
+               className="px-4 py-2 bg-white border border-slate-200 text-slate-500 rounded-xl text-[9px] font-bold uppercase hover:bg-slate-100 transition-all active:scale-95 shadow-sm"
+             >
+                Dismiss
+             </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

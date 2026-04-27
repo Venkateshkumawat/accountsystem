@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  ShieldCheck, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  ShieldCheck,
+  Settings,
   LogOut,
   Bell,
   Menu,
@@ -46,9 +46,9 @@ const SuperAdminLayout: React.FC = () => {
         api.get('/superadmin/auth/plans').catch(() => ({ data: { plans: [] } })),
         api.get('/superadmin/auth/logs').catch(() => ({ data: { logs: [] } })),
       ]);
-      if (bizRes.data.success)  setBusinesses(bizRes.data.businesses);
+      if (bizRes.data.success) setBusinesses(bizRes.data.businesses);
       if (planRes.data.success) setPlans(planRes.data.plans);
-      if (logRes.data.success)  setLogs(logRes.data.logs);
+      if (logRes.data.success) setLogs(logRes.data.logs);
     } catch { /* ignore */ }
   }, []);
 
@@ -93,7 +93,7 @@ const SuperAdminLayout: React.FC = () => {
     <div className="flex h-screen bg-slate-50/50 overflow-hidden font-inter">
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] lg:hidden animate-in fade-in duration-300"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -137,7 +137,7 @@ const SuperAdminLayout: React.FC = () => {
         </nav>
 
         <div className="p-4 mt-auto border-t border-slate-50">
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 hover:text-white hover:bg-rose-500 hover:border-rose-600 transition-all group shadow-sm active:scale-95"
           >
@@ -152,7 +152,7 @@ const SuperAdminLayout: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <header className="h-16 bg-white border-b border-slate-100 flex items-center gap-3 px-3 lg:px-6 shrink-0 z-[100] shadow-sm sticky top-0 transition-all duration-300">
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(true)}
             className="lg:hidden p-2 bg-slate-50 text-slate-500 rounded-xl border border-slate-100 shrink-0"
           >
