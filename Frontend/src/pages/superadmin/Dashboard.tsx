@@ -38,8 +38,23 @@ const SuperAdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTx, setSelectedTx] = useState<any>(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedTx, setSelectedTx] = useState<any>(null);
+
+  const numberToWords = (num: number) => {
+    const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    
+    const translate = (n: number): string => {
+        if (n < 20) return a[n];
+        if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
+        if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + translate(n % 100) : '');
+        if (n < 100000) return translate(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 !== 0 ? ' ' + translate(n % 1000) : '');
+        if (n < 10000000) return translate(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 !== 0 ? ' ' + translate(n % 100000) : '');
+        return translate(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 !== 0 ? ' ' + translate(n % 10000000) : '');
+    };
+    return num === 0 ? 'Zero' : translate(num);
+  };
 
   const fetchStats = async () => {
     setLoading(true);
@@ -503,8 +518,8 @@ const SuperAdminDashboard: React.FC = () => {
 
     {/* ── Nexus Subscription Invoice Modal ── */}
     {showInvoice && selectedTx && (
-      <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto pt-20 pb-10">
-        <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden relative animate-in fade-in slide-in-from-top-10 duration-500">
+      <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto pt-10 pb-10">
+        <div className="bg-white w-full max-w-xl rounded-[1.5rem] shadow-2xl overflow-hidden relative animate-in fade-in slide-in-from-top-6 duration-500">
           {/* Close Button - Optimized Placement */}
           <button 
             onClick={() => setShowInvoice(false)}
@@ -513,22 +528,25 @@ const SuperAdminDashboard: React.FC = () => {
             <X size={16} />
           </button>
 
-          {/* Invoice Header */}
-          <div className="bg-slate-900 pt-12 pb-8 px-8 text-white relative overflow-hidden shrink-0 border-b border-white/5">
-             <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
+          {/* Invoice Header - Denim Blue Theme */}
+          <div className="bg-[#1e3a8a] pt-8 pb-6 px-8 text-white relative overflow-hidden shrink-0 border-b border-white/5">
+             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-400/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
              <div className="relative z-10 flex justify-between items-center pr-10">
                 <div>
                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                      <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-400">Master Node Issued</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                      <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-300">Transaction Finalized</span>
                    </div>
-                   <h2 className="text-xl font-black tracking-tighter text-indigo-400 leading-none">NEXUS<span className="text-white">BILL</span></h2>
-                   <p className="text-[7px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Authorized Fiscal Artifact</p>
+                   <h2 className="text-xl font-black tracking-tighter text-blue-200 leading-none">NEXUS<span className="text-white">BILL</span></h2>
+                   <p className="text-[7px] font-bold text-blue-100/50 uppercase tracking-[0.2em] mt-1.5">Enterprise Subscription Manifest</p>
                 </div>
                 <div className="text-right">
-                   <p className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Digital Manifest ID</p>
+                   <p className="text-[8px] font-bold text-blue-200 uppercase tracking-widest mb-1">Digital Manifest ID</p>
                    <h3 className="text-sm font-mono font-bold tracking-tight">{selectedTx.transactionId || 'LEGACY-TXN'}</h3>
-                   <p className="text-[7px] font-medium text-slate-500 uppercase mt-1">Issued By: Nexus Global Master Admin</p>
+                   <div className="flex items-center justify-end gap-2 mt-1">
+                      <span className="text-[7px] font-bold px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/30 uppercase">Status: DONE</span>
+                      <p className="text-[7px] font-medium text-blue-100/40 uppercase tracking-tighter">Nexus Global Master Admin</p>
+                   </div>
                 </div>
              </div>
           </div>
@@ -550,9 +568,9 @@ const SuperAdminDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Fiscal Timeline</p>
-                   <p className="text-[10px] text-slate-600 font-semibold">Processed: {new Date(selectedTx.assignedAt).toLocaleDateString()}</p>
-                   <p className="text-[10px] text-slate-600 font-semibold mt-0.5">Gateway: {selectedTx.razorpayPaymentId ? 'Razorpay' : 'Nexus Internal'}</p>
-                   {selectedTx.gstin && <p className="text-[10px] text-slate-600 font-semibold mt-0.5 uppercase">GSTIN: {selectedTx.gstin}</p>}
+                   <p className="text-[10px] text-slate-700 font-bold">Date: {new Date(selectedTx.assignedAt).toLocaleDateString()}</p>
+                   <p className="text-[9px] text-slate-400 font-medium">Time: {new Date(selectedTx.assignedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+                   <p className="text-[10px] text-slate-600 font-semibold mt-1">Gateway: {selectedTx.razorpayPaymentId ? 'Razorpay' : 'Nexus Internal'}</p>
                 </div>
              </div>
 
@@ -569,7 +587,8 @@ const SuperAdminDashboard: React.FC = () => {
                       <tr>
                          <td className="py-2">
                             <p className="text-sm font-bold text-slate-800 uppercase">Nexus {selectedTx.plan} Subscription</p>
-                            <p className="text-[10px] text-slate-500 font-medium mt-0.5">Full infrastructure access with managed nodes</p>
+                            <p className="text-[9px] text-slate-500 font-medium mt-0.5">Full infrastructure access with managed nodes</p>
+                             {selectedTx.gstin && <p className="text-[8px] font-bold text-blue-600 uppercase mt-1">GSTIN: {selectedTx.gstin}</p>}
                          </td>
                          <td className="text-center py-2">
                             <p className="text-xs font-semibold text-slate-600 uppercase tracking-tighter">
@@ -601,9 +620,15 @@ const SuperAdminDashboard: React.FC = () => {
                    </div>
                 </div>
                 <div className="text-right">
-                   <div className="bg-indigo-50 px-5 py-3 rounded-2xl min-w-[160px]">
-                      <p className="text-[9px] font-bold text-indigo-600 uppercase tracking-widest">Total Yield</p>
+                   <div className="bg-blue-50 px-5 py-3 rounded-2xl min-w-[160px] border border-blue-100">
+                      <p className="text-[9px] font-bold text-blue-700 uppercase tracking-widest">Total Money</p>
                       <h2 className="text-2xl font-black text-slate-900 mt-0.5">₹{(selectedTx.amountPaid || 0).toLocaleString()}</h2>
+                   </div>
+                   <div className="mt-2 text-right">
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Amount in Words</p>
+                      <p className="text-[10px] font-bold text-blue-800 italic mt-0.5">
+                         Rupees {numberToWords(selectedTx.amountPaid || 0)} Only
+                      </p>
                    </div>
                 </div>
              </div>
