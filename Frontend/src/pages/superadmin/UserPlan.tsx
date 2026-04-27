@@ -41,7 +41,7 @@ const UserPlan: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.price > 0 && paymentStatus !== 'completed') {
-       alert("CRITICAL ERROR: Fiscal protocol incomplete. Payment verification required for non-zero node deployment.");
+       alert("Payment required for plan setup.");
        return;
     }
     setLoading(true);
@@ -61,7 +61,7 @@ const UserPlan: React.FC = () => {
       setShowInvoice(true);
       setPaymentStatus('none');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Provisioning sequence failed.');
+      alert(err.response?.data?.message || 'Account creation failed.');
     } finally { setLoading(false); }
   };
 
@@ -95,9 +95,9 @@ const UserPlan: React.FC = () => {
               razorpay_signature: response.razorpay_signature
             });
             setPaymentStatus('completed');
-            alert("PAYMENT VERIFIED: Fiscal node established.");
+            alert("Payment verified successfully.");
           } catch {
-            alert("PAYMENT FAILED: Cryptographic signature mismatch.");
+            alert("Payment verification failed.");
           }
         },
         prefill: {
@@ -111,7 +111,7 @@ const UserPlan: React.FC = () => {
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
     } catch (err) {
-      alert("GATEWAY ERROR: Request rejected by Nexus Fiscal Pulse.");
+      alert("Payment gateway error.");
     } finally {
       setLoading(false);
     }
@@ -131,12 +131,12 @@ const UserPlan: React.FC = () => {
         {/* Header Protocol */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">User Plan Configuration</h1>
-            <p className="text-xs font-medium text-slate-400 mt-0.5">Provision business accounts and configure resource boundaries</p>
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Business Setup</h1>
+            <p className="text-xs font-medium text-slate-400 mt-0.5">Create business accounts and configure usage limits</p>
           </div>
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
             <ShieldCheck size={14} />
-            <span className="text-[10px] font-semibold uppercase tracking-widest">Master Control Active</span>
+            <span className="text-[10px] font-semibold uppercase tracking-widest">Admin Access Active</span>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ const UserPlan: React.FC = () => {
               <div className="p-6 border-b border-slate-100">
                 <div className="flex items-center gap-2 mb-6">
                    <Users size={18} className="text-indigo-600" />
-                   <h2 className="text-xl font-semibold text-slate-900">Identity Details</h2>
+                   <h2 className="text-xl font-semibold text-slate-900">Admin Details</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                    <IB label="Admin Name" icon={Users} placeholder="Full Name" value={formData.ownerFullName} onChange={(v: string) => setFormData({...formData, ownerFullName: v})} required />
@@ -301,8 +301,8 @@ const UserPlan: React.FC = () => {
              </div>
              <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm space-y-4">
                 <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0"> <Zap size={24} /> </div>
-                <h4 className="text-sm font-semibold text-slate-800 tracking-tight">Quick Provisioning</h4>
-                <p className="text-xs font-medium text-slate-500 leading-relaxed">Accounts are usually activated instantly. You can manage limits in the Master Account registry.</p>
+                <h4 className="text-sm font-semibold text-slate-800 tracking-tight">Quick Setup</h4>
+                <p className="text-xs font-medium text-slate-500 leading-relaxed">Accounts are usually activated instantly. You can manage limits in the Master Account system.</p>
              </div>
           </div>
         </div>
@@ -321,37 +321,37 @@ const InvoiceOverlay = ({ data, form, onClose }: { data: any, form: any, onClose
     <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
       <div className="p-8 border-b-2 border-dashed border-slate-100 flex justify-between items-start bg-slate-50/50">
           <div>
-              <p className="text-[9px] font-semibold text-indigo-500 uppercase tracking-widest mb-1">Nexus Deployment Receipt</p>
-              <h2 className="text-base font-semibold text-slate-900 tracking-tight">Manifest Confirmed</h2>
-              <p className="text-xs font-medium text-slate-400 mt-1">NODE_ID: <span className="text-indigo-600">{data.businessId}</span></p>
+              <p className="text-[9px] font-semibold text-indigo-500 uppercase tracking-widest mb-1">Nexus Business Receipt</p>
+              <h2 className="text-base font-semibold text-slate-900 tracking-tight">Account Created</h2>
+              <p className="text-xs font-medium text-slate-400 mt-1">BUSINESS_ID: <span className="text-indigo-600">{data.businessId}</span></p>
           </div>
           <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl font-semibold text-lg flex items-center justify-center shadow-lg">NX</div>
       </div>
       <div className="p-8 grid grid-cols-2 gap-8 text-[10px]">
           <div className="space-y-4">
               <div>
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Entity Control</p>
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Business Details</p>
                  <p className="font-black text-slate-900 uppercase leading-none">{form.businessName}</p>
                  <p className="font-semibold text-slate-500 mt-1 uppercase leading-none">{form.ownerFullName}</p>
               </div>
               <div>
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Identity Registry</p>
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Contact Details</p>
                  <p className="font-semibold text-slate-700 leading-none">{form.email}</p>
                  <p className="font-semibold text-slate-700 mt-1 leading-none">{form.mobileNumber}</p>
               </div>
           </div>
           <div className="space-y-4 text-right">
               <div>
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Monetization Plan</p>
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Subscription Plan</p>
                  <div className="flex items-center justify-end gap-1.5">
                      <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[7px] font-black uppercase">{form.plan}</span>
                      <span className="font-black text-slate-900 text-xs">₹{form.price}</span>
                  </div>
-                 <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase">Omega: {form.planEndDate}</p>
+                 <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase">Expiry: {form.planEndDate}</p>
               </div>
               <div>
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Physical Constraints</p>
-                 <p className="font-semibold text-slate-700 uppercase leading-none">{form.skuLimit} SKU / {form.invoiceLimit} INV</p>
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Usage Limits</p>
+                 <p className="font-semibold text-slate-700 uppercase leading-none">{form.skuLimit} Product / {form.invoiceLimit} Invoice</p>
               </div>
           </div>
       </div>

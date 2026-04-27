@@ -50,7 +50,7 @@ const AuditCenter: React.FC = () => {
             const res = await api.get(`/reports/activity?limit=100`);
             setActivities(res.data.data || []);
         } catch (err) {
-            toast.error('Nexus Failure: Notification Stream Unreachable');
+            toast.error('System Error: Messages could not be loaded');
         } finally {
             setAuditLoading(false);
         }
@@ -183,7 +183,7 @@ const AuditCenter: React.FC = () => {
                         <h1 className="text-xl md:text-2xl font-semibold text-slate-900 tracking-tight flex items-center gap-3 font-inter">
                             <Bell className="text-indigo-600 shrink-0" size={24} /> Message Center
                         </h1>
-                        <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-[0.2em] leading-none font-inter">Verified Communication Stream</p>
+                        <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-[0.2em] leading-none font-inter">Notification History</p>
                     </div>
                     {/* Mobile Clear All Action */}
                     <button 
@@ -265,7 +265,7 @@ const AuditCenter: React.FC = () => {
                         <thead>
                              <tr className="border-b border-slate-100 bg-slate-50/30 font-bold">
                                 <th className="w-[180px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Message Time</th>
-                                <th className="w-[220px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Classification</th>
+                                <th className="w-[220px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Category</th>
                                 <th className="px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-center">Message Description</th>
                                 <th className="w-[120px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right pr-8">Actions</th>
                              </tr>
@@ -332,7 +332,7 @@ const AuditCenter: React.FC = () => {
                                                 </p>
                                                 {item.type === 'ALERT' && !item.isRead && (
                                                     <p className="text-[9px] font-black text-indigo-600 italic uppercase tracking-[0.05em] flex items-center justify-center gap-2 animate-pulse">
-                                                        <ArrowRight size={10} /> Double-Tap to Acknowledge
+                                                        <ArrowRight size={10} /> Double-Tap to Read
                                                     </p>
                                                 )}
                                             </div>
@@ -442,10 +442,10 @@ const AuditCenter: React.FC = () => {
 
             {/* ── FOOTER ANALYTICS ────────────────────────────────────────────────────────── */}
             <footer className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-semibold text-slate-300 uppercase tracking-[0.2em] font-inter">
-                <p className="text-center md:text-left">© 2026 Nexus Terminal · Secure Activity Log</p>
+                <p className="text-center md:text-left">© 2026 NexusBill · Secure Activity Log</p>
                 <div className="flex items-center gap-6">
                     <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> Synchronized</span>
-                    <span className="flex items-center gap-2 font-inter"><Zap size={14} className="text-indigo-400 animate-pulse" /> Live Telemetry</span>
+                    <span className="flex items-center gap-2 font-inter"><Zap size={14} className="text-indigo-400 animate-pulse" /> Real-time Sync</span>
                 </div>
             </footer>
         </div>

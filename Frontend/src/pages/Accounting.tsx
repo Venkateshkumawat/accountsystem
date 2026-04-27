@@ -131,7 +131,7 @@ export default function Accounting() {
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Revenue Trend</h2>
           {chartData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0} debounce={50}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
@@ -150,7 +150,7 @@ export default function Accounting() {
           <h2 className="text-lg font-semibold text-slate-800 mb-4 uppercase tracking-tight">Payment Methods</h2>
           {methodData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0} debounce={50}>
                 <BarChart data={methodData} barSize={20}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 700 }} axisLine={false} tickLine={false} dy={10} />
@@ -197,14 +197,13 @@ export default function Accounting() {
          </div>
       </div>
 
-      {/* Financial Activity — The Master Ledger */}
       <div className="bg-white border-2 border-slate-200 rounded-[2rem] shadow-sm overflow-hidden mt-6 font-inter">
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white">
           <div className="flex items-center gap-4">
              <div className="w-1.5 h-8 bg-indigo-600 rounded-full" />
              <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Financial Activity</h2>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Real-time Fiscal Activity Protocol</p>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Recent Financial Activity</h2>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Summary of transactions</p>
              </div>
           </div>
           <div className="flex items-center gap-3">

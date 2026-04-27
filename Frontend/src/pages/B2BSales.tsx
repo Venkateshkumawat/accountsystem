@@ -131,7 +131,7 @@ export default function B2BSales() {
                 </div>
             </div>
 
-            {/* Metric Flux Nodes */}
+            {/* Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <MetricCard
                     label="TOTAL RECEIVABLES"
@@ -153,9 +153,8 @@ export default function B2BSales() {
                 />
             </div>
 
-            {/* Desktop Audit Terminal */}
+            {/* Main Table */}
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                {/* Global Search & Filter Bar */}
                 <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -183,15 +182,14 @@ export default function B2BSales() {
                     </div>
                 </div>
 
-                {/* Main Ledger Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                                <th className="px-3 py-4 w-[160px]">Invoice Node</th>
-                                <th className="px-3 py-4">Entity Identity</th>
-                                <th className="px-3 py-4 w-[130px]">Protocol Date</th>
-                                <th className="px-3 py-4 w-[130px]">Net Amount</th>
+                                <th className="px-3 py-4 w-[160px]">Invoice</th>
+                                <th className="px-3 py-4">Customer</th>
+                                <th className="px-3 py-4 w-[130px]">Transaction Date</th>
+                                <th className="px-3 py-4">Total Amount</th>
                                 <th className="px-3 py-4 w-[110px]">Status</th>
                                 <th className="px-3 py-4 text-right pr-6 w-[120px]">Actions</th>
                             </tr>
@@ -202,14 +200,14 @@ export default function B2BSales() {
                                     <td colSpan={6} className="px-8 py-20 text-center">
                                         <div className="flex flex-col items-center gap-3">
                                             <RefreshCcw className="animate-spin text-indigo-500" size={32} />
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Synchronizing Nodal Ledger...</p>
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Synchronizing Ledger...</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : displayedInvoices.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-8 py-20 text-center text-slate-400">
-                                        No invoices found in this partition.
+                                        No invoices found.
                                     </td>
                                 </tr>
                             ) : displayedInvoices.map((inv) => (
@@ -218,14 +216,14 @@ export default function B2BSales() {
                                         <div className="flex flex-col">
                                             <span className="text-xs font-semibold text-slate-900">{inv.invoiceNumber}</span>
                                             <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5 flex items-center gap-1">
-                                                <FileText size={10} /> {inv.transactionId?.slice(-6).toUpperCase() || 'EW-9823'}
+                                                <FileText size={10} /> {inv.transactionId?.slice(-6).toUpperCase() || 'NX-9823'}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="px-3 py-3.5">
                                         <div className="flex items-center gap-2">
                                             <Building2 size={11} className="text-slate-300" />
-                                            <span className="text-[11px] font-bold text-slate-900 uppercase truncate max-w-[150px]">{inv.customerName || 'Direct Node'}</span>
+                                            <span className="text-[11px] font-bold text-slate-900 uppercase truncate max-w-[150px]">{inv.customerName || 'Direct'}</span>
                                         </div>
                                     </td>
                                     <td className="px-3 py-3.5">
@@ -250,7 +248,7 @@ export default function B2BSales() {
                                             <button
                                                 onClick={() => setSelectedInvoiceForView(inv)}
                                                 className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-all"
-                                                title="View Node"
+                                                title="View"
                                             >
                                                 <Eye size={16} />
                                             </button>
@@ -262,26 +260,23 @@ export default function B2BSales() {
                     </table>
                 </div>
 
-                {/* History Paging Hub: Phased Discovery */}
                 {filteredInvoices.length > 10 && (
                     <div className="p-4 border-t border-slate-50 bg-slate-50/30 flex justify-center">
                         <button
                             onClick={() => setShowAll(!showAll)}
                             className="px-6 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shadow-sm"
                         >
-                            {showAll ? 'Show Fewer Nodes' : 'Review Full B2B History'}
+                            {showAll ? 'Show Fewer' : 'Review Full History'}
                         </button>
                     </div>
                 )}
             </div>
 
-            {/* New B2B Invoice Drawer */}
             <NewInvoiceModal
                 isOpen={showNewInvoice}
                 onClose={() => setShowNewInvoice(false)}
                 onSuccess={() => {
                     fetchInvoices();
-                    // Global Sync Pulse: Pulse platform-wide hand-to-hand consistency
                     const sync = new BroadcastChannel('nexus_sync');
                     sync.postMessage('FETCH_DASHBOARD');
                     sync.postMessage('FETCH_PRODUCTS');
@@ -289,7 +284,6 @@ export default function B2BSales() {
                 }}
             />
 
-            {/* Forensic Audit Modal */}
             {selectedInvoiceForView && (
                 <InvoiceModal
                     invoice={selectedInvoiceForView}
@@ -321,9 +315,6 @@ const MetricCard = memo(({ label, value, icon: Icon, color }: any) => {
     );
 });
 
-/**
- * High-Density Nodal Form for B2B Invoicing
- */
 function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
     const [parties, setParties] = useState<any[]>([]);
     const { products, fetchProducts } = useProducts();
@@ -381,8 +372,8 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
     };
 
     const handleCreate = async () => {
-        if (!selectedParty) return notifyError("Protocol Block: Please select a party node.");
-        if (items.length === 0) return notifyError("Protocol Block: No items detected.");
+        if (!selectedParty) return notifyError("Please select a party.");
+        if (items.length === 0) return notifyError("No items added.");
 
         const executeCreation = async (razorDetails?: any) => {
             setSubmitting(true);
@@ -403,15 +394,15 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                     paymentMethod,
                     paymentStatus: 'paid',
                     razorpayPaymentId: razorDetails?.razorpay_payment_id || null,
-                    note: razorDetails ? `Verified Online Transaction ID: ${razorDetails.razorpay_payment_id}` : 'Standard Cash Handshake'
+                    note: razorDetails ? `Verified Online Transaction ID: ${razorDetails.razorpay_payment_id}` : 'Cash Payment'
                 };
 
                 await api.post('/invoices', payload);
-                notifySuccess("B2B Invoice Initialized Successfully");
+                notifySuccess("Invoice Created Successfully");
                 onSuccess();
                 onClose();
             } catch (e: any) {
-                notifyError(e.response?.data?.message || "Internal Node Sync Failure");
+                notifyError(e.response?.data?.message || "Internal Failure");
             } finally {
                 setSubmitting(false);
             }
@@ -422,12 +413,12 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                 await handlePayment({
                     amount: Math.round(totals.grandTotal),
                     name: 'BharatBill B2B',
-                    description: `Professional Invoice - ${selectedParty.name}`,
+                    description: `Invoice - ${selectedParty.name}`,
                     onSuccess: (details: any) => executeCreation(details),
-                    onError: (err: any) => notifyError(err.message || "Integrated Payment Failed")
+                    onError: (err: any) => notifyError(err.message || "Payment Failed")
                 });
             } catch (err: any) {
-                notifyError("Integrated Gateway Error");
+                notifyError("Gateway Error");
             }
         } else {
             executeCreation();
@@ -440,11 +431,11 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-2 sm:p-4 backdrop-blur-md bg-slate-900/50">
             <div className="bg-white w-full max-w-xl min-h-[450px] max-h-[95vh] rounded-[2.5rem] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden border border-slate-100 flex flex-col animate-in slide-in-from-bottom-8 duration-500">
 
-                {/* Header Module: Professional Density */}
+                {/* Header */}
                 <div className="p-8 pb-4 border-b border-slate-50 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-[1050]">
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tighter text-inter">New B2B Invoice</h2>
-                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.25em] mt-1 text-inter">FISCAL INITIALIZATION NODE</p>
+                        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter font-inter">Recent Activity</h2>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Real-time Financial Activity</p>
                     </div>
                     <button onClick={onClose} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all active:scale-90 shadow-[0_4px_10px_rgba(0,0,0,0.05)] border border-slate-100">
                         <X size={20} />

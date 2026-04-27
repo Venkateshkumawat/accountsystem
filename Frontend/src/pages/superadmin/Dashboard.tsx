@@ -88,7 +88,7 @@ const SuperAdminDashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">SuperAdmin Dashboard</h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">Global platform monitoring and administrative governance</p>
+          <p className="text-sm font-medium text-slate-500 mt-1">Global platform monitoring and administrative control</p>
         </div>
         <button
           onClick={fetchStats}
@@ -99,10 +99,10 @@ const SuperAdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-        <SuperStat label="BUSINESS ADMINS" value={stats?.businessCount || 0} icon={Users} color="indigo" sub="TOTAL NODES" />
+        <SuperStat label="BUSINESS ADMINS" value={stats?.businessCount || 0} icon={Users} color="indigo" sub="TOTAL BUSINESSES" />
         <SuperStat label="ACTIVE PLANS" value={stats?.activeSubscriptions || 0} icon={ShieldCheck} color="emerald" sub="+5 this week" />
         <SuperStat label="EXPIRED PLANS" value={stats?.expiredCount || 0} icon={AlertTriangle} color="rose" sub="ACTION REQUIRED" />
-        <SuperStat label="MONTHLY REVENUE" value={`₹${((stats?.totalRevenue || 0) / 100000).toFixed(1)}L`} icon={CreditCard} color="amber" sub="GLOBAL FLOW" />
+        <SuperStat label="MONTHLY REVENUE" value={`₹${((stats?.totalRevenue || 0) / 100000).toFixed(1)}L`} icon={CreditCard} color="amber" sub="PLATFORM REVENUE" />
       </div>
 
       {/* ── Platform Pulse: Growth & Market Share ── */}
@@ -112,13 +112,13 @@ const SuperAdminDashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-xs font-semibold text-slate-800 uppercase tracking-tight flex items-center gap-2">
-                <TrendingUp size={14} className="text-indigo-500" /> Platform Growth Pulse
+                <TrendingUp size={14} className="text-indigo-500" /> Platform Growth Trend
               </h3>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">30-Day Registration Velocity</p>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">30-Day Registration Trend</p>
             </div>
           </div>
           <div className="h-[180px] w-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
               <LineChart data={stats?.registrationTrend || []}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis 
@@ -141,7 +141,7 @@ const SuperAdminDashboard: React.FC = () => {
                 <Line 
                   type="monotone" 
                   dataKey="count" 
-                  name="New Nodes"
+                  name="New Accounts"
                   stroke="#6366f1" 
                   strokeWidth={3} 
                   dot={{ fill: '#6366f1', strokeWidth: 2, r: 4, stroke: '#fff' }}
@@ -184,7 +184,7 @@ const SuperAdminDashboard: React.FC = () => {
           </div>
           <div className="flex-1 flex items-center">
             <div className="h-[140px] w-1/2">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
                 <PieChart>
                   <Pie
                     data={stats?.planDistribution || []}
@@ -224,8 +224,8 @@ const SuperAdminDashboard: React.FC = () => {
         <div className="lg:col-span-6 bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex flex-col h-[400px]">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-base font-semibold text-slate-800 uppercase tracking-tight">Subscription Intelligence</h2>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Actionable Account Governance</p>
+              <h2 className="text-base font-semibold text-slate-800 uppercase tracking-tight">Subscription Management</h2>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Actionable Account Control</p>
             </div>
             <div className="flex items-center gap-2">
                <div className="px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-[9px] font-semibold uppercase tracking-widest border border-rose-100">
@@ -249,7 +249,7 @@ const SuperAdminDashboard: React.FC = () => {
                         {biz.businessName?.charAt(0) || '?'}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-tight truncate max-w-[150px]">{biz.businessName || 'Unknown Node'}</h4>
+                        <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-tight truncate max-w-[150px]">{biz.businessName || 'Unknown Business'}</h4>
                         <p className="text-[9px] font-semibold text-amber-600 uppercase tracking-widest mt-0.5">Expiring in {Math.ceil((new Date(biz.planEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} Days</p>
                       </div>
                     </div>
@@ -266,7 +266,7 @@ const SuperAdminDashboard: React.FC = () => {
                         {biz.businessName?.charAt(0) || '?'}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-tight truncate max-w-[150px]">{biz.businessName || 'Unknown Node'}</h4>
+                        <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-tight truncate max-w-[150px]">{biz.businessName || 'Unknown Business'}</h4>
                         <p className="text-[9px] font-semibold text-rose-500 uppercase tracking-widest mt-0.5">Expired on {new Date(biz.planEndDate).toLocaleDateString()}</p>
                       </div>
                     </div>
@@ -283,8 +283,8 @@ const SuperAdminDashboard: React.FC = () => {
         <div id="global-audit-log" className="lg:col-span-4 bg-slate-900 rounded-[2rem] p-8 h-[400px] flex flex-col relative overflow-hidden shadow-2xl">
           <div className="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
             <div>
-              <h4 className="text-[10px] font-semibold text-indigo-400 tracking-[0.2em] uppercase">Global Audit Log</h4>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1 tracking-widest">Real-time system events</p>
+              <h4 className="text-[10px] font-semibold text-indigo-400 tracking-[0.2em] uppercase">System Events</h4>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1 tracking-widest">Real-time alerts</p>
             </div>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
@@ -294,13 +294,13 @@ const SuperAdminDashboard: React.FC = () => {
               )}
               <button
                 onClick={() => {
-                  if (window.confirm('CRITICAL ACTION: Are you sure you want to permanently purge all system alerts? This action cannot be reversed.')) {
+                  if (window.confirm('Are you sure you want to delete all system alerts? This action cannot be reversed.')) {
                     markAllAsRead(); 
                     deleteAllNotifications();
                   }
                 }}
                 className="p-2 bg-white/5 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 transition-all rounded-xl font-medium"
-                title="Purge All Alerts"
+                title="Delete All Alerts"
               >
                 <Trash2 size={14} />
               </button>
@@ -356,7 +356,7 @@ const SuperAdminDashboard: React.FC = () => {
                 disabled={notificationsLoading}
                 className="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em] hover:bg-white/10 hover:text-white transition-all active:scale-[0.98] disabled:opacity-50"
               >
-                {notificationsLoading ? 'Synchronizing Nexus...' : 'Load Older Events'}
+                {notificationsLoading ? 'Syncing...' : 'Load Older Events'}
               </button>
             )}
           </div>
@@ -371,18 +371,18 @@ const SuperAdminDashboard: React.FC = () => {
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                  <div>
                     <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                       <CreditCard size={14} /> Global Revenue Flux
+                       <CreditCard size={14} /> Platform Revenue
                     </h3>
-                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-1">6-Month Fiscal Forensics: Master Node Flow</p>
+                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-1">6-Month Revenue History</p>
                  </div>
                  <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-2xl">
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Total Yield: </span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Total Revenue: </span>
                     <span className="text-sm font-black text-white ml-2">₹{(stats?.totalRevenue || 0).toLocaleString()}</span>
                  </div>
               </div>
 
               <div className="h-[240px] w-full">
-                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
                     <BarChart data={stats?.monthlyRevenue || []}>
                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                        <XAxis 
@@ -432,9 +432,9 @@ const SuperAdminDashboard: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                <div>
                   <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-[0.2em] flex items-center gap-2">
-                     <CreditCard size={14} className="text-emerald-500" /> Master Transaction Registry
+                     <CreditCard size={14} className="text-emerald-500" /> System Transactions
                   </h3>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Global Subscription History & Fiscal Forensics</p>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Global Subscription History & Transaction History</p>
                </div>
             </div>
 
@@ -467,7 +467,7 @@ const SuperAdminDashboard: React.FC = () => {
                                  </div>
                                  <div className="min-w-0">
                                     <p className="text-[11px] font-bold text-slate-800 truncate uppercase">{tx.businessName}</p>
-                                    <p className="text-[9px] font-semibold text-indigo-500 tracking-widest">{tx.businessId}</p>
+                                    <p className="text-[9px] font-semibold text-indigo-500 tracking-widest">{tx.businessId?.replace(/^BB-/, 'NX-')}</p>
                                  </div>
                               </div>
                            </td>
@@ -476,7 +476,7 @@ const SuperAdminDashboard: React.FC = () => {
                                  tx.plan === 'enterprise' ? 'bg-indigo-100 text-indigo-700' :
                                  tx.plan === 'pro'        ? 'bg-emerald-100 text-emerald-700' :
                                                             'bg-slate-200 text-slate-600'
-                              }`}>{tx.plan} Protocol</span>
+                              }`}>{tx.plan} Plan</span>
                               <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase">Validity: {new Date(tx.startDate).toLocaleDateString()} - {new Date(tx.endDate).toLocaleDateString()}</p>
                            </td>
                            <td className="px-4 py-4 bg-slate-50/50 group-hover:bg-white border-y border-slate-100">
@@ -516,7 +516,7 @@ const SuperAdminDashboard: React.FC = () => {
       </div>
     </div>
 
-    {/* ── Nexus Subscription Invoice Modal ── */}
+    {/* ── Subscription Invoice Modal ── */}
     {showInvoice && selectedTx && (
       <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto pt-10 pb-10">
         <div className="bg-white w-full max-w-xl rounded-[1.5rem] shadow-2xl overflow-hidden relative animate-in fade-in slide-in-from-top-6 duration-500">
@@ -538,14 +538,14 @@ const SuperAdminDashboard: React.FC = () => {
                       <span className="text-[7px] font-black uppercase tracking-[0.4em] text-emerald-300">Transaction Finalized</span>
                    </div>
                    <h2 className="text-xl font-black tracking-tighter text-blue-200 leading-none">NEXUS<span className="text-white">BILL</span></h2>
-                   <p className="text-[7px] font-bold text-blue-100/50 uppercase tracking-[0.2em] mt-1.5">Enterprise Subscription Manifest</p>
+                   <p className="text-[7px] font-bold text-blue-100/50 uppercase tracking-[0.2em] mt-1.5">Business Subscription Receipt</p>
                 </div>
                 <div className="text-right">
-                   <p className="text-[8px] font-bold text-blue-200 uppercase tracking-widest mb-1">Digital Manifest ID</p>
+                   <p className="text-[8px] font-bold text-blue-200 uppercase tracking-widest mb-1">Invoice ID</p>
                    <h3 className="text-sm font-mono font-bold tracking-tight">{selectedTx.transactionId || 'LEGACY-TXN'}</h3>
                    <div className="flex items-center justify-end gap-2 mt-1">
                       <span className="text-[7px] font-bold px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/30 uppercase">Status: DONE</span>
-                      <p className="text-[7px] font-medium text-blue-100/40 uppercase tracking-tighter">Nexus Global Master Admin</p>
+                      <p className="text-[7px] font-medium text-blue-100/40 uppercase tracking-tighter">Nexus Admin</p>
                    </div>
                 </div>
              </div>
@@ -555,7 +555,7 @@ const SuperAdminDashboard: React.FC = () => {
           <div className="p-8 space-y-6">
              <div className="grid grid-cols-2 gap-8">
                 <div>
-                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Billed Recipient</p>
+                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Business Details</p>
                    <h4 className="text-xs font-bold text-slate-900 uppercase">{selectedTx.businessName}</h4>
                    <p className="text-[10px] text-slate-600 font-medium mt-1">{selectedTx.ownerFullName}</p>
                    <p className="text-[10px] text-slate-500">{selectedTx.email}</p>
@@ -567,7 +567,7 @@ const SuperAdminDashboard: React.FC = () => {
                    )}
                 </div>
                 <div className="text-right">
-                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Fiscal Timeline</p>
+                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Transaction Details</p>
                    <p className="text-[10px] text-slate-700 font-bold">Date: {new Date(selectedTx.assignedAt).toLocaleDateString()}</p>
                    <p className="text-[9px] text-slate-400 font-medium">Time: {new Date(selectedTx.assignedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
                    <p className="text-[10px] text-slate-600 font-semibold mt-1">Gateway: {selectedTx.razorpayPaymentId ? 'Razorpay' : 'Nexus Internal'}</p>
@@ -587,7 +587,7 @@ const SuperAdminDashboard: React.FC = () => {
                       <tr>
                          <td className="py-2">
                             <p className="text-sm font-bold text-slate-800 uppercase">Nexus {selectedTx.plan} Subscription</p>
-                            <p className="text-[9px] text-slate-500 font-medium mt-0.5">Full infrastructure access with managed nodes</p>
+                            <p className="text-[9px] text-slate-500 font-medium mt-0.5">Platform access with business features</p>
                              {selectedTx.gstin && <p className="text-[8px] font-bold text-blue-600 uppercase mt-1">GSTIN: {selectedTx.gstin}</p>}
                          </td>
                          <td className="text-center py-2">
@@ -611,17 +611,17 @@ const SuperAdminDashboard: React.FC = () => {
                             <div key={i} className="bg-slate-900 rounded-[1px]"></div>
                          ))}
                       </div>
-                      <p className="text-[6px] font-bold text-slate-400 uppercase text-center leading-none z-10 px-1">Fiscal<br/>Verify</p>
+                      <p className="text-[6px] font-bold text-slate-400 uppercase text-center leading-none z-10 px-1">Receipt<br/>Verified</p>
                    </div>
                    <div className="max-w-[180px]">
                       <p className="text-[8px] font-bold text-slate-400 uppercase leading-relaxed">
-                         This is a cryptographically signed artifact from the Nexus Node. No physical signature required.
+                         This is a digital receipt from the Nexus system. No physical signature required.
                       </p>
                    </div>
                 </div>
                 <div className="text-right">
                    <div className="bg-blue-50 px-5 py-3 rounded-2xl min-w-[160px] border border-blue-100">
-                      <p className="text-[9px] font-bold text-blue-700 uppercase tracking-widest">Total Money</p>
+                      <p className="text-[9px] font-bold text-blue-700 uppercase tracking-widest">Total Amount</p>
                       <h2 className="text-2xl font-black text-slate-900 mt-0.5">₹{(selectedTx.amountPaid || 0).toLocaleString()}</h2>
                    </div>
                    <div className="mt-2 text-right">

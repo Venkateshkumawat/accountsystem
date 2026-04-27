@@ -433,6 +433,7 @@ export default function Settings() {
               <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase">Initialize Global Reset?</h3>
               <p className="text-slate-500 text-xs font-semibold mt-2 uppercase tracking-wide px-4">
                 This will permanently purge ALL Product data and Transactions. This cannot be undone.
+                This will permanently delete ALL Product data and Transactions. This cannot be undone.
               </p>
             </div>
             <div className="flex flex-col gap-4">
@@ -455,7 +456,7 @@ export default function Settings() {
                   disabled={resetting || resetConfirmText !== user?.businessId}
                   className="w-full py-4 rounded-2xl bg-rose-600 text-white font-black text-xs uppercase tracking-widest hover:bg-rose-700 transition shadow-xl shadow-rose-100 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {resetting ? 'Decommissioning...' : 'Yes, Purge Workspace'}
+                  {resetting ? 'Resetting...' : 'Yes, Reset Workspace'}
                 </button>
                 <button
                   onClick={() => {
@@ -465,7 +466,7 @@ export default function Settings() {
                   disabled={resetting}
                   className="w-full py-3 rounded-2xl bg-slate-50 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition"
                 >
-                  Cancel Protocol
+                  Cancel
                 </button>
               </div>
             </div>
@@ -476,7 +477,7 @@ export default function Settings() {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">System Settings</h1>
+          <h1 className="text-2xl font-semibold font-inter text-slate-900 tracking-tight">System Settings</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">Manage your business profile, team, security, and preferences</p>
         </div>
         {user?.businessId && (
@@ -652,7 +653,7 @@ export default function Settings() {
                             <Edit3 size={14} />
                           </button>
                           <button onClick={async () => {
-                            if (confirm(`Initializing Decommission Protocol for ${s.name}?`)) {
+                            if (confirm(`Remove ${s.name} from team?`)) {
                               setDeleteStaffId(s._id);
                               await handleDeleteStaff();
                             }
@@ -742,9 +743,9 @@ export default function Settings() {
 
               <div className="p-6 bg-slate-900 rounded-3xl flex items-center justify-between gap-6 overflow-hidden relative">
                 <div className="relative z-10">
-                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2">Nexus Fiscal Optimization</p>
-                  <h3 className="text-white text-base font-semibold uppercase tracking-tight">Bulk Pricing Logic Active</h3>
-                  <p className="text-slate-400 text-xs mt-1 font-semibold">POS Terminal automatically evaluates best savings for every transaction.</p>
+                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2">Automated Optimization</p>
+                  <h3 className="text-white text-base font-semibold uppercase tracking-tight">Bulk Pricing Active</h3>
+                  <p className="text-slate-400 text-xs mt-1 font-semibold">POS Terminal automatically applies the best savings for every transaction.</p>
                 </div>
                 <Zap size={100} className="text-white/5 absolute -right-4 rotate-12" />
               </div>
@@ -819,8 +820,8 @@ export default function Settings() {
                     { label: 'Account Email', value: user?.email || '—', ok: true },
                     { label: 'Account Role', value: user?.role || '—', ok: true },
                     { label: 'Account Status', value: user?.isActive ? 'Active' : 'Inactive', ok: user?.isActive },
-                    { label: 'JWT Token Validity', value: '7 days rolling', ok: true },
-                    { label: 'Password Encryption', value: 'bcrypt (10 salt rounds)', ok: true },
+                    { label: 'Token Validity', value: '7 days rolling', ok: true },
+                    { label: 'Encryption', value: 'bcrypt (10 salt rounds)', ok: true },
                     { label: 'Last Updated', value: user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString('en-IN') : '—', ok: true },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between py-3 border-b-2 border-slate-100 last:border-0 hover:bg-indigo-50/50 transition-colors px-2 rounded-lg">
@@ -881,7 +882,7 @@ export default function Settings() {
               </div>
               <div className="p-5 bg-slate-50/50 border-t border-slate-100">
                 <p className="text-[11px] text-slate-400 font-medium">
-                  Alert preferences are saved locally. Email/SMS notification integration requires SMTP/SMS configuration.
+                  Preferences are saved locally. Email/SMS notifications may require specific setup.
                 </p>
               </div>
             </div>
@@ -895,19 +896,19 @@ export default function Settings() {
                 <div className="bg-slate-900 p-6 text-white relative">
                   <div className="relative z-10">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="px-2 py-0.5 bg-indigo-500 rounded-md text-[8px] font-black uppercase tracking-widest">Protocol Active</span>
+                      <span className="px-2 py-0.5 bg-indigo-500 rounded-md text-[8px] font-black uppercase tracking-widest">Active</span>
                     </div>
                     <div className="flex items-baseline gap-3 mb-1">
                       <h2 className="text-3xl font-black tracking-tighter capitalize">{planData?.plan || 'Loading…'}</h2>
-                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Subscription Node</span>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Plan</span>
                     </div>
-                    <p className="text-slate-400 text-xs font-medium mb-6">Full administrative access to all NexusBill synchronized modules.</p>
+                    <p className="text-slate-400 text-xs font-medium mb-6">Full administrative access to your account.</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
                         <div className="flex items-center gap-2 text-slate-400 mb-1.5">
                            <Clock size={12} />
-                           <span className="text-[9px] font-black uppercase tracking-widest">Deadline</span>
+                           <span className="text-[9px] font-black uppercase tracking-widest">Remaining</span>
                         </div>
                         <p className="text-lg font-black">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m</p>
                         <div className="mt-1 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">{planData?.expiryDate ? new Date(planData.expiryDate).toLocaleDateString() : '—'}</div>
@@ -930,7 +931,7 @@ export default function Settings() {
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
                         <div className="flex items-center gap-2 text-slate-400 mb-1.5">
                            <Zap size={12} />
-                           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Fiscal</span>
+                           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Invoices</span>
                         </div>
                         <p className="text-lg font-black">{Math.max(0, (planData?.invoiceLimit || 0) - (planData?.currentInvoiceCount || 0))} Left</p>
                         <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
@@ -949,7 +950,7 @@ export default function Settings() {
                         <p className={`text-lg font-black uppercase ${planData?.status === 'active' ? 'text-emerald-400' : 'text-rose-400 animate-pulse'}`}>
                            {planData?.status || '—'}
                         </p>
-                        <div className="mt-1 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">Protocol Operational</div>
+                        <div className="mt-1 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">Active</div>
                       </div>
                     </div>
                   </div>
@@ -964,7 +965,7 @@ export default function Settings() {
                     </div>
                     <div className="flex-1">
                       <p className="text-rose-900 text-xs font-black">Plan Expiring Soon!</p>
-                      <p className="text-rose-600 text-[10px] font-medium">Access expires in {planData.remainingDays} days. Pay now to avoid lock.</p>
+                      <p className="text-rose-600 text-[10px] font-medium">Access expires in {planData.remainingDays} days. Please renew to continue.</p>
                     </div>
                     <button onClick={() => handleRenewPlan(planData?.plan)} disabled={renewing}
                       className="px-4 py-1.5 bg-rose-600 text-white rounded-lg text-[10px] font-black hover:bg-rose-700 transition active:scale-95">
@@ -974,9 +975,8 @@ export default function Settings() {
                 )}
 
                 <div className="p-6">
-                  <h3 className="text-sm font-black text-slate-900 mb-4 uppercase tracking-widest">Administrative Control</h3>
+                  <h3 className="text-sm font-black text-slate-900 mb-4 uppercase tracking-widest">Settings</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Same Plan Renewal */}
                     <div className="p-4 border border-slate-100 rounded-2xl group hover:border-indigo-600 transition">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition">
@@ -984,27 +984,26 @@ export default function Settings() {
                         </div>
                         <span className="text-[9px] font-black text-indigo-600 uppercase">30-Day Extension</span>
                       </div>
-                      <h4 className="font-black text-slate-900 text-xs mb-1">Renew {planData?.plan} Plan</h4>
-                      <p className="text-slate-500 text-[10px] font-medium mb-4">Extend your current synchronized node access.</p>
+                      <h4 className="font-black text-slate-900 text-xs mb-1">Renew {planData?.plan}</h4>
+                      <p className="text-slate-500 text-[10px] font-medium mb-4">Extend your current plan.</p>
                       <button onClick={() => handleRenewPlan(planData?.plan)} disabled={renewing}
                         className="w-full py-2 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition">
                         {renewing ? 'Processing...' : 'Pay & Renew'}
                       </button>
                     </div>
 
-                    {/* Big Plan / Upgrade */}
                     <div className="p-4 border border-slate-100 rounded-2xl group hover:border-amber-500 transition bg-slate-50/50">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition">
                           <ArrowUpCircle size={18} />
                         </div>
-                        <span className="text-[9px] font-black text-amber-600 uppercase">Tier Expansion</span>
+                        <span className="text-[9px] font-black text-amber-600 uppercase">Upgrade</span>
                       </div>
-                      <h4 className="font-black text-slate-900 text-xs mb-1">Upgrade Tier</h4>
-                      <p className="text-slate-500 text-[10px] font-medium mb-4">Request transition to Enterprise level protocol.</p>
-                      <button onClick={() => showToast('Contacting SuperAdmin for tier upgrade...', 'success')}
+                      <h4 className="font-black text-slate-900 text-xs mb-1">Upgrade Plan</h4>
+                      <p className="text-slate-500 text-[10px] font-medium mb-4">Contact support to upgrade to a higher tier.</p>
+                      <button onClick={() => showToast('Contacting support...', 'success')}
                         className="w-full py-2 bg-white border border-slate-200 text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:border-amber-500 transition">
-                        Contact SuperAdmin
+                        Contact Support
                       </button>
                     </div>
                   </div>
@@ -1017,8 +1016,8 @@ export default function Settings() {
                   <Info size={24} className="text-amber-600" />
                 </div>
                 <div>
-                  <h5 className="font-black text-slate-900">Need a custom duration?</h5>
-                  <p className="text-slate-500 text-sm font-medium">Contact our billing team at billing@nexusbill.com or message SuperAdmin to extend plan manually.</p>
+                  <h5 className="font-black text-slate-900">Need help?</h5>
+                  <p className="text-slate-500 text-sm font-medium">Contact our support team at support@nexusbill.com for any queries.</p>
                 </div>
               </div>
 
@@ -1030,8 +1029,8 @@ export default function Settings() {
                       <Clock size={18} className="text-indigo-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-900">Billing & Plan History</h3>
-                      <p className="text-slate-500 text-sm font-medium">Verify your previous subscription cycles and audit records</p>
+                      <h3 className="text-lg font-black text-slate-900">Payment History</h3>
+                      <p className="text-slate-500 text-sm font-medium">View your past subscription invoices</p>
                     </div>
                   </div>
                   <div className="overflow-x-auto">
@@ -1050,16 +1049,15 @@ export default function Settings() {
                               <span className="px-2.5 py-1 bg-slate-100 text-slate-900 rounded-lg text-[10px] font-black uppercase tracking-tighter">
                                 {h.plan}
                               </span>
-                              <div className="text-[9px] text-slate-400 font-semibold mt-1 uppercase">ID: NODE-REG-{i + 1}</div>
+                              <div className="text-[9px] text-slate-400 font-semibold mt-1 uppercase">ID: NX-{i + 1}</div>
                             </td>
                             <td className="p-4">
                               <div className="text-xs font-black text-slate-700">
                                 {new Date(h.startDate).toLocaleDateString()} — {new Date(h.endDate).toLocaleDateString()}
                               </div>
-                              <div className="text-[10px] text-indigo-500 font-semibold mt-0.5 uppercase tracking-widest">#{h.assignedBy?.replace('_', ' ') || 'SYSTEM'}</div>
                             </td>
                             <td className="p-4 text-xs font-black text-emerald-600 text-right">
-                              {h.amountPaid ? `₹${h.amountPaid}` : '₹0 (Trial/Free)'}
+                              {h.amountPaid ? `₹${h.amountPaid}` : '₹0'}
                             </td>
                           </tr>
                         ))}
@@ -1082,30 +1080,30 @@ export default function Settings() {
                     </div>
                     <div>
                       <h2 className="text-lg font-black text-rose-900 leading-none">Danger Zone</h2>
-                      <p className="text-rose-600/60 text-xs font-semibold mt-1">High-priority terminal operations</p>
+                      <p className="text-rose-600/60 text-xs font-semibold mt-1">High-priority account operations</p>
                     </div>
                   </div>
                 </div>
                 <div className="p-8 space-y-6">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-3xl border border-rose-100 bg-rose-50/10">
                     <div className="flex-1">
-                      <h4 className="font-black text-slate-900 mb-1">Global Workspace Reset</h4>
+                      <h4 className="font-black text-slate-900 mb-1">Clear Workspace</h4>
                       <p className="text-slate-500 text-[11px] font-medium leading-relaxed">
-                        Decommission all active Product nodes, Invoices, Staff records, and Sales history.
-                        Your business profile and subscription remain active, but all industrial data will be permanently purged.
+                        Delete all Products, Invoices, Staff, and Sales records.
+                        This will empty your business data permanently.
                       </p>
                     </div>
                     <button
                       onClick={() => setShowResetConfirm(true)}
                       className="px-6 py-3 bg-rose-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-rose-700 transition shadow-lg shadow-rose-100 active:scale-95"
                     >
-                      Initialize Reset
+                      Clear Data
                     </button>
                   </div>
                 </div>
                 <div className="px-6 py-4 bg-slate-900 flex items-center gap-3">
                   <Info size={14} className="text-slate-400 shrink-0" />
-                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Nexus Platform Authority required for these operations</p>
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Use with caution</p>
                 </div>
               </div>
             </div>
@@ -1122,7 +1120,7 @@ export default function Settings() {
             <div className="p-6 bg-gradient-to-r from-slate-900 to-indigo-900 text-white flex items-center justify-between shrink-0">
               <div>
                 <h3 className="font-black text-lg tracking-tight">Add Staff Member</h3>
-                <p className="text-xs text-indigo-300 font-medium mt-0.5">Reference ID required to authorize</p>
+                <p className="text-xs text-indigo-300 font-medium mt-0.5">Authorization required</p>
               </div>
               <button onClick={() => { setShowStaffForm(false); setStaffForm(defaultStaff); }}
                 className="p-2 text-slate-400 hover:text-white bg-white/10 rounded-xl transition">
@@ -1134,18 +1132,18 @@ export default function Settings() {
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldCheck size={15} className="text-amber-600" />
                   <label className="text-[10px] font-black text-amber-700 uppercase tracking-widest leading-none">
-                    Business Node ID *
+                    Business ID *
                   </label>
                 </div>
                 <input
                   required
-                  placeholder={`e.g. ${user?.businessId || 'BB-XXXX-0000'} (Your Active Node ID)`}
+                  placeholder={`e.g. NX-XXXX-0000`}
                   value={staffForm.referenceId}
                   onChange={e => setStaffForm({ ...staffForm, referenceId: e.target.value })}
                   className="w-full px-4 py-3 bg-white border border-amber-300 rounded-xl text-[10px] font-semibold tracking-normal focus:outline-none focus:border-amber-500 transition"
                 />
                 <p className="text-[10px] text-amber-600 font-medium mt-1.5 leading-none">
-                  Confirm authorization by entering your unique Business Node ID.
+                  Enter your business ID to confirm authorization.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -1249,8 +1247,8 @@ export default function Settings() {
           <div className="bg-white w-full max-w-2xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
             <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
               <div>
-                <h3 className="text-xl font-semibold tracking-tight uppercase">Create Offer Node</h3>
-                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Campaign Initialization Terminal</p>
+                <h3 className="text-xl font-semibold tracking-tight uppercase">Create Offer</h3>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Campaign Setup</p>
               </div>
               <div className="flex items-center gap-2">
                 <button type="button" onClick={() => setShowOfferForm(false)} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">Back</button>
@@ -1278,10 +1276,10 @@ export default function Settings() {
 
                 if (editOfferId) {
                   await api.put(`/offers/${editOfferId}`, payload);
-                  showToast('Campaign Node Updated!');
+                  showToast('Offer updated!');
                 } else {
                   await api.post('/offers', payload);
-                  showToast('Campaign Protocol Activated!');
+                  showToast('Offer started!');
                 }
 
                 const syncChannel = new BroadcastChannel('nexus_sync');

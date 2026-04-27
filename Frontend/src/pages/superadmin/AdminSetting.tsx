@@ -15,16 +15,16 @@ const AdminSetting: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const tabs = [
-    { id: 'profile', label: 'METADATA', icon: User },
+    { id: 'profile', label: 'PROFILE', icon: User },
     { id: 'security', label: 'SECURITY', icon: Shield },
-    { id: 'notifications', label: 'TELEMETRY', icon: Bell },
+    { id: 'notifications', label: 'NOTIFICATIONS', icon: Bell },
   ];
 
   const handleSave = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      alert('Local Registry Updated: Nexus node configuration synchronized.');
+      alert('Admin settings updated successfully.');
     }, 1000);
   };
 
@@ -32,8 +32,8 @@ const AdminSetting: React.FC = () => {
     <div className="space-y-6 pb-20 relative ">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Admin Configuration</h1>
-          <p className="text-sm font-normal text-slate-500 mt-1">Internal root authority settings for Nexus Master node</p>
+          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Admin Settings</h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">Manage your admin profile and security settings</p>
         </div>
       </div>
 
@@ -59,23 +59,23 @@ const AdminSetting: React.FC = () => {
           <div className="relative z-10 space-y-8 mb-6">
             {activeTab === 'profile' && (
               <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
-                 <SectionTitle title="Identity Registry" desc="Master Authority Profile Data" />
+                 <SectionTitle title="Admin Profile" desc="Manage your administrator details" />
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <SimpleInput label="NODE NAME" defaultValue="Nexus Intelligence Master" />
+                    <SimpleInput label="ADMIN NAME" defaultValue="Master Admin" />
                     <SimpleInput label="PRIMARY EMAIL" defaultValue="master@nexusbill.com" disabled />
-                    <SimpleInput label="ROOT AUTHORITY ID" defaultValue="ADMIN-ROOT-001" disabled />
+                    <SimpleInput label="ADMIN ID" defaultValue="ADMIN-ROOT-001" disabled />
                  </div>
               </div>
             )}
 
             {activeTab === 'security' && (
               <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
-                 <SectionTitle title="Encryption Protocol" desc="Credential Overrides & Secure Access" />
+                 <SectionTitle title="Security Settings" desc="Manage your password and access" />
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <SimpleInput label="CURRENT SECRET KEY" type="password" placeholder="••••••••••••" />
-                    <SimpleInput label="NEW SECRET KEY" type="password" placeholder="••••••••••••" />
+                    <SimpleInput label="CURRENT PASSWORD" type="password" placeholder="••••••••••••" />
+                    <SimpleInput label="NEW PASSWORD" type="password" placeholder="••••••••••••" />
                     <div className="md:col-span-2">
-                       <SimpleInput label="VERIFY SECURE KEY" type="password" placeholder="••••••••••••" />
+                       <SimpleInput label="VERIFY PASSWORD" type="password" placeholder="••••••••••••" />
                     </div>
                  </div>
               </div>
@@ -83,12 +83,12 @@ const AdminSetting: React.FC = () => {
 
             {activeTab === 'notifications' && (
               <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
-                 <SectionTitle title="Telemetry Alerts" desc="Internal notification routing preference" />
+                 <SectionTitle title="Notification Alerts" desc="Manage system alerts" />
                  <div className="space-y-3">
                     {[
-                      { l: 'Push Telemetry to Command Hub', d: 'Global node events sent directly to status bar.' },
-                      { l: 'Node Expiration Warnings', d: 'Notify 7 days prior to business node termination.' },
-                      { l: 'Security Breach Alerts', d: 'Immediate protocol lockout on suspicious activity.' },
+                      { l: 'Push Notifications to Dashboard', d: 'Get important alerts on your dashboard.' },
+                      { l: 'Subscription Expiry Warnings', d: 'Notify 7 days prior to business account expiry.' },
+                      { l: 'Security Alerts', d: 'Immediate lockout on suspicious activity.' },
                     ].map(i => (
                       <div key={i.l} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl hover:bg-white transition-colors gap-4">
                         <div>
@@ -111,7 +111,7 @@ const AdminSetting: React.FC = () => {
               disabled={loading}
               className="w-full sm:w-auto px-10 py-3.5 bg-slate-900 text-white rounded-xl text-sm font-medium transition-all shadow-xl flex items-center justify-center gap-2 group"
             >
-              {loading ? 'Committing Gateway State...' : 'Commit Changes'}
+              {loading ? 'Saving Changes...' : 'Save Changes'}
               {!loading && <ArrowRight size={16} className="group-hover:translate-x-1" />}
             </button>
           </div>
@@ -121,15 +121,15 @@ const AdminSetting: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-slate-950 p-8 rounded-[1.5rem] relative overflow-hidden">
           <Clock className="absolute -right-4 -bottom-4 text-white opacity-5 rotate-12 scale-150" />
-          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-4 leading-none">Master Session Logs</h4>
+          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-4 leading-none">Admin Access Logs</h4>
           <div className="space-y-4">
             <div className="flex gap-3">
                <div className="w-1 h-1 bg-indigo-500 rounded-full mt-1.5 shrink-0 opacity-50"></div>
-               <p className="text-xs font-semibold text-white/70 leading-relaxed">Last master login authenticated from: IPv4 121.242.xx.xx</p>
+               <p className="text-xs font-semibold text-white/70 leading-relaxed">Last admin login authenticated from: IPv4 121.242.xx.xx</p>
             </div>
             <div className="flex gap-3">
                <div className="w-1 h-1 bg-white/20 rounded-full mt-1.5 shrink-0"></div>
-               <p className="text-xs font-semibold text-white/30 leading-relaxed">Security protocol updated: 04-03-2026 11:21:13</p>
+               <p className="text-xs font-semibold text-white/30 leading-relaxed">Security settings updated: 04-03-2026 11:21:13</p>
             </div>
           </div>
         </div>
@@ -137,10 +137,10 @@ const AdminSetting: React.FC = () => {
         <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-8 rounded-[1.5rem] flex flex-col justify-between items-start group shadow-xl">
            <div>
               <RefreshCcw className="mb-4 text-indigo-200 group-hover:rotate-180 transition-transform duration-1000" size={24} />
-              <h4 className="text-lg font-black tracking-tighter leading-none mb-1 uppercase">System Pulse</h4>
-              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">Global nexus sync: Steady</p>
+              <h4 className="text-lg font-black tracking-tighter leading-none mb-1 uppercase">System Status</h4>
+              <p className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">System sync: Steady</p>
            </div>
-           <button className="mt-8 text-[9px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-white/20 px-6 py-2.5 rounded-xl transition-all border border-white/10 leading-none">Force Re-Sync Protocol</button>
+           <button className="mt-8 text-[9px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-white/20 px-6 py-2.5 rounded-xl transition-all border border-white/10 leading-none">Force System Sync</button>
         </div>
       </div>
     </div>

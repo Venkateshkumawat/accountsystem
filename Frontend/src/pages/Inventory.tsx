@@ -384,7 +384,7 @@ export default function Inventory() {
         {filteredProducts.length === 0 ? (
           <div className="bg-white rounded-3xl border-2 border-slate-200 py-32 text-center overflow-hidden">
             <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
-              <Box size={32} className="text-slate-200" />
+              <Box size={48} className="text-slate-200 mb-4" />
             </div>
             <h2 className="text-xl font-bold text-slate-900 tracking-tight">Protocol: No Nodes Found</h2>
             <p className="text-sm font-semibold font-inter tracking-tight text-slate-400 mt-1 uppercase tracking-widest">Selected spectrum contains zero data items.</p>

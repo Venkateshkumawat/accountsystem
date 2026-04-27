@@ -5,7 +5,7 @@ import {
   LayoutDashboard, ShoppingCart, FileText, Package, Archive,
   BookOpen, Receipt, Users, BarChart2, LogOut,
   Menu, X, Shield, AlertTriangle, ArrowRight, Cog, Bell,
-  Package2, Search as SearchIcon
+  Search as SearchIcon
 } from 'lucide-react';
 import api from '../services/api';
 import socketService from '../services/socket';

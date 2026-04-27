@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, memo } from 'react';
 import {
   ShoppingCart, Plus, Minus, X, CreditCard, Box,
-  Printer, CheckCircle, Trash2, Package2, AlertTriangle, Zap,
+  Printer, CheckCircle, Trash2, Package, AlertTriangle, Zap,
   Banknote, ArrowLeft, Camera, RefreshCcw, Search as SearchIcon
 } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
@@ -94,7 +94,7 @@ export default function POS() {
     } catch { }
   };
 
-  // Terminal Sync Node: Listen for platform-wide updates
+  // System Sync: Listen for platform-wide updates
   useEffect(() => {
     const syncChannel = new BroadcastChannel('nexus_sync');
     const handleSync = (event: MessageEvent) => {
@@ -181,7 +181,7 @@ export default function POS() {
     if (success) {
       setBarcodeInput('');
     } else {
-      alert('Product not found in local registry');
+      alert('Product not found in product list');
     }
   };
 
@@ -324,7 +324,7 @@ export default function POS() {
 
           <header className="flex items-center justify-between gap-4 mb-8 p-1">
             <div className="flex flex-wrap items-center gap-2 mb-4">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight leading-none">Point of Sale</h1>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold font-inter text-slate-900 tracking-tight leading-none">Point of Sale</h1>
               <button
                 onClick={() => handleCategoryClick('SALE')}
                 className={`px-3 py-1.5 rounded-full text-[8px] font-medium uppercase tracking-widest whitespace-nowrap transition-all border animate-pulse shadow-sm ${selectedCategory === 'SALE'
@@ -395,7 +395,7 @@ export default function POS() {
 
           <div
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 lg:gap-4 content-start pb-24 lg:pb-8">
+            className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 lg:gap-5 content-start pb-24 lg:pb-8">
             {loading ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <ShoppingCart size={32} className="mx-auto mb-2 animate-bounce" />
@@ -739,7 +739,7 @@ export default function POS() {
                 <X size={20} />
               </button>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">Scanning Node</h3>
+                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">Scanning Barcode</h3>
                 <p className="text-[7px] font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Align barcode</p>
               </div>
               <div className="w-9" /> {/* Spacer */}
@@ -758,12 +758,12 @@ export default function POS() {
                 onClick={stopScanner}
                 className="mt-6 w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] shadow-xl hover:bg-slate-800 transition-all uppercase tracking-[0.2em] active:scale-95"
               >
-                Terminate
+                Cancel
               </button>
             </div>
             
             <footer className="w-full p-4 bg-slate-50 border-t border-slate-100 text-center">
-              <p className="text-[7px] font-semibold text-slate-300 uppercase tracking-widest">Nexus Optical Interface v2.5.0</p>
+              <p className="text-[7px] font-semibold text-slate-300 uppercase tracking-widest">Nexus Scanner v2.5.0</p>
             </footer>
           </div>
         </div>
@@ -805,7 +805,7 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offer
   return (
     <div
       onClick={() => !outOfStock && onAdd(product)}
-      className={`bg-white group p-2.5 rounded-2xl border-2 transition-all cursor-pointer active:scale-95 flex flex-col items-center relative overflow-hidden h-[180px] select-none
+      className={`bg-white group p-3 rounded-2xl border-2 transition-all cursor-pointer active:scale-95 flex flex-col items-center relative overflow-hidden min-h-[220px] select-none
         ${inCart ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-xl' : 'border-slate-100 hover:border-slate-300 shadow-sm'}
         ${outOfStock ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-md'}
         ${isFlash ? 'animate-pulse scale-90' : ''}
@@ -860,7 +860,7 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offer
             }}
           />
         ) : null}
-        <Package2
+        <Package
           size={20}
           className={`${inCart ? 'text-white' : 'text-slate-300'} ${productImg ? 'hidden' : ''}`}
         />
@@ -898,7 +898,7 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offer
 
       {outOfStock && (
         <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-20">
-          <span className="text-[9px] font-black text-white bg-slate-900 px-3 py-1 rounded-full uppercase tracking-widest shadow-xl">Out of Node</span>
+          <span className="text-[9px] font-black text-white bg-slate-900 px-3 py-1 rounded-full uppercase tracking-widest shadow-xl">Out of Stock</span>
         </div>
       )}
     </div>

@@ -271,7 +271,7 @@ export default function Staff() {
       {/* ──── Header ───────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Staff Management</h1>
+          <h1 className="text-2xl font-semibold font-inter text-slate-900 tracking-tight">Staff Management</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">
             {staff.length} active staff managing operations.
           </p>
@@ -306,7 +306,7 @@ export default function Staff() {
             <MetricCard key={role} label={role.toUpperCase()} value={count.toString()} icon={m.icon} color={role === 'manager' ? 'indigo' : role === 'accountant' ? 'emerald' : 'amber'} />
           );
         })}
-        <MetricCard label="ACTIVE_NODES" value={activeCount.toString()} icon={CheckCircle} color="emerald" />
+        <MetricCard label="ACTIVE STAFF" value={activeCount.toString()} icon={CheckCircle} color="emerald" />
       </div>
 
       {/* ──── Search & Filter ──────────────────────────────────────── */}
@@ -456,7 +456,7 @@ export default function Staff() {
             <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
               <div>
                 <h3 className="text-xl font-semibold tracking-tight uppercase">New Staff Member</h3>
-                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Authorizing new staff access node</p>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Setup new team member access</p>
               </div>
               <div className="flex items-center gap-2">
                 <button type="button" onClick={() => { setShowAdd(false); setForm(defaultForm); }} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">
@@ -477,13 +477,13 @@ export default function Staff() {
                 </div>
                 <input
                   required
-                  placeholder={`e.g. ${user?.businessId || 'BB-XXXX-0000'} (Your Active Node ID)`}
+                  placeholder={`e.g. ${user?.businessId || 'NX-XXXX-0000'} (Your Active Business ID)`}
                   value={form.referenceId}
                   onChange={e => setForm({ ...form, referenceId: e.target.value })}
                   className="w-full px-4 py-3 bg-white border border-amber-300 rounded-xl text-[10px] font-semibold tracking-normal focus:outline-none focus:border-amber-500 transition"
                 />
                 <p className="text-[10px] text-amber-600 font-medium mt-1.5">
-                  Confirm authorization by entering your unique Business ID.
+                  Confirm setup by entering your unique Business ID.
                 </p>
               </div>
 

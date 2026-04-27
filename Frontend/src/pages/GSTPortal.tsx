@@ -22,7 +22,7 @@ const ChartWrapper = memo(({ data, children }: any) => {
          </div>
       );
    }
-   return <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>{children}</ResponsiveContainer>;
+   return <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>{children}</ResponsiveContainer>;
 });
 
 /**
@@ -108,7 +108,7 @@ export default function GSTPortal() {
          })
       ];
 
-      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + rows.map(e => e.map(v => `"${v}"`).join(",")).join("\n");
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + rows.map((e: any) => e.map((v: any) => `"${v}"`).join(",")).join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -126,15 +126,16 @@ export default function GSTPortal() {
 
    return (
       <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
-         {/* Header — Compliance Protocol */}
-         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 py-1 px-1 border-b border-slate-50 mb-1">
-            <div className="space-y-0.5">
-               <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight font-inter">
-                  GST Compliance Dashboard
-               </h1>
-               <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest font-inter">
-                  Verified ITC & Revenue Settlement Node
-               </p>
+         {/* Header — Compliance Area */}
+         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1 no-print">
+            <div className="flex items-center gap-4">
+               <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg ring-4 ring-slate-900/5 shrink-0">
+                  <ShieldCheck size={20} />
+               </div>
+               <div>
+                  <h1 className="text-xl md:text-2xl font-semibold text-slate-900 tracking-tight uppercase font-inter">GST Compliance</h1>
+                  <p className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-[0.2em] leading-none font-inter">Tax Settlement & Filing Hub</p>
+               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">
                <button
@@ -285,22 +286,22 @@ export default function GSTPortal() {
                </div>
             </div>
 
-            <div className="overflow-hidden">
-               <table className="w-full text-left border-collapse table-fixed">
+            <div className="overflow-x-auto custom-scrollbar">
+               <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                      <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 bg-slate-50/50">
-                        <th className="py-4 px-2 w-[220px]">Audit Type / Reference</th>
-                        <th className="py-4 px-2">Name</th>
-                        <th className="py-4 px-2 text-center w-[160px]">Date</th>
-                        <th className="py-4 px-2 text-right w-[140px]">Taxable Node</th>
-                        <th className="py-4 px-2 text-right w-[140px]">GST Value</th>
-                        <th className="py-4 px-2 text-center w-[120px]">Status</th>
+                        <th className="py-4 px-4 w-[200px]">Audit Type / Reference</th>
+                        <th className="py-4 px-4 w-[200px]">Party Name</th>
+                        <th className="py-4 px-4 text-center w-[120px]">Audit Date</th>
+                        <th className="py-4 px-4 text-center w-[140px]">Taxable Value</th>
+                        <th className="py-4 px-4 text-center w-[140px]">GST Value</th>
+                        <th className="py-4 px-4 text-center w-[120px]">Status</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 font-inter">
                      {filteredHistory.length > 0 ? (showAllHistory ? filteredHistory : filteredHistory.slice(0, 10)).map((item: any) => (
                         <tr key={item._id} className="group hover:bg-indigo-50/50 transition-all duration-300 border-b-2 border-slate-100 last:border-0 cursor-pointer">
-                           <td className="py-4 px-2">
+                           <td className="py-4 px-4">
                               <div
                                  onClick={() => navigate(`/invoice-view/${item._id}?type=${item.type === 'SALES' ? 'sale' : 'purchase'}`)}
                                  className="flex items-center gap-3 cursor-pointer group/link"
@@ -313,29 +314,29 @@ export default function GSTPortal() {
                                  </div>
                               </div>
                            </td>
-                           <td className="py-4 px-2 font-inter">
+                           <td className="py-4 px-4 font-inter">
                               <div className="flex flex-col min-w-0">
-                                 <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-tight">
+                                 <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate max-w-[180px]">
                                     {item.type === 'PURCHASE' ? (item.vendorCompany || item.customer) : (item.customer || 'Retail Node')}
                                  </span>
                               </div>
                            </td>
-                           <td className="py-4 px-2 text-center">
+                           <td className="py-4 px-4 text-center">
                               <div className="flex flex-col items-center">
-                                 <span className="text-[10px] font-bold text-slate-600 tracking-tight">
-                                    {new Date(item.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
+                                 <span className="text-[11px] font-bold text-slate-600 tracking-tight whitespace-nowrap">
+                                    {new Date(item.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
                                  </span>
                               </div>
                            </td>
-                           <td className="py-4 px-2 text-right text-[11px] font-bold text-slate-600">
+                           <td className="py-4 px-4 text-center text-[11px] font-bold text-slate-600 font-inter">
                               ₹{item.taxable.toLocaleString()}
                            </td>
-                           <td className="py-4 px-2 text-right">
+                           <td className="py-4 px-4 text-center">
                               <span className={`text-[13px] font-bold tracking-tight ${item.type === 'SALES' ? 'text-indigo-600' : 'text-emerald-600'}`}>
                                  ₹{item.gst.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                               </span>
                            </td>
-                           <td className="py-4 px-2 text-center">
+                           <td className="py-4 px-4 text-center">
                               <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest outline outline-1 ${item.type === 'SALES' ? 'bg-indigo-50 text-indigo-600 outline-indigo-100' : 'bg-emerald-50 text-emerald-600 outline-emerald-100'}`}>
                                  {item.status || (item.type === 'SALES' ? 'COLLECTED' : 'PAID')}
                               </span>
@@ -378,7 +379,7 @@ export default function GSTPortal() {
                <h4 className="text-sm font-semibold text-amber-900 uppercase tracking-wider">GSTR-1 Compliance Directive</h4>
                <p className="text-xs font-medium text-amber-900/70 leading-relaxed mt-1 max-w-2xl">
                   All fiscal values in this portal are auto-reconciled from your authenticated invoice nodes.
-                  Ensure centralized IGST/CGST parity before the 10th of every rolling period. NexusBill is currently operating on Protocol NK4A2 (Live).
+                  Ensure centralized IGST/CGST parity before the 10th of every rolling period. NexusBill is currently operating on System V4A2 (Live).
                </p>
             </div>
          </div>

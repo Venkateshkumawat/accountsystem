@@ -33,18 +33,19 @@ export default function InvoiceView() {
       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50">
         <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Synchronizing Record Node...</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading Invoice Data...</p>
       </div>
     );
   }
 
   if (error || !record) {
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="p-4 bg-rose-50 rounded-full mb-6">
-          <ShieldAlert size={48} className="text-rose-500" />
-        </div>
-        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Audit Protocol Failure</h2>
-        <p className="text-sm font-medium text-slate-500 max-w-sm">{error || "The requested fiscal trace does not exist on this node."}</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center bg-white border border-slate-100 rounded-[3rem] shadow-sm m-4">
+        <ShieldAlert size={64} className="text-rose-500 mb-6" />
+        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Audit Access Failure</h2>
+        <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest max-w-xs mx-auto leading-relaxed">
+            Invoice not found in system or access denied.
+        </p>
         <button 
           onClick={() => navigate(-1)}
           className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-slate-200"

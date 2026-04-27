@@ -235,7 +235,7 @@ export default function Purchases() {
              <Package size={20} className="animate-pulse" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 uppercase tracking-tight font-inter leading-tight">Purchases Terminal</h1>
+            <h1 className="text-lg sm:text-xl font-semibold text-slate-900 uppercase tracking-tight font-inter leading-tight">Purchases Terminal</h1>
             <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest font-inter">Verified Fiscal Node · v2.1</p>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function Purchases() {
               </div>
            </div>
            <div className="h-[280px] sm:h-[340px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>
                  <AreaChart data={chartData}>
                     <defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -286,10 +286,10 @@ export default function Purchases() {
            <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm flex flex-col items-center">
               <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4 w-full text-center">Supplier Distribution</h3>
               <div className="h-[200px] w-full relative min-h-[200px]">
-                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>
                     <PieChart>
                        <Pie data={supplierData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                          {supplierData.map((e, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                          {supplierData.map((e: any, i: number) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                        </Pie>
                        <Tooltip contentStyle={{ fontSize: 10, borderRadius: 12, border: 'none', fontWeight: 600 }} />
                     </PieChart>
@@ -330,7 +330,7 @@ export default function Purchases() {
                   </tr>
                </thead>
                <tbody className="divide-y divide-slate-50 font-inter text-[11px]">
-                  {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
+                  {(showAllPurchases ? purchases : purchases.slice(0, 8)).map((p: any) => (
                      <tr key={p._id} className="hover:bg-indigo-50/50 transition-all duration-300 border-b-2 border-slate-100 last:border-0 group cursor-pointer">
                         <td className="px-2 py-3 text-center">
                             <div className="flex flex-col items-center">
@@ -364,7 +364,7 @@ export default function Purchases() {
                         </td>
                         <td className="px-2 py-3 text-right pr-4">
                            <p className="text-[9px] font-bold text-slate-900 uppercase leading-none">
-                             {new Date(p.createdAt || p.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                             {new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                            </p>
                         </td>
                      </tr>
@@ -375,7 +375,7 @@ export default function Purchases() {
 
          {/* Mobile Registry Cards */}
          <div className="md:hidden divide-y divide-slate-100">
-            {(showAllPurchases ? purchases : purchases.slice(0, 8)).map(p => (
+            {(showAllPurchases ? purchases : purchases.slice(0, 8)).map((p: any) => (
                <div key={p._id} className="p-5 space-y-4 border-b-2 border-slate-100 last:border-0 hover:bg-indigo-50/30 transition-all duration-300">
                   <div className="flex items-start justify-between">
                      <div className="min-w-0">
@@ -391,7 +391,7 @@ export default function Purchases() {
                      <div className="text-right shrink-0">
                         <p className="text-sm font-black text-slate-900 tabular-nums leading-none">₹{p.grandTotal.toLocaleString()}</p>
                         <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">
-                           {new Date(p.createdAt || p.purchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                           {new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                         </p>
                      </div>
                   </div>
@@ -597,7 +597,7 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
       }
    };
 
-   const totalGst =  cartItems.reduce((s,i) => s + (i.purchasePrice * i.qty * (i.gstRate || 0)) / 100, 0);
+   const totalGst =  cartItems.reduce((s: number, i: any) => s + (i.purchasePrice * i.qty * (i.gstRate || 0)) / 100, 0);
    const grandTotal = subtotal + totalGst + Number(vendor.shippingCharges);
 
    return (
@@ -646,7 +646,7 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                      <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="SEARCH OR PROVISION NEW NODE..." className="w-full pl-12 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:border-indigo-600 outline-none shadow-xl shadow-indigo-100/20 font-inter" />
                      {(products.length > 0 || productSearch.length > 1) && (
                         <div className="absolute z-50 w-full bg-white border border-slate-100 rounded-2xl shadow-2xl mt-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                           {products.map(p => (
+                           {products.map((p: any) => (
                               <button key={p._id} type="button" onClick={() => addToCart(p)} className="w-full flex items-center justify-between px-6 py-3.5 hover:bg-slate-50 transition-all border-b border-slate-50 text-left group">
                                  <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white transition-colors"><Package size={14} className="text-slate-400" /></div>
@@ -677,7 +677,7 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                               </tr>
                            </thead>
                            <tbody className="divide-y divide-slate-100 bg-white">
-                              {cartItems.map(item => (
+                              {cartItems.map((item: any) => (
                                  <tr key={item.productId} className="hover:bg-slate-50 transition-all font-inter">
                                     <td className="px-6 py-3">
                                        <div className="flex flex-col gap-1">

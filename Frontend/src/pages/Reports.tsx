@@ -185,25 +185,28 @@ export default function Reports() {
           </div>
           <div className="flex-1 min-w-[140px] space-y-1.5">
             <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <CreditCard size={10} /> Protocol
+              <CreditCard size={10} /> Payment Method
             </label>
-            <select
-              className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-2xl text-[11px] font-semibold focus:bg-white focus:border-indigo-500 outline-none appearance-none transition-all"
-              value={filters.paymentMethod}
-              onChange={e => setFilters({ ...filters, paymentMethod: e.target.value })}
-            >
-              <option value="">All Streams</option>
-              <option value="cash">Cash Settlement</option>
-              <option value="upi">UPI Protocol</option>
-              <option value="card">Card Terminal</option>
-            </select>
+            <div className="relative group">
+              <CreditCard size={10} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <select 
+                value={filters.paymentMethod}
+                onChange={e => setFilters({ ...filters, paymentMethod: e.target.value })}
+                className="pl-8 pr-4 py-2.5 w-full bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-bold text-slate-700 uppercase tracking-widest focus:outline-none focus:border-indigo-500 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">All Methods</option>
+                <option value="cash">Cash</option>
+                <option value="upi">UPI</option>
+                <option value="card">Card</option>
+              </select>
+            </div>
           </div>
 
           <button
             onClick={() => setFilters({ startDate: '', endDate: '', paymentMethod: '', customerName: '' })}
             className="px-4 py-2.5 text-rose-500 hover:bg-rose-50 rounded-2xl text-[10px] font-semibold uppercase tracking-widest transition-all h-[42px] border border-transparent hover:border-rose-100"
           >
-            Reset Audit
+            Reset Filters
           </button>
         </div>
       </div>
@@ -214,8 +217,8 @@ export default function Reports() {
           <div className="bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm relative overflow-hidden flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-tighter leading-none">Revenue Growth Flux</h3>
-                <p className="text-[9px] text-slate-400 font-semibold uppercase mt-1.5 tracking-widest leading-none">Real-time Node Telemetry</p>
+                <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-tighter leading-none">Revenue Growth</h3>
+                <p className="text-[9px] text-slate-400 font-semibold uppercase mt-1.5 tracking-widest leading-none">Daily Performance Trend</p>
               </div>
               <div className="p-2 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600">
                 <TrendingUp size={14} />
@@ -223,7 +226,7 @@ export default function Reports() {
             </div>
             <div className="flex-1 w-full min-w-0 relative">
               <ChartWrapper data={salesData?.dailySales} height={240}>
-                <ResponsiveContainer width="100%" height={240} minWidth={0} minHeight={0}>
+                <ResponsiveContainer width="100%" height={240} minWidth={0} minHeight={0} debounce={50}>
                   <AreaChart data={salesData?.dailySales || []}>
                     <defs>
                       <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -246,24 +249,24 @@ export default function Reports() {
           <div className="bg-slate-950 p-6 md:p-8 rounded-[2.5rem] border border-slate-800 shadow-xl relative overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
                <div className="space-y-1">
-                  <p className="text-[8px] font-semibold text-indigo-400 uppercase tracking-widest leading-none">Node: Growth</p>
-                  <h4 className="text-white text-xs font-semibold tracking-tight uppercase">Growth Potential</h4>
+                  <p className="text-[8px] font-semibold text-indigo-400 uppercase tracking-widest leading-none">Performance</p>
+                  <h4 className="text-white text-xs font-semibold tracking-tight uppercase">Growth Trends</h4>
                   <p className="text-slate-400 text-[10px] font-semibold leading-relaxed mt-2 uppercase tracking-tight opacity-70">
-                     {salesData?.topSoldItems?.[0] ? `Strongest performance in ${salesData.topSoldItems[0]._id}. Scale stock accordingly.` : "Analyzing market velocity..."}
+                     {salesData?.topSoldItems?.[0] ? `Highest demand noted for ${salesData.topSoldItems[0]._id}. Ensure availability.` : "Analyzing market velocity..."}
                   </p>
                </div>
                <div className="md:border-x border-white/5 md:px-8 space-y-1">
-                  <p className="text-[8px] font-semibold text-emerald-400 uppercase tracking-widest leading-none">Node: Health</p>
-                  <h4 className="text-white text-xs font-semibold tracking-tight uppercase">Performance node</h4>
+                  <p className="text-[8px] font-semibold text-emerald-400 uppercase tracking-widest leading-none">Status</p>
+                  <h4 className="text-white text-xs font-semibold tracking-tight uppercase">Operations Health</h4>
                   <p className="text-slate-400 text-[10px] font-semibold leading-relaxed mt-2 uppercase tracking-tight opacity-70">
-                      Fiscal sync status nominal. Revenue stream is consistent across active hubs.
+                      Fiscal synchronization is current. Revenue streams remain consistent.
                   </p>
                </div>
                <div className="md:pl-8 space-y-1">
-                  <p className="text-[8px] font-semibold text-rose-400 uppercase tracking-widest leading-none">Node: Risk</p>
-                  <h4 className="text-white text-xs font-semibold tracking-tight uppercase">Stock Risk Radar</h4>
+                  <p className="text-[8px] font-semibold text-rose-400 uppercase tracking-widest leading-none">Alerts</p>
+                  <h4 className="text-white text-xs font-semibold tracking-tight uppercase">Inventory Risk</h4>
                   <p className="text-slate-400 text-[10px] font-semibold leading-relaxed mt-2 uppercase tracking-tight opacity-70">
-                      {salesData?.lowStockItems?.length > 0 ? `Alert: ${salesData.lowStockItems.length} nodes at risk. Restock protocol recommended.` : "Inventory nodes stable."}
+                      {salesData?.lowStockItems?.length > 0 ? `Alert: ${salesData.lowStockItems.length} items reaching low stock levels.` : "Inventory levels are stable."}
                   </p>
                </div>
             </div>
@@ -274,25 +277,25 @@ export default function Reports() {
         <div className="lg:col-span-4 flex flex-col gap-4 h-full">
           <div className="bg-slate-950 p-6 rounded-[2.5rem] shadow-xl relative overflow-hidden border border-slate-800 flex-1 flex flex-col group">
             <h3 className="text-sm font-semibold text-indigo-400 mb-5 uppercase tracking-widest flex items-center gap-2 leading-none">
-              <ArrowUpRight size={14} className="opacity-60" /> Peak Velocity Hub
+              <ArrowUpRight size={14} className="opacity-60" /> Top Performing Items
             </h3>
             <div className="space-y-4 relative z-10 flex-1 overflow-y-auto custom-scrollbar pr-1">
               {salesData?.topSoldItems?.length > 0 ? salesData.topSoldItems.slice(0, 5).map((item: any, i: number) => (
                 <div key={i} className="flex justify-between items-center text-[11px] py-1.5 border-b border-white/5 last:border-b-0 leading-none group/item">
                   <div className="flex items-center gap-3">
-                    <span className="text-white/20 font-semibold group-hover/item:text-indigo-400 transition-colors w-4">#0{i + 1}</span>
+                    <span className="text-white/20 font-semibold group-hover/item:text-indigo-400 transition-colors w-4">#{i + 1}</span>
                     <span className="font-semibold text-white/90 uppercase truncate max-w-[120px] sm:max-w-[180px] tracking-tight">{item._id}</span>
                   </div>
                   <span className="font-semibold text-indigo-400 shrink-0">₹{item.revenue.toLocaleString()}</span>
                 </div>
-              )) : <div className="py-10 text-center"><p className="text-[9px] text-white/10 uppercase font-semibold tracking-[0.3em]">Syncing_Nodes</p></div>}
+              )) : <div className="py-10 text-center"><p className="text-[9px] text-white/10 uppercase font-semibold tracking-[0.3em]">No Data</p></div>}
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm flex-1 flex flex-col transition-all duration-500 overflow-hidden">
             <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
               <h3 className="text-sm font-semibold text-rose-600 uppercase tracking-tighter flex items-center gap-2 leading-none">
-                <TrendingDown size={14} /> Crisis Hub
+                <TrendingDown size={14} /> Low Inventory
               </h3>
             </div>
 
@@ -306,14 +309,14 @@ export default function Reports() {
                         <span className="font-semibold text-slate-800 uppercase truncate max-w-[120px] group-hover:text-rose-500 transition-colors tracking-tight">{item.name || item._id}</span>
                       </div>
                       <span className={`font-semibold text-[8px] uppercase tracking-tighter ${item.stock <= 0 ? 'text-rose-600' : 'text-amber-600'}`}>
-                        {item.stock} NODE
+                        {item.stock} QTY
                       </span>
                     </div>
                   ))}
                   {(!(salesData?.lowStockItems?.length) && !(inventoryData?.lowStockProducts?.length)) && (
                     <div className="text-center py-6">
                         <ShieldCheck size={20} className="text-emerald-300 mx-auto mb-2 opacity-50" />
-                        <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none">All Nodes Stable</p>
+                        <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none">Inventory Stable</p>
                     </div>
                   )}
                </div>
@@ -324,7 +327,7 @@ export default function Reports() {
                     onClick={() => setShowAlertActions(true)}
                     className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-semibold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2"
                     >
-                    <ShieldCheck size={12} /> Manage Alert
+                    <ShieldCheck size={12} /> Manage Alerts
                     </button>
                  ) : (
                     <div className="flex gap-2 animate-in slide-in-from-bottom-2 duration-300">
@@ -332,7 +335,7 @@ export default function Reports() {
                         onClick={() => navigate('/purchases')}
                         className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-[9px] font-semibold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/10"
                     >
-                        New Purchase
+                        Purchase
                     </button>
                     <button 
                         onClick={() => navigate('/inventory', { state: { alarmFocus: true } })}
@@ -375,9 +378,9 @@ export default function Reports() {
               className={`bg-white p-3 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-start justify-between group transition-all hover:scale-[1.02] cursor-pointer active:scale-95 ${themes[proto] || 'border-slate-100 text-slate-400'}`}
             >
               <div className="z-10 text-center sm:text-left">
-                <span className="text-[7px] sm:text-[9px] font-semibold uppercase text-slate-400 block mb-1">{proto === 'ONLINE' ? 'Digital' : proto} Hub</span>
+                <span className="text-[7px] sm:text-[9px] font-semibold uppercase text-slate-400 block mb-1">{proto === 'ONLINE' ? 'Digital' : proto}</span>
                 <h3 className="text-sm sm:text-lg font-semibold tracking-tight text-slate-900 leading-none">₹{(metric?.amount || 0).toLocaleString()}</h3>
-                <p className="text-[6px] sm:text-[8px] font-semibold text-slate-400 mt-1 sm:mt-2 uppercase">Settlements: <span className="text-slate-900">{metric?.count || 0}</span></p>
+                <p className="text-[6px] sm:text-[8px] font-semibold text-slate-400 mt-1 sm:mt-2 uppercase">Transactions: <span className="text-slate-900">{metric?.count || 0}</span></p>
               </div>
               <div className="p-1.5 sm:p-2 rounded-lg bg-white border border-slate-100 shrink-0 mt-2 sm:mt-0 z-10 transition-all group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-800">
                 {proto === 'CASH' ? <IndianRupee size={12} /> : proto === 'ONLINE' ? <Zap size={12} /> : <CreditCard size={12} />}
@@ -394,8 +397,8 @@ export default function Reports() {
           <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 animate-in zoom-in duration-300 flex flex-col max-h-[85vh]">
             <div className="px-8 py-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-base font-semibold uppercase tracking-[0.2em]">{selectedHub} Hub Settlement Ledger</h3>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1 opacity-80">Syncing Node: {localStorage.getItem('businessId') || 'GLOBAL_ROOT'}</p>
+                <h3 className="text-base font-semibold uppercase tracking-[0.2em]">{selectedHub} Transaction Ledger</h3>
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1 opacity-80">ID: NX-{localStorage.getItem('businessId') || 'GLOBAL-000'}</p>
               </div>
               <button 
                 onClick={() => setSelectedHub(null)}
@@ -409,17 +412,17 @@ export default function Reports() {
               {hubLoading ? (
                 <div className="h-64 flex flex-col items-center justify-center">
                    <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
-                   <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Reconciling Ledger Nodes...</p>
+                   <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Loading ledger data...</p>
                 </div>
               ) : (
                 <table className="w-full text-left min-w-[600px]">
                   <thead>
                     <tr className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 border-b border-slate-50">
-                      <th className="py-4 px-4 sticky left-0 bg-white shadow-sm z-10 w-32">Date Protocol</th>
-                      <th className="py-4 px-4">Customer Segment</th>
-                      <th className="py-4 px-4">Registry ID</th>
+                      <th className="py-4 px-4 sticky left-0 bg-white shadow-sm z-10 w-32 text-slate-400 font-black uppercase text-[10px] tracking-widest">Date</th>
+                      <th className="py-4 px-4">Customer Name</th>
+                      <th className="py-4 px-4">Invoice ID</th>
                       <th className="py-4 px-4 text-center">Status</th>
-                      <th className="py-4 px-4 text-right">Settlement Amt</th>
+                      <th className="py-4 px-4 text-right">Amount</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -433,8 +436,8 @@ export default function Reports() {
                         </td>
                         <td className="py-5 px-4 uppercase tracking-tighter whitespace-nowrap">
                            <div className="flex flex-col">
-                              <span className="text-slate-900 truncate max-w-[150px]">{tx.customerName || 'Walk-in Node'}</span>
-                              <span className="text-[9px] text-slate-400 mt-1">{tx.customerPhone || 'NO_PHONE_SYNC'}</span>
+                              <span className="text-slate-900 truncate max-w-[150px]">{tx.customerName || 'Walk-in Customer'}</span>
+                              <span className="text-[9px] text-slate-400 mt-1">{tx.customerPhone || 'N/A'}</span>
                            </div>
                         </td>
                         <td className="py-5 px-4 text-[10px] text-slate-400 font-mono">{tx.invoiceNumber}</td>
@@ -448,7 +451,7 @@ export default function Reports() {
                         </td>
                       </tr>
                     )) : (
-                      <tr><td colSpan={5} className="py-20 text-center text-slate-300 font-semibold uppercase tracking-widest text-[10px]">NO_TRANS_NODES_SYNCED_FOR_CRITERIA</td></tr>
+                      <tr><td colSpan={5} className="py-20 text-center text-slate-300 font-semibold uppercase tracking-widest text-[10px]">NO DATA FOUND</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -456,12 +459,12 @@ export default function Reports() {
             </div>
             
             <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center shrink-0">
-               <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Aggregate Registry Audit: <span className="text-slate-900">{hubTransactions.length} Nodes</span></p>
+               <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Total Transactions: <span className="text-slate-900">{hubTransactions.length}</span></p>
                <button 
                   onClick={() => setSelectedHub(null)}
                   className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl active:scale-95"
                >
-                  Close Audit Ledger
+                  Close
                </button>
             </div>
           </div>
@@ -474,12 +477,12 @@ export default function Reports() {
         <div className="lg:col-span-4 bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm flex flex-col h-[500px] overflow-hidden">
           <div className="flex items-center justify-between mb-6 border-b border-slate-50 pb-3">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
-              <ShieldCheck size={16} className="text-amber-500" /> GST Insight Matrix
+              <ShieldCheck size={16} className="text-amber-500" /> Tax Analysis
             </h3>
           </div>
           <div className="flex-1 w-full min-w-0 h-[220px] relative">
             <ChartWrapper data={salesData?.gstSlabs} height={220}>
-              <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
+              <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0} debounce={50}>
                 <PieChart>
                   <Pie data={salesData?.gstSlabs || []} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="totalTax" nameKey="_id">
                     {(salesData?.gstSlabs || []).map((_e: any, index: number) => <Cell key={index} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'][index % 5]} />)}
@@ -490,14 +493,17 @@ export default function Reports() {
             </ChartWrapper>
           </div>
           <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex-1 overflow-y-auto custom-scrollbar">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Node Summary</p>
+            <div className="text-right">
+              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 opacity-50">Report Details</p>
+              <p>Strategic Financial Summary</p>
+            </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center text-[11px] font-bold text-slate-800">
                 <span className="uppercase">Net Yield</span>
                 <span className="text-amber-600 font-black tracking-tight">₹{(salesData?.totalGST || 0).toLocaleString()}</span>
               </div>
               <p className="text-[9px] text-slate-400 font-bold leading-relaxed uppercase">
-                Monitoring tax liability concentration across all synchronized business nodes.
+                Monitoring tax liability across business operations.
               </p>
             </div>
           </div>
@@ -507,28 +513,28 @@ export default function Reports() {
         <div className="lg:col-span-8 bg-white p-6 rounded-[2.5rem] border-2 border-slate-200 shadow-sm flex flex-col h-[500px] overflow-hidden">
           <div className="flex items-center justify-between mb-6 border-b border-slate-50 pb-3">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
-              <ShieldCheck size={16} className="text-amber-500" /> Slab Reconciliation Matrix
+              <ShieldCheck size={16} className="text-amber-500" /> Tax Slab Details
             </h3>
           </div>
           <div className="flex-1 overflow-x-auto custom-scrollbar">
             <table className="w-full text-left">
               <thead className="sticky top-0 bg-white z-10">
                 <tr className="uppercase tracking-wider text-slate-400 border-b border-slate-100 font-black italic text-[9px]">
-                  <th className="py-3 px-4">Tax Bracket Node Protocol</th>
-                  <th className="py-3 px-4 text-right w-[180px]">Taxable Supply Hub</th>
-                  <th className="py-3 px-4 text-right w-[180px]">Collected Tax Registry</th>
+                  <th className="py-3 px-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Tax Bracket</th>
+                  <th className="py-3 px-4 text-right w-[180px]">Taxable Amount</th>
+                  <th className="py-3 px-4 text-right w-[180px]">Total Tax</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {salesData?.gstSlabs?.length > 0 ? salesData.gstSlabs.map((slab: any, i: number) => (
                   <tr key={i} className="text-[11px] font-bold text-slate-700 uppercase hover:bg-indigo-50/50 transition-all duration-300 group border-b-2 border-slate-100 last:border-0 cursor-pointer">
-                    {/* GST Protocol Row */}
-                    <td className="py-4 px-2 text-slate-400 group-hover:text-amber-600 transition-colors tracking-tight">GST {slab._id}% Protocol</td>
+                    {/* GST Row */}
+                    <td className="py-4 px-2 text-slate-400 group-hover:text-amber-600 transition-colors tracking-tight font-black text-[11px] uppercase">GST {slab._id}%</td>
                     <td className="py-4 px-2 text-right">₹{slab.taxableValue.toLocaleString()}</td>
                     <td className="py-4 px-2 text-right text-amber-600 font-black">₹{slab.totalTax.toLocaleString()}</td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={3} className="py-10 text-center text-slate-200 font-bold tracking-widest uppercase">NO_TAX_DATA_SYNCED</td></tr>
+                  <tr><td colSpan={3} className="py-10 text-center text-slate-200 font-bold tracking-widest uppercase">NO TAX DATA</td></tr>
                 )}
               </tbody>
             </table>
@@ -536,7 +542,7 @@ export default function Reports() {
           {salesData?.gstSlabs?.length > 0 && (
             <div className="mt-4 pt-4 border-t-2 border-slate-100 bg-white">
               <div className="flex justify-between items-center bg-slate-900 p-4 rounded-2xl shadow-lg">
-                <span className="text-[11px] font-bold text-white/40 uppercase tracking-[0.2em]">Aggregate Summary</span>
+                <span className="text-[11px] font-bold text-white/40 uppercase tracking-[0.2em]">Total Tax</span>
                 <span className="text-lg font-black text-amber-400">₹{salesData.totalGST.toLocaleString()}</span>
               </div>
             </div>
@@ -546,17 +552,18 @@ export default function Reports() {
 
       {/* Strategic Hub Visual Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-        {/* Terminal A: Payment Flux Protocol */}
-        <div className="bg-white p-5 rounded-[2rem] border-2 border-slate-200 shadow-sm flex flex-col h-[320px] overflow-hidden group">
-           <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                 <CreditCard size={14} className="text-indigo-600" /> Sector Settlement logic
-              </h3>
-              <div className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[8px] font-semibold rounded-md border border-indigo-100 uppercase tracking-widest">Protocol Sync</div>
+        {/* Payment Summary */}
+        <div className="lg:col-span-10 bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex flex-col group">
+           <div className="flex items-center justify-between mb-4">
+              <div>
+                 <h3 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1">Payment Summary</h3>
+                 <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">Global flow analysis</p>
+              </div>
+              <div className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[8px] font-semibold rounded-md border border-indigo-100 uppercase tracking-widest">Active Sync</div>
            </div>
            <div className="flex-1 w-full relative">
               <ChartWrapper data={salesData?.paymentMetrics} height={200}>
-                <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0}>
+                <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0} debounce={50}>
                   <PieChart>
                     <Pie data={salesData?.paymentMetrics || []} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="amount" nameKey="_id">
                         {(salesData?.paymentMetrics || []).map((entry:any, index:number) => {
@@ -590,7 +597,7 @@ export default function Reports() {
            <div className="flex-1 w-full relative overflow-x-auto custom-scrollbar-thin">
               <div style={{ minWidth: (inventoryData?.categoryDistribution?.length || 0) * 55 + 'px', height: '100%' }}>
                 <ChartWrapper data={inventoryData?.categoryDistribution} height={220}>
-                  <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
+                  <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0} debounce={50}>
                     <BarChart data={inventoryData?.categoryDistribution || []} margin={{ left: 5, right: 5, bottom: 25 }}>
                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                        <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 7, fill: '#94A3B8', fontWeight: 600 }} interval={0} angle={-35} textAnchor="end" />

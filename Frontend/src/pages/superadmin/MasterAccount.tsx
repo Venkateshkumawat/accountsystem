@@ -56,32 +56,32 @@ const MasterAccount: React.FC = () => {
   const handleToggleStatus = async (biz: any) => {
     const action = biz.status === 'active' ? 'suspend' : 'activate';
     try {
-      await api.patch(`/superadmin/auth/business-admins/${biz.businessId}/status`, { action, reason: 'Manual override by master admin.' });
-      notifySuccess(`Node ${biz.businessId} shifted to ${action.toUpperCase()}`);
+      await api.patch(`/superadmin/superadmin/auth/business-admins/${biz.businessId}/status`, { action, reason: 'Manual override by admin.' });
+      notifySuccess(`Business ${biz.businessId} shifted to ${action.toUpperCase()}`);
       fetchBusinesses();
       syncRegistry();
-    } catch { alert('Deployment state transition failed.'); }
+    } catch { alert('Status update failed.'); }
   };
 
   const handleUpdateFeatures = async (features: any) => {
     try {
       await api.patch(`/superadmin/auth/business-admins/${showFeatureModal.businessId}/features`, { features });
-      notifyInfo(`Capability matrix updated for node ${showFeatureModal.businessId}`);
+      notifyInfo(`Features updated for business ${showFeatureModal.businessId}`);
       setShowFeatureModal({ ...showFeatureModal, features });
       fetchBusinesses();
       syncRegistry();
-    } catch { alert('Protocol update failed.'); }
+    } catch { alert('Update failed.'); }
   };
 
   const handleUpdateNode = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await api.put(`/superadmin/auth/business-admins/${editModal.businessId}`, editFormData);
-      notifySuccess(`Configuration synchronized for node ${editModal.businessId}`);
+      notifySuccess(`Configuration updated for business ${editModal.businessId}`);
       setEditModal(null);
       fetchBusinesses();
       syncRegistry();
-    } catch { alert('Protocol sync failed.'); }
+    } catch { alert('Sync failed.'); }
   };
 
   useEffect(() => {
@@ -164,15 +164,15 @@ const MasterAccount: React.FC = () => {
                 <th className="px-6 py-4">ADMINISTRATOR</th>
                 <th className="px-6 py-4">PLAN & STATUS</th>
                 <th className="px-6 py-4 text-center">PRIVILEGES</th>
-                <th className="px-6 py-4">RESOURCE USAGE</th>
+                <th className="px-6 py-4">USAGE LIMITS</th>
                 <th className="px-6 py-4 text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? (
-                <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-200 uppercase font-black tracking-widest text-sm">Indexing Grid...</td></tr>
+                <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-200 uppercase font-black tracking-widest text-sm">Loading Businesses...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-200 uppercase font-black tracking-widest text-sm">No matching nodes</td></tr>
+                <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-200 uppercase font-black tracking-widest text-sm">No matching businesses</td></tr>
               ) : filtered.map(biz => (
                 <tr key={biz._id} className="hover:bg-slate-50/50 transition-colors group">
                   <td className="px-6 py-4">
@@ -256,7 +256,7 @@ const MasterAccount: React.FC = () => {
         {/* Mobile View / Cards */}
         <div className="lg:hidden p-4 space-y-4">
           {loading ? (
-            <div className="py-20 text-center text-xs font-semibold text-slate-300 tracking-widest">Indexing nodes...</div>
+            <div className="py-20 text-center text-xs font-semibold text-slate-300 tracking-widest">Loading businesses...</div>
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center text-xs font-semibold text-slate-300 tracking-widest">No results found</div>
           ) : filtered.map(biz => (
@@ -302,7 +302,7 @@ const MasterAccount: React.FC = () => {
           <div className="bg-white w-full max-w-[340px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
                <div>
-                <h3 className="text-base font-semibold text-white">Privilege Settings</h3>
+                <h3 className="text-base font-semibold text-white">Business Privileges</h3>
                 <p className="text-indigo-400 text-xs font-medium mt-1">{showFeatureModal.businessName}</p>
               </div>
               <button onClick={() => setShowFeatureModal(null)} className="p-2 text-white/40 hover:text-white transition-colors"><X size={20} /></button>
@@ -314,7 +314,7 @@ const MasterAccount: React.FC = () => {
                   { key: 'pos', name: 'POS (Terminal)' },
                   { key: 'inventory', name: 'Inventory Registry' },
                   { key: 'purchases', name: 'Procurement' },
-                  { key: 'accounting', name: 'Nexus Ledger' },
+                  { key: 'accounting', name: 'Accounting' },
                   { key: 'reports', name: 'Reporting' },
                 ].map(feat => {
                   const isActive = showFeatureModal.features?.[feat.key] !== false;
@@ -361,7 +361,7 @@ const MasterAccount: React.FC = () => {
               </div>
 
               <div className="p-2.5 bg-indigo-50/50 rounded-lg border border-indigo-100/50">
-                <p className="text-[8px] font-semibold text-indigo-700 leading-tight uppercase tracking-tighter">Deactivating modules will freeze node access immediately.</p>
+                <p className="text-[8px] font-semibold text-indigo-700 leading-tight uppercase tracking-tighter">Deactivating modules will freeze business access immediately.</p>
               </div>
             </div>
           </div>
@@ -373,7 +373,7 @@ const MasterAccount: React.FC = () => {
             <div className="p-5 bg-slate-900 text-white flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-base font-semibold text-white">Account Details</h3>
-                <p className="text-indigo-400 text-xs font-medium mt-1">Edit business node</p>
+                <p className="text-indigo-400 text-xs font-medium mt-1">Edit business account</p>
               </div>
               <button onClick={() => setEditModal(null)} className="p-2 text-white/40 hover:text-white"><X size={20} /></button>
             </div>

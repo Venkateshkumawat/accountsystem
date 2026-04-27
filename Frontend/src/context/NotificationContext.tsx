@@ -10,6 +10,7 @@ export interface INotification {
   category: 'product' | 'invoice' | 'payment' | 'alert' | 'staff';
   isRead: boolean;
   link?: string;
+  businessId?: string;
   createdAt: string;
 }
 
@@ -20,7 +21,7 @@ interface NotificationContextType {
   notifySuccess: (msg: string) => void;
   notifyError: (msg: string) => void;
   notifyInfo: (msg: string) => void;
-  fetchNotifications: (shouldToast?: boolean) => Promise<void>;
+  fetchNotifications: (retryCount?: number) => Promise<void>;
   loadMore: () => Promise<void>;
   hasMore: boolean;
   markAsRead: (id: string) => Promise<void>;
@@ -153,7 +154,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://account-billing-system.onrender.com/api';
     const socketUrl = apiBase.replace(/\/api$/, '');
     const newSocket = io(socketUrl, {
-      transports: ["websocket"],
+      transports: ["polling", "websocket"],
       withCredentials: true
     }); 
 
