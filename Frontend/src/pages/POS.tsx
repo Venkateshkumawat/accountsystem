@@ -246,7 +246,7 @@ export default function POS() {
             discount: item.discount,
           })),
           paymentMethod,
-          note: razorpayDetails ? `Integrated Payment ID: ${razorpayDetails.razorpay_payment_id}` : 'POS Terminal',
+          note: razorpayDetails ? `Payment ID: ${razorpayDetails.razorpay_payment_id}` : 'Counter Sale',
           razorpayPaymentId: razorpayDetails?.razorpay_payment_id || null,
           razorpayOrderId: razorpayDetails?.razorpay_order_id || null,
           razorpaySignature: razorpayDetails?.razorpay_signature || null,
@@ -259,10 +259,8 @@ export default function POS() {
           setShowCheckout(false);
           clearCart();
           setCustomer({ name: '', phone: '', address: '', gstin: '' });
-          // Synchronize system alerts after successful transaction
           fetchNotifications();
 
-          // Real-time Global Sync Pulse: Hand-to-Hand Data Propagation
           const sync = new BroadcastChannel('nexus_sync');
           sync.postMessage('FETCH_DASHBOARD');
           sync.postMessage('SYNC_PARTIES');
@@ -274,21 +272,19 @@ export default function POS() {
       } finally { setSubmitting(false); }
     };
 
-    // ── Integrated Protocol Gate ──────────────────────────────────────────────
     if (paymentMethod === 'upi') {
       try {
         await handlePayment({
           amount: Math.round(cartTotal),
-          name: 'NexusBill POS',
+          name: 'POS System',
           description: `Invoice for ${customer.name}`,
           onSuccess: (details) => processInvoice(details),
-          onError: (err) => alert(err.message || 'Integrated Payment Failed')
+          onError: (err) => alert(err.message || 'Payment Failed')
         });
       } catch (err: any) {
-        alert(err.message || 'Integrated Payment Gateway Error');
+        alert(err.message || 'Payment Gateway Error');
       }
     } else {
-      // Manual Node Protocol (Cash/Card Recorded)
       processInvoice();
     }
   };
@@ -297,15 +293,14 @@ export default function POS() {
     <>
       <div className="flex flex-col lg:flex-row h-[calc(100vh-100px)] bg-[#F8FAFF] overflow-hidden lg:rounded-2xl border-2 border-slate-200 relative">
 
-        {/* Mobile Header Toggle */}
         <div className="lg:hidden flex items-center justify-between p-3 bg-white border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
               <ShoppingCart size={16} />
             </div>
             <div>
-              <p className="text-[10px] font-black text-slate-900 uppercase">Cart Check</p>
-              <p className="text-[8px] font-semibold text-slate-400 uppercase">{cart.length} Nodes Loaded</p>
+              <p className="text-[10px] font-black text-slate-900 uppercase">Cart</p>
+              <p className="text-[8px] font-semibold text-slate-400 uppercase">{cart.length} items</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -325,10 +320,8 @@ export default function POS() {
           </div>
         </div>
 
-        {/* ── LEFT: Product Discovery ─────────────────────────────────────── */}
         <div className={`flex-[3] flex flex-col p-3 lg:p-5 border-r border-slate-100 overflow-hidden min-w-0 ${isMobileCartOpen ? 'hidden lg:flex' : 'flex'}`}>
 
-          {/* Header */}
           <header className="flex items-center justify-between gap-4 mb-8 p-1">
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight leading-none">Point of Sale</h1>
@@ -345,24 +338,23 @@ export default function POS() {
 
             <div className="hidden sm:flex items-center gap-1.5 ml-auto">
               <div className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg shadow-sm text-center">
-                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Node Cart</p>
+                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Cart</p>
                 <p className="text-xs font-black text-slate-900 leading-none mt-0.5">{cart.length}</p>
               </div>
               <div className="px-2.5 py-1 bg-slate-900 border border-slate-900 rounded-lg shadow-md text-center">
-                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Net Payable</p>
+                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Total</p>
                 <p className="text-xs font-black text-white leading-none mt-0.5">₹{Math.round(cartTotal)}</p>
               </div>
             </div>
           </header>
 
-          {/* Search & Barcode — Adaptive Visibility */}
           <div className={`${isMobileSearchVisible ? 'grid' : 'hidden'} sm:grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 shrink-0`}>
             <div className="relative group">
               <form onSubmit={handleBarcodeSearch} className="flex gap-2">
                 <div className="relative flex-1">
                   <input ref={barcodeRef} value={barcodeInput}
                     onChange={e => setBarcodeInput(e.target.value)}
-                    placeholder="Scan barcode Product…"
+                    placeholder="Scan barcode..."
                     className="w-full pl-3 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:outline-none focus:border-indigo-500 shadow-sm transition placeholder:text-slate-300"
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 border-l border-slate-100 pl-2">
@@ -380,7 +372,7 @@ export default function POS() {
             </div>
             <input value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search product…"
+              placeholder="Search product..."
               className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:outline-none focus:border-slate-600 shadow-sm transition placeholder:text-slate-300"
             />
           </div>
@@ -401,19 +393,18 @@ export default function POS() {
           </div>
 
 
-          {/* Product Grid — Fluid Scroller */}
           <div
             onScroll={handleScroll}
             className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 lg:gap-4 content-start pb-24 lg:pb-8">
             {loading ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <ShoppingCart size={32} className="mx-auto mb-2 animate-bounce" />
-                <p className="text-xs font-black uppercase tracking-widest">Syncing Nodes…</p>
+                <p className="text-xs font-black uppercase tracking-widest">Loading...</p>
               </div>
             ) : displayedProducts.length === 0 ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <Box size={32} className="mx-auto mb-2" />
-                <p className="text-xs font-black uppercase">No Nodes Found</p>
+                <p className="text-xs font-black uppercase">No Products Found</p>
               </div>
             ) : displayedProducts.map(product => (
               <ProductNode 
@@ -430,7 +421,6 @@ export default function POS() {
         </div>
 
 
-        {/* ── RIGHT: Cart & Checkout ──────────────────────────────────────── */}
         <div className={`
           ${isMobileCartOpen ? 'flex absolute inset-0 z-50 bg-white' : 'hidden lg:flex'}
           lg:static lg:w-[320px] lg:lg:w-[360px] bg-white flex-col shadow-xl shrink-0 border-l border-slate-100
@@ -467,7 +457,6 @@ export default function POS() {
               const lineGST = ((item.sellingPrice - (item.discount || 0)) * (item.gstRate || 0) / 100) * item.qty;
               return (
                 <div key={item.productId} className="bg-white p-3 border-b-2 border-slate-100 hover:bg-indigo-50/30 transition-all duration-300 group flex flex-col min-h-[90px] justify-between cursor-pointer">
-                  {/* Top: Name and Unit Details (Small Font) */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0 pr-2">
                       <p className="text-xs font-semibold text-slate-900 uppercase truncate leading-none">{item.name}</p>
@@ -496,12 +485,11 @@ export default function POS() {
                     </button>
                   </div>
 
-                  {/* Promotion Signals */}
                   {(item.qty >= 25 || item.qty >= 3) && (
                     <div className="flex flex-wrap gap-1 mb-1">
                       {item.qty >= 25 && (
                         <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[7px] font-black rounded-sm uppercase tracking-tighter shadow-sm animate-pulse">
-                          BULK SLAB ACTIVE
+                          BULK ACTIVE
                         </span>
                       )}
                       {item.qty >= 3 && (
@@ -512,7 +500,6 @@ export default function POS() {
                     </div>
                   )}
 
-                  {/* Middle: Qty & Editable Discount (Compact) */}
                   <div className="flex items-center gap-1.5 mt-2">
                     <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm scale-90 -ml-1 origin-left">
                       <button onClick={() => item.qty > 1 ? updateQty(item.productId, item.qty - 1) : removeItem(item.productId)}
@@ -592,7 +579,6 @@ export default function POS() {
           }}
         />
       )}
-      {/* ── CHECKOUT MODAL: Finalize Hub ─────────────────────────────── */}
       {showCheckout && (
         <div className="fixed inset-0 z-[9999] backdrop-blur-sm bg-slate-900/40 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-200 flex flex-col max-h-[90vh]">
@@ -602,8 +588,8 @@ export default function POS() {
                   <CreditCard size={14} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight leading-none">Checkout Hub</h3>
-                  <p className="text-[7px] font-semibold text-slate-400 mt-0.5 uppercase tracking-tighter">FINALIZE TRANSACTION NODE</p>
+                  <h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight leading-none">Checkout</h3>
+                  <p className="text-[7px] font-semibold text-slate-400 mt-0.5 uppercase tracking-tighter">FINALIZE TRANSACTION</p>
                 </div>
               </div>
               <button
@@ -615,16 +601,14 @@ export default function POS() {
             </header>
 
             <div className="p-6 overflow-y-auto space-y-6">
-              {/* Totals Summary */}
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                 <div className="flex justify-between items-center mb-0.5">
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Payable</span>
                   <span className="text-xl font-black text-slate-900 tracking-tighter">₹{Math.round(cartTotal)}</span>
                 </div>
-                <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">{cart.length} Nodes Indexed</p>
+                <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">{cart.length} items</p>
               </div>
 
-              {/* Customer Info */}
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Customer Name</label>
@@ -658,7 +642,7 @@ export default function POS() {
                   <textarea
                     value={customer.address}
                     onChange={e => setCustomer({ ...customer, address: e.target.value })}
-                    placeholder="Enter city or full physical address..."
+                    placeholder="Enter city or address..."
                     rows={2}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black focus:bg-white focus:border-indigo-500 outline-none transition-all shadow-sm resize-none"
                   />
@@ -674,9 +658,8 @@ export default function POS() {
                 </div>
               </div>
 
-              {/* Payment Method */}
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Payment Protocol</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Payment Method</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['cash', 'upi', 'card'] as const).map(m => (
                     <button
@@ -699,7 +682,6 @@ export default function POS() {
                 </div>
               </div>
 
-              {/* ── Authorization Protocol ─────────────────────────────────── */}
               <div className="pt-2">
                 <label className="flex items-center gap-3 p-3 bg-slate-50/50 rounded-xl border border-slate-100 cursor-pointer group transition-all hover:bg-slate-50">
                   <div className="relative flex items-center">
@@ -714,8 +696,8 @@ export default function POS() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest leading-none">Authorization Hub</p>
-                    <p className="text-[7px] font-semibold text-slate-400 mt-1 uppercase leading-snug">Confirm payment method and customer hub connection is authenticated.</p>
+                    <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest leading-none">Confirm</p>
+                    <p className="text-[7px] font-semibold text-slate-400 mt-1 uppercase leading-snug">Confirm payment and final details.</p>
                   </div>
                 </label>
               </div>

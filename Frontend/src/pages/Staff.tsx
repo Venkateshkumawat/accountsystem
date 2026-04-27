@@ -271,10 +271,6 @@ export default function Staff() {
       {/* ──── Header ───────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
         <div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <Zap size={12} className="text-amber-500" />
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Nexus Personnel Protocol</span>
-          </div>
           <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Staff Management</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">
             {staff.length} active staff managing operations.
