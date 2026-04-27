@@ -404,7 +404,7 @@ export default function POS() {
           {/* Product Grid — Fluid Scroller */}
           <div
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 content-start pb-24 lg:pb-8">
+            className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 lg:gap-4 content-start pb-24 lg:pb-8">
             {loading ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <ShoppingCart size={32} className="mx-auto mb-2 animate-bounce" />
