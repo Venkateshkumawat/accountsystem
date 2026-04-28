@@ -16,6 +16,7 @@ import api from '../services/api';
 import socketService from '../services/socket';
 import { useProducts } from '../context/ProductContext';
 import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 export default function Inventory() {
   const { products, categories, refreshAll, remainingProduct } = useProducts();
@@ -277,10 +278,14 @@ export default function Inventory() {
       try {
         await api.delete(`/products/categories/${categoryName}`);
         toast.success(`Success: Section '${categoryName}' has been decommissioned.`);
-        // Refresh products list
-        if (req.user?.businessId) {
-          getIO()?.to(req.user.businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
-        }
+        
+        // ── Refresh Local & Global State ──
+        refreshAll();
+        
+        const sync = new BroadcastChannel('nexus_sync');
+        sync.postMessage('SYNC_PRODUCTS');
+        sync.postMessage('FETCH_DASHBOARD');
+        sync.close();
       } catch (err: any) {
         toast.error("Communication Failure: " + (err.response?.data?.message || err.message));
       }
