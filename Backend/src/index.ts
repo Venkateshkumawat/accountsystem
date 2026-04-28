@@ -40,7 +40,7 @@ cron.schedule('0 0 * * *', async () => {
   console.log('📡 Nexus Engine: Processing Nightly Subscription Cycle...');
   try {
     const today = new Date();
-    
+
     // 1. Decommission Expired Nodes
     const expiredBusinesses = await Business.find({ planEndDate: { $lt: today }, isActive: true });
     if (expiredBusinesses.length > 0) {
@@ -48,7 +48,7 @@ cron.schedule('0 0 * * *', async () => {
         { planEndDate: { $lt: today }, isActive: true },
         { $set: { status: 'inactive', isActive: false } }
       );
-      
+
       for (const biz of expiredBusinesses) {
         await createNotification(
           null,
@@ -64,8 +64,8 @@ cron.schedule('0 0 * * *', async () => {
     // 2. Alert SuperAdmin for Expiring Soon (7 Days)
     const sevenDaysFromNow = new Date();
     sevenDaysFromNow.setDate(today.getDate() + 7);
-    const startOf7thDay = new Date(sevenDaysFromNow.setHours(0,0,0,0));
-    const endOf7thDay = new Date(sevenDaysFromNow.setHours(23,59,59,999));
+    const startOf7thDay = new Date(sevenDaysFromNow.setHours(0, 0, 0, 0));
+    const endOf7thDay = new Date(sevenDaysFromNow.setHours(23, 59, 59, 999));
 
     const expiringSoon = await Business.find({
       planEndDate: { $gte: startOf7thDay, $lte: endOf7thDay },
@@ -92,10 +92,10 @@ const app = express();
 const httpServer = createServer(app);
 
 // Security & Performance Middleware
-app.use(helmet({ 
+app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" }
-})); 
+}));
 app.use(morgan("dev"));
 app.use(express.json());
 
@@ -165,23 +165,23 @@ const startServer = (p: number) => {
 
 // ── Background Nexus Initialization ──────────────────────────────────────────
 (async () => {
-    try {
-        console.log('📡 Nexus Engine: Initializing Core Infrastructure...');
-        await connectDB();
-        
-        // Start Server immediately after DB is ready to accept connections
-        startServer(port);
+  try {
+    console.log('📡 Nexus Engine: Initializing Core Infrastructure...');
+    await connectDB();
 
-        console.log('📡 Nexus Engine: Performing Background Registry Audit & Migrations...');
-        // These run in the background while the server is online
-        healRegistry().catch(err => console.error('⚠️ Background Heal Failed:', err));
-        seedSuperAdmin().catch(err => console.error('⚠️ Background Seed Failed:', err));
-        seedPlans().catch(err => console.error('⚠️ Background Plan Seed Failed:', err));
-        initializeExistingProducts().catch(err => console.error('⚠️ Background Product Init Failed:', err));
-        
-        console.log('✅ Nexus Gateway: Online and accepting telemetry.');
-    } catch (err) {
-        console.error('🌊 Nexus Bootstrap Failure:', err);
-        process.exit(1);
-    }
+    // Start Server immediately after DB is ready to accept connections
+    startServer(port);
+
+    console.log('📡 Nexus Engine: Performing Background Registry Audit & Migrations...');
+    // These run in the background while the server is online
+    healRegistry().catch(err => console.error('⚠️ Background Heal Failed:', err));
+    seedSuperAdmin().catch(err => console.error('⚠️ Background Seed Failed:', err));
+    seedPlans().catch(err => console.error('⚠️ Background Plan Seed Failed:', err));
+    initializeExistingProducts().catch(err => console.error('⚠️ Background Product Init Failed:', err));
+
+    console.log('✅ Nexus Gateway: Online and accepting telemetry.');
+  } catch (err) {
+    console.error('🌊 Nexus Bootstrap Failure:', err);
+    process.exit(1);
+  }
 })();

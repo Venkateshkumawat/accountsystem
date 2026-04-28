@@ -14,7 +14,18 @@ export const getParties = async (req: AuthRequest, res: Response): Promise<void>
     }
     const { Party } = req.tenantModels;
     const businessAdminId = req.user?.businessAdminId || req.user?.userId;
-    const parties = await Party.find({ businessAdminId, isActive: true }).sort({ name: 1 });
+    
+    const { search } = req.query;
+    const query: any = { businessAdminId, isActive: true };
+    
+    if (search) {
+      query.$or = [
+        { name: { $regex: String(search), $options: 'i' } },
+        { phone: { $regex: String(search), $options: 'i' } }
+      ];
+    }
+
+    const parties = await Party.find(query).sort({ name: 1 }).limit(20);
     res.status(200).json({ success: true, data: parties });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

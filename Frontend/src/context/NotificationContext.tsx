@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import api from '../services/api';
 import { io } from 'socket.io-client';
@@ -28,6 +28,11 @@ interface NotificationContextType {
   markAllAsRead: () => Promise<void>;
   deleteNotification: (id: string) => Promise<void>;
   deleteAllNotifications: () => Promise<void>;
+  soundEnabled: boolean;
+  setSoundEnabled: (enabled: boolean) => void;
+  volume: number;
+  setVolume: (vol: number) => void;
+  playNotificationSound: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -39,21 +44,59 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
+  // Audio Alert Protocol
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem('bb_sound_enabled');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem('bb_sound_volume');
+    return saved !== null ? JSON.parse(saved) : 0.5;
+  });
+
+  const playNotificationSound = useCallback(() => {
+    if (!soundEnabled) return;
+    console.log("🔊 [NexusAudio] Attempting to play notification sound...");
+    try {
+      const audio = new Audio('/notification.mp3');
+      audio.volume = volume;
+      audio.play().catch(() => {
+        // Fallback to Pixabay Happy Message Ping
+        const pixabayAudio = new Audio('https://cdn.pixabay.com/audio/2023/10/16/audio_f835016503.mp3');
+        pixabayAudio.volume = volume;
+        pixabayAudio.play().catch(e => console.warn('[NexusAudio] Cloud playback blocked.', e));
+      });
+    } catch (err) {
+      console.warn('[NexusAudio] Sound node initialization failure.', err);
+    }
+  }, [soundEnabled, volume]);
+
+  useEffect(() => {
+    localStorage.setItem('bb_sound_enabled', JSON.stringify(soundEnabled));
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem('bb_sound_volume', JSON.stringify(volume));
+  }, [volume]);
+
   const syncChannel = new BroadcastChannel('nexus_sync');
 
   const notifySuccess = (msg: string) => {
+    playNotificationSound();
     toast.success(msg, {
       className: " font-black text-[11px] uppercase tracking-widest rounded-2xl border border-emerald-500 bg-emerald-50 text-emerald-700",
     });
   };
 
   const notifyError = (msg: string) => {
+    playNotificationSound();
     toast.error(msg, {
       className: " font-black text-[11px] uppercase tracking-widest rounded-2xl border border-rose-500 bg-rose-50 text-rose-700",
     });
   };
 
   const notifyInfo = (msg: string) => {
+    playNotificationSound();
     toast(msg, {
       className: " font-black text-[11px] uppercase tracking-widest rounded-2xl border border-indigo-500 bg-indigo-50 text-indigo-700",
     });
@@ -156,7 +199,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const newSocket = io(socketUrl, {
       transports: ["polling", "websocket"],
       withCredentials: true
-    }); 
+    });
 
     const checkAuthAndSubscribe = () => {
       const token = localStorage.getItem('token');
@@ -182,38 +225,39 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     checkAuthAndSubscribe();
 
     newSocket.on('notification-received', (notification: INotification) => {
-       console.log(`📡 Nexus Protocol: Real-time Alert Decoded [${notification._id}]`);
-       
-       // Prepend to top
-       setNotifications(prev => [notification, ...prev]);
-       setUnreadCount(prev => prev + 1);
+      console.log(`📡 Nexus Protocol: Real-time Alert Decoded [${notification._id}]`);
 
-       // 🛡️ User Preference Enforcement (Settings Panel)
-       let shouldToast = true;
-       try {
-           const savedConfig = localStorage.getItem('bb_alerts');
-           if (savedConfig) {
-               const config = JSON.parse(savedConfig);
-               const msg = notification.message.toLowerCase();
-               const cat = notification.category;
+      // Prepend to top
+      setNotifications(prev => [notification, ...prev]);
+      setUnreadCount(prev => prev + 1);
+      
+      // 🔊 Always play sound for any incoming notification
+      playNotificationSound();
 
-               if ((cat === 'product' || msg.includes('stock')) && msg.includes('low')) shouldToast = config.lowStock ?? true;
-               else if ((cat === 'invoice' || cat === 'payment') && msg.includes('paid')) shouldToast = config.invoicePaid ?? true;
-               else if (cat === 'staff' && msg.includes('login') && !msg.includes('failed')) shouldToast = config.newStaffLogin ?? false;
-               else if (msg.includes('failed login')) shouldToast = config.failedLogin ?? true;
-               else if (msg.includes('plan') && msg.includes('expir')) shouldToast = config.planExpiry ?? true;
-               else if (msg.includes('summary') || msg.includes('digest')) shouldToast = config.dailySummary ?? false;
-           }
-       } catch (e) {
-           console.warn("Failed to parse alert preferences.");
-       }
+      // 🛡️ User Preference Enforcement (Settings Panel)
+      let shouldToast = true;
+      try {
+        const savedConfig = localStorage.getItem('bb_alerts');
+        if (savedConfig) {
+          const config = JSON.parse(savedConfig);
+          const msg = notification.message.toLowerCase();
+          const cat = notification.category;
 
-       // Toast Alert Strategy
-       if (shouldToast) {
-           if (notification.type === 'error') notifyError(notification.message);
-           else if (notification.type === 'success') notifySuccess(notification.message);
-           else notifyInfo(notification.message);
-       }
+          // Only skip toast if explicitly disabled in config
+          if (cat === 'product' && msg.includes('low') && config.lowStock === false) shouldToast = false;
+          if (cat === 'invoice' && config.invoicePaid === false) shouldToast = false;
+          if (cat === 'staff' && config.newStaffLogin === false) shouldToast = false;
+        }
+      } catch (e) {
+        console.warn("Failed to parse alert preferences.");
+      }
+
+      // Toast Alert Strategy
+      if (shouldToast) {
+        if (notification.type === 'error') notifyError(notification.message);
+        else if (notification.type === 'success') notifySuccess(notification.message);
+        else notifyInfo(notification.message);
+      }
     });
 
     // 📡 Nexus Global Sync: Multi-partition signaling
@@ -240,12 +284,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ 
-      notifications, 
-      unreadCount, 
+    <NotificationContext.Provider value={{
+      notifications,
+      unreadCount,
       loading,
-      notifySuccess, 
-      notifyError, 
+      notifySuccess,
+      notifyError,
       notifyInfo,
       fetchNotifications,
       loadMore,
@@ -253,7 +297,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       markAsRead,
       markAllAsRead,
       deleteNotification,
-      deleteAllNotifications
+      deleteAllNotifications,
+      soundEnabled,
+      setSoundEnabled,
+      volume,
+      setVolume,
+      playNotificationSound
     }}>
       <Toaster position="top-right" reverseOrder={false} />
       {children}

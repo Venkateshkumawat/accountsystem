@@ -348,10 +348,12 @@ export const getInvoices = async (req: AuthRequest, res: Response): Promise<void
         query.paymentMethod = meth;
       }
     }
-    if (req.query.customerName) {
+    const search = req.query.search || req.query.customerName;
+    if (search) {
       query.$or = [
-        { customerName: { $regex: String(req.query.customerName), $options: 'i' } },
-        { customerPhone: { $regex: String(req.query.customerName), $options: 'i' } }
+        { invoiceNumber: { $regex: String(search), $options: 'i' } },
+        { customerName: { $regex: String(search), $options: 'i' } },
+        { customerPhone: { $regex: String(search), $options: 'i' } }
       ];
     }
 

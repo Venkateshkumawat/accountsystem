@@ -13,7 +13,8 @@ export const logActivity = async (
   description: string,
   resourceId?: string,
   customAdminId?: string,
-  metadata?: any
+  metadata?: any,
+  silent: boolean = false
 ) => {
   try {
     const authReq = req as AuthRequest;
@@ -42,6 +43,8 @@ export const logActivity = async (
       description,
       metadata
     });
+
+    if (silent) return;
 
     // 📡 Nexus Unified Dispatcher: Bridge to Real-time Notifications
     const { Notification } = authReq.tenantModels;

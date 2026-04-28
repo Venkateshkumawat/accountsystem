@@ -365,8 +365,18 @@ export const updateBusinessFeatures = async (req: Request, res: Response): Promi
  */
 export const getAllBusinesses = async (req: Request, res: Response): Promise<void> => {
   try {
-    const businesses = await Business.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, businesses });
+    const { search } = req.query;
+    const query: any = {};
+    if (search) {
+      query.$or = [
+        { businessName: { $regex: search, $options: 'i' } },
+        { businessId: { $regex: search, $options: 'i' } },
+        { ownerFullName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const businesses = await Business.find(query).sort({ createdAt: -1 }).limit(100);
+    res.status(200).json({ success: true, businesses, data: businesses }); // Support both 'businesses' and 'data' keys for compatibility
   } catch (error: any) { res.status(500).json({ success: false, message: error.message }); }
 };
 

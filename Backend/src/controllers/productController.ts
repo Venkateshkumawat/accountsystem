@@ -28,6 +28,54 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
 
     const query: any = { businessAdminId, isActive: true };
 
+    // --- TEMPORARY RENAME SCRIPT ---
+    const allProds = await Product.find({ businessAdminId, isActive: true });
+    
+    const namesByCategory: Record<string, string[]> = {
+      'Apparel': ['Nike Dri-FIT T-Shirt', "Levi's 501 Original Jeans", 'Adidas Ultraboost Shoes', 'Puma Classic Hoodie', 'Under Armour Shorts'],
+      'Beverages': ['Coca-Cola 2L', 'Red Bull Energy 250ml', 'Monster Energy 500ml', 'Tropicana Orange Juice', 'Sprite 1.5L', 'Pepsi Max 330ml'],
+      'Electronics': ['Samsung Galaxy S23', 'Apple MacBook Air', 'Sony WH-1000XM5', 'iPad Pro 11-inch', 'Logitech MX Master 3'],
+      'Groceries': ['Basmati Rice 5kg', 'Whole Wheat Bread', 'Organic Eggs 12pk', 'Almond Milk 1L', 'Heinz Tomato Ketchup'],
+      'Cosmetics': ["L'Oreal Foundation", 'MAC Matte Lipstick', 'Maybelline Mascara', 'Nivea Body Lotion', 'Neutrogena Sunscreen'],
+      'Stationery': ['Pilot G2 Pens 5pk', 'Moleskine Notebook', 'Faber-Castell Pencils', 'Post-it Notes', 'Highlighter Set'],
+      'Hardware': ['Stanley Hammer 16oz', 'DeWalt Power Drill', 'Philips Screwdriver Set', '3M Duct Tape', 'WD-40 Lubricant'],
+      'Snacks': ['Doritos Nacho Cheese', 'Oreo Cookies', "Lay's Classic Chips", 'Snickers Bar', 'Pringles Original'],
+      'Toys': ['Lego Star Wars Set', 'Hot Wheels 5-Pack', 'Barbie Dreamhouse', 'Nerf Elite Blaster', "Rubik's Cube"],
+      'Pharmacy': ['Advil Ibuprofen 200mg', 'Tylenol Extra Strength', 'Band-Aid Assorted', 'Vicks VapoRub', 'Pepto Bismol'],
+      'Personal Care': ['Dove Body Wash', 'Colgate Total Toothpaste', 'Gillette Fusion5 Razor', 'Pantene Pro-V Shampoo', 'Degree Deodorant'],
+      'Dairy & Eggs': ['Amul Butter 500g', 'Organic Whole Milk 1L', 'Farm Fresh Eggs 12pk', 'Cheddar Cheese Block', 'Greek Yogurt Vanilla'],
+      'Cleaning Supplies': ['Clorox Disinfecting Wipes', 'Tide Pods Detergent', 'Windex Glass Cleaner', 'Dawn Dish Soap', 'Swiffer Sweeper'],
+      'General': ['Duracell AA Batteries 4pk', 'Bic Lighter', 'Scotch Magic Tape', 'Ziploc Sandwich Bags', 'Compact Umbrella']
+    };
+
+    const counters: Record<string, number> = {};
+
+    for (let i = 0; i < allProds.length; i++) {
+      const prod = allProds[i];
+      const cat = prod.category || 'General';
+      
+      // Try to find exact match or fallback
+      let list = namesByCategory[cat];
+      if (!list) {
+        // Fallback checks for slight naming variations
+        if (cat.includes('Clean')) list = namesByCategory['Cleaning Supplies'];
+        else if (cat.includes('Personal')) list = namesByCategory['Personal Care'];
+        else if (cat.includes('Dairy')) list = namesByCategory['Dairy & Eggs'];
+        else list = namesByCategory['General'];
+      }
+      
+      counters[cat] = counters[cat] || 0;
+      const newName = list[counters[cat] % list.length];
+      counters[cat]++;
+      
+      // Always overwrite if it looks like a generic placeholder (contains 'Item' or ends with a number)
+      if (prod.name.includes('Item') || prod.name.includes('Product') || /\d$/.test(prod.name)) {
+        prod.name = newName;
+        await prod.save();
+      }
+    }
+    // -------------------------------
+
     // Search by name or barcode
     const searchTerm = search || name;
     if (searchTerm) {
@@ -240,11 +288,11 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
     // Increment absolute counter for the business node
     const updatedBiz = await Business.findByIdAndUpdate(businessId, { $inc: { currentSkuCount: 1 } }, { new: true });
 
-    await logActivity(req, "CREATE", "PRODUCT", `Initialized New SKU: ${product.name}`, (product._id as any).toString());
+    await logActivity(req, "CREATE", "PRODUCT", `Initialized new SKU: ${product.name}`, (product._id as any).toString(), undefined, undefined, true);
 
     await createNotification(
-      req.user?.businessId,
-      `New SKU created: ${product.name}. Initial stock: ${product.stock} units.`,
+      businessId,
+      `New Node Initialized: Product ${product.name} successfully deployed to registry.`,
       "success",
       "businessAdmin",
       undefined,
@@ -335,18 +383,9 @@ export const updateProduct = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    await logActivity(req, "UPDATE", "PRODUCT", `Updated SKU: ${product.name}`, (product._id as any).toString());
+    await logActivity(req, "UPDATE", "PRODUCT", `Updated SKU: ${product.name}`, (product._id as any).toString(), undefined, undefined, true);
 
-    await createNotification(
-      req.user?.businessId,
-      `SKU Configuration Updated: ${product.name} (Stock: ${product.stock}, Threshold: ${product.lowStockThreshold}).`,
-      "info",
-      "businessAdmin",
-      undefined,
-      "product"
-    );
-
-    // Compliance Check: Low Stock Alert node
+    // Consolidated Notification Logic: High Priority (Alarm) > Low Priority (Info)
     if (product.stock <= product.lowStockThreshold && product.stock >= 0) {
       await createNotification(
         req.user?.businessId,
@@ -355,6 +394,15 @@ export const updateProduct = async (req: AuthRequest, res: Response): Promise<vo
         "businessAdmin",
         undefined,
         "alert"
+      );
+    } else {
+      await createNotification(
+        req.user?.businessId,
+        `SKU Configuration Updated: ${product.name} (Stock: ${product.stock}, Threshold: ${product.lowStockThreshold}).`,
+        "info",
+        "businessAdmin",
+        undefined,
+        "product"
       );
     }
 

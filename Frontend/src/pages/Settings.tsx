@@ -441,8 +441,8 @@ export default function Settings() {
                 <label className="text-[10px] font-black text-rose-700 uppercase tracking-widest block mb-2">
                   To proceed, type your Business ID: <span className="font-mono text-rose-900 bg-rose-200 px-1 py-0.5 rounded">{user?.businessId}</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={resetConfirmText}
                   onChange={(e) => setResetConfirmText(e.target.value)}
                   placeholder="Enter Business ID"
@@ -539,11 +539,11 @@ export default function Settings() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <SI 
-                      label="GSTIN" 
-                      placeholder="22AAAAA0000A1Z5" 
+                    <SI
+                      label="GSTIN"
+                      placeholder="22AAAAA0000A1Z5"
                       value={profile.gstin}
-                      onChange={(v: string) => setProfile({ ...profile, gstin: v.toUpperCase() })} 
+                      onChange={(v: string) => setProfile({ ...profile, gstin: v.toUpperCase() })}
                     />
                     {profile.gstin && !validateGSTIN(profile.gstin) && (
                       <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter">Invalid GSTIN Pattern</p>
@@ -562,11 +562,11 @@ export default function Settings() {
                     title="Mobile must be exactly 10 digits"
                   />
                   <SI label="City" value={profile.city} onChange={(v: string) => setProfile({ ...profile, city: v })} />
-                  
+
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">State</label>
-                    <select 
-                      value={profile.state} 
+                    <select
+                      value={profile.state}
                       onChange={e => setProfile({ ...profile, state: e.target.value })}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:border-indigo-500 focus:bg-white transition appearance-none"
                     >
@@ -578,10 +578,10 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <SI 
-                      label="Pincode" 
-                      value={profile.pincode} 
-                      onChange={(v: string) => setProfile({ ...profile, pincode: v.replace(/\D/g, '').slice(0, 6) })} 
+                    <SI
+                      label="Pincode"
+                      value={profile.pincode}
+                      onChange={(v: string) => setProfile({ ...profile, pincode: v.replace(/\D/g, '').slice(0, 6) })}
                     />
                     {profile.pincode && !validatePincode(profile.pincode) && (
                       <p className="text-[9px] font-black text-rose-500 uppercase tracking-tighter">Must be 6 digits</p>
@@ -907,8 +907,8 @@ export default function Settings() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
                         <div className="flex items-center gap-2 text-slate-400 mb-1.5">
-                           <Clock size={12} />
-                           <span className="text-[9px] font-black uppercase tracking-widest">Remaining</span>
+                          <Clock size={12} />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Remaining</span>
                         </div>
                         <p className="text-lg font-black">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m</p>
                         <div className="mt-1 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">{planData?.expiryDate ? new Date(planData.expiryDate).toLocaleDateString() : '—'}</div>
@@ -916,39 +916,39 @@ export default function Settings() {
 
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
                         <div className="flex items-center gap-2 text-slate-400 mb-1.5">
-                           <ShieldCheck size={12} />
-                           <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Inventory</span>
+                          <ShieldCheck size={12} />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Inventory</span>
                         </div>
                         <p className="text-lg font-black">{Math.max(0, (planData?.ProductLimit || 0) - (planData?.currentProductCount || 0))} Left</p>
                         <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
-                           <div 
-                            className="h-full bg-indigo-500 transition-all duration-1000" 
+                          <div
+                            className="h-full bg-indigo-500 transition-all duration-1000"
                             style={{ width: `${Math.min(100, ((planData?.currentProductCount || 0) / (planData?.ProductLimit || 1)) * 100)}%` }}
-                           />
+                          />
                         </div>
                       </div>
 
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
                         <div className="flex items-center gap-2 text-slate-400 mb-1.5">
-                           <Zap size={12} />
-                           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Invoices</span>
+                          <Zap size={12} />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Invoices</span>
                         </div>
                         <p className="text-lg font-black">{Math.max(0, (planData?.invoiceLimit || 0) - (planData?.currentInvoiceCount || 0))} Left</p>
                         <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
-                           <div 
-                            className="h-full bg-emerald-500 transition-all duration-1000" 
+                          <div
+                            className="h-full bg-emerald-500 transition-all duration-1000"
                             style={{ width: `${Math.min(100, ((planData?.currentInvoiceCount || 0) / (planData?.invoiceLimit || 1)) * 100)}%` }}
-                           />
+                          />
                         </div>
                       </div>
 
                       <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4">
                         <div className="flex items-center gap-2 text-slate-400 mb-1.5">
-                           <Check size={12} className="text-emerald-400" />
-                           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Status</span>
+                          <Check size={12} className="text-emerald-400" />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">Status</span>
                         </div>
                         <p className={`text-lg font-black uppercase ${planData?.status === 'active' ? 'text-emerald-400' : 'text-rose-400 animate-pulse'}`}>
-                           {planData?.status || '—'}
+                          {planData?.status || '—'}
                         </p>
                         <div className="mt-1 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">Active</div>
                       </div>
@@ -1169,8 +1169,8 @@ export default function Settings() {
                 <div className="flex flex-wrap gap-2">
                   {ALL_PERMISSIONS.map(p => (
                     <button key={p} type="button"
-                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${staffForm.permissions.includes(p) 
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100' 
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${staffForm.permissions.includes(p)
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
                         : 'bg-rose-50 border-rose-100 text-rose-500 hover:bg-rose-100 hover:text-rose-600'
                         }`}>
                       {p.replace('_', ' ')}
@@ -1219,8 +1219,8 @@ export default function Settings() {
                           ? prev.permissions.filter((x: string) => x !== p)
                           : [...prev.permissions, p]
                       }))}
-                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${editStaff.permissions.includes(p) 
-                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100' 
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${editStaff.permissions.includes(p)
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100'
                         : 'bg-rose-50 border-rose-100 text-rose-500 hover:bg-rose-100 hover:text-rose-600'
                         }`}>
                       {p.replace('_', ' ')}
@@ -1262,17 +1262,17 @@ export default function Settings() {
                 const payload: any = { ...offerForm };
                 if (payload.type === 'BOGO') payload.type = 'B2G1';
                 if (payload.type === 'BULK_DISCOUNT') payload.type = 'BULK';
-                
+
                 payload.value = parseFloat(payload.value) || 0;
                 if (payload.type === 'BULK' && payload.discountPercentage) payload.value = parseFloat(payload.discountPercentage);
-                
+
                 if (payload.buyQty) payload.buyQty = parseInt(payload.buyQty);
                 if (payload.getQty) payload.getQty = parseInt(payload.getQty);
                 if (payload.minQty) payload.minQty = parseInt(payload.minQty);
 
                 if (!payload.productId || payload.productId === "") delete payload.productId;
                 if (!payload.startDate) payload.startDate = new Date().toISOString();
-                if (!payload.endDate) payload.endDate = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+                if (!payload.endDate) payload.endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
                 if (editOfferId) {
                   await api.put(`/offers/${editOfferId}`, payload);
