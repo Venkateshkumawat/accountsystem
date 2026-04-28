@@ -58,6 +58,7 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
 
           const counters: Record<string, number> = {};
           const productMap: Record<string, { name: string, price: number }> = {};
+          const usedImages = new Set<string>();
 
           for (const prod of allProds) {
             const cat = prod.category || 'General';
@@ -82,11 +83,21 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
             const genericNames = ['Duracell AA Batteries 4pk', 'Bic Lighter', 'Scotch Magic Tape', 'Ziploc Sandwich Bags', 'Compact Umbrella'];
             const isIncorrectlyGeneric = genericNames.includes(prod.name) && cat !== 'General';
 
-            if (prod.name.includes('Item') || prod.name.includes('Product') || /\d$/.test(prod.name) || (prod.sellingPrice > 200 && cat === 'Beverages') || isIncorrectlyGeneric) {
-              prod.name = newName;
-              prod.sellingPrice = newPrice;
-              prod.discount = 0;
+            const shouldRename = prod.name.includes('Item') || prod.name.includes('Product') || /\d$/.test(prod.name) || (prod.sellingPrice > 200 && cat === 'Beverages') || isIncorrectlyGeneric;
+
+            // Image Uniqueness Protocol
+            let imageCleared = false;
+            if (prod.image && (usedImages.has(prod.image) || shouldRename)) {
               prod.image = ""; 
+              imageCleared = true;
+            } else if (prod.image) {
+              usedImages.add(prod.image);
+            }
+
+            if (shouldRename || imageCleared) {
+              prod.name = shouldRename ? newName : prod.name;
+              prod.sellingPrice = shouldRename ? newPrice : prod.sellingPrice;
+              prod.discount = shouldRename ? 0 : prod.discount;
               await prod.save();
             }
             productMap[prod._id.toString()] = { name: prod.name, price: prod.sellingPrice };

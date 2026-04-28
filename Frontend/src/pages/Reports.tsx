@@ -553,7 +553,7 @@ export default function Reports() {
       {/* Strategic Hub Visual Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
         {/* Payment Summary */}
-        <div className="lg:col-span-10 bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex flex-col group">
+        <div className="lg:col-span-1 bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex flex-col h-[360px] group">
            <div className="flex items-center justify-between mb-4">
               <div>
                  <h3 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1">Payment Summary</h3>
@@ -587,7 +587,7 @@ export default function Reports() {
         </div>
 
         {/* Terminal B: Inventory Hub Concentration */}
-        <div className="bg-white p-5 rounded-[2rem] border-2 border-slate-200 shadow-sm flex flex-col h-[320px] overflow-hidden group">
+        <div className="lg:col-span-1 bg-white p-5 rounded-[2rem] border-2 border-slate-200 shadow-sm flex flex-col h-[360px] overflow-hidden group">
            <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
                  <Box size={14} className="text-amber-500" /> Inventory Hub Distribution
