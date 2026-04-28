@@ -8,7 +8,8 @@ import {
   deleteProduct,
   getLowStockProducts,
   adjustStock,
-  getCategories
+  getCategories,
+  deleteCategory
 } from "../controllers/productController.js";
 import { protect, role, verifySubscription, tenantHandler } from "../middleware/auth.js";
 
@@ -18,6 +19,7 @@ const router = express.Router();
 
 router.get("/", protect, verifySubscription, tenantHandler, getProducts);
 router.get("/categories", protect, verifySubscription, tenantHandler, getCategories);
+router.delete("/categories/:categoryName", protect, verifySubscription, tenantHandler, role("businessAdmin"), deleteCategory);
 router.get("/low-stock", protect, verifySubscription, tenantHandler, getLowStockProducts);
 router.get("/barcode/:barcode", protect, verifySubscription, tenantHandler, getProductByBarcode);
 router.get("/:id", protect, verifySubscription, tenantHandler, getProductById);

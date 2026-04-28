@@ -267,6 +267,26 @@ export default function Inventory() {
     }
   };
 
+  const handleDeleteCategory = async (categoryName: string) => {
+    if (categoryName === 'General') {
+      toast.error("Protocol Error: The General sector is a core system node and cannot be deleted.");
+      return;
+    }
+    
+    if (window.confirm(`SECURITY PROTOCOL: Are you sure you want to delete the '${categoryName}' section? All items within this sector will be automatically merged into the 'General' terminal for data safety.`)) {
+      try {
+        await api.delete(`/products/categories/${categoryName}`);
+        toast.success(`Success: Section '${categoryName}' has been decommissioned.`);
+        // Refresh products list
+        if (req.user?.businessId) {
+          getIO()?.to(req.user.businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
+        }
+      } catch (err: any) {
+        toast.error("Communication Failure: " + (err.response?.data?.message || err.message));
+      }
+    }
+  };
+
   return (
     <div className="space-y-4 min-h-screen p-2 font-inter bg-slate-50/50">
       {/* Header & Metric Suite */}
@@ -402,6 +422,15 @@ export default function Inventory() {
             <div key={category} className="space-y-6">
               <div className="flex items-center gap-4 px-2">
                 <h2 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight">{category}</h2>
+                {isAuthorized && category !== 'General' && (
+                  <button 
+                    onClick={() => handleDeleteCategory(category)}
+                    className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                    title={`Delete ${category} Section`}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
                 <div className="h-px flex-1 bg-slate-100" />
                 <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic">
                   {groupedProducts[category].length} TOTAL PRODUCT

@@ -130,7 +130,8 @@ export default function POS() {
           ? isOnSale
           : p.category === selectedCategory;
       return matchesSearch && matchesCategory;
-    });
+    }).sort((a, b) => a.name.localeCompare(b.name));
+    
     return filtered.slice(0, visibleCount);
   }, [products, search, selectedCategory, visibleCount]);
 
@@ -150,7 +151,11 @@ export default function POS() {
 
   const handleCategoryClick = (cat: string) => {
     setSelectedCategory(cat);
+    setSearch('');
+    // Focus barcode if needed
+    barcodeRef.current?.focus();
   };
+
 
   const handleAddItem = (product: any) => {
     if (!product || !product._id || product.stock === 0) return;
@@ -383,7 +388,7 @@ export default function POS() {
               <button
                 key={cat}
                 onClick={() => handleCategoryClick(cat)}
-                className={`px-4 py-2 rounded-xl text-[9px] font-medium uppercase tracking-widest whitespace-nowrap transition-all border ${selectedCategory === cat
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-medium uppercase tracking-widest whitespace-nowrap transition-all border ${selectedCategory === cat
                   ? 'bg-slate-900 text-white border-slate-900 shadow-md'
                   : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300 hover:text-slate-600'
                   }`}
@@ -929,74 +934,74 @@ const ProductDetailModal = ({ product, onClose, onAdd }: any) => {
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 flex flex-col md:flex-row max-h-[90vh]">
+      <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 flex flex-col md:flex-row max-h-[90vh] font-inter">
         
         {/* Left Side: Image */}
-        <div className="flex-1 bg-slate-50 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100 min-h-[300px]">
+        <div className="flex-1 bg-slate-50 p-4 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100 min-h-[250px]">
           {productImg ? (
             <img 
               src={productImg} 
               alt={product.name} 
-              className="w-full h-full object-contain rounded-2xl drop-shadow-2xl"
+              className="w-full h-full object-contain rounded-xl drop-shadow-xl"
             />
           ) : (
-            <div className="flex flex-col items-center gap-4 text-slate-300">
-              <Box size={80} strokeWidth={1} />
-              <p className="text-[10px] font-black uppercase tracking-widest">No Visual Node</p>
+            <div className="flex flex-col items-center gap-3 text-slate-300">
+              <Box size={60} strokeWidth={1.5} />
+              <p className="text-[9px] font-semibold uppercase tracking-widest">No Visual Node</p>
             </div>
           )}
         </div>
 
         {/* Right Side: Details */}
-        <div className="flex-1 p-8 flex flex-col justify-between">
+        <div className="flex-1 p-6 flex flex-col justify-between">
           <div>
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex justify-between items-start mb-4">
               <div>
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-indigo-100">
+                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[8px] font-semibold uppercase tracking-widest border border-indigo-100">
                   {product.category || 'General'}
                 </span>
-                <h2 className="text-2xl font-black text-slate-900 mt-3 leading-none tracking-tight">{product.name}</h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">SKU: {product.barcode || 'N/A'}</p>
+                <h2 className="text-xl font-semibold text-slate-900 mt-2 leading-tight tracking-tight">{product.name}</h2>
+                <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.1em] mt-1">SKU: {product.barcode || 'N/A'}</p>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-xl transition-all">
-                <X size={20} className="text-slate-400" />
+              <button onClick={onClose} className="p-1.5 hover:bg-slate-50 rounded-lg transition-all">
+                <X size={18} className="text-slate-400" />
               </button>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-black text-slate-900 leading-none">₹{product.sellingPrice - (product.discount || 0)}</span>
+            <div className="space-y-4">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-semibold text-slate-900 leading-none">₹{product.sellingPrice - (product.discount || 0)}</span>
                 {product.discount > 0 && (
-                  <span className="text-lg text-slate-300 line-through font-bold">₹{product.sellingPrice}</span>
+                  <span className="text-sm text-slate-300 line-through font-medium">₹{product.sellingPrice}</span>
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Stock</p>
-                  <p className={`text-lg font-black ${product.stock > 0 ? 'text-slate-900' : 'text-rose-500'}`}>
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-50">
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Current Stock</p>
+                  <p className={`text-sm font-semibold ${product.stock > 0 ? 'text-slate-900' : 'text-rose-500'}`}>
                     {product.stock} {product.unitType || 'Units'}
                   </p>
                 </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">GST Rate</p>
-                  <p className="text-lg font-black text-slate-900">{product.gstRate || 0}%</p>
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">GST Rate</p>
+                  <p className="text-sm font-semibold text-slate-900">{product.gstRate || 0}%</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-8 flex gap-3">
+          <div className="pt-6 flex gap-2">
             <button 
               onClick={onClose}
-              className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-200"
+              className="flex-1 py-3 bg-slate-50 text-slate-400 rounded-xl font-semibold text-[9px] uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-200"
             >
               Close
             </button>
             <button 
               onClick={() => onAdd(product)}
               disabled={product.stock <= 0}
-              className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
+              className="flex-[2] py-3 bg-indigo-600 text-white rounded-xl font-semibold text-[9px] uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
             >
               Add to Cart
             </button>
