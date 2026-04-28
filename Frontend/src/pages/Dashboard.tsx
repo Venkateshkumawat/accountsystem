@@ -205,8 +205,8 @@ export default function Dashboard() {
               <Zap size={24} fill="currentColor" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight leading-tight">Dashboard Overview</h1>
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Live Business Telemetry</p>
+              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight leading-tight font-inter">Dashboard Overview</h1>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest font-inter">Live Business Telemetry</p>
             </div>
           </div>
           <button onClick={() => fetchDashboard(true)} disabled={refreshing} className={`flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-50 text-slate-500 rounded-xl hover:text-indigo-600 border border-slate-100 transition-all ${refreshing ? 'opacity-50' : 'hover:bg-indigo-50 hover:border-indigo-100'}`}>

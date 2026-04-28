@@ -202,18 +202,18 @@ export default function Accounting() {
           <div className="flex items-center gap-4">
              <div className="w-1.5 h-8 bg-indigo-600 rounded-full" />
              <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Recent Financial Activity</h2>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Summary of transactions</p>
+                <h2 className="text-xl font-semibold text-slate-900 tracking-tight uppercase font-inter">Recent Financial Activity</h2>
+                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.2em] mt-0.5 font-inter">Summary of transactions</p>
              </div>
           </div>
           <div className="flex items-center gap-3">
              <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-[9px] font-black text-slate-500 uppercase">Received</span>
+                <span className="text-[9px] font-semibold text-slate-500 uppercase">Received</span>
              </div>
              <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-rose-500" />
-                <span className="text-[9px] font-black text-slate-500 uppercase">Paid Out</span>
+                <span className="text-[9px] font-semibold text-slate-500 uppercase font-inter">Paid Out</span>
              </div>
           </div>
         </div>

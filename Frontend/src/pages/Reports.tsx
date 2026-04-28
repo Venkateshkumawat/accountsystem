@@ -136,8 +136,8 @@ export default function Reports() {
             <Activity size={18} className="animate-pulse" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-slate-900 leading-tight">Business Intelligence</h1>
-            <p className="text-slate-400 font-semibold text-[8px] uppercase tracking-widest mt-0.5">Real-time Performance Node</p>
+            <h1 className="text-2xl font-semibold text-slate-900 leading-tight font-inter">Business Intelligence</h1>
+            <p className="text-slate-400 font-semibold text-[10px] uppercase tracking-widest mt-0.5 font-inter">Real-time Performance Node</p>
           </div>
         </div>
         <button onClick={fetchAllData} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all border border-slate-200">

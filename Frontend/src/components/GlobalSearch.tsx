@@ -146,6 +146,7 @@ export const GlobalSearch: React.FC = () => {
 
   const [voiceRetries, setVoiceRetries] = useState(0);
   const [hasNetworkError, setHasNetworkError] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   const startVoiceSearch = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -153,6 +154,7 @@ export const GlobalSearch: React.FC = () => {
 
     setHasNetworkError(false);
     const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
     recognition.lang = 'en-IN'; 
     recognition.interimResults = !hasNetworkError; // Adaptive: Disable interim on flaky networks
     recognition.continuous = false;
@@ -206,6 +208,7 @@ export const GlobalSearch: React.FC = () => {
     recognition.onend = () => {
       setIsListening(false);
       playSound('stop');
+      recognitionRef.current = null;
     };
 
     try {
@@ -258,52 +261,71 @@ export const GlobalSearch: React.FC = () => {
         />
         <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
         
-        {query && !loading && (
-          <button
-            onClick={() => {
-              setQuery('');
-              setResults([]);
-              setIsOpen(false);
-            }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
-          >
-            <X size={16} />
-          </button>
-        )}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pr-1">
+          {/* ❌ Clear Search Text */}
+          {query && !loading && !isListening && (
+            <button
+              onClick={() => {
+                setQuery('');
+                setResults([]);
+                setIsOpen(false);
+              }}
+              className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+              title="Clear Search"
+            >
+              <X size={16} />
+            </button>
+          )}
 
-        {loading && (
-          <div className="absolute right-14 top-1/2 -translate-y-1/2">
-            <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        )}
-
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {/* 🔊 Voice Waveform Feedback */}
           {isListening && (
-            <div className="flex gap-1 pr-2">
+            <div className="flex gap-1 pr-1.5 animate-in fade-in duration-300">
               <div className="w-1 h-3 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
               <div className="w-1 h-5 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
               <div className="w-1 h-3 bg-rose-500 rounded-full animate-bounce" />
             </div>
           )}
-          <button
-            type="button"
-            onClick={isListening ? () => {} : startVoiceSearch}
-            className={`relative p-2.5 rounded-xl transition-all duration-500 ${
-              isListening 
-                ? 'bg-rose-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.4)] scale-110' 
-                : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
-            }`}
-            title="Smart Voice Search (Hinglish Supported)"
-          >
-            {isListening ? (
-              <>
-                <MicOff size={16} className="relative z-10" />
-                <span className="absolute inset-0 rounded-xl bg-rose-500 animate-ping opacity-20" />
-              </>
-            ) : (
-              <Mic size={16} />
+
+          {/* 🎙️ Voice Search Action Node */}
+          <div className="flex items-center gap-1">
+            {isListening && (
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    recognitionRef.current?.abort(); // Immediate halt
+                    setIsListening(false);
+                    setQuery('');
+                  } catch (e) {
+                    console.error("Cancel failed:", e);
+                  }
+                }}
+                className="p-2 text-rose-500 hover:bg-rose-100 rounded-xl transition-all mr-1 animate-in zoom-in duration-200"
+                title="Cancel Voice Search"
+              >
+                <X size={16} />
+              </button>
             )}
-          </button>
+            <button
+              type="button"
+              onClick={isListening ? () => {} : startVoiceSearch}
+              className={`relative p-2.5 rounded-xl transition-all duration-500 ${
+                isListening 
+                  ? 'bg-rose-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.4)] scale-110' 
+                  : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
+              }`}
+              title={isListening ? "Listening..." : "Smart Voice Search"}
+            >
+              {isListening ? (
+                <>
+                  <MicOff size={16} className="relative z-10" />
+                  <span className="absolute inset-0 rounded-xl bg-rose-500 animate-ping opacity-20" />
+                </>
+              ) : (
+                <Mic size={16} />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
