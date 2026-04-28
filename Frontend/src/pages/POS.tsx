@@ -66,6 +66,7 @@ export default function POS() {
   const [isInvoiceConfirmed, setIsInvoiceConfirmed] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isMobileSearchVisible, setIsMobileSearchVisible] = useState(false);
+  const [selectedPreviewProduct, setSelectedPreviewProduct] = useState<any>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
@@ -412,6 +413,7 @@ export default function POS() {
                 product={product} 
                 onAdd={handleAddItem} 
                 onRemove={removeItem}
+                onPreview={setSelectedPreviewProduct}
                 inCartItem={cart.find(i => i.productId === product._id)}
                 isFlash={addedFlash === product._id}
                 offers={offers.filter((o: any) => !o.productId || o.productId === product._id || o.productId?._id === product._id)}
@@ -780,11 +782,18 @@ export default function POS() {
           border-radius: 1rem !important;
         }
       `}</style>
+      {selectedPreviewProduct && (
+        <ProductDetailModal 
+          product={selectedPreviewProduct} 
+          onClose={() => setSelectedPreviewProduct(null)} 
+          onAdd={(p: any) => { handleAddItem(p); setSelectedPreviewProduct(null); }}
+        />
+      )}
     </>
   );
 }
 
-const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offers }: any) => {
+const ProductNode = memo(({ product, onAdd, onRemove, onPreview, inCartItem, isFlash, offers }: any) => {
   const outOfStock = product.stock === 0;
   const inCart = !!inCartItem;
   
@@ -848,12 +857,15 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offer
       </div>
 
       {/* Image / Icon Node */}
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all overflow-hidden border-2 shrink-0 ${inCart ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-50 border-slate-100'}`}>
+      <div 
+        onClick={(e) => { e.stopPropagation(); onPreview(product); }}
+        className={`w-full aspect-[4/3] rounded-xl flex items-center justify-center mb-3 transition-all overflow-hidden border-2 shrink-0 ${inCart ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-50 border-slate-100'} hover:border-indigo-300`}
+      >
         {productImg ? (
           <img
             src={productImg}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
               (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
@@ -861,38 +873,38 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offer
           />
         ) : null}
         <Package
-          size={20}
+          size={28}
           className={`${inCart ? 'text-white' : 'text-slate-300'} ${productImg ? 'hidden' : ''}`}
         />
       </div>
 
       {/* Info Block */}
-      <div className="flex-1 w-full flex flex-col items-center justify-between text-center min-w-0">
+      <div className="flex-1 w-full flex flex-col justify-between text-center min-0 px-1">
         <div className="w-full">
-          <h3 className="text-slate-900 font-semibold text-[11px] uppercase leading-tight line-clamp-2 px-1 mb-1">
+          <h3 className="text-slate-900 font-semibold text-xs leading-snug line-clamp-2 mb-1.5">
             {product.name}
           </h3>
-          <p className="inline-block text-[8px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+          <p className="inline-block text-[9px] font-semibold text-slate-500 uppercase tracking-widest bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
             {product.barcode || 'NO BARCODE'}
           </p>
         </div>
 
-        <div className="w-full mt-2">
+        <div className="w-full mt-3">
            {isSaleActive ? (
             <div className="flex flex-col items-center leading-none">
-              <span className="text-[8px] text-slate-400 line-through mb-1 opacity-70">₹{product.sellingPrice}</span>
-              <div className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
-                <span className="text-[9px] opacity-70">₹</span>
+              <span className="text-[10px] text-slate-400 line-through mb-1 font-medium">₹{product.sellingPrice}</span>
+              <div className="text-emerald-600 text-[15px] font-semibold flex items-center gap-0.5">
+                <span className="text-[11px] opacity-80">₹</span>
                 {product.sellingPrice - (product.discount || 0)}
               </div>
             </div>
            ) : (
-            <div className="text-slate-900 text-sm font-semibold flex items-center justify-center gap-0.5 leading-none">
-              <span className="text-[9px] text-slate-400">₹</span>
+            <div className="text-slate-900 text-[15px] font-semibold flex items-center justify-center gap-0.5 leading-none">
+              <span className="text-[11px] text-slate-500 font-medium">₹</span>
               {product.sellingPrice}
             </div>
            )}
-           <div className={`mt-1.5 h-1.5 rounded-full w-full max-w-[40px] mx-auto transition-all ${inCart ? 'bg-indigo-600' : 'bg-slate-100 group-hover:bg-slate-200'}`} />
+           <div className={`mt-2.5 h-1.5 rounded-full w-full max-w-[50px] mx-auto transition-all ${inCart ? 'bg-indigo-600' : 'bg-slate-100 group-hover:bg-slate-200'}`} />
         </div>
       </div>
 
@@ -904,4 +916,94 @@ const ProductNode = memo(({ product, onAdd, onRemove, inCartItem, isFlash, offer
     </div>
   );
 });
+
+const ProductDetailModal = ({ product, onClose, onAdd }: any) => {
+  const getImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const baseUrl = api.defaults.baseURL?.replace('/api', '') || 'https://account-billing-system.onrender.com';
+    return `${baseUrl}/${path}`;
+  };
+
+  const productImg = getImageUrl(product.image);
+
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300 flex flex-col md:flex-row max-h-[90vh]">
+        
+        {/* Left Side: Image */}
+        <div className="flex-1 bg-slate-50 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-100 min-h-[300px]">
+          {productImg ? (
+            <img 
+              src={productImg} 
+              alt={product.name} 
+              className="w-full h-full object-contain rounded-2xl drop-shadow-2xl"
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-4 text-slate-300">
+              <Box size={80} strokeWidth={1} />
+              <p className="text-[10px] font-black uppercase tracking-widest">No Visual Node</p>
+            </div>
+          )}
+        </div>
+
+        {/* Right Side: Details */}
+        <div className="flex-1 p-8 flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-indigo-100">
+                  {product.category || 'General'}
+                </span>
+                <h2 className="text-2xl font-black text-slate-900 mt-3 leading-none tracking-tight">{product.name}</h2>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">SKU: {product.barcode || 'N/A'}</p>
+              </div>
+              <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-xl transition-all">
+                <X size={20} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-black text-slate-900 leading-none">₹{product.sellingPrice - (product.discount || 0)}</span>
+                {product.discount > 0 && (
+                  <span className="text-lg text-slate-300 line-through font-bold">₹{product.sellingPrice}</span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Stock</p>
+                  <p className={`text-lg font-black ${product.stock > 0 ? 'text-slate-900' : 'text-rose-500'}`}>
+                    {product.stock} {product.unitType || 'Units'}
+                  </p>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">GST Rate</p>
+                  <p className="text-lg font-black text-slate-900">{product.gstRate || 0}%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 flex gap-3">
+            <button 
+              onClick={onClose}
+              className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-200"
+            >
+              Close
+            </button>
+            <button 
+              onClick={() => onAdd(product)}
+              disabled={product.stock <= 0}
+              className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 

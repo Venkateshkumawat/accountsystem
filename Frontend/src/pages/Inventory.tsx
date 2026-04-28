@@ -415,13 +415,13 @@ export default function Inventory() {
                   return (
                     <div key={product._id} className="bg-white p-5 rounded-2xl border-b-2 border-slate-200 shadow-sm hover:bg-indigo-50/30 transition-all duration-300 flex flex-col gap-4 group relative overflow-hidden">
                       <div className="flex gap-4">
-                        <div className="w-20 h-20 rounded-[1.5rem] bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center relative">
+                        <div className="w-24 h-24 rounded-[1.5rem] bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center relative">
                           {productImg ? (
                             <img
                               src={productImg}
                               alt={product.name}
                               loading="lazy"
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain p-1"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                                 (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
@@ -492,20 +492,20 @@ export default function Inventory() {
                         <tr key={product._id} className="bg-white hover:bg-indigo-50/50 transition-all duration-300 group border-b-2 border-slate-100 last:border-0 cursor-pointer">
                           <td className="px-6 py-1.5">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
+                              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center transition-transform group-hover:scale-105">
                                 {productImg ? (
                                   <img
                                     src={productImg}
                                     alt={product.name}
                                     loading="lazy"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain p-1"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).style.display = 'none';
                                       (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
                                     }}
                                   />
                                 ) : null}
-                                <Box size={14} className={`text-slate-300 ${productImg ? 'hidden' : ''}`} />
+                                <Box size={18} className={`text-slate-300 ${productImg ? 'hidden' : ''}`} />
                               </div>
                               <div>
                                 <div className="font-semibold text-slate-900 text-xs leading-tight">{product.name}</div>

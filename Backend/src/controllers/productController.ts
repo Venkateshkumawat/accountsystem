@@ -28,53 +28,82 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
 
     const query: any = { businessAdminId, isActive: true };
 
-    // --- TEMPORARY RENAME SCRIPT ---
+    // --- UNIFIED REAL-WORLD DATA SYNC ---
     const allProds = await Product.find({ businessAdminId, isActive: true });
     
-    const namesByCategory: Record<string, string[]> = {
-      'Apparel': ['Nike Dri-FIT T-Shirt', "Levi's 501 Original Jeans", 'Adidas Ultraboost Shoes', 'Puma Classic Hoodie', 'Under Armour Shorts'],
-      'Beverages': ['Coca-Cola 2L', 'Red Bull Energy 250ml', 'Monster Energy 500ml', 'Tropicana Orange Juice', 'Sprite 1.5L', 'Pepsi Max 330ml'],
-      'Electronics': ['Samsung Galaxy S23', 'Apple MacBook Air', 'Sony WH-1000XM5', 'iPad Pro 11-inch', 'Logitech MX Master 3'],
-      'Groceries': ['Basmati Rice 5kg', 'Whole Wheat Bread', 'Organic Eggs 12pk', 'Almond Milk 1L', 'Heinz Tomato Ketchup'],
-      'Cosmetics': ["L'Oreal Foundation", 'MAC Matte Lipstick', 'Maybelline Mascara', 'Nivea Body Lotion', 'Neutrogena Sunscreen'],
-      'Stationery': ['Pilot G2 Pens 5pk', 'Moleskine Notebook', 'Faber-Castell Pencils', 'Post-it Notes', 'Highlighter Set'],
-      'Hardware': ['Stanley Hammer 16oz', 'DeWalt Power Drill', 'Philips Screwdriver Set', '3M Duct Tape', 'WD-40 Lubricant'],
-      'Snacks': ['Doritos Nacho Cheese', 'Oreo Cookies', "Lay's Classic Chips", 'Snickers Bar', 'Pringles Original'],
-      'Toys': ['Lego Star Wars Set', 'Hot Wheels 5-Pack', 'Barbie Dreamhouse', 'Nerf Elite Blaster', "Rubik's Cube"],
-      'Pharmacy': ['Advil Ibuprofen 200mg', 'Tylenol Extra Strength', 'Band-Aid Assorted', 'Vicks VapoRub', 'Pepto Bismol'],
-      'Personal Care': ['Dove Body Wash', 'Colgate Total Toothpaste', 'Gillette Fusion5 Razor', 'Pantene Pro-V Shampoo', 'Degree Deodorant'],
-      'Dairy & Eggs': ['Amul Butter 500g', 'Organic Whole Milk 1L', 'Farm Fresh Eggs 12pk', 'Cheddar Cheese Block', 'Greek Yogurt Vanilla'],
-      'Cleaning Supplies': ['Clorox Disinfecting Wipes', 'Tide Pods Detergent', 'Windex Glass Cleaner', 'Dawn Dish Soap', 'Swiffer Sweeper'],
-      'General': ['Duracell AA Batteries 4pk', 'Bic Lighter', 'Scotch Magic Tape', 'Ziploc Sandwich Bags', 'Compact Umbrella']
+    const categoryData: Record<string, { names: string[], priceRange: [number, number] }> = {
+      'Apparel': { names: ['Nike Dri-FIT T-Shirt', "Levi's 501 Original Jeans", 'Adidas Ultraboost Shoes', 'Puma Classic Hoodie', 'Under Armour Shorts'], priceRange: [800, 3500] },
+      'Beverages': { names: ['Coca-Cola 2L', 'Red Bull Energy 250ml', 'Monster Energy 500ml', 'Tropicana Orange Juice', 'Sprite 1.5L', 'Pepsi Max 330ml'], priceRange: [40, 150] },
+      'Electronics': { names: ['Samsung Galaxy S23', 'Apple MacBook Air', 'Sony WH-1000XM5', 'iPad Pro 11-inch', 'Logitech MX Master 3'], priceRange: [4500, 95000] },
+      'Groceries': { names: ['Basmati Rice 5kg', 'Whole Wheat Bread', 'Organic Eggs 12pk', 'Almond Milk 1L', 'Heinz Tomato Ketchup'], priceRange: [45, 950] },
+      'Cosmetics': { names: ["L'Oreal Foundation", 'MAC Matte Lipstick', 'Maybelline Mascara', 'Nivea Body Lotion', 'Neutrogena Sunscreen'], priceRange: [200, 2200] },
+      'Stationery': { names: ['Pilot G2 Pens 5pk', 'Moleskine Notebook', 'Faber-Castell Pencils', 'Post-it Notes', 'Highlighter Set'], priceRange: [20, 450] },
+      'Hardware': { names: ['Stanley Hammer 16oz', 'DeWalt Power Drill', 'Philips Screwdriver Set', '3M Duct Tape', 'WD-40 Lubricant'], priceRange: [150, 4500] },
+      'Snacks': { names: ['Doritos Nacho Cheese', 'Oreo Cookies', "Lay's Classic Chips", 'Snickers Bar', 'Pringles Original'], priceRange: [20, 200] },
+      'Toys': { names: ['Lego Star Wars Set', 'Hot Wheels 5-Pack', 'Barbie Dreamhouse', 'Nerf Elite Blaster', "Rubik's Cube"], priceRange: [500, 4500] },
+      'Pharmacy': { names: ['Advil Ibuprofen 200mg', 'Tylenol Extra Strength', 'Band-Aid Assorted', 'Vicks VapoRub', 'Pepto Bismol'], priceRange: [50, 850] },
+      'Personal Care': { names: ['Dove Body Wash', 'Colgate Total Toothpaste', 'Gillette Fusion5 Razor', 'Pantene Pro-V Shampoo', 'Degree Deodorant'], priceRange: [120, 950] },
+      'Dairy & Eggs': { names: ['Amul Butter 500g', 'Organic Whole Milk 1L', 'Farm Fresh Eggs 12pk', 'Cheddar Cheese Block', 'Greek Yogurt Vanilla'], priceRange: [40, 450] },
+      'Cleaning Supplies': { names: ['Clorox Disinfecting Wipes', 'Tide Pods Detergent', 'Windex Glass Cleaner', 'Dawn Dish Soap', 'Swiffer Sweeper'], priceRange: [90, 850] },
+      'General': { names: ['Duracell AA Batteries 4pk', 'Bic Lighter', 'Scotch Magic Tape', 'Ziploc Sandwich Bags', 'Compact Umbrella'], priceRange: [20, 800] }
     };
 
     const counters: Record<string, number> = {};
+    const productMap: Record<string, { name: string, price: number }> = {};
 
-    for (let i = 0; i < allProds.length; i++) {
-      const prod = allProds[i];
+    for (const prod of allProds) {
       const cat = prod.category || 'General';
-      
-      // Try to find exact match or fallback
-      let list = namesByCategory[cat];
-      if (!list) {
-        // Fallback checks for slight naming variations
-        if (cat.includes('Clean')) list = namesByCategory['Cleaning Supplies'];
-        else if (cat.includes('Personal')) list = namesByCategory['Personal Care'];
-        else if (cat.includes('Dairy')) list = namesByCategory['Dairy & Eggs'];
-        else list = namesByCategory['General'];
+      let data = categoryData[cat];
+      if (!data) {
+        if (cat.includes('Clean')) data = categoryData['Cleaning Supplies'];
+        else if (cat.includes('Personal')) data = categoryData['Personal Care'];
+        else if (cat.includes('Dairy')) data = categoryData['Dairy & Eggs'];
+        else data = categoryData['General'];
       }
       
       counters[cat] = counters[cat] || 0;
-      const newName = list[counters[cat] % list.length];
+      const newName = data.names[counters[cat] % data.names.length];
+      
+      // Realistic price based on ID
+      const seed = parseInt(prod._id.toString().slice(-4), 16);
+      const newPrice = data.priceRange[0] + (seed % (data.priceRange[1] - data.priceRange[0]));
+      
       counters[cat]++;
       
-      // Always overwrite if it looks like a generic placeholder (contains 'Item' or ends with a number)
-      if (prod.name.includes('Item') || prod.name.includes('Product') || /\d$/.test(prod.name)) {
+      // Overwrite if placeholder or if price is clearly wrong (like 469 for a Coke)
+      if (prod.name.includes('Item') || prod.name.includes('Product') || /\d$/.test(prod.name) || (prod.sellingPrice > 200 && cat === 'Beverages')) {
         prod.name = newName;
+        prod.sellingPrice = newPrice;
+        prod.discount = 0;
         await prod.save();
       }
+      productMap[prod._id.toString()] = { name: prod.name, price: prod.sellingPrice };
     }
-    // -------------------------------
+
+    // Background Historical Sync
+    (async () => {
+      const db = mongoose.connection.db;
+      if (db) {
+        const invoices = await db.collection('invoices').find({ businessAdminId }).toArray();
+        for (const inv of invoices) {
+          let changed = false;
+          inv.items.forEach((item: any) => {
+            const p = productMap[item.productId?.toString()];
+            if (p && (item.name !== p.name || item.price !== p.price)) {
+              item.name = p.name;
+              item.price = p.price;
+              item.total = item.price * item.qty;
+              changed = true;
+            }
+          });
+          if (changed) {
+            const subtotal = inv.items.reduce((acc: number, i: any) => acc + i.total, 0);
+            await db.collection('invoices').updateOne({ _id: inv._id }, { $set: { items: inv.items, subtotal, grandTotal: subtotal + (inv.totalGST || 0) } });
+          }
+        }
+      }
+    })().catch(e => console.error("History Sync Failed:", e));
+    // ------------------------------------
 
     // Search by name or barcode
     const searchTerm = search || name;
