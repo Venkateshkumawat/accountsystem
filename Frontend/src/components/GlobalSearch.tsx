@@ -16,6 +16,10 @@ import {
   X,
   FileText,
   CreditCard,
+  Mic,
+  MicOff,
+  Volume2,
+  Bell
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -49,6 +53,7 @@ export const GlobalSearch: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isListening, setIsListening] = useState(false);
   const { user, isSuperAdmin, hasPermission } = useAuth();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -56,6 +61,20 @@ export const GlobalSearch: React.FC = () => {
   // Persistence Lock: Prevents redundant searches
   const lastExecutedQuery = useRef('');
   const lastEmptyQuery = useRef('');
+
+  // 🔊 Audio Feedback Engine (Works with Earbuds/Earphones)
+  const playSound = (type: 'start' | 'stop') => {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(type === 'start' ? 880 : 440, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  };
 
   // 🛡️ Access Control: Filter static pages based on role
   const allowedPages = useMemo(() => {
@@ -94,66 +113,21 @@ export const GlobalSearch: React.FC = () => {
           icon: p.icon
         }));
 
-      let matchedProducts: SearchResult[] = [];
-      let matchedInvoices: SearchResult[] = [];
-      let matchedParties: SearchResult[] = [];
-      let matchedBusinesses: SearchResult[] = [];
-
-      if (isSuperAdmin) {
-        // 🏗️ SuperAdmin Multi-Node Search Protocol
-        const bizRes = await api.get(`/businesses?search=${trimmedQ}&limit=5`);
-        const bizData = bizRes.data?.data || [];
-        matchedBusinesses = bizData.map((b: any) => ({
-          id: b._id,
-          label: b.businessName,
-          sub: `Node ID: ${b.businessId} • Owner: ${b.ownerName}`,
-          path: `/superadmin/accounts`, 
-          type: 'party',
-          icon: Shield
-        }));
-      } else {
-        // 🏢 Business Admin Scoped Search Protocol
-        const [prodRes, invRes, partyRes] = await Promise.all([
-          api.get(`/products?name=${trimmedQ}&limit=5`).catch(() => ({ data: { data: [] } })),
-          api.get(`/invoices?search=${trimmedQ}&limit=5`).catch(() => ({ data: { data: [] } })),
-          api.get(`/parties?search=${trimmedQ}&limit=5`).catch(() => ({ data: { data: [] } }))
-        ]);
-
-        matchedProducts = (prodRes.data?.data || []).map((p: any) => ({
-          id: p._id,
-          label: p.name,
-          sub: `SKU: ${p.sku} • Stock: ${p.stock} units`,
-          path: `/inventory`,
-          type: 'product',
-          icon: Package
-        }));
-
-        matchedInvoices = (invRes.data?.data || []).map((i: any) => ({
-          id: i._id,
-          label: `Invoice #${i.invoiceNumber}`,
-          sub: `${i.customerName} • ₹${i.grandTotal}`,
-          path: `/invoices`,
-          type: 'invoice',
-          icon: FileText
-        }));
-
-        matchedParties = (partyRes.data?.data || []).map((p: any) => ({
-          id: p._id,
-          label: p.name,
-          sub: `${p.type.toUpperCase()} • ${p.phone}`,
-          path: `/parties`,
-          type: 'party',
-          icon: Users
-        }));
-      }
+      // 2. Multi-Node Database Search Protocol
+      const globalRes = await api.get(`/search/global?query=${trimmedQ}`);
+      const dbResults: SearchResult[] = (globalRes.data?.data || []).map((r: any) => ({
+        id: r.id,
+        label: r.label,
+        sub: r.sub,
+        path: r.path,
+        type: r.type,
+        icon: r.type === 'product' ? Package : r.type === 'invoice' ? FileText : r.type === 'party' ? Users : r.type === 'transaction' ? CreditCard : r.type === 'notification' ? Bell : SearchIcon
+      }));
 
       const allResults = [
-        ...matchedBusinesses,
-        ...matchedProducts, 
-        ...matchedInvoices, 
-        ...matchedParties,
         ...matchedPages, 
-      ].slice(0, 6);
+        ...dbResults,
+      ].slice(0, 8);
 
       setResults(allResults);
       lastExecutedQuery.current = trimmedQ;
@@ -169,6 +143,77 @@ export const GlobalSearch: React.FC = () => {
       setLoading(false);
     }
   }, [allowedPages, isSuperAdmin]);
+
+  const [voiceRetries, setVoiceRetries] = useState(0);
+  const [hasNetworkError, setHasNetworkError] = useState(false);
+
+  const startVoiceSearch = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    setHasNetworkError(false);
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN'; 
+    recognition.interimResults = !hasNetworkError; // Adaptive: Disable interim on flaky networks
+    recognition.continuous = false;
+    recognition.maxAlternatives = 3;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      playSound('start');
+      setVoiceRetries(0);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0])
+        .map((result: any) => result.transcript)
+        .join('');
+      
+      setQuery(transcript);
+      setIsOpen(true);
+      
+      const cmd = transcript.toLowerCase();
+      if (cmd.includes('open') || cmd.includes('go to') || cmd.includes('show')) {
+        const target = allowedPages.find(p => cmd.includes(p.label.toLowerCase()));
+        if (target) {
+          handleSelect(target as any);
+          recognition.stop();
+        }
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.warn(`🎙️ Voice Protocol Alert [${event.error}]: Attempting recovery...`);
+      
+      if (event.error === 'network') {
+        setHasNetworkError(true);
+        recognition.lang = 'en-US';
+      }
+
+      if (event.error === 'no-speech' && voiceRetries < 2) {
+        setVoiceRetries(prev => prev + 1);
+        recognition.stop();
+        setTimeout(() => {
+           try { recognition.start(); } catch(e) {}
+        }, 200);
+        return;
+      }
+
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      playSound('stop');
+    };
+
+    try {
+      recognition.start();
+    } catch (e) {
+      setIsListening(false);
+    }
+  }, [allowedPages, voiceRetries, hasNetworkError]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -227,11 +272,47 @@ export const GlobalSearch: React.FC = () => {
         )}
 
         {loading && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+          <div className="absolute right-14 top-1/2 -translate-y-1/2">
             <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
+
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {isListening && (
+            <div className="flex gap-1 pr-2">
+              <div className="w-1 h-3 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+              <div className="w-1 h-5 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+              <div className="w-1 h-3 bg-rose-500 rounded-full animate-bounce" />
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={isListening ? () => {} : startVoiceSearch}
+            className={`relative p-2.5 rounded-xl transition-all duration-500 ${
+              isListening 
+                ? 'bg-rose-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.4)] scale-110' 
+                : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
+            }`}
+            title="Smart Voice Search (Hinglish Supported)"
+          >
+            {isListening ? (
+              <>
+                <MicOff size={16} className="relative z-10" />
+                <span className="absolute inset-0 rounded-xl bg-rose-500 animate-ping opacity-20" />
+              </>
+            ) : (
+              <Mic size={16} />
+            )}
+          </button>
+        </div>
       </div>
+
+      {hasNetworkError && (
+        <div className="absolute -bottom-5 left-4 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-300">
+           <div className="w-1 h-1 bg-amber-500 rounded-full animate-pulse" />
+           <p className="text-[9px] font-bold text-amber-600 uppercase tracking-widest opacity-80">Network Lag Detected: Optimized Sync Mode Active</p>
+        </div>
+      )}
 
       {isOpen && query.length >= 1 && (
         <div className="absolute top-full mt-2 w-full bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-[200] animate-in fade-in slide-in-from-top-2 duration-200">

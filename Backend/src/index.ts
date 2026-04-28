@@ -21,6 +21,7 @@ import partyRoutes from "./routes/partyRoutes.js";
 import superAdminAuthRoutes from "./routes/superAdminAuth.routes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 import { seedSuperAdmin } from "./utils/seedSuperAdmin.js";
 import { seedPlans } from "./utils/seedPlans.js";
 import { initializeExistingProducts } from "./utils/productUtils.js";
@@ -128,6 +129,7 @@ app.use("/api/purchases", purchaseRoutes);
 app.use("/api/parties", partyRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/offers", offerRoutes);
+app.use("/api/search", searchRoutes);
 
 // Health Check Routes
 app.get("/api/test", (req: Request, res: Response) => {
