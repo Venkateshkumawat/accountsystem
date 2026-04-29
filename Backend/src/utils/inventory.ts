@@ -41,7 +41,7 @@ export const reduceStock = async (
        // Pro-active Replenishment Signal
        await createNotification(
           updatedProduct.businessAdminId, // Targeting the Business Admin's Node
-          `Infrastructure Warning: Low Stock for ${updatedProduct.name}. Current: ${updatedProduct.stock}. Replenish immediately.`,
+          `Business Node Alert: Low Stock for ${updatedProduct.name}. Current: ${updatedProduct.stock}. Replenish immediately.`,
           "warning",
           "businessAdmin",
           undefined,

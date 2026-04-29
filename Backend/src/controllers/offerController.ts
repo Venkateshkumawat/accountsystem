@@ -50,7 +50,7 @@ export const createOffer = async (req: AuthRequest, res: Response): Promise<void
       isActive: isActive !== undefined ? isActive : true
     });
 
-    await logActivity(req, "CREATE", "BUSINESS", `Launched new offer node: ${name} (${type})`, newOffer._id.toString());
+    await logActivity(req, "CREATE", "OFFER", `Launched new offer node: ${name} (${type})`, newOffer._id.toString());
     
     await createNotification(
        businessId as any,
@@ -121,7 +121,7 @@ export const updateOffer = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    await logActivity(req, "UPDATE", "BUSINESS", `Refined offer node: ${updatedOffer.name}`, updatedOffer._id.toString());
+    await logActivity(req, "UPDATE", "OFFER", `Refined offer node: ${updatedOffer.name}`, updatedOffer._id.toString());
     if (businessId) {
       getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'OFFER_UPDATE' });
     }

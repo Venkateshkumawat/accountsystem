@@ -609,9 +609,9 @@ export const deleteBusinessPermanently = async (req: Request, res: Response): Pr
 
     await Activity.create({
       businessAdminId: '000000000000000000000000' as any,
-      userName: 'Nexus Master',
+      userName: 'Nexus Master Node',
       action: 'DELETE',
-      resource: 'BUSINESS',
+      resource: 'SYSTEM_CONFIG',
       description: `Nuclear Purge: Decommissioned and deleted node ${businessId} permanently`
     });
 
@@ -747,4 +747,105 @@ export const updateAdminSettings = async (req: Request, res: Response): Promise<
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/**
+ * @desc    SuperAdmin Master Search (Businesses, Infrastructure, Logs)
+ * @route   GET /api/superadmin/auth/search
+ */
+export const superAdminSearch = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { query } = req.query;
+    if (!query || typeof query !== 'string') {
+      res.status(400).json({ success: false, message: "Query required." });
+      return;
+    }
+
+    const searchRegex = new RegExp(query, 'i');
+    const limit = 6;
+
+    // 1. Search Business Registries
+    const businesses = await Business.find({
+      $or: [
+        { businessName: searchRegex },
+        { businessId: searchRegex },
+        { email: searchRegex },
+        { ownerFullName: searchRegex }
+      ]
+    }).limit(limit).lean();
+
+    // 2. Search Infrastructure Audit Logs (Strict Master Node Governance Quarantine)
+    const logs = await Activity.find({
+      $and: [
+        {
+          $or: [
+            { description: searchRegex },
+            { userName: searchRegex }
+          ]
+        },
+        {
+          // Absolute Isolation: Only show Platform Governance Logs with no business owner
+          $and: [
+            { businessAdminId: { $in: [null, '000000000000000000000000' as any] } },
+            { resource: 'SYSTEM_CONFIG' }
+          ]
+        }
+      ]
+    }).sort({ createdAt: -1 }).limit(limit).lean();
+
+    // 3. Search Subscription Plans (User Plan Node)
+    const plans = await Plan.find({
+      $or: [
+        { name: searchRegex },
+        { features: { $in: [searchRegex] } }
+      ]
+    }).limit(limit).lean();
+
+    // 4. Smart Navigation: Settings Node Keywords
+    const settingsKeywords = [
+      { label: 'Maintenance Mode', sub: 'Governance Settings', keywords: ['maintenance', 'offline', 'settings'] },
+      { label: 'Registration Gateway', sub: 'Access Settings', keywords: ['signup', 'register', 'settings'] },
+      { label: 'System Logging', sub: 'Infrastructure Settings', keywords: ['logs', 'debug', 'settings'] }
+    ].filter(s => s.keywords.some(k => k.includes(query.toLowerCase()))).slice(0, 3);
+
+    const results = [
+      ...businesses.map(b => ({
+        id: b._id,
+        label: b.businessName,
+        sub: `Account Center • ID: ${b.businessId} • ${b.ownerFullName}`,
+        type: 'business',
+        path: `/superadmin/accounts`
+      })),
+      ...plans.map(p => ({
+        id: p._id,
+        label: p.name,
+        sub: `Plan Hub • ₹${p.priceMonthly}/mo • ${p.maxProducts} Products`,
+        type: 'plan',
+        path: `/superadmin/user-plan`
+      })),
+      ...settingsKeywords.map((s, i) => ({
+        id: `setting-${i}`,
+        label: s.label,
+        sub: s.sub,
+        type: 'setting',
+        path: `/superadmin/settings`
+      })),
+      ...logs.map(l => ({
+        id: l._id,
+        label: l.description,
+        sub: `Dashboard • ${l.action} • ${new Date(l.createdAt).toLocaleDateString()}`,
+        type: 'activity',
+        path: `/superadmin/dashboard`
+      }))
+    ];
+
+    res.status(200).json({
+      success: true,
+      data: results.slice(0, 8),
+      message: results.length > 0 ? "Results found" : "No governance data found"
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 

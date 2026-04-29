@@ -19,7 +19,9 @@ import {
   Mic,
   MicOff,
   Volume2,
-  Bell
+  Activity,
+  Bell,
+  Zap
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -114,14 +116,17 @@ export const GlobalSearch: React.FC = () => {
         }));
 
       // 2. Multi-Node Database Search Protocol
-      const globalRes = await api.get(`/search/global?query=${trimmedQ}`);
+      const searchUrl = isSuperAdmin ? '/superadmin/auth/search' : '/search/global';
+      const globalRes = await api.get(`${searchUrl}?query=${trimmedQ}`);
       const dbResults: SearchResult[] = (globalRes.data?.data || []).map((r: any) => ({
         id: r.id,
         label: r.label,
         sub: r.sub,
         path: r.path,
         type: r.type,
-        icon: r.type === 'product' ? Package : r.type === 'invoice' ? FileText : r.type === 'party' ? Users : r.type === 'transaction' ? CreditCard : r.type === 'notification' ? Bell : SearchIcon
+        icon: isSuperAdmin 
+          ? (r.type === 'business' ? Users : r.type === 'plan' ? Zap : r.type === 'setting' ? Cog : Activity)
+          : (r.type === 'product' ? Package : r.type === 'invoice' ? FileText : r.type === 'party' ? Users : r.type === 'transaction' ? CreditCard : r.type === 'notification' ? Bell : SearchIcon)
       }));
 
       const allResults = [
@@ -256,12 +261,12 @@ export const GlobalSearch: React.FC = () => {
             setSelectedIndex(0);
           }}
           onKeyDown={onKeyDown}
-          placeholder="Smart search (Ctrl + K)..."
-          className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-11 pr-4 text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
+          placeholder="Smart search..."
+          className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-11 pr-24 text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
         />
         <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
         
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pr-1">
+        <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pr-1">
           {/* ❌ Clear Search Text */}
           {query && !loading && !isListening && (
             <button
@@ -377,7 +382,11 @@ export const GlobalSearch: React.FC = () => {
                 <SearchIcon size={24} className="text-slate-300" />
               </div>
               <p className="text-sm font-semibold text-slate-900">No results found for "{query}"</p>
-              <p className="text-xs text-slate-500 mt-1">Try searching for products, invoices, or navigation nodes.</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {isSuperAdmin 
+                  ? 'Try searching for businesses, subscription plans, or governance settings.'
+                  : 'Try searching for products, invoices, or navigation nodes.'}
+              </p>
             </div>
           )}
         </div>

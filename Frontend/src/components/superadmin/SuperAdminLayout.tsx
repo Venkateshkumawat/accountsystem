@@ -14,6 +14,7 @@ import {
   CreditCard,
   Activity
 } from 'lucide-react';
+import { GlobalSearch } from '../GlobalSearch';
 import { useNotify } from '../../context/NotificationContext';
 import socketService from '../../services/socket';
 import api from '../../services/api';
@@ -24,13 +25,6 @@ const SuperAdminLayout: React.FC = () => {
   const { unreadCount } = useNotify();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
-  const [businesses, setBusinesses] = useState<any[]>([]);
-  const [plans, setPlans] = useState<any[]>([]);
-  const [logs, setLogs] = useState<any[]>([]);
-  const searchRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     socketService.connect();
   }, []);
@@ -38,43 +32,6 @@ const SuperAdminLayout: React.FC = () => {
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
-
-  const fetchSearchData = useCallback(async () => {
-    try {
-      const [bizRes, planRes, logRes] = await Promise.all([
-        api.get('/superadmin/auth/businesses').catch(() => ({ data: { businesses: [] } })),
-        api.get('/superadmin/auth/plans').catch(() => ({ data: { plans: [] } })),
-        api.get('/superadmin/auth/logs').catch(() => ({ data: { logs: [] } })),
-      ]);
-      if (bizRes.data.success) setBusinesses(bizRes.data.businesses);
-      if (planRes.data.success) setPlans(planRes.data.plans);
-      if (logRes.data.success) setLogs(logRes.data.logs);
-    } catch { /* ignore */ }
-  }, []);
-
-  useEffect(() => { fetchSearchData(); }, [fetchSearchData]);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowSearch(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q || q.length < 2) return null;
-    return {
-      businesses: businesses.filter(b => b.businessName?.toLowerCase().includes(q)).slice(0, 5),
-      plans: plans.filter(p => p.name?.toLowerCase().includes(q)).slice(0, 3),
-      logs: logs.filter(l => l.description?.toLowerCase().includes(q)).slice(0, 4)
-    };
-  }, [searchQuery, businesses, plans, logs]);
-
-  const clearSearch = () => { setSearchQuery(''); setShowSearch(false); };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -159,29 +116,8 @@ const SuperAdminLayout: React.FC = () => {
             <Menu size={18} />
           </button>
 
-          <div className="flex-1 relative" ref={searchRef}>
-            <div className="relative">
-              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
-                onFocus={() => setShowSearch(true)}
-                placeholder="Search platform..."
-                className="w-full pl-10 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:bg-white transition-all"
-              />
-            </div>
-
-            {showSearch && searchQuery.length >= 2 && searchResults && (
-              <div className="absolute top-full mt-2 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 max-h-[400px] overflow-y-auto">
-                {searchResults.businesses.map((biz, i) => (
-                  <button key={i} onClick={() => { navigate('/superadmin/accounts'); clearSearch(); }} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50">
-                    <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center"><Building2 size={14} /></div>
-                    <div className="flex-1 text-left"><p className="text-sm font-semibold">{biz.businessName}</p></div>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="flex-1 max-w-sm">
+            <GlobalSearch />
           </div>
 
           <div className="flex items-center gap-4">

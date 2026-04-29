@@ -1,7 +1,7 @@
 import { AuthRequest } from "../middleware/auth.js";
 
 type Action = "CREATE" | "UPDATE" | "DELETE" | "TRANSACTION";
-type Resource = "PRODUCT" | "STAFF" | "INVOICE" | "PAYMENT" | "BUSINESS" | "PARTY" | "PURCHASE";
+type Resource = "PRODUCT" | "STAFF" | "INVOICE" | "PAYMENT" | "BUSINESS" | "PARTY" | "PURCHASE" | "OFFER";
 
 /**
  * Log a system activity in the tenant-specific database node

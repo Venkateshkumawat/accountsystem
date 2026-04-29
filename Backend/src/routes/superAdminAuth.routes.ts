@@ -19,7 +19,8 @@ import {
   deleteBusinessPermanently,
   getSuperAdminTransactions,
   getAdminSettings,
-  updateAdminSettings
+  updateAdminSettings,
+  superAdminSearch
 } from '../controllers/superAdmin.controller.js';
 import { 
   createRazorpayOrder, 
@@ -51,6 +52,7 @@ router.get('/logs', getGlobalActivityLogs);
 router.get('/transactions', getSuperAdminTransactions);
 router.get('/settings', getAdminSettings);
 router.patch('/settings', updateAdminSettings);
+router.get('/search', superAdminSearch);
 
 // Business Admin Governance Node
 router.get('/businesses', getAllBusinesses);
