@@ -419,7 +419,7 @@ export default function Settings() {
 
 
   return (
-    <div className=" min-h-screen space-y-6">
+    <div className="p-1 sm:p-3 space-y-2 min-h-screen">
       {toast && <Toast msg={toast.msg} type={toast.type} close={() => setToast(null)} />}
 
       {/* Reset Workspace Confirm */}
@@ -433,7 +433,6 @@ export default function Settings() {
               <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase">Initialize Global Reset?</h3>
               <p className="text-slate-500 text-xs font-semibold mt-2 uppercase tracking-wide px-4">
                 This will permanently purge ALL Product data and Transactions. This cannot be undone.
-                This will permanently delete ALL Product data and Transactions. This cannot be undone.
               </p>
             </div>
             <div className="flex flex-col gap-4">
@@ -475,7 +474,7 @@ export default function Settings() {
       )}
 
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div>
           <h1 className="text-2xl font-semibold font-inter text-slate-900 tracking-tight">System Settings</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">Manage your business profile, team, security, and preferences</p>

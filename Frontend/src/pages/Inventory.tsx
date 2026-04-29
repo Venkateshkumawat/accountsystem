@@ -293,10 +293,9 @@ export default function Inventory() {
   };
 
   return (
-    <div className="space-y-4 min-h-screen p-2 font-inter bg-slate-50/50">
+    <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
       {/* Header & Metric Suite */}
-      <div className="space-y-4 px-2">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
           <div className="flex flex-col gap-1.5">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full w-fit">
               <Zap size={10} className="text-indigo-600 fill-indigo-600 animate-pulse" />
@@ -403,8 +402,7 @@ export default function Inventory() {
             ))}
           </div>
         )}
-      </div>
-
+      
       <div ref={resultsRef} className="space-y-8 px-2 pb-24 md:pb-12">
         {filteredProducts.length === 0 ? (
           <div className="bg-white rounded-3xl border-2 border-slate-200 py-32 text-center overflow-hidden">

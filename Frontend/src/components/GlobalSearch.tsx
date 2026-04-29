@@ -285,7 +285,7 @@ export const GlobalSearch: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full max-w-md" ref={searchRef}>
+    <div className="relative w-full max-w-2xl" ref={searchRef}>
       <div className="relative group">
         <input
           type="text"
@@ -299,8 +299,8 @@ export const GlobalSearch: React.FC = () => {
           onFocus={() => {
             if (query.length >= 1) setIsOpen(true);
           }}
-          placeholder="Search for businesses, plans, or governance features..."
-          className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-12 pr-24 text-base font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:scale-[1.02] transition-all duration-300 shadow-sm hover:shadow-md"
+          placeholder="Search for businesses, invoices, products, or navigation..."
+          className="w-full bg-slate-50 border-none outline-none rounded-2xl py-3.5 pl-12 pr-12 text-base font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:scale-[1.02] transition-all duration-300 shadow-sm hover:shadow-md text-ellipsis"
         />
         <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
         

@@ -119,8 +119,8 @@ const MasterAccount: React.FC = () => {
   }, [showFeatureModal, editModal]);
 
   return (
-    <div className="space-y-4 pb-10 relative font-inter">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+    <div className="p-1 sm:p-3 space-y-2 pb-10 relative font-inter">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 px-1">
         <div>
            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Master Accounts</h1>
            <p className="text-xs font-medium text-slate-400 mt-0.5">Manage business admin accounts and subscription limits</p>

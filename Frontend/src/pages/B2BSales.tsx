@@ -108,9 +108,9 @@ export default function B2BSales() {
     }, [filteredInvoices, showAll]);
 
     return (
-        <div className="min-h-screen bg-[#FDFDFF] p-4 sm:p-6 font-inter overflow-y-auto h-[calc(100vh-1rem)] custom-scrollbar">
+        <div className="p-1 sm:p-3 space-y-2 bg-[#FDFDFF] font-inter min-h-screen">
             {/* Header Module */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-1">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
                 <div>
                     <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">B2B Sales Invoices</h1>
                     <p className="text-slate-500 font-medium text-xs mt-0.5">Manage your GST-compliant business invoices</p>

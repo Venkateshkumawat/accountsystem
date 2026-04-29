@@ -44,13 +44,30 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const { user, hasPermission, isBusinessAdmin } = useAuth();
   const { unreadCount } = useNotify();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (window.innerWidth <= 1024) return false;
+    const saved = localStorage.getItem('ba_sidebar_visible');
+    return saved === null ? true : saved === 'true';
+  });
   const [planStatus, setPlanStatus] = useState<any>(null);
+
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen(prev => {
+      const newState = !prev;
+      if (window.innerWidth > 1024) {
+        localStorage.setItem('ba_sidebar_visible', String(newState));
+      }
+      return newState;
+    });
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth <= 1024) {
         setIsSidebarOpen(false);
+      } else {
+        const saved = localStorage.getItem('ba_sidebar_visible');
+        setIsSidebarOpen(saved === null ? true : saved === 'true');
       }
     };
     window.addEventListener('resize', handleResize);
@@ -116,8 +133,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       {/* ── SIDEBAR ────────────────────────────────────────────────────────── */}
       <aside
-        className={`fixed inset-y-0 left-0 w-[280px] bg-white border-r border-slate-100 z-[200] transform transition-transform duration-500 ${isSidebarOpen ? 'translate-x-0 lg:static lg:block' : '-translate-x-full lg:hidden'
-          }`}
+        className={`fixed inset-y-0 left-0 w-[280px] bg-white border-r border-slate-100 z-[200] transition-all duration-300 lg:static
+        ${isSidebarOpen ? 'translate-x-0 lg:w-[280px]' : '-translate-x-full lg:w-0 lg:opacity-0 lg:overflow-hidden lg:border-none'}`}
       >
         <div className="h-full flex flex-col overflow-hidden">
           <div className="h-[64px] px-6 flex items-center justify-between border-b border-slate-100 shrink-0">
@@ -129,9 +146,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 NexusBill
               </span>
             </Link>
-            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
-              <X size={20} />
-            </button>
           </div>
 
           <nav className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto sidebar-scrollbar scroll-smooth">
@@ -176,10 +190,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <header className="h-16 bg-white flex items-center justify-between px-4 lg:px-8 border-b border-slate-100 z-[120] sticky top-0">
             <div className="flex items-center gap-3 flex-1">
               <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all focus:outline-none"
+                onClick={toggleSidebar}
+                className="p-2.5 text-slate-500 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all focus:outline-none active:scale-90"
               >
-                {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                <Menu size={20} />
               </button>
 
               <button
@@ -192,7 +206,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               {/* Search Protocol */}
               <div className={`
                 fixed lg:relative inset-x-0 top-0 p-3 lg:p-0 bg-white lg:bg-transparent border-b border-slate-100 lg:border-none
-                flex-1 max-w-sm transition-all duration-300 z-50
+                flex-1 max-w-md transition-all duration-300 z-50
                 ${isMobileSearchOpen ? 'translate-y-0 opacity-100' : '-translate-y-full lg:translate-y-0 opacity-0 lg:opacity-100 pointer-events-none lg:pointer-events-auto'}
               `}>
                 <GlobalSearch />
@@ -212,10 +226,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <span className="text-sm font-semibold text-slate-900 max-w-[150px] truncate">{user?.businessName || 'Nexus Node'}</span>
                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none font-inter">Verified GST</span>
               </div>
+              <div className="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-lg shadow-slate-200 shrink-0">
+                {user?.businessName?.charAt(0) || 'B'}
+              </div>
             </div>
           </header>
 
-          <div className="pt-0 pb-6 px-4 lg:px-8 relative">
+          <div className="pt-1 lg:pt-2 pb-6 px-4 lg:px-8 relative">
 
 
             <div className="relative">

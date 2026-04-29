@@ -84,10 +84,10 @@ const AdminSetting: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6 pb-20 relative font-inter">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div className="p-1 sm:p-3 space-y-2 pb-20 relative font-inter">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 px-1">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Admin Settings</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Admin Settings</h1>
           <p className="text-sm font-semibold text-slate-500 mt-1">Configure global platform protocols and master node security.</p>
         </div>
       </div>

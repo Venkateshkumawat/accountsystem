@@ -175,15 +175,15 @@ const AuditCenter: React.FC = () => {
     };
 
     return (
-        <div className="nexus-container py-4 md:py-8 animate-in fade-in duration-700 font-inter px-4 md:px-0">
+        <div className="p-1 sm:p-3 space-y-2 animate-in fade-in duration-700 font-inter">
             {/* ── HEADER ────────────────────────────────────────────────────────── */}
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 md:mb-10">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1 mb-4 md:mb-6">
                 <div className="flex items-center justify-between w-full md:w-auto">
                     <div>
-                        <h1 className="text-xl md:text-2xl font-semibold text-slate-900 tracking-tight flex items-center gap-3 font-inter">
-                            <Bell className="text-indigo-600 shrink-0" size={24} /> Message Center
+                        <h1 className="text-lg md:text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-3 font-inter">
+                            <Bell className="text-indigo-600 shrink-0" size={20} /> Message Center
                         </h1>
-                        <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-[0.2em] leading-none font-inter">Notification History</p>
+                        <p className="text-[9px] font-semibold text-slate-400 mt-0.5 uppercase tracking-[0.2em] leading-none font-inter">Notification History</p>
                     </div>
                     {/* Mobile Clear All Action */}
                     <button 
@@ -209,16 +209,16 @@ const AuditCenter: React.FC = () => {
             </header>
 
             {/* ── SEARCH & FILTER ────────────────────────────────────────────────────────── */}
-            <div className="space-y-4 mb-6 md:mb-8">
+            <div className="space-y-3 mb-4 md:mb-5">
                 <div className="relative">
                     <input 
                         type="text" 
                         placeholder="Search recent activity..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-12 pr-6 py-3.5 md:py-4 bg-white border border-slate-100 rounded-[1rem] md:rounded-[1.5rem] text-[13px] font-semibold text-slate-600 placeholder:text-slate-300 focus:border-indigo-500 shadow-sm transition-all font-inter"
+                        className="w-full pl-11 pr-6 py-2.5 md:py-3 bg-white border border-slate-100 rounded-[1rem] md:rounded-[1.2rem] text-[12px] font-semibold text-slate-600 placeholder:text-slate-300 focus:border-indigo-500 shadow-sm transition-all font-inter"
                     />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
                 </div>
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -264,10 +264,10 @@ const AuditCenter: React.FC = () => {
                     <table className="w-full text-left table-fixed">
                         <thead>
                              <tr className="border-b border-slate-100 bg-slate-50/30 font-bold">
-                                <th className="w-[180px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Message Time</th>
-                                <th className="w-[220px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Category</th>
-                                <th className="px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-center">Message Description</th>
-                                <th className="w-[120px] px-8 py-5 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right pr-8">Actions</th>
+                                <th className="w-[160px] px-6 py-3 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Message Time</th>
+                                <th className="w-[200px] px-6 py-3 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter">Category</th>
+                                <th className="px-6 py-3 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-center">Message Description</th>
+                                <th className="w-[100px] px-6 py-3 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-inter text-right pr-6">Actions</th>
                              </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 font-inter">
@@ -287,7 +287,7 @@ const AuditCenter: React.FC = () => {
                                         onDoubleClick={() => item.type === 'ALERT' && !item.isRead && markAsRead(item.id)}
                                         className={`hover:bg-indigo-50/50 transition-all duration-300 cursor-pointer group relative border-b-2 border-slate-100 last:border-0 ${item.type === 'ALERT' && !item.isRead ? 'bg-indigo-50/20' : ''}`}
                                     >
-                                        <td className="px-8 py-6 align-top relative">
+                                        <td className="px-6 py-4 align-top relative">
                                             {item.type === 'ALERT' && !item.isRead && (
                                                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-600 shadow-[2px_0_12px_rgba(79,70,229,0.4)]" />
                                             )}
@@ -296,16 +296,16 @@ const AuditCenter: React.FC = () => {
                                                     <Clock size={14} />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className={`text-[12px] tabular-nums font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-slate-900 scale-105 origin-left' : 'text-slate-700'}`}>
+                                                    <p className={`text-[11px] tabular-nums font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-slate-900 scale-105 origin-left' : 'text-slate-700'}`}>
                                                         {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </p>
-                                                    <p className={`text-[9px] mt-1 uppercase tracking-tight tabular-nums truncate font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-indigo-600' : 'text-slate-400'}`}>
+                                                    <p className={`text-[8px] mt-0.5 uppercase tracking-tight tabular-nums truncate font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-indigo-600' : 'text-slate-400'}`}>
                                                         {new Date(item.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6 align-top">
+                                        <td className="px-6 py-4 align-top">
                                             <div className="flex flex-col gap-2.5">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`px-2 py-0.5 rounded-lg border text-[8px] uppercase tracking-widest inline-flex w-fit font-semibold ${getSeverityStyles(item)}`}>
@@ -315,17 +315,17 @@ const AuditCenter: React.FC = () => {
                                                         <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.6)]" />
                                                     )}
                                                 </div>
-                                                <div className={`flex items-center gap-2 text-[10px] uppercase tracking-tight truncate transition-colors font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-indigo-700' : 'text-slate-500 group-hover:text-slate-900'}`}>
+                                                <div className={`flex items-center gap-2 text-[9px] uppercase tracking-tight truncate transition-colors font-semibold ${item.type === 'ALERT' && !item.isRead ? 'text-indigo-700' : 'text-slate-500 group-hover:text-slate-900'}`}>
                                                     {getIcon(item)}
                                                     <span>{item.title}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6 align-top">
-                                            <div className="flex flex-col gap-1.5 text-center">
-                                                <p className={`text-[13px] tracking-tight leading-relaxed break-words transition-all ${
+                                        <td className="px-6 py-4 align-top">
+                                            <div className="flex flex-col gap-1 text-center">
+                                                <p className={`text-[12px] tracking-tight leading-snug break-words transition-all ${
                                                     item.type === 'ALERT' && !item.isRead 
-                                                    ? 'font-black text-slate-900 scale-[1.02] origin-center' 
+                                                    ? 'font-black text-slate-900 scale-[1.01] origin-center' 
                                                     : 'font-medium text-slate-400'
                                                 }`}>
                                                     {item.description}
@@ -337,7 +337,7 @@ const AuditCenter: React.FC = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6 align-top text-right">
+                                        <td className="px-6 py-4 align-top text-right">
                                             <button 
                                                 onClick={(e) => {
                                                     e.stopPropagation();

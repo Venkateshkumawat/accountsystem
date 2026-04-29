@@ -168,14 +168,14 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
       { $sort: { "_id": 1 } }
     ]);
 
-    // Fill gaps in the 30-day timeline for professional visualization
+    // Fill gaps with local-aware dates
     const registrationTrend = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 29; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = d.toISOString().split('T')[0]; 
       const found = rawRegistrationTrend.find(r => r._id === dateStr);
-      registrationTrend.unshift({ _id: dateStr, count: found ? found.count : 0 });
+      registrationTrend.push({ _id: dateStr, count: found ? found.count : 0 });
     }
 
     // ── Plan Distribution: Market Share with Node Registry ──────────────────
@@ -198,8 +198,8 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
         $project: {
           _id: 1,
           count: 1,
-          // Limit to most recent 10 nodes per plan to prevent BSON overflow while providing enough context
-          businesses: { $slice: ["$businesses", -10] }
+          // Expanded registry visibility for master oversight
+          businesses: { $slice: ["$businesses", -100] }
         }
       }
     ]);

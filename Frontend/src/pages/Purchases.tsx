@@ -227,9 +227,8 @@ export default function Purchases() {
   if (loading) return <PurchaseSkeleton />;
 
   return (
-    <div className="space-y-6 min-h-screen p-1 sm:p-4 bg-[#fcfcfd] font-inter">
-      
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4">
+    <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1 no-print">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-slate-900/10 shrink-0">
              <Package size={20} className="animate-pulse" />
@@ -250,7 +249,7 @@ export default function Purchases() {
              <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
            </button>
         </div>
-      </div>
+      </header>
 
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 px-4 font-inter">
         <StatCard label="Total Outbound" value={`₹${(stats.totalSpend || 0).toLocaleString()}`} icon={IndianRupee} color="#6366f1" sub="Global Procurement Node" trend="neutral" />

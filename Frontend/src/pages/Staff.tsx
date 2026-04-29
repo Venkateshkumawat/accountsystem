@@ -256,7 +256,7 @@ export default function Staff() {
   const activeCount = staff.filter(s => s.isActive).length;
 
   return (
-    <div className="space-y-4  min-h-screen">
+    <div className="p-1 sm:p-3 space-y-2 min-h-screen">
       {/* Toast */}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {/* Confirm Delete */}
@@ -269,7 +269,7 @@ export default function Staff() {
       )}
 
       {/* ──── Header ───────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div>
           <h1 className="text-2xl font-semibold font-inter text-slate-900 tracking-tight">Staff Management</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">

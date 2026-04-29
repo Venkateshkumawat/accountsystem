@@ -127,9 +127,9 @@ const UserPlan: React.FC = () => {
 
   return (
     <div className="bg-[#F8FAFC]/50 pb-10 font-inter">
-      <div className="max-w-5xl mx-auto px-4 pb-4 pt-1 space-y-4">
+      <div className="max-w-5xl mx-auto p-1 sm:p-3 space-y-2">
         {/* Header Protocol */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-4 px-1">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Business Setup</h1>
             <p className="text-xs font-medium text-slate-400 mt-0.5">Create business accounts and configure usage limits</p>

@@ -84,8 +84,8 @@ const SuperAdminDashboard: React.FC = () => {
 
   return (
     <>
-    <div className="space-y-4 min-h-screen pb-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+    <div className="p-1 sm:p-3 space-y-2 min-h-screen pb-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">SuperAdmin Dashboard</h1>
           <p className="text-sm font-medium text-slate-500 mt-1">Global platform monitoring and administrative control</p>

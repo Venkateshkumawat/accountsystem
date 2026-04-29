@@ -105,15 +105,10 @@ export default function Reports() {
     }
   };
 
-  if (loading) return (
-    <div className="h-[60vh] flex flex-col items-center justify-center ">
-      <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
-      <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-tighter">Syncing Reports...</h2>
-    </div>
-  );
+  if (loading) return <ReportsSkeleton />;
 
   return (
-    <div className="space-y-4 pt-6 select-none print:m-0 print:p-0">
+    <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
       {/* 🖨️ Print-Only Audit Header */}
       <div className="hidden print:block mb-8 border-b-2 border-slate-900 pb-4">
         <h1 className="text-2xl font-semibold uppercase tracking-tighter">Nexus Node Audit Report</h1>
@@ -639,5 +634,22 @@ function MetricCard({ label, value, icon: Icon, color, sub }: any) {
     </div>
   );
 }
+
+function ReportsSkeleton() {
+  return (
+    <div className="p-1 sm:p-3 space-y-4 animate-pulse bg-[#fcfcfd] min-h-screen">
+      <div className="h-10 bg-slate-200 rounded-2xl w-1/4" />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-24 bg-white border border-slate-100 rounded-2xl" />)}
+      </div>
+      <div className="h-24 bg-white border border-slate-100 rounded-[2rem]" />
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-8 h-[400px] bg-white border border-slate-100 rounded-[2.5rem]" />
+        <div className="col-span-4 h-[400px] bg-white border border-slate-100 rounded-[2.5rem]" />
+      </div>
+    </div>
+  );
+}
+
 
 

@@ -39,12 +39,13 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
 
     const results = await Promise.all([
       // 1. Comprehensive Sales Intelligence with Historical Comparison
+      // We filter by startOfLastYear to avoid scanning ancient data
       Invoice.aggregate([
-        { $match: { businessAdminId: businessAdminId as any } },
+        { $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: startOfLastYear } } },
         {
           $group: {
             _id: null,
-            totalSales: { $sum: "$grandTotal" },
+            totalSales: { $sum: "$grandTotal" }, // This will now be total for last 2 years
             todaySalesTotal: { $sum: { $cond: [{ $gte: ["$createdAt", startOfToday] }, "$grandTotal", 0] } },
             todaySalesCount: { $sum: { $cond: [{ $gte: ["$createdAt", startOfToday] }, 1, 0] } },
             monthlySalesTotal: { $sum: { $cond: [{ $gte: ["$createdAt", startOfMonth] }, "$grandTotal", 0] } },
@@ -57,16 +58,18 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
           }
         }
       ]),
-      Purchase.aggregate([{ $match: { businessAdminId: businessAdminId as any } }, { $group: { _id: null, totalPurchases: { $sum: "$grandTotal" }, purchaseCount: { $sum: 1 } } }]),
-      Transaction.countDocuments({ businessAdminId: businessAdminId as any }),
+      Purchase.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: startOfMonth } } }, { $group: { _id: null, totalPurchases: { $sum: "$grandTotal" }, purchaseCount: { $sum: 1 } } }]),
+      Transaction.countDocuments({ businessAdminId: businessAdminId as any, createdAt: { $gte: startOfMonth } }),
       Product.aggregate([{ $match: { businessAdminId: businessAdminId as any, isActive: true } }, { $group: { _id: null, totalProducts: { $sum: 1 }, inventoryValue: { $sum: { $multiply: ["$stock", { $ifNull: ["$purchasePrice", 0] }] } }, lowStockCount: { $sum: { $cond: [{ $lt: ["$stock", 20] }, 1, 0] } } } }]),
       Staff.countDocuments({ businessAdminId: businessAdminId as any, isActive: true }),
       Activity.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).lean(),
-      Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any } }, { $unwind: "$items" }, { $group: { _id: "$items.name", totalRevenue: { $sum: "$items.total" } } }, { $sort: { totalRevenue: -1 } }, { $limit: 10 }, { $project: { name: "$_id", totalRevenue: 1, _id: 0 } }]),
+      // Top Products - Limit to last 30 days for better performance
+      Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000)) } } }, { $unwind: "$items" }, { $group: { _id: "$items.name", totalRevenue: { $sum: "$items.total" } } }, { $sort: { totalRevenue: -1 } }, { $limit: 10 }, { $project: { name: "$_id", totalRevenue: 1, _id: 0 } }]),
       Invoice.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).select('transactionId invoiceNumber customerName customerPhone customerAddress customerEmail customerGstin items subtotal totalGST totalDiscount grandTotal paymentStatus paymentMethod businessDetails createdAt').lean(),
       Product.find({ businessAdminId: businessAdminId as any, isActive: true, stock: { $lt: 20 } }).select('name stock lowStockThreshold').lean(),
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (15 * 24 * 60 * 60 * 1000)) } } }, { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, revenue: { $sum: "$grandTotal" } } }, { $sort: { _id: 1 } }])
     ]);
+
 
     const salesStats = results[0][0] || { totalSales: 0, todaySalesTotal: 0, todaySalesCount: 0, monthlySalesTotal: 0, monthlySalesCount: 0, yearlySales: 0, yesterdaySalesTotal: 0, lastMonthSalesTotal: 0, lastYearSalesTotal: 0, totalGST: 0 };
     const purchaseStats = results[1][0] || { totalPurchases: 0, purchaseCount: 0 };

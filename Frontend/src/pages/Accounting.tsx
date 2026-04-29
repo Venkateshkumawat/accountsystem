@@ -108,8 +108,8 @@ export default function Accounting() {
   const METHOD_COLORS: Record<string, string> = { CASH: '#6366f1', UPI: '#10b981', CARD: '#f59e0b', ONLINE: '#8b5cf6' };
 
   return (
-    <div className="space-y-4 min-h-screen p-1 sm:p-2">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+    <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Accounts & Ledger</h1>
           <p className="text-sm font-normal text-slate-500 mt-1">Financial reports, receivables and payment settlement tracking</p>

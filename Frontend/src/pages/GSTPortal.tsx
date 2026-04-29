@@ -124,10 +124,12 @@ export default function GSTPortal() {
 
    const formatCurrency = (val: number) => `₹${Math.abs(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 
+   if (loading) return <GstPortalSkeleton />;
+
    return (
       <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
          {/* Header — Compliance Area */}
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1 no-print">
+         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1 no-print">
             <div className="flex items-center gap-4">
                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg ring-4 ring-slate-900/5 shrink-0">
                   <ShieldCheck size={20} />
@@ -158,7 +160,7 @@ export default function GSTPortal() {
                   <ShieldCheck size={14} /> File GSTR-1
                </button>
             </div>
-         </div>
+         </header>
 
          {/* Global Vitals Node — High-Density Inter Semibold */}
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 px-1">
@@ -418,3 +420,19 @@ const MetricCard = memo(({ label, value, color, sub }: any) => {
       </div>
    );
 });
+
+function GstPortalSkeleton() {
+   return (
+      <div className="p-1 sm:p-3 space-y-4 animate-pulse bg-[#fcfcfd] min-h-screen">
+         <div className="h-12 bg-slate-200 rounded-2xl w-1/3" />
+         <div className="grid grid-cols-4 gap-3">
+            {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-white border border-slate-100 rounded-2xl" />)}
+         </div>
+         <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-8 h-[400px] bg-white border border-slate-100 rounded-[2rem]" />
+            <div className="col-span-4 h-[400px] bg-white border border-slate-100 rounded-[2rem]" />
+         </div>
+         <div className="h-64 bg-white border border-slate-100 rounded-[2.5rem]" />
+      </div>
+   );
+}

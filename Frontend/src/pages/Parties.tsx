@@ -223,9 +223,9 @@ export default function Parties() {
     }, [parties, search, activeFilter, sortBy]);
 
     return (
-        <div className="p-2 sm:p-4 space-y-4 bg-[#fcfcfd] min-h-screen font-inter select-none">
+        <div className="p-1 sm:p-3 space-y-2 bg-[#fcfcfd] min-h-screen font-inter">
             {/* Header Area */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-1 no-print">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1 no-print">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-slate-900/10 shrink-0">
                         <Users size={20} className="animate-pulse" />
@@ -262,7 +262,7 @@ export default function Parties() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </header>
 
             {/* Summary Stat Hub */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
