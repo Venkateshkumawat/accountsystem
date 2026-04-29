@@ -5,6 +5,7 @@ dotenv.config();
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import compression from "compression";
 import connectDB from "./config/db.js";
 
 // Routes
@@ -99,6 +100,7 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(morgan("dev"));
+app.use(compression());
 app.use(express.json());
 
 // High-Performance CORS Registry: Supports Vercel Previews and Production Nodes

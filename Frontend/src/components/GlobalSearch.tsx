@@ -56,7 +56,7 @@ const STATIC_PAGES = [
   { label: 'System & Admin Settings', path: '/superadmin/settings', icon: Settings },
 ];
 
-export const GlobalSearch: React.FC = () => {
+export const GlobalSearch: React.FC = React.memo(() => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +72,7 @@ export const GlobalSearch: React.FC = () => {
   const lastEmptyQuery = useRef('');
 
   // 🔊 Audio Feedback Engine (Works with Earbuds/Earphones)
-  const playSound = (type: 'start' | 'stop') => {
+  const playSound = useCallback((type: 'start' | 'stop') => {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -83,7 +83,7 @@ export const GlobalSearch: React.FC = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.1);
-  };
+  }, []);
 
   // 🛡️ Access Control: Filter static pages based on role
   const allowedPages = useMemo(() => {
@@ -228,7 +228,7 @@ export const GlobalSearch: React.FC = () => {
     } catch (e) {
       setIsListening(false);
     }
-  }, [allowedPages, voiceRetries, hasNetworkError]);
+  }, [allowedPages, voiceRetries, hasNetworkError, playSound]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -249,11 +249,11 @@ export const GlobalSearch: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = (result: SearchResult) => {
+  const handleSelect = useCallback((result: SearchResult) => {
     setQuery('');
     setIsOpen(false);
     navigate(result.path);
-  };
+  }, [navigate]);
 
   // 🔦 Match Highlighter Node: Visually isolates search terms
   const HighlightMatch = ({ text, term }: { text: string; term: string }) => {
@@ -433,4 +433,5 @@ export const GlobalSearch: React.FC = () => {
       )}
     </div>
   );
-};
+});
+

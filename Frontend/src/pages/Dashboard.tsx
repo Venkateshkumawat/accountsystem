@@ -38,6 +38,10 @@ interface DashboardData {
   revenueTrend?: any[];
 }
 
+// 🚀 Persistent Cache Node: Survives remounts for instantaneous navigation back-and-forth
+let dashboardCache: { data: DashboardData; timestamp: number } | null = null;
+const CACHE_EXPIRY = 2 * 60 * 1000; // 2 Minutes threshold for auto-refresh
+
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,11 +59,25 @@ export default function Dashboard() {
 
   const fetchDashboard = useCallback(async (isRefresh = false) => {
     try {
+      // 🚀 Optimization: Persistent Cache Protocol (Zero Latency Recovery)
+      const now = Date.now();
+      if (!isRefresh && dashboardCache && (now - dashboardCache.timestamp < CACHE_EXPIRY)) {
+        setData(dashboardCache.data);
+        setLoading(false);
+        // Silently background-sync plan status to prevent stale lockout
+        api.get('/businesses/plan-status').then(res => res.data && setPlanStatus(res.data)).catch(() => {});
+        return;
+      }
+
       if (!initialized.current && !isRefresh) setLoading(true);
       if (isRefresh) setRefreshing(true);
       
       const res = await api.get('/dashboard');
-      setData(res.data.data);
+      const dashboardData = res.data.data;
+      setData(dashboardData);
+      
+      // Update Cache Entry
+      dashboardCache = { data: dashboardData, timestamp: Date.now() };
       initialized.current = true;
 
       const [fullUserRes, planRes] = await Promise.all([
@@ -257,7 +275,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="w-full h-[350px] relative mt-2">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={100}>
+               <ResponsiveContainer width="99%" height="99%" minHeight={150} debounce={100}>
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                 <XAxis 

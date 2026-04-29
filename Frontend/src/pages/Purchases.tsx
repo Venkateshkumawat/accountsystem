@@ -68,16 +68,16 @@ export default function Purchases() {
     if (!isRefresh && purchases.length === 0) setLoading(true);
     try {
       const pUrl = search ? `/purchases?search=${search}&limit=50` : '/purchases?limit=50';
-      const [pRes, sRes, lRes] = await Promise.all([
+      const [pRes, sRes, lRes, cRes] = await Promise.all([
         api.get(pUrl),
         api.get('/purchases/stats'),
-        api.get('/products?limit=1000')
+        api.get('/products/low-stock'),
+        api.get('/products/categories')
       ]);
       setPurchases(pRes.data?.data || []);
-       setStats(sRes.data || { totalSpend: 0, totalITC: 0, monthSpend: 0, monthCount: 0, totalCount: 0, dailySpend: [] });
-       const allProds = lRes.data?.data || [];
-       setLowStock(allProds.filter((p: Product) => p.stock < 15));
-       setCategories(Array.from(new Set(allProds.map((p: any) => p.category).filter(Boolean))) as string[]);
+      setStats(sRes.data || { totalSpend: 0, totalITC: 0, monthSpend: 0, monthCount: 0, totalCount: 0, dailySpend: [] });
+      setLowStock(lRes.data?.data || []);
+      setCategories(cRes.data?.data || []);
        
        // Fetch unique vendors for recognition
        api.get('/purchases/vendors').then(vRes => setPrevVendors(vRes.data?.data || []));
@@ -268,7 +268,7 @@ export default function Purchases() {
               </div>
            </div>
            <div className="h-[280px] sm:h-[340px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>
+              <ResponsiveContainer width="99%" height="100%" minHeight={150} debounce={50}>
                  <AreaChart data={chartData}>
                     <defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -285,7 +285,7 @@ export default function Purchases() {
            <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm flex flex-col items-center">
               <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4 w-full text-center">Supplier Distribution</h3>
               <div className="h-[200px] w-full relative min-h-[200px]">
-                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>
+                 <ResponsiveContainer width="99%" height="100%" minHeight={150} debounce={50}>
                     <PieChart>
                        <Pie data={supplierData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                           {supplierData.map((e: any, i: number) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}

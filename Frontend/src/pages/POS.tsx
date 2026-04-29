@@ -166,6 +166,15 @@ export default function POS() {
 
   const findAndAddProduct = async (barcode: string) => {
     if (!barcode) return;
+    
+    // 🚀 Optimization: Search Local Registry First (Zero Latency)
+    const localProduct = products.find(p => (p.barcode || "").toLowerCase() === barcode.toLowerCase());
+    if (localProduct) {
+      handleAddItem(localProduct);
+      return true;
+    }
+
+    // 📡 Fallback: Deep Database Sync (Nexus Protocol)
     try {
       const res = await api.get(`/products/barcode/${barcode}`);
       if (res.data?.success && res.data?.data) {

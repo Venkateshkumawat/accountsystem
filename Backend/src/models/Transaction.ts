@@ -81,6 +81,10 @@ const transactionSchema = new Schema<ITransaction>(
   }
 );
 
+transactionSchema.index({ businessAdminId: 1, createdAt: -1 });
+transactionSchema.index({ businessAdminId: 1, type: 1 });
+transactionSchema.index({ businessAdminId: 1, transactionId: 1 });
+
 const Transaction: Model<ITransaction> = mongoose.models.Transaction || mongoose.model<ITransaction>("Transaction", transactionSchema);
 export { transactionSchema };
 export default Transaction;
