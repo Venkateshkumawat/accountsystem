@@ -256,8 +256,8 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="flex-1 w-full min-h-[350px] relative mt-2">
-            <ResponsiveContainer width="100%" height={350} minWidth={0} minHeight={0} debounce={50}>
+          <div className="w-full h-[350px] relative mt-2">
+            <ResponsiveContainer width="100%" height="100%" debounce={100}>
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                 <XAxis 

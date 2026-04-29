@@ -800,12 +800,16 @@ export const superAdminSearch = async (req: Request, res: Response): Promise<voi
       ]
     }).limit(limit).lean();
 
-    // 4. Smart Navigation: Settings Node Keywords
-    const settingsKeywords = [
-      { label: 'Maintenance Mode', sub: 'Governance Settings', keywords: ['maintenance', 'offline', 'settings'] },
-      { label: 'Registration Gateway', sub: 'Access Settings', keywords: ['signup', 'register', 'settings'] },
-      { label: 'System Logging', sub: 'Infrastructure Settings', keywords: ['logs', 'debug', 'settings'] }
-    ].filter(s => s.keywords.some(k => k.includes(query.toLowerCase()))).slice(0, 3);
+    // 4. Smart Navigation: Governance Node Shortcuts (Deep Feature Indexing)
+    const navShortcuts = [
+      { label: 'Maintenance Mode', sub: 'System Governance Settings', keywords: ['maintenance', 'offline', 'settings', 'down', 'system', 'emergency', 'brake', 'pause'] },
+      { label: 'Registration Gateway', sub: 'Access & Signup Settings', keywords: ['signup', 'register', 'gate', 'settings', 'system', 'enable', 'new'] },
+      { label: 'System Logging', sub: 'Infrastructure Audit Settings', keywords: ['logs', 'debug', 'audit', 'settings', 'system', 'track', 'high-security', 'activity'] },
+      { label: 'Beta Lab', sub: 'Experimental Tools & AI', keywords: ['beta', 'future', 'tools', 'ai', 'innovation', 'lab', 'enable'], path: '/superadmin/settings' },
+      { label: 'Subscription Plans', sub: 'Manage Tiers & Pricing', keywords: ['plan', 'price', 'money', 'subscription', 'monthly', 'yearly', 'system'], path: '/superadmin/user-plan' },
+      { label: 'Account Center', sub: 'Master Business Registry', keywords: ['business', 'account', 'user', 'admin', 'master', 'system'], path: '/superadmin/accounts' },
+      { label: 'Governance Settings', sub: 'Global Platform Controls', keywords: ['settings', 'config', 'setup', 'security', 'system', 'governance'], path: '/superadmin/settings' }
+    ].filter(s => s.keywords.some(k => k.includes(query.toLowerCase()))).slice(0, 5);
 
     const results = [
       ...businesses.map(b => ({
@@ -822,12 +826,12 @@ export const superAdminSearch = async (req: Request, res: Response): Promise<voi
         type: 'plan',
         path: `/superadmin/user-plan`
       })),
-      ...settingsKeywords.map((s, i) => ({
-        id: `setting-${i}`,
+      ...navShortcuts.map((s, i) => ({
+        id: `nav-${i}`,
         label: s.label,
         sub: s.sub,
         type: 'setting',
-        path: `/superadmin/settings`
+        path: s.path || `/superadmin/settings`
       })),
       ...logs.map(l => ({
         id: l._id,

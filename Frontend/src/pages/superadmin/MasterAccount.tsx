@@ -56,7 +56,7 @@ const MasterAccount: React.FC = () => {
   const handleToggleStatus = async (biz: any) => {
     const action = biz.status === 'active' ? 'suspend' : 'activate';
     try {
-      await api.patch(`/superadmin/superadmin/auth/business-admins/${biz.businessId}/status`, { action, reason: 'Manual override by admin.' });
+      await api.patch(`/superadmin/auth/business-admins/${biz.businessId}/status`, { action, reason: 'Manual override by admin.' });
       notifySuccess(`Business ${biz.businessId} shifted to ${action.toUpperCase()}`);
       fetchBusinesses();
       syncRegistry();
@@ -192,14 +192,14 @@ const MasterAccount: React.FC = () => {
                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-semibold uppercase tracking-wider ${biz.status === 'active' ? 'bg-emerald-500 text-white shadow-sm' : 'bg-rose-500 text-white shadow-sm'}`}>{biz.status}</span>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                         <div className="w-1 h-1 rounded-full bg-slate-200"></div>
                         Start: <span className="text-slate-900">{biz.planStartDate ? new Date(biz.planStartDate).toLocaleDateString('en-IN') : 'N/A'}</span>
-                      </p>
-                      <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      </div>
+                      <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                         <div className="w-1 h-1 rounded-full bg-slate-200"></div>
                         Exp: <CountdownTimer endDate={biz.planEndDate} />
-                      </p>
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -289,7 +289,12 @@ const MasterAccount: React.FC = () => {
                 <div className="flex gap-2">
                   <button onClick={() => setShowFeatureModal(biz)} className="p-2 bg-white border border-slate-200 rounded-lg text-slate-400"> <Settings size={14} /> </button>
                   <button onClick={() => handleToggleStatus(biz)} className={`p-2 rounded-lg ${biz.status === 'active' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}> {biz.status === 'active' ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />} </button>
-                  <button className="p-2 bg-slate-900 text-white rounded-lg"> <Edit3 size={14} /> </button>
+                  <button 
+                    onClick={() => { setEditModal(biz); setEditFormData({ ...biz, planStartDate: biz.planStartDate?.slice(0, 16) || '', planEndDate: biz.planEndDate?.slice(0, 16) || '', amountPaid: biz.planHistory?.[biz.planHistory.length - 1]?.amountPaid || 0 }); }}
+                    className="p-2 bg-slate-900 text-white rounded-lg"
+                  > 
+                    <Edit3 size={14} /> 
+                  </button>
                 </div>
               </div>
             </div>

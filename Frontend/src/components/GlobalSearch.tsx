@@ -21,7 +21,9 @@ import {
   Volume2,
   Activity,
   Bell,
-  Zap
+  Zap,
+  ShieldCheck,
+  Settings
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -47,6 +49,11 @@ const STATIC_PAGES = [
   { label: 'GST Portal', path: '/gst', icon: Shield },
   { label: 'Reports', path: '/reports', icon: BarChart2 },
   { label: 'Settings', path: '/settings', icon: Cog },
+  // SuperAdmin Master Nodes
+  { label: 'Master Dashboard', path: '/superadmin/dashboard', icon: LayoutDashboard },
+  { label: 'User Plan Hub', path: '/superadmin/user-plan', icon: Zap },
+  { label: 'Account Center', path: '/superadmin/accounts', icon: ShieldCheck },
+  { label: 'System & Admin Settings', path: '/superadmin/settings', icon: Settings },
 ];
 
 export const GlobalSearch: React.FC = () => {
@@ -231,10 +238,38 @@ export const GlobalSearch: React.FC = () => {
     return () => clearTimeout(timer);
   }, [query, performSearch]);
 
+  // 🖱️ Click-Outside Dismissal Node
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleSelect = (result: SearchResult) => {
     setQuery('');
     setIsOpen(false);
     navigate(result.path);
+  };
+
+  // 🔦 Match Highlighter Node: Visually isolates search terms
+  const HighlightMatch = ({ text, term }: { text: string; term: string }) => {
+    if (!term) return <span>{text}</span>;
+    const parts = text.split(new RegExp(`(${term})`, 'gi'));
+    return (
+      <span>
+        {parts.map((part, i) => 
+          part.toLowerCase() === term.toLowerCase() ? (
+            <span key={i} className="font-black text-indigo-500 underline decoration-indigo-200 underline-offset-2">{part}</span>
+          ) : (
+            <span key={i}>{part}</span>
+          )
+        )}
+      </span>
+    );
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -261,10 +296,13 @@ export const GlobalSearch: React.FC = () => {
             setSelectedIndex(0);
           }}
           onKeyDown={onKeyDown}
-          placeholder="Smart search..."
-          className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-11 pr-24 text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
+          onFocus={() => {
+            if (query.length >= 1) setIsOpen(true);
+          }}
+          placeholder="Search for businesses, plans, or governance features..."
+          className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-12 pr-24 text-base font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:scale-[1.02] transition-all duration-300 shadow-sm hover:shadow-md"
         />
-        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
         
         <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pr-1">
           {/* ❌ Clear Search Text */}
@@ -359,15 +397,17 @@ export const GlobalSearch: React.FC = () => {
                     index === selectedIndex ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-50 text-slate-700'
                   }`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
                     index === selectedIndex ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
                   }`}>
-                    <result.icon size={20} />
+                    <result.icon size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">{result.label}</p>
-                    <p className={`text-[11px] font-medium truncate ${index === selectedIndex ? 'text-white/70' : 'text-slate-400'}`}>
-                      {result.sub}
+                    <p className="text-sm font-semibold truncate">
+                      {index === selectedIndex ? result.label : <HighlightMatch text={result.label} term={query} />}
+                    </p>
+                    <p className={`text-[11px] font-medium truncate transition-colors duration-300 ${index === selectedIndex ? 'text-white/70' : 'text-slate-400'}`}>
+                      {index === selectedIndex ? result.sub : <HighlightMatch text={result.sub} term={query} />}
                     </p>
                   </div>
                   <ArrowRight size={16} className={`shrink-0 transition-all ${

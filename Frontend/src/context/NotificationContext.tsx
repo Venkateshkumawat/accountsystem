@@ -57,11 +57,17 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const playNotificationSound = useCallback(() => {
     if (!soundEnabled) return;
     try {
-      const audio = new Audio('/notification.mp3');
+      // High-availability industrial chime sound (Mixkit CDN)
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
       audio.volume = volume;
-      audio.play().catch(e => console.warn('[NexusAudio] Playback blocked by browser policy.', e));
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Silent catch for browser policy blocks (No console noise)
+        });
+      }
     } catch (err) {
-      console.warn('[NexusAudio] Sound node initialization failure.', err);
+      // Graceful degradation for sound nodes
     }
   }, [soundEnabled, volume]);
 
