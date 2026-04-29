@@ -193,7 +193,7 @@ const SuperAdminLayout: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto no-scrollbar bg-[#F1F5F9]/50 p-4 lg:p-10">
+        <div className="flex-1 overflow-y-auto no-scrollbar bg-[#F1F5F9]/50 p-4 lg:px-8 lg:py-6">
           <Outlet />
         </div>
       </main>

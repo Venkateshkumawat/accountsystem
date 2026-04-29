@@ -7,6 +7,10 @@ export interface ISuperAdminConfig extends Document {
   isInitialized: boolean;
   lastLoginAt?: Date;
   lastLoginIP?: string;
+  maintenanceMode: boolean;
+  allowRegistrations: boolean;
+  globalLogging: boolean;
+  earlyAccess: boolean;
   createdAt: Date;
   updatedAt: Date;
   compareSecretKey(key: string): Promise<boolean>;
@@ -35,6 +39,22 @@ const superAdminConfigSchema = new Schema<ISuperAdminConfig>(
     },
     lastLoginIP: {
       type: String,
+    },
+    maintenanceMode: {
+      type: Boolean,
+      default: false,
+    },
+    allowRegistrations: {
+      type: Boolean,
+      default: true,
+    },
+    globalLogging: {
+      type: Boolean,
+      default: true,
+    },
+    earlyAccess: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -56,16 +56,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const playNotificationSound = useCallback(() => {
     if (!soundEnabled) return;
-    console.log("🔊 [NexusAudio] Attempting to play notification sound...");
     try {
       const audio = new Audio('/notification.mp3');
       audio.volume = volume;
-      audio.play().catch(() => {
-        // Fallback to Pixabay Happy Message Ping
-        const pixabayAudio = new Audio('https://cdn.pixabay.com/audio/2023/10/16/audio_f835016503.mp3');
-        pixabayAudio.volume = volume;
-        pixabayAudio.play().catch(e => console.warn('[NexusAudio] Cloud playback blocked.', e));
-      });
+      audio.play().catch(e => console.warn('[NexusAudio] Playback blocked by browser policy.', e));
     } catch (err) {
       console.warn('[NexusAudio] Sound node initialization failure.', err);
     }

@@ -127,7 +127,7 @@ const UserPlan: React.FC = () => {
 
   return (
     <div className="bg-[#F8FAFC]/50 pb-10 font-inter">
-      <div className="max-w-5xl mx-auto px-4 py-4 space-y-4">
+      <div className="max-w-5xl mx-auto px-4 pb-4 pt-1 space-y-4">
         {/* Header Protocol */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div>

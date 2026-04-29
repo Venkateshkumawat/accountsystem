@@ -26,6 +26,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       plan,
       planEndDate
     } = req.body;
+    
+    // 🛡️ Nexus Governance: Check if registration node is open
+    const { default: SuperAdminConfig } = await import('../models/SuperAdminConfig.js');
+    const config = await SuperAdminConfig.findOne();
+    if (config && config.allowRegistrations === false) {
+      res.status(403).json({ 
+        success: false, 
+        message: "REGISTRATION_LOCKED: New account signups are temporarily disabled by platform administration." 
+      });
+      return;
+    }
 
     const userWithEmail = await User.findOne({ email });
     const businessWithEmail = await Business.findOne({ email });

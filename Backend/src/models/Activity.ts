@@ -18,7 +18,7 @@ const activitySchema = new Schema<IActivity>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: false },
     userName: { type: String, required: true },
     action: { type: String, enum: ["CREATE", "UPDATE", "DELETE", "TRANSACTION"], required: true },
-    resource: { type: String, enum: ["PRODUCT", "STAFF", "INVOICE", "PAYMENT", "BUSINESS", "PARTY", "PURCHASE"], required: true },
+    resource: { type: String, enum: ["PRODUCT", "STAFF", "INVOICE", "PAYMENT", "BUSINESS", "PARTY", "PURCHASE", "SYSTEM_CONFIG"], required: true },
     resourceId: { type: String },
     description: { type: String, required: true },
     metadata: { type: Schema.Types.Mixed },

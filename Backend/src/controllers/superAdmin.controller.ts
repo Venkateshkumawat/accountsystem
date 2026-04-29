@@ -688,3 +688,63 @@ export const getSuperAdminTransactions = async (req: Request, res: Response): Pr
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/**
+ * Get Global Platform Settings
+ */
+export const getAdminSettings = async (req: Request, res: Response): Promise<void> => {
+  try {
+    let config = await SuperAdminConfig.findOne();
+    if (!config) {
+      // Initialize if not exists (failsafe)
+      config = await SuperAdminConfig.create({ secretKey: process.env.SUPER_ADMIN_SECRET_KEY || 'NexusMaster2026' });
+    }
+    res.status(200).json({ 
+      success: true, 
+      settings: {
+        maintenanceMode: config.maintenanceMode,
+        allowRegistrations: config.allowRegistrations,
+        globalLogging: config.globalLogging,
+        earlyAccess: config.earlyAccess,
+        adminName: config.name || 'Master Admin',
+        lastLogin: config.lastLoginAt
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Update Global Platform Settings
+ */
+export const updateAdminSettings = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { settings } = req.body;
+    let config = await SuperAdminConfig.findOne();
+    if (!config) {
+      config = new SuperAdminConfig({ secretKey: process.env.SUPER_ADMIN_SECRET_KEY || 'NexusMaster2026' });
+    }
+
+    if (settings.maintenanceMode !== undefined) config.maintenanceMode = settings.maintenanceMode;
+    if (settings.allowRegistrations !== undefined) config.allowRegistrations = settings.allowRegistrations;
+    if (settings.globalLogging !== undefined) config.globalLogging = settings.globalLogging;
+    if (settings.earlyAccess !== undefined) config.earlyAccess = settings.earlyAccess;
+    if (settings.adminName) config.name = settings.adminName;
+
+    await config.save();
+
+    await Activity.create({
+      businessAdminId: '000000000000000000000000' as any,
+      userName: 'Nexus Master',
+      action: 'UPDATE',
+      resource: 'SYSTEM_CONFIG',
+      description: `Global Governance Updated: ${Object.keys(settings).join(', ')} modified.`
+    });
+
+    res.status(200).json({ success: true, message: 'Platform protocols synchronized successfully.' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

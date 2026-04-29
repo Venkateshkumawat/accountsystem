@@ -30,6 +30,7 @@ import mongoose from "mongoose";
 import cron from "node-cron";
 import Business from "./models/Business.js";
 import { createNotification } from "./controllers/notificationController.js";
+import { checkMaintenance } from "./middleware/maintenanceMiddleware.js";
 
 import { createServer } from "http";
 import { initSocket } from "./socket.js";
@@ -114,6 +115,9 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
+
+// Global Maintenance Guard
+app.use(checkMaintenance);
 
 // Use Routes
 app.use("/api/auth", authRoutes);
