@@ -410,7 +410,7 @@ export default function POS() {
 
           <div
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 lg:gap-5 content-start pb-24 lg:pb-8">
+            className="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 lg:gap-4 content-start pb-24 lg:pb-8">
             {loading ? (
               <div className="col-span-full py-24 text-center opacity-20">
                 <ShoppingCart size={32} className="mx-auto mb-2 animate-bounce" />
@@ -828,7 +828,7 @@ const ProductNode = memo(({ product, onAdd, onRemove, onPreview, inCartItem, isF
   return (
     <div
       onClick={() => !outOfStock && onAdd(product)}
-      className={`bg-white group p-3 rounded-2xl border-2 transition-all cursor-pointer active:scale-95 flex flex-col items-center relative overflow-hidden min-h-[220px] select-none
+      className={`bg-white group p-3 pb-5 rounded-2xl border-2 transition-all cursor-pointer active:scale-95 flex flex-col items-center relative overflow-hidden min-h-[235px] select-none
         ${inCart ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-xl' : 'border-slate-100 hover:border-slate-300 shadow-sm'}
         ${outOfStock ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:shadow-md'}
         ${isFlash ? 'animate-pulse scale-90' : ''}
@@ -898,7 +898,7 @@ const ProductNode = memo(({ product, onAdd, onRemove, onPreview, inCartItem, isF
           <h3 className="text-slate-900 font-semibold text-xs leading-snug line-clamp-2 mb-1.5">
             {product.name}
           </h3>
-          <p className="inline-block text-[9px] font-semibold text-slate-500 uppercase tracking-widest bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
+          <p className="inline-block text-[9px] font-bold text-slate-500 uppercase tracking-tight bg-slate-50 px-2.5 py-0.5 rounded-md border border-slate-200 max-w-full truncate">
             {product.barcode || 'NO BARCODE'}
           </p>
         </div>

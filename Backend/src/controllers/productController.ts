@@ -159,7 +159,6 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
 
     const total = await Product.countDocuments(query);
     const products = await Product.find(query)
-      .select('-image')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -550,7 +549,7 @@ export const getLowStockProducts = async (req: AuthRequest, res: Response): Prom
       businessAdminId,
       isActive: true,
       $expr: { $lte: ["$stock", "$lowStockThreshold"] }
-    }).select('-image').sort({ stock: 1 });
+    }).sort({ stock: 1 });
 
     res.status(200).json({ success: true, data: products });
   } catch (error: any) {

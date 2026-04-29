@@ -472,7 +472,7 @@ export default function Inventory() {
                             <span className="font-semibold text-slate-900 text-[13px] leading-tight block truncate mb-1">
                               {product.name}
                             </span>
-                            <div className="inline-block text-[8px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                            <div className="inline-block text-[8px] font-bold text-slate-400 uppercase tracking-tight bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 max-w-full truncate">
                               {product.barcode || 'NB-' + product._id.slice(-6)}
                             </div>
                           </div>
@@ -541,7 +541,7 @@ export default function Inventory() {
                               </div>
                               <div>
                                 <div className="font-semibold text-slate-900 text-xs leading-tight">{product.name}</div>
-                                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
+                                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">{product.barcode || 'NB-' + product._id.slice(-6)}</div>
                               </div>
                             </div>
                           </td>
