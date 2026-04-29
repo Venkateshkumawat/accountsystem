@@ -124,6 +124,10 @@ const SuperAdminDashboard: React.FC = () => {
                 <XAxis 
                   dataKey="_id" 
                   tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 600, fontFamily: 'Inter' }}
+                  tickFormatter={(val) => {
+                    const d = new Date(val);
+                    return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+                  }}
                   axisLine={false}
                   tickLine={false}
                   dy={10}
@@ -182,38 +186,64 @@ const SuperAdminDashboard: React.FC = () => {
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Market Share Composition</p>
             </div>
           </div>
-          <div className="flex-1 flex items-center">
-            <div className="h-[140px] w-1/2">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
-                <PieChart>
-                  <Pie
-                    data={stats?.planDistribution || []}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={35}
-                    outerRadius={55}
-                    paddingAngle={5}
-                    dataKey="count"
-                    nameKey="_id"
-                  >
-                    {(stats?.planDistribution || []).map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={entry._id === 'enterprise' ? '#6366f1' : entry._id === 'pro' ? '#10b981' : '#cbd5e1'} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontFamily: 'Inter', fontSize: 10, fontWeight: 600 }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="w-1/2 space-y-2 pl-4">
-              {stats?.planDistribution?.map((entry: any, index: number) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${entry._id === 'enterprise' ? 'bg-indigo-500' : entry._id === 'pro' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
-                    <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">{entry._id}</span>
+          <div className="flex-1 flex flex-col mt-4">
+            <div className="flex items-center">
+              <div className="h-[140px] w-1/2">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
+                  <PieChart>
+                    <Pie
+                      data={stats?.planDistribution || []}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={35}
+                      outerRadius={55}
+                      paddingAngle={5}
+                      dataKey="count"
+                      nameKey="_id"
+                    >
+                      {(stats?.planDistribution || []).map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={entry._id === 'enterprise' ? '#6366f1' : entry._id === 'pro' ? '#10b981' : '#cbd5e1'} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontFamily: 'Inter', fontSize: 10, fontWeight: 600 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="w-1/2 space-y-2 pl-4">
+                {stats?.planDistribution?.map((entry: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${entry._id === 'enterprise' ? 'bg-indigo-500' : entry._id === 'pro' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                      <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">{entry._id}</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-900">{entry.count}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-900">{entry.count}</span>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            {/* 📋 Plan Registry: Business Nodes per Plan */}
+            <div className="mt-6 pt-4 border-t border-slate-50 flex-1 overflow-y-auto custom-scrollbar max-h-[160px]">
+              <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Plan Registry Nodes</h4>
+              <div className="space-y-2">
+                {stats?.planDistribution?.map((plan: any) => (
+                  <div key={plan._id} className="space-y-1.5">
+                    {plan.businesses?.map((biz: any) => (
+                      <div key={biz.id} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-100 rounded-xl hover:bg-indigo-50 hover:border-indigo-100 transition-all group">
+                         <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-indigo-600 uppercase tracking-tighter">{biz.id}</span>
+                            <span className="text-[10px] font-bold text-slate-700 truncate max-w-[120px]">{biz.name}</span>
+                         </div>
+                         <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${
+                           plan._id === 'enterprise' ? 'bg-indigo-600 text-white' : 
+                           plan._id === 'pro'        ? 'bg-emerald-600 text-white' : 
+                                                       'bg-slate-400 text-white'
+                         }`}>{plan._id}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -228,6 +258,9 @@ const SuperAdminDashboard: React.FC = () => {
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Actionable Account Control</p>
             </div>
             <div className="flex items-center gap-2">
+               <div className="hidden sm:block px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[9px] font-semibold uppercase tracking-widest border border-indigo-100">
+                  ₹{((stats?.totalRevenue || 0) / 100000).toFixed(1)}L Total Lifecycle Revenue
+               </div>
                <div className="px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-[9px] font-semibold uppercase tracking-widest border border-rose-100">
                   {stats?.expiringSoon?.length || 0} Expiring Soon
                </div>

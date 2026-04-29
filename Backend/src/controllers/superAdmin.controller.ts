@@ -153,11 +153,11 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
       .select('businessId businessName plan createdAt')
       .limit(10);
 
-    // ── Platform Pulse: Registration Trend (Last 30 Days) ──────────────────
+    // ── Platform Pulse: Registration Trend (Last 30 Days with Gap Filling) ──
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const registrationTrend = await Business.aggregate([
+    const rawRegistrationTrend = await Business.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo } } },
       {
         $group: {
@@ -168,12 +168,38 @@ export const getSuperAdminStats = async (req: Request, res: Response): Promise<v
       { $sort: { "_id": 1 } }
     ]);
 
-    // ── Plan Distribution: Market Share ───────────────────────────────────
+    // Fill gaps in the 30-day timeline for professional visualization
+    const registrationTrend = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const found = rawRegistrationTrend.find(r => r._id === dateStr);
+      registrationTrend.unshift({ _id: dateStr, count: found ? found.count : 0 });
+    }
+
+    // ── Plan Distribution: Market Share with Node Registry ──────────────────
     const planDistribution = await Business.aggregate([
       {
         $group: {
           _id: "$plan",
-          count: { $sum: 1 }
+          count: { $sum: 1 },
+          businesses: { 
+            $push: { 
+              id: "$businessId", 
+              name: "$businessName",
+              status: "$status",
+              joined: "$createdAt"
+            } 
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          count: 1,
+          // Limit to most recent 10 nodes per plan to prevent BSON overflow while providing enough context
+          businesses: { $slice: ["$businesses", -10] }
         }
       }
     ]);

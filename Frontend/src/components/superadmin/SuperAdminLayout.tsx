@@ -99,7 +99,7 @@ const SuperAdminLayout: React.FC = () => {
             className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 hover:text-white hover:bg-rose-500 hover:border-rose-600 transition-all group shadow-sm active:scale-95"
           >
             <span className="group-hover:translate-x-1 transition-transform flex items-center gap-2">
-              <LogOut size={14} /> Secure Exit
+              <LogOut size={14} /> Logout
             </span>
             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-white animate-pulse"></div>
           </button>
