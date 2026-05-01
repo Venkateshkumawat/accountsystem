@@ -32,6 +32,7 @@ interface StreamItem {
     authority: string;
     createdAt: string;
     isRead?: boolean;
+    isBookmarked?: boolean;
     resource?: string;
 }
 
@@ -90,13 +91,7 @@ const AuditCenter: React.FC = () => {
         );
     };
 
-    const handleSelectAll = () => {
-        if (selectedIds.length === displayedStream.length) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(displayedStream.map(i => i.id));
-        }
-    };
+
 
     const unifiedStream = useMemo(() => {
         const mappedAlerts: StreamItem[] = notifications.map(n => ({
@@ -120,22 +115,33 @@ const AuditCenter: React.FC = () => {
             description: a.transactionId ? `${a.description} (TX: ${a.transactionId.slice(-6).toUpperCase()})` : a.description,
             authority: a.userName,
             createdAt: a.createdAt,
-            resource: a.resource
+            resource: a.resource,
+            isBookmarked: false
         }));
 
-        const uniqueNodes = new Map();
+        const uniqueNodes = new Map<string, StreamItem>();
         [...mappedAlerts, ...mappedAudit].forEach(item => {
-            if (!uniqueNodes.has(item.id)) uniqueNodes.set(item.id, item);
+            const timeWindow = Math.floor(new Date(item.createdAt).getTime() / 5000);
+            const contentKey = `${item.description}-${timeWindow}`;
+            
+            if (!uniqueNodes.has(contentKey)) {
+                uniqueNodes.set(contentKey, item);
+            } else {
+                const existing = uniqueNodes.get(contentKey)!;
+                uniqueNodes.set(contentKey, {
+                    ...existing,
+                    isBookmarked: existing.isBookmarked || item.isBookmarked,
+                    isRead: existing.isRead && (item.isRead ?? true)
+                });
+            }
         });
 
-        const combined = Array.from(uniqueNodes.values()).map(item => {
+        return Array.from(uniqueNodes.values()).map(item => {
             let finalTitle = item.title;
             if (item.resource?.toUpperCase().includes('SALE') || item.resource?.toUpperCase().includes('INVOICE')) finalTitle = 'SALE';
             if (item.resource?.toUpperCase().includes('PURCHASE')) finalTitle = 'PURCHASE';
             return { ...item, title: finalTitle };
-        });
-
-        return combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }, [notifications, activities]);
 
     const displayedStream = useMemo(() => {
