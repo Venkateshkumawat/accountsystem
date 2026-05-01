@@ -175,6 +175,37 @@ const AuditCenter: React.FC = () => {
         return showAll ? filtered : filtered.slice(0, 10);
     }, [unifiedStream, activeFilter, selectedDate, search, showAll]);
 
+    const totalFilteredCount = useMemo(() => {
+        let filtered = unifiedStream;
+
+        if (activeFilter === 'Saved') {
+            return filtered.filter(item => item.isBookmarked).length;
+        }
+
+        if (activeFilter === 'Alerts') {
+            filtered = filtered.filter(item => item.type === 'ALERT');
+        } else if (activeFilter === 'Audit') {
+            filtered = filtered.filter(item => item.type === 'AUDIT');
+        } else if (activeFilter === 'Critical') {
+            filtered = filtered.filter(item => item.severity === 'error' || item.severity === 'warning');
+        }
+
+        if (selectedDate) {
+            filtered = filtered.filter(item => item.createdAt.startsWith(selectedDate));
+        }
+
+        if (search.trim()) {
+            const s = search.toLowerCase();
+            filtered = filtered.filter(item => 
+                item.description.toLowerCase().includes(s) || 
+                item.title.toLowerCase().includes(s) ||
+                item.authority.toLowerCase().includes(s)
+            );
+        }
+
+        return filtered.length;
+    }, [unifiedStream, activeFilter, selectedDate, search]);
+
     const handleSelectAll = () => {
         if (selectedIds.length === displayedStream.length) {
             setSelectedIds([]);
@@ -530,13 +561,13 @@ const AuditCenter: React.FC = () => {
                 </div>
 
                 {/* ── SEE ALL BUTTON ────────────────────────────────────────────────────────── */}
-                {!showAll && unifiedStream.length > 10 && (
+                {!showAll && totalFilteredCount > 10 && (
                     <div className="p-6 md:p-8 bg-slate-50/50 flex justify-center border-t border-slate-50">
                         <button 
                             onClick={() => setShowAll(true)}
                             className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-white border border-slate-200 rounded-xl md:rounded-2xl text-[12px] font-semibold text-slate-600 hover:text-indigo-600 hover:border-indigo-100 hover:shadow-lg transition-all font-inter group"
                         >
-                            <span>See All ({unifiedStream.length - 10} more)</span>
+                            <span>See All ({totalFilteredCount - 10} more)</span>
                             <ChevronDown size={16} className="group-hover:translate-y-0.5 transition-transform" />
                         </button>
                     </div>
