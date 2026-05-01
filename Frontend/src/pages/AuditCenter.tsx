@@ -180,7 +180,7 @@ const AuditCenter: React.FC = () => {
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1 mb-4 md:mb-6">
                 <div className="flex items-center justify-between w-full md:w-auto">
                     <div>
-                        <h1 className="text-lg md:text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-3 font-inter">
+                        <h1 className="text-xl md:text-2xl font-semibold text-slate-900 tracking-tight flex items-center gap-3 font-inter">
                             <Bell className="text-indigo-600 shrink-0" size={20} /> Message Center
                         </h1>
                         <p className="text-[9px] font-semibold text-slate-400 mt-0.5 uppercase tracking-[0.2em] leading-none font-inter">Notification History</p>

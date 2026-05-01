@@ -449,23 +449,20 @@ export default function Staff() {
 
       {/* ──────────────────────────────────────────── ADD STAFF MODAL ─── */}
       {showAdd && (
-        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border-2 border-slate-800 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
 
-            {/* Header */}
-            <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
+            <div className="px-6 sm:px-8 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50 shrink-0">
               <div>
-                <h3 className="text-xl font-semibold tracking-tight uppercase">New Staff Member</h3>
-                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">Setup new team member access</p>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight">Onboard Staff</h3>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Access Provisioning</p>
               </div>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={() => { setShowAdd(false); setForm(defaultForm); }} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">
-                  Back
-                </button>
-              </div>
+              <button onClick={() => { setShowAdd(false); setForm(defaultForm); }} className="p-2 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition-all">
+                <X size={20} />
+              </button>
             </div>
 
-            <form onSubmit={handleAddStaff} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 custom-scrollbar">
+            <form onSubmit={handleAddStaff} className="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar">
 
               {/* Reference ID – highlighted */}
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
@@ -539,12 +536,10 @@ export default function Staff() {
                 </div>
               </div>
 
-              <footer className="pt-4 border-t border-slate-100 flex gap-3 shrink-0">
-                <button type="button" onClick={() => { setShowAdd(false); setForm(defaultForm); }} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest">
-                  Cancel
-                </button>
-                <button type="submit" disabled={submitting} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
-                  {submitting ? "Creating Account..." : "Create Staff Account"}
+              <footer className="p-6 sm:p-8 border-t border-slate-50 bg-slate-50/50 flex flex-col sm:flex-row gap-4 shrink-0">
+                <button type="button" onClick={() => setShowAddModal(false)} className="order-2 sm:order-1 flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
+                <button type="submit" disabled={submitting} className="order-1 sm:order-2 flex-[2] py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                  {submitting ? "Provisioning..." : "Onboard Node"}
                 </button>
               </footer>
             </form>
@@ -554,22 +549,20 @@ export default function Staff() {
 
       {/* ──────────────────────────────────────────── EDIT STAFF MODAL ─── */}
       {editTarget && (
-        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border-2 border-slate-800 overflow-hidden animate-in zoom-in duration-300 max-h-[95vh] flex flex-col">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
 
-            <div className="px-6 py-5 bg-slate-900 text-white flex justify-between items-center shrink-0 border-b border-slate-800">
+            <div className="px-6 sm:px-8 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50 shrink-0">
               <div>
-                <h3 className="text-xl font-semibold tracking-tight uppercase">Update Staff</h3>
-                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest opacity-80 mt-0.5">{editTarget.email}</p>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight">Update Staff</h3>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{editTarget.email}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={() => setEditTarget(null)} className="px-4 py-2 bg-white/10 hover:bg-rose-500 hover:text-white rounded-xl transition-all text-xs font-semibold uppercase tracking-widest text-slate-300">
-                  Back
-                </button>
-              </div>
+              <button onClick={() => setEditTarget(null)} className="p-2 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition-all">
+                <X size={20} />
+              </button>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 custom-scrollbar">
+            <form onSubmit={handleSaveEdit} className="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput label="Full Name" required
                   value={editForm.name} onChange={v => setEditForm({ ...editForm, name: v })} />
@@ -600,11 +593,9 @@ export default function Staff() {
                 </div>
               </div>
 
-              <footer className="pt-4 border-t border-slate-100 flex gap-3 shrink-0">
-                <button type="button" onClick={() => setEditTarget(null)} className="flex-1 py-4 bg-white text-slate-600 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-200 hover:bg-slate-100 transition-all uppercase tracking-widest">
-                  Cancel
-                </button>
-                <button type="submit" disabled={saving} className="flex-[2] py-4 bg-slate-950 text-white rounded-2xl text-xs sm:text-sm font-semibold shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+              <footer className="p-6 sm:p-8 border-t border-slate-50 bg-slate-50/50 flex flex-col sm:flex-row gap-4 shrink-0">
+                <button type="button" onClick={() => setEditTarget(null)} className="order-2 sm:order-1 flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
+                <button type="submit" disabled={saving} className="order-1 sm:order-2 flex-[2] py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
                   {saving ? "Saving..." : "Save Changes"}
                 </button>
               </footer>

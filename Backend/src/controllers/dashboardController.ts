@@ -65,7 +65,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       Activity.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).select('action description userName createdAt resource').lean(),
       // Top Products - Limit to last 30 days for better performance
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000)) } } }, { $unwind: "$items" }, { $group: { _id: "$items.name", totalRevenue: { $sum: "$items.total" } } }, { $sort: { totalRevenue: -1 } }, { $limit: 10 }, { $project: { name: "$_id", totalRevenue: 1, _id: 0 } }]),
-      Invoice.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).select('transactionId invoiceNumber customerName grandTotal paymentStatus createdAt').lean(),
+      Invoice.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).lean(),
       Product.find({ businessAdminId: businessAdminId as any, isActive: true, stock: { $lt: 20 } }).select('name stock lowStockThreshold').lean(),
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (15 * 24 * 60 * 60 * 1000)) } } }, { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, revenue: { $sum: "$grandTotal" } } }, { $sort: { _id: 1 } }])
     ]);

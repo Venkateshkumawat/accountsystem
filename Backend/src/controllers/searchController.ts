@@ -16,7 +16,6 @@ export const globalSearch = async (req: AuthRequest, res: Response): Promise<voi
       Purchase, 
       Staff, 
       Offer,
-      Payment,
       Notification
     } = req.tenantModels!;
     
@@ -46,10 +45,10 @@ export const globalSearch = async (req: AuthRequest, res: Response): Promise<voi
       Invoice.find({ businessAdminId, $or: [{ invoiceNumber: searchRegex }, { customerName: searchRegex }, { transactionId: searchRegex }] }).limit(limit).lean(),
       Party.find({ businessAdminId, $or: [{ name: searchRegex }, { phone: searchRegex }, { email: searchRegex }, { type: searchRegex }] }).limit(limit).lean(),
       Transaction.find({ businessAdminId, $or: [{ transactionId: searchRegex }, { description: searchRegex }, { paymentMethod: searchRegex }] }).limit(limit).lean(),
-      Purchase.find({ businessAdminId, $or: [{ purchaseNumber: searchRegex }, { supplierName: searchRegex }] }).limit(limit).lean(),
-      Staff.find({ businessAdminId, $or: [{ name: searchRegex }, { role: searchRegex }, { phone: searchRegex }] }).limit(limit).lean(),
+      Purchase.find({ businessAdminId, $or: [{ billNumber: searchRegex }, { vendorName: searchRegex }] }).limit(limit).lean(),
+      Staff.find({ businessAdminId, $or: [{ name: searchRegex }, { role: searchRegex }, { mobile: searchRegex }] }).limit(limit).lean(),
       Offer.find({ businessAdminId, isActive: true, $or: [{ name: searchRegex }, { type: searchRegex }] }).limit(limit).lean(),
-      Notification.find({ businessAdminId, $or: [{ message: searchRegex }, { type: searchRegex }] }).limit(limit).lean()
+      Notification.find({ businessId: req.user?.businessId, $or: [{ message: searchRegex }, { type: searchRegex }] }).limit(limit).lean()
     ]);
 
     // Format results for frontend
@@ -58,7 +57,7 @@ export const globalSearch = async (req: AuthRequest, res: Response): Promise<voi
       ...invoices.map(i => ({ id: i._id, label: `Inv #${i.invoiceNumber}`, sub: `${i.customerName} • ₹${i.grandTotal}`, type: 'invoice', path: '/pos' })),
       ...parties.map(p => ({ id: p._id, label: p.name, sub: `${p.type.toUpperCase()} • ${p.phone}`, type: 'party', path: '/parties' })),
       ...transactions.map(t => ({ id: t._id, label: `TXN ${t.transactionId?.slice(-6)}`, sub: `${t.description} • ₹${t.amount}`, type: 'transaction', path: '/accounting' })),
-      ...purchases.map(p => ({ id: p._id, label: `PUR #${p.purchaseNumber}`, sub: `${p.supplierName} • ₹${p.totalAmount}`, type: 'purchase', path: '/purchases' })),
+      ...purchases.map(p => ({ id: p._id, label: `PUR #${p.billNumber}`, sub: `${p.vendorName} • ₹${p.grandTotal}`, type: 'purchase', path: '/purchases' })),
       ...staff.map(s => ({ id: s._id, label: s.name, sub: `Role: ${s.role}`, type: 'staff', path: '/staff' })),
       ...offers.map(o => ({ id: o._id, label: o.name, sub: `Type: ${o.type}`, type: 'offer', path: '/pos' })),
       ...notifications.map(n => ({ id: n._id, label: n.message, sub: `Time: ${new Date(n.createdAt).toLocaleDateString()}`, type: 'notification', path: '/dashboard' }))

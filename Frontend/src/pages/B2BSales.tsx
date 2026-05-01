@@ -428,21 +428,21 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-2 sm:p-4 backdrop-blur-md bg-slate-900/50">
-            <div className="bg-white w-full max-w-xl min-h-[450px] max-h-[95vh] rounded-[2.5rem] shadow-[0_32px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden border border-slate-100 flex flex-col animate-in slide-in-from-bottom-8 duration-500">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300 font-inter">
+            <div className="bg-white w-full max-w-xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[90vh]">
 
                 {/* Header */}
-                <div className="p-8 pb-4 border-b border-slate-50 flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-[1050]">
+                <div className="px-6 sm:px-8 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50 shrink-0">
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter font-inter">Recent Activity</h2>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Real-time Financial Activity</p>
+                        <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight">B2B Invoice</h3>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Real-time Financial Activity</p>
                     </div>
-                    <button onClick={onClose} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all active:scale-90 shadow-[0_4px_10px_rgba(0,0,0,0.05)] border border-slate-100">
+                    <button onClick={onClose} className="p-2 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition-all">
                         <X size={20} />
                     </button>
                 </div>
 
-                <div className="p-8 pt-6 overflow-y-auto custom-scrollbar flex-1">
+                <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1">
                     <div className="space-y-6">
                         {/* Target Party Hub: Inter SemiBold Enforced */}
                         <div className="space-y-3">
@@ -474,7 +474,7 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                                             />
                                         </div>
                                         {filteredParties.length > 0 && (
-                                            <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[2000] overflow-hidden max-h-64 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-1">
+                                            <div className="relative mt-3 bg-white border border-slate-100 rounded-2xl shadow-sm z-[10] overflow-hidden max-h-64 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-1">
                                                 {filteredParties.map(p => (
                                                     <button
                                                         key={p._id}
@@ -521,7 +521,7 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
                                             onChange={(e) => setSearchProduct(e.target.value)}
                                         />
                                         {filteredProducts.length > 0 && (
-                                            <div className="absolute top-[calc(100%+6px)] left-0 right-0 bg-white border border-slate-100 rounded-2xl shadow-2xl z-[2000] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                                            <div className="relative mt-2 bg-white border border-slate-100 rounded-2xl shadow-sm z-[10] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-1">
                                                 {filteredProducts.map(p => (
                                                     <button
                                                         key={p._id}
@@ -627,28 +627,28 @@ function NewInvoiceModal({ isOpen, onClose, onSuccess }: any) {
 
                 {/* Fiscal Summary Hub: Persistent Gating */}
                 {selectedParty && (
-                    <div className="p-6 border-t border-slate-50 bg-slate-50/50 backdrop-blur-md space-y-5 animate-in slide-in-from-bottom-4 duration-500">
-                        <div className="grid grid-cols-3 gap-6">
+                    <div className="p-6 sm:p-8 border-t border-slate-50 bg-slate-50/50 flex flex-col gap-4 shrink-0">
+                        <div className="grid grid-cols-3 gap-4 mb-2">
                             <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1 text-inter">Subtotal</span>
-                                <span className="text-sm font-black text-slate-900 text-inter">₹{totals.subtotal.toLocaleString()}</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Subtotal</span>
+                                <span className="text-sm font-bold text-slate-900">₹{totals.subtotal.toLocaleString()}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1 text-inter">Total GST</span>
-                                <span className="text-sm font-black text-indigo-600 text-inter">₹{totals.totalGST.toLocaleString()}</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total GST</span>
+                                <span className="text-sm font-bold text-indigo-600">₹{totals.totalGST.toLocaleString()}</span>
                             </div>
                             <div className="flex flex-col text-right">
-                                <span className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-0.5 text-inter">Final Payable</span>
-                                <span className="text-lg font-black text-[#4F46E5] tracking-tighter text-inter leading-none">₹{totals.grandTotal.toLocaleString()}</span>
+                                <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Payable</span>
+                                <span className="text-lg font-black text-slate-900 tracking-tighter">₹{totals.grandTotal.toLocaleString()}</span>
                             </div>
                         </div>
 
                         <button
                             onClick={handleCreate}
                             disabled={submitting || items.length === 0}
-                            className="w-full py-4 bg-[#4F46E5] text-white rounded-[1.25rem] font-black text-sm shadow-[0_8px_20px_-8px_rgba(79,70,229,0.5)] hover:bg-[#4338CA] transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-30 disabled:grayscale text-inter"
+                            className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-30"
                         >
-                            {submitting ? 'RECOGNIZING PAYLOAD...' : items.length === 0 ? 'ADD ITEMS TO DRAFT' : 'Confirm & Generate'}
+                            {submitting ? 'RECOGNIZING PAYLOAD...' : items.length === 0 ? 'ADD ITEMS' : 'Confirm & Generate Invoice'}
                             {!submitting && items.length > 0 && <ArrowRight size={18} />}
                         </button>
                     </div>

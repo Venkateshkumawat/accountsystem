@@ -267,8 +267,8 @@ export default function Purchases() {
                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">Real-time Node</span>
               </div>
            </div>
-           <div className="h-[280px] sm:h-[340px] w-full">
-              <ResponsiveContainer width="99%" height="100%" minHeight={150} debounce={50}>
+           <div className="w-full h-[350px] relative mt-2">
+               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150} debounce={100}>
                  <AreaChart data={chartData}>
                     <defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -285,7 +285,7 @@ export default function Purchases() {
            <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm flex flex-col items-center">
               <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4 w-full text-center">Supplier Distribution</h3>
               <div className="h-[200px] w-full relative min-h-[200px]">
-                 <ResponsiveContainer width="99%" height="100%" minHeight={150} debounce={50}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150} debounce={50}>
                     <PieChart>
                        <Pie data={supplierData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                           {supplierData.map((e: any, i: number) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
@@ -600,14 +600,16 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
    const grandTotal = subtotal + totalGst + Number(vendor.shippingCharges);
 
    return (
-      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300 font-inter">
-         <div className="bg-white w-full sm:max-w-3xl rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 max-h-[96vh] sm:max-h-[90vh]">
-            <div className="px-6 sm:px-8 py-5 bg-[#1e293b] text-white flex justify-between items-center shrink-0">
+      <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 font-inter">
+         <div className="bg-white w-full max-w-4xl rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[92vh]">
+            <div className="px-6 sm:px-8 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/50 shrink-0">
                <div>
-                  <h3 className="text-base sm:text-lg font-bold tracking-tight uppercase">Procurement Node</h3>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 opacity-70 italic">Linkage to GST Ledger Active</p>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight">Procurement Node</h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Linkage to GST Ledger Active</p>
                </div>
-               <button onClick={onCancel} className="p-2 hover:bg-white/10 rounded-xl transition-all border border-white/10"><X size={18} /></button>
+               <button onClick={onCancel} className="p-2 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition-all">
+                  <X size={20} />
+               </button>
             </div>
 
             <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar">

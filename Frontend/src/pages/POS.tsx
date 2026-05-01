@@ -307,7 +307,6 @@ export default function POS() {
   return (
     <>
       <div className="flex flex-col lg:flex-row h-[calc(100vh-100px)] bg-[#F8FAFF] overflow-hidden lg:rounded-2xl border-2 border-slate-200 relative">
-
         <div className="lg:hidden flex items-center justify-between p-3 bg-white border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
@@ -596,23 +595,23 @@ export default function POS() {
         />
       )}
       {showCheckout && (
-        <div className="fixed inset-0 z-[9999] backdrop-blur-sm bg-slate-900/40 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-200 flex flex-col max-h-[90vh]">
-            <header className="p-3 border-b border-slate-50 flex items-center justify-between bg-white shrink-0 sticky top-0 z-10">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+            <header className="px-6 sm:px-8 py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
-                  <CreditCard size={14} />
+                <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <CreditCard size={15} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 uppercase tracking-tight leading-none">Checkout</h3>
-                  <p className="text-[7px] font-semibold text-slate-400 mt-0.5 uppercase tracking-tighter">FINALIZE TRANSACTION</p>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 uppercase tracking-tight leading-none">Checkout</h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Finalize Transaction</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCheckout(false)}
-                className="p-1 hover:bg-rose-50 text-slate-300 hover:text-rose-500 rounded-lg transition-all"
+                className="p-2 hover:bg-rose-50 text-slate-300 hover:text-rose-500 rounded-xl transition-all"
               >
-                <X size={16} />
+                <X size={20} />
               </button>
             </header>
 
