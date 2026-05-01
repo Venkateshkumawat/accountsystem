@@ -988,13 +988,17 @@ const ProductDetailModal = ({ product, onClose, onAdd }: any) => {
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                   <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Current Stock</p>
                   <p className={`text-sm font-semibold ${product.stock > 0 ? 'text-slate-900' : 'text-rose-500'}`}>
-                    {product.stock} {product.unitType || 'Units'}
+                    {product.stock}
                   </p>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">GST Rate</p>
-                  <p className="text-sm font-semibold text-slate-900">{product.gstRate || 0}%</p>
+                  <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Item Measurement</p>
+                  <p className="text-sm font-semibold text-slate-900">{product.unitValue} {product.unitType}</p>
                 </div>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 mt-2">
+                <p className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">GST Rate</p>
+                <p className="text-sm font-semibold text-slate-900">{product.gstRate || 0}%</p>
               </div>
             </div>
           </div>

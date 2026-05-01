@@ -7,6 +7,7 @@ export interface INotification extends Document {
   type: "success" | "error" | "info" | "warning";
   category: "product" | "invoice" | "payment" | "alert" | "staff" | "users";
   isRead: boolean;
+  isBookmarked: boolean;
   link?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -42,6 +43,10 @@ const notificationSchema = new Schema<INotification>(
       default: "alert",
     },
     isRead: {
+      type: Boolean,
+      default: false,
+    },
+    isBookmarked: {
       type: Boolean,
       default: false,
     },

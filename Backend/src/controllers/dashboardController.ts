@@ -67,7 +67,24 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000)) } } }, { $unwind: "$items" }, { $group: { _id: "$items.name", totalRevenue: { $sum: "$items.total" } } }, { $sort: { totalRevenue: -1 } }, { $limit: 10 }, { $project: { name: "$_id", totalRevenue: 1, _id: 0 } }]),
       Invoice.find({ businessAdminId: businessAdminId as any }).sort({ createdAt: -1 }).limit(10).lean(),
       Product.find({ businessAdminId: businessAdminId as any, isActive: true, stock: { $lt: 20 } }).select('name stock lowStockThreshold').lean(),
-      Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (15 * 24 * 60 * 60 * 1000)) } } }, { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, revenue: { $sum: "$grandTotal" } } }, { $sort: { _id: 1 } }])
+      Invoice.aggregate([{ $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: new Date(now.getTime() - (15 * 24 * 60 * 60 * 1000)) } } }, { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, revenue: { $sum: "$grandTotal" } } }, { $sort: { _id: 1 } }]),
+      // 10. High Profit Items - Identify top earners by margin
+      Invoice.aggregate([
+        { $match: { businessAdminId: businessAdminId as any, createdAt: { $gte: startOfMonth } } },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.name",
+            totalProfit: { $sum: { $subtract: ["$items.total", { $multiply: [{ $ifNull: ["$items.purchasePrice", 0] }, "$items.qty"] }] } },
+            unitsSold: { $sum: "$items.qty" },
+            revenue: { $sum: "$items.total" }
+          }
+        },
+        { $match: { totalProfit: { $gt: 0 } } },
+        { $sort: { totalProfit: -1 } },
+        { $limit: 5 },
+        { $project: { name: "$_id", totalProfit: 1, unitsSold: 1, revenue: 1, _id: 0 } }
+      ])
     ]);
 
 
@@ -116,6 +133,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
         lowStockProducts,
         staffCount,
         revenueTrend,
+        highProfitItems: results[10] || [],
         productCount: inventoryStats.totalProducts,
         skuLimit: bizDoc?.skuLimit || 0,
         usedSku: bizDoc?.currentSkuCount || 0,

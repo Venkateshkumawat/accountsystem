@@ -685,17 +685,17 @@ const PurchaseForm = memo(({ onCancel, onSubmit, vendor, setVendor, payment, set
                                           <span className="text-[10px] font-bold text-slate-800 uppercase">{item.name}</span>
                                           {item.isNewNode && (
                                              <div className="flex gap-1">
-                                                <input 
-                                                   list="inventory-categories"
-                                                   placeholder="Category" 
+                                                <select 
                                                    value={item.category} 
                                                    onChange={e => updateCartItem(item.productId, 'category', e.target.value)} 
-                                                   className="text-[8px] px-2 py-1 bg-indigo-50 border border-indigo-100 rounded-md outline-none text-indigo-600 font-bold uppercase w-20" 
-                                                />
-                                                <datalist id="inventory-categories">
-                                                   {categories.map((cat: string) => <option key={cat} value={cat} />)}
-                                                </datalist>
-                                                <select value={item.gstRate} onChange={e => updateCartItem(item.productId, 'gstRate', Number(e.target.value))} className="text-[8px] px-2 py-1 bg-emerald-50 border border-emerald-100 rounded-md outline-none text-emerald-600 font-bold uppercase">
+                                                   className="text-[8px] px-2 py-1 bg-indigo-50 border border-indigo-100 rounded-md outline-none text-indigo-600 font-bold uppercase w-24 cursor-pointer hover:bg-indigo-100 transition-colors" 
+                                                >
+                                                   <option value="General">GENERAL</option>
+                                                   {categories.map((cat: string) => (
+                                                      <option key={cat} value={cat}>{cat.toUpperCase()}</option>
+                                                   ))}
+                                                </select>
+                                                <select value={item.gstRate} onChange={e => updateCartItem(item.productId, 'gstRate', Number(e.target.value))} className="text-[8px] px-2 py-1 bg-emerald-50 border border-emerald-100 rounded-md outline-none text-emerald-600 font-bold uppercase cursor-pointer hover:bg-emerald-100 transition-colors">
                                                    {[0, 5, 12, 18, 28].map(g => <option key={g} value={g}>{g}% GST</option>)}
                                                 </select>
                                              </div>

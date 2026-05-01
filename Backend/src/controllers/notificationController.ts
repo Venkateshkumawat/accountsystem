@@ -302,3 +302,128 @@ export const getUnreadCount = async (req: AuthRequest, res: Response): Promise<v
     res.status(500).json({ success: false, message: "Telemetry count node failure." });
   }
 };
+/**
+ * @desc    Toggle bookmark status of a notification
+ */
+export const toggleBookmark = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const businessId = req.user?.businessId;
+    const userRole = req.user?.role;
+    const isSuperAdmin = userRole === "superadmin";
+
+    let Notification;
+    if (isSuperAdmin) {
+      Notification = GlobalNotification;
+    } else {
+      if (!req.tenantModels) {
+        res.status(500).json({ success: false, message: "Workspace node offline." });
+        return;
+      }
+      Notification = req.tenantModels.Notification;
+    }
+
+    const query = isSuperAdmin ? { _id: id, businessId: null } : { _id: id, businessId };
+    const notification = await Notification.findOne(query);
+
+    if (!notification) {
+      res.status(404).json({ success: false, message: "Registry node not found." });
+      return;
+    }
+
+    notification.isBookmarked = !notification.isBookmarked;
+    await notification.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: notification.isBookmarked ? "Message saved successfully." : "Message removed from saved list.",
+      isBookmarked: notification.isBookmarked 
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Batch delete notifications
+ */
+export const batchDelete = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { ids } = req.body;
+    const businessId = req.user?.businessId;
+    const userRole = req.user?.role;
+    const isSuperAdmin = userRole === "superadmin";
+
+    if (!ids || !Array.isArray(ids)) {
+      res.status(400).json({ success: false, message: "Payload error: Array of IDs required." });
+      return;
+    }
+
+    let Notification;
+    if (isSuperAdmin) {
+      Notification = GlobalNotification;
+    } else {
+      if (!req.tenantModels) {
+        res.status(500).json({ success: false, message: "Workspace node offline." });
+        return;
+      }
+      Notification = req.tenantModels.Notification;
+    }
+
+    const query = isSuperAdmin 
+      ? { _id: { $in: ids }, businessId: null, isBookmarked: false } 
+      : { _id: { $in: ids }, businessId, isBookmarked: false };
+
+    const result = await Notification.deleteMany(query);
+
+    res.status(200).json({ 
+      success: true, 
+      message: `${result.deletedCount} messages purged. Saved messages were preserved.`,
+      deletedCount: result.deletedCount 
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Batch mark notifications as read
+ */
+export const batchRead = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { ids } = req.body;
+    const businessId = req.user?.businessId;
+    const userRole = req.user?.role;
+    const isSuperAdmin = userRole === "superadmin";
+
+    if (!ids || !Array.isArray(ids)) {
+      res.status(400).json({ success: false, message: "Payload error: Array of IDs required." });
+      return;
+    }
+
+    let Notification;
+    if (isSuperAdmin) {
+      Notification = GlobalNotification;
+    } else {
+      if (!req.tenantModels) {
+        res.status(500).json({ success: false, message: "Workspace node offline." });
+        return;
+      }
+      Notification = req.tenantModels.Notification;
+    }
+
+    const query = isSuperAdmin 
+      ? { _id: { $in: ids }, businessId: null } 
+      : { _id: { $in: ids }, businessId };
+
+    const result = await Notification.updateMany(query, { isRead: true });
+
+    res.status(200).json({ 
+      success: true, 
+      message: `${result.modifiedCount} messages marked as read.`,
+      modifiedCount: result.modifiedCount 
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

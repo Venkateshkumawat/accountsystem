@@ -269,27 +269,18 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       description: `Sale to ${customerName || 'Walk-in'} (Ref: ${transactionId})`
     });
 
-    await logActivity(req, "TRANSACTION", "INVOICE", `Generated invoice ${invoiceNumber}`, (invoice._id as any).toString());
+    const consolidatedMessage = `Node Sale: ${invoiceNumber} for ${customerName || 'Walk-in'}. ${paymentMethod ? `Payment of ₹${grandTotal.toFixed(2)} synchronized via ${paymentMethod.toUpperCase()}.` : 'Awaiting Payment Settlement.'}`;
+
+    await logActivity(req, "SALE", "INVOICE", consolidatedMessage, (invoice._id as any).toString());
     
     await createNotification(
       req.user?.businessId,
-      `Invoice Generated: ${invoiceNumber} for ${customerName}.`,
+      consolidatedMessage,
       "success",
       "businessAdmin",
       `/invoice-view/${invoice._id}`,
       "invoice"
     );
-
-    if (paymentMethod) {
-      await createNotification(
-        req.user?.businessId,
-        `Revenue Registry: Inbound payment of ₹${grandTotal.toFixed(2)} recorded for ${customerName} (Ref: ${invoiceNumber}).`,
-        "success",
-        "businessAdmin",
-        undefined,
-        "payment"
-      );
-    }
 
     getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'INVOICE' });
     getIO()?.to(businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });

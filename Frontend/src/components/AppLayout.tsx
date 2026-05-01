@@ -217,7 +217,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <Link to="/audit-center" className="p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all relative ripple-btn">
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white animate-in zoom-in-50 duration-300 shadow-sm">
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white animate-in zoom-in-50 duration-300 shadow-sm">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}

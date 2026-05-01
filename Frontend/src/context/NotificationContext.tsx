@@ -9,6 +9,7 @@ export interface INotification {
   type: 'success' | 'error' | 'info' | 'warning';
   category: 'product' | 'invoice' | 'payment' | 'alert' | 'staff';
   isRead: boolean;
+  isBookmarked: boolean;
   link?: string;
   businessId?: string;
   createdAt: string;
@@ -28,6 +29,9 @@ interface NotificationContextType {
   markAllAsRead: () => Promise<void>;
   deleteNotification: (id: string) => Promise<void>;
   deleteAllNotifications: () => Promise<void>;
+  toggleBookmark: (id: string) => Promise<void>;
+  batchDelete: (ids: string[]) => Promise<void>;
+  batchRead: (ids: string[]) => Promise<void>;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   volume: number;
@@ -192,6 +196,41 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const toggleBookmark = async (id: string) => {
+    setNotifications(prev => prev.map(n => n._id === id ? { ...n, isBookmarked: !n.isBookmarked } : n));
+    try {
+      await api.patch(`/notifications/${id}/bookmark`);
+    } catch (error) {
+      console.error("Failed to toggle bookmark node:", error);
+    }
+  };
+
+  const batchDelete = async (ids: string[]) => {
+    const backup = [...notifications];
+    setNotifications(prev => prev.filter(n => !ids.includes(n._id) || n.isBookmarked));
+    const deletedCount = notifications.filter(n => ids.includes(n._id) && !n.isRead && !n.isBookmarked).length;
+    setUnreadCount(prev => Math.max(0, prev - deletedCount));
+
+    try {
+      await api.post('/notifications/batch-delete', { ids });
+    } catch (error) {
+      setNotifications(backup);
+      console.error("Batch delete failure:", error);
+    }
+  };
+
+  const batchRead = async (ids: string[]) => {
+    setNotifications(prev => prev.map(n => ids.includes(n._id) ? { ...n, isRead: true } : n));
+    const readCount = notifications.filter(n => ids.includes(n._id) && !n.isRead).length;
+    setUnreadCount(prev => Math.max(0, prev - readCount));
+
+    try {
+      await api.post('/notifications/batch-read', { ids });
+    } catch (error) {
+      console.error("Batch read failure:", error);
+    }
+  };
+
   useEffect(() => {
     // 📡 Nexus Protocol: Initialize Real-time Telemetry Node
     const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://account-billing-system.onrender.com/api';
@@ -298,6 +337,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       markAllAsRead,
       deleteNotification,
       deleteAllNotifications,
+      toggleBookmark,
+      batchDelete,
+      batchRead,
       soundEnabled,
       setSoundEnabled,
       volume,

@@ -47,6 +47,11 @@ export default function Inventory() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'lowStock' | 'outOfStock' | 'category'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const [showBulkEditModal, setShowBulkEditModal] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState<string | null>(null);
+  const [bulkData, setBulkData] = useState({ unit: 'Pcs', unitType: 'unit', unitValue: '1', gstRate: '18' });
+  const [bulkLoading, setBulkLoading] = useState(false);
+
   const location = useLocation();
 
   useEffect(() => {
@@ -153,6 +158,32 @@ export default function Inventory() {
       promoPrice: (p.discount > 0) ? (p.sellingPrice - p.discount).toString() : ''
     });
     setShowForm(true);
+  };
+
+  const handleOpenBulkEdit = (category: string) => {
+    setBulkCategory(category);
+    setShowBulkEditModal(true);
+  };
+
+  const handleBulkUpdate = async () => {
+    setBulkLoading(true);
+    try {
+      const res = await api.put('/products/bulk/category', {
+        categoryName: formData.category,
+        updates: {
+          unitType: formData.unitType,
+          unitValue: Number(formData.unitValue)
+        }
+      });
+      if (res.data.success) {
+        toast.success(`Synchronized ${formData.category}: ${res.data.message}`);
+        refreshAll();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Bulk Sync Failed");
+    } finally {
+      setBulkLoading(false);
+    }
   };
 
 
@@ -424,18 +455,22 @@ export default function Inventory() {
           Object.keys(groupedProducts).sort().map((category) => (
             <div key={category} className="space-y-6">
               <div className="flex items-center gap-4 px-2">
-                <h2 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight">{category}</h2>
-                {isAuthorized && category !== 'General' && (
-                  <button 
-                    onClick={() => handleDeleteCategory(category)}
-                    className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
-                    title={`Delete ${category} Section`}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                <h2 className="text-lg lg:text-xl font-semibold text-slate-900 tracking-tight font-inter">{category}</h2>
+                {isAuthorized && (
+                  <div className="flex items-center gap-1">
+                    {category !== 'General' && (
+                      <button 
+                        onClick={() => handleDeleteCategory(category)}
+                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                        title={`Delete ${category} Section`}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
                 )}
                 <div className="h-px flex-1 bg-slate-100" />
-                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic">
+                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100 italic font-inter">
                   {groupedProducts[category].length} TOTAL PRODUCT
                 </span>
               </div>
@@ -482,15 +517,18 @@ export default function Inventory() {
                                 {product.discount > 0 && (
                                   <span className="text-[9px] text-slate-300 line-through leading-none mb-1">₹{product.sellingPrice}</span>
                                 )}
-                                <span className="font-bold text-slate-900 text-lg tracking-tight leading-none">₹{product.sellingPrice - product.discount}</span>
+                                 <span className="font-bold text-slate-900 text-lg tracking-tight leading-none">₹{product.sellingPrice - product.discount}</span>
+                                 <span className="text-[8px] font-black text-indigo-600 uppercase tracking-widest mt-1.5 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100 inline-block">
+                                   {product.unitValue} {product.unitType}
+                                 </span>
+                              </div>
                               </div>
                             </div>
-                            <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900 animate-pulse' : product.stock < criticalThreshold ? 'bg-rose-50 text-rose-600 border-rose-100' : product.stock < lowStockThreshold ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
-                              {product.stock <= 0 ? 'Out of Stock' : `Stock Unit: ${product.stock}`}
+                            <div className={`px-2.5 py-1 rounded-xl text-[9px] font-semibold uppercase tracking-widest border ${product.stock <= 0 ? 'bg-slate-900 text-white border-slate-900 animate-pulse' : product.stock < 5 ? 'bg-rose-50 text-rose-600 border-rose-100' : product.stock < 15 ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
+                              {product.stock <= 0 ? 'Out of Stock' : product.stock}
                             </div>
                           </div>
                         </div>
-                      </div>
                       {isAuthorized && (
                         <div className="flex gap-2 pt-3 border-t border-slate-50">
                           <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all border border-slate-100 hover:border-indigo-100">
@@ -544,14 +582,17 @@ export default function Inventory() {
                             </div>
                           </td>
                           <td className="px-6 py-1.5 text-center">
-                            <span className="font-semibold text-slate-900 text-xs">{product.stock} <span className="text-[9px] text-slate-400 font-bold uppercase">{product.unitType}</span></span>
+                            <span className="font-semibold text-slate-900 text-xs">{product.stock}</span>
                           </td>
                           <td className="px-6 py-1.5 text-center">
                             <div className="flex flex-col items-center">
                               {product.discount > 0 && (
                                 <span className="text-[8px] text-slate-300 line-through leading-none mb-0.5">₹{product.sellingPrice}</span>
                               )}
-                              <span className="font-bold text-slate-900 text-xs">₹{product.sellingPrice - (product.discount || 0)}</span>
+                               <span className="font-bold text-slate-900 text-xs">₹{product.sellingPrice - (product.discount || 0)}</span>
+                               <span className="text-[9px] font-bold text-indigo-600 uppercase tracking-widest mt-1 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                                 {product.unitValue} {product.unitType}
+                               </span>
                             </div>
                           </td>
                           <td className="px-6 py-1.5 text-center">
@@ -690,7 +731,7 @@ export default function Inventory() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Unit Specification</label>
+                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Per Item Measurement</label>
                   <div className="flex gap-2">
                     <input
                       required type="number"
@@ -705,7 +746,7 @@ export default function Inventory() {
                       onChange={(e) => setFormData({ ...formData, unitType: e.target.value })}
                       className="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold text-slate-900 outline-none"
                     >
-                      <option value="unit">Unit</option><option value="kg">KG</option><option value="gm">GM</option><option value="l">Ltr</option><option value="ml">ML</option><option value="pack">Pack</option>
+                      <option value="unit">unit</option><option value="pcs">pcs</option><option value="box">box</option><option value="pack">pack</option><option value="kg">kg</option><option value="gm">gm</option><option value="ltr">ltr</option><option value="ml">ml</option>
                     </select>
                   </div>
                 </div>
@@ -722,29 +763,132 @@ export default function Inventory() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Initial Stock</label>
-                <input
-                  required type="number"
-                  min="0"
-                  value={formData.stock}
-                  onChange={e => setFormData({ ...formData, stock: Math.max(0, Number(e.target.value)).toString() })}
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-50 rounded-xl text-sm font-semibold outline-none"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Total Stock Count</label>
+                  <input
+                    required type="number"
+                    min="0"
+                    value={formData.stock}
+                    onChange={e => setFormData({ ...formData, stock: Math.max(0, Number(e.target.value)).toString() })}
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-50 rounded-xl text-sm font-semibold outline-none"
+                  />
+                </div>
+                {/* Numerical Stock Only */}
               </div>
 
 
-              <footer className="p-6 sm:p-8 border-t border-slate-50 bg-slate-50/50 flex flex-col sm:flex-row gap-4 shrink-0">
-                <button type="button" onClick={closeModal} className="order-2 sm:order-1 flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
-                <button type="submit" disabled={formLoading} className="order-1 sm:order-2 flex-[2] py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all active:scale-95 flex items-center justify-center gap-2">
-                  {formLoading ? "Synchronizing..." : editId ? 'Update Node' : 'Initialize Node'}
-                </button>
+              <footer className="p-6 sm:p-8 border-t border-slate-50 bg-slate-50/50 flex flex-col gap-4 shrink-0">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button type="button" onClick={closeModal} className="order-2 sm:order-1 flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
+                  <button type="submit" disabled={formLoading} className="order-1 sm:order-2 flex-[2] py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    {formLoading ? "Synchronizing..." : editId ? 'Update Node' : 'Initialize Node'}
+                  </button>
+                </div>
+                
+                {editId && formData.category !== 'General' && (
+                  <button 
+                    type="button"
+                    onClick={handleBulkUpdate}
+                    disabled={bulkLoading}
+                    className="w-full py-3 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <Zap size={12} /> Apply this Unit & Measurement to all in {formData.category}
+                  </button>
+                )}
               </footer>
             </form>
           </div>
         </div>
       )}
 
+      {showBulkEditModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden animate-in zoom-in duration-300">
+            <header className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900 tracking-tight font-inter">Section Synchronization</h2>
+                <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-0.5 font-inter">Category: {bulkCategory}</p>
+              </div>
+              <button onClick={() => setShowBulkEditModal(false)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm">
+                <X size={20} className="text-slate-400" />
+              </button>
+            </header>
+
+            <div className="p-8 space-y-6">
+              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">
+                <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+                <p className="text-[10px] font-medium text-amber-700 leading-relaxed font-inter">
+                  Changes applied here will synchronize **ALL** products in this section. This action cannot be undone easily.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1 font-inter">Common Stock Unit</label>
+                <select 
+                  value={bulkData.unit}
+                  onChange={e => setBulkData({ ...bulkData, unit: e.target.value })}
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-semibold outline-none focus:border-indigo-500 transition-all font-inter"
+                >
+                  <option value="unit">unit</option>
+                  <option value="pcs">pcs</option>
+                  <option value="box">box</option>
+                  <option value="pack">pack</option>
+                  <option value="kg">kg</option>
+                  <option value="gm">gm</option>
+                  <option value="ltr">ltr</option>
+                  <option value="ml">ml</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1 font-inter">Unit Value</label>
+                  <input 
+                    type="number"
+                    value={bulkData.unitValue}
+                    onChange={e => setBulkData({ ...bulkData, unitValue: e.target.value })}
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-semibold outline-none focus:border-indigo-500 transition-all font-inter"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1 font-inter">Unit Type</label>
+                  <select 
+                    value={bulkData.unitType}
+                    onChange={e => setBulkData({ ...bulkData, unitType: e.target.value })}
+                    className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-semibold outline-none focus:border-indigo-500 transition-all font-inter"
+                  >
+                    <option value="unit">unit</option>
+                    <option value="pcs">pcs</option>
+                    <option value="box">box</option>
+                    <option value="pack">pack</option>
+                    <option value="kg">kg</option>
+                    <option value="gm">gm</option>
+                    <option value="ltr">ltr</option>
+                    <option value="ml">ml</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button 
+                  onClick={() => setShowBulkEditModal(false)}
+                  className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all font-inter"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleBulkUpdate}
+                  disabled={bulkLoading}
+                  className="flex-[2] py-4 bg-slate-900 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 font-inter"
+                >
+                  {bulkLoading ? 'Synchronizing...' : 'Apply Overall Sync'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

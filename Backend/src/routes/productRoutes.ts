@@ -9,7 +9,8 @@ import {
   getLowStockProducts,
   adjustStock,
   getCategories,
-  deleteCategory
+  deleteCategory,
+  bulkUpdateCategory
 } from "../controllers/productController.js";
 import { protect, role, verifySubscription, tenantHandler } from "../middleware/auth.js";
 
@@ -30,6 +31,7 @@ router.delete("/:id", protect, verifySubscription, tenantHandler, role("business
 
 // Manual stock adjustment
 router.post("/:id/adjust-stock", protect, verifySubscription, tenantHandler, role("businessAdmin", "manager"), adjustStock);
+router.put("/bulk/category", protect, verifySubscription, tenantHandler, role("businessAdmin"), bulkUpdateCategory);
 
 
 export default router;

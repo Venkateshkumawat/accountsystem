@@ -36,6 +36,7 @@ interface DashboardData {
   usedSku?: number;
   remainingSku?: number;
   revenueTrend?: any[];
+  highProfitItems?: any[];
 }
 
 // 🚀 Persistent Cache Node: Survives remounts for instantaneous navigation back-and-forth
@@ -414,21 +415,53 @@ export default function Dashboard() {
         </div>
 
         <div className="lg:col-span-4 bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col">
-          <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em] mb-5">Top Selling Products</h2>
-          <div className="h-[500px] overflow-y-auto custom-scrollbar pr-2 space-y-4">
-            {(data?.topProducts || []).map((prod, i) => {
+          <div className="flex items-center justify-between mb-5">
+             <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Top Selling Products</h2>
+             <div className="p-1.5 bg-slate-50 text-slate-400 rounded-lg"><Activity size={12} /></div>
+          </div>
+          <div className="h-[230px] overflow-y-auto custom-scrollbar pr-2 space-y-4">
+            {(data?.topProducts || []).slice(0, 5).map((prod, i) => {
               const topRevenue = data?.topProducts?.[0]?.totalRevenue || 1;
               const pct = (prod.totalRevenue / topRevenue) * 100;
               return (
                 <div key={i} className="space-y-2 group">
                   <div className="flex justify-between items-end">
-                    <div className="flex flex-col"><span className="text-[13px] font-semibold font-inter text-slate-900 uppercase tracking-tight truncate max-w-[150px]">{prod.name}</span><span className="text-[10px] font-semibold font-inter text-slate-400 uppercase tracking-widest opacity-80 mt-1">Performance Node</span></div>
-                    <div className="text-right"><span className="text-sm font-semibold font-inter text-slate-900">₹ {prod.totalRevenue.toLocaleString('en-IN')}</span><p className="text-[9px] font-medium font-inter text-slate-400 uppercase tracking-widest mt-1">Revenue</p></div>
+                    <div className="flex flex-col"><span className="text-[12px] font-bold font-inter text-slate-800 uppercase tracking-tight truncate max-w-[150px]">{prod.name}</span></div>
+                    <div className="text-right"><span className="text-xs font-bold font-inter text-slate-900">₹ {prod.totalRevenue.toLocaleString('en-IN')}</span></div>
                   </div>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-slate-900 group-hover:bg-indigo-600 transition-all duration-1000" style={{ width: `${pct}%` }} /></div>
+                  <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100"><div className="h-full bg-slate-900 group-hover:bg-indigo-600 transition-all duration-1000" style={{ width: `${pct}%` }} /></div>
                 </div>
               );
             })}
+          </div>
+
+          <div className="mt-6 pt-6 border-t-2 border-slate-50">
+             <div className="flex items-center justify-between mb-4">
+                <h2 className="text-[11px] font-bold text-emerald-600 uppercase tracking-[0.2em]">High Profit Nodes</h2>
+                <Zap size={14} className="text-emerald-500 fill-emerald-500 animate-pulse" />
+             </div>
+             <div className="space-y-3">
+                {(data?.highProfitItems || []).map((item, i) => (
+                   <div key={i} className="flex items-center justify-between p-3 bg-emerald-50/50 rounded-xl border border-emerald-100 hover:bg-emerald-100/50 transition-all cursor-default">
+                      <div className="min-w-0">
+                         <p className="text-[11px] font-bold text-slate-800 uppercase truncate pr-2">{item.name}</p>
+                         <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[8px] font-bold text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200">PROFIT: ₹{Math.round(item.totalProfit).toLocaleString()}</span>
+                         </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                         <p className="text-[10px] font-black text-emerald-600 leading-none">+{Math.round((item.totalProfit / item.revenue) * 100)}%</p>
+                         <p className="text-[7px] font-bold text-slate-400 uppercase mt-1">Margin</p>
+                      </div>
+                   </div>
+                ))}
+                {(!data?.highProfitItems || data.highProfitItems.length === 0) && (
+                   <div className="py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                      <TrendingUp size={24} className="mx-auto text-slate-200 mb-2" />
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Collecting Profit Flux...</p>
+                   </div>
+                )}
+             </div>
           </div>
         </div>
       </div>

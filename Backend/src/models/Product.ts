@@ -11,7 +11,7 @@ export interface IProduct extends Document {
   purchasePrice?: number;
   sellingPrice: number;
   unitValue?: number;
-  unitType?: 'unit' | 'kg' | 'gm' | 'l' | 'ml' | 'pack';
+  unitType?: 'unit' | 'kg' | 'gm' | 'ltr' | 'ml' | 'pack' | 'box' | 'pcs';
   weight?: number;
   weightUnit?: string;
   gstRate: 0 | 5 | 12 | 18 | 28;
@@ -75,7 +75,7 @@ const productSchema = new Schema<IProduct>(
     },
     unitType: {
       type: String,
-      enum: ['unit', 'kg', 'gm', 'l', 'ml', 'pack'],
+      enum: ['unit', 'kg', 'gm', 'ltr', 'ml', 'pack', 'box', 'pcs'],
       default: 'unit',
     },
     weight: {

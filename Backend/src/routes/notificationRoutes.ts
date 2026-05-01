@@ -5,7 +5,10 @@ import {
   markAllAsRead,
   deleteNotification,
   getUnreadCount,
-  deleteAllNotifications
+  deleteAllNotifications,
+  toggleBookmark,
+  batchDelete,
+  batchRead
 } from "../controllers/notificationController.js";
 import { protect, tenantHandler } from "../middleware/auth.js";
 
@@ -29,6 +32,12 @@ router.patch("/read-all", markAllAsRead);
 // @route   DELETE /api/notifications/delete-all
 router.delete("/delete-all", deleteAllNotifications);
 
+// @route   POST /api/notifications/batch-delete
+router.post("/batch-delete", batchDelete);
+
+// @route   POST /api/notifications/batch-read
+router.post("/batch-read", batchRead);
+
 
 // ── Dynamic ID-based Routes ────────────────────────────────────────────────
 
@@ -41,5 +50,8 @@ router.put("/:id", markAsRead);
 
 // @route   DELETE /api/notifications/:id
 router.delete("/:id", deleteNotification);
+
+// @route   PATCH /api/notifications/:id/bookmark
+router.patch("/:id/bookmark", toggleBookmark);
 
 export default router;

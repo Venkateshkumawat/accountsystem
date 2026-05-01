@@ -26,14 +26,16 @@ export const reduceStock = async (
     }
 
     // Check if enough stock exists
-    if (product.stock - item.qty < 0) {
-      throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock}, Requested: ${item.qty}`);
+    const reductionAmount = item.qty * (product.unitValue || 1);
+    
+    if (product.stock - reductionAmount < 0) {
+      throw new Error(`Insufficient stock for ${product.name}. Available: ${product.stock}, Requested Volume: ${reductionAmount}`);
     }
 
-    // Atomic reduction using $inc
+    // Atomic reduction using $inc with calculated fractional value
     const updatedProduct = await Product.findOneAndUpdate(
       { _id: item.productId, businessAdminId },
-      { $inc: { stock: -item.qty } },
+      { $inc: { stock: -reductionAmount } },
       { session, returnDocument: 'after' }
     );
 

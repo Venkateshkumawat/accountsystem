@@ -60,6 +60,23 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
           const productMap: Record<string, { name: string, price: number }> = {};
           const usedImages = new Set<string>();
 
+          const unitMap: Record<string, { unit: string, type: string, value: number }> = {
+            'Apparel': { unit: 'pcs', type: 'pcs', value: 1 },
+            'Beverages': { unit: 'pcs', type: 'ltr', value: 1 },
+            'Electronics': { unit: 'pcs', type: 'unit', value: 1 },
+            'Groceries': { unit: 'pcs', type: 'kg', value: 1 },
+            'Cosmetics': { unit: 'pcs', type: 'ml', value: 100 },
+            'Stationery': { unit: 'pcs', type: 'unit', value: 1 },
+            'Hardware': { unit: 'pcs', type: 'unit', value: 1 },
+            'Snacks': { unit: 'pcs', type: 'gm', value: 100 },
+            'Toys': { unit: 'pcs', type: 'unit', value: 1 },
+            'Pharmacy': { unit: 'pcs', type: 'pcs', value: 1 },
+            'Personal Care': { unit: 'pcs', type: 'ml', value: 200 },
+            'Dairy & Eggs': { unit: 'pcs', type: 'unit', value: 1 },
+            'Cleaning Supplies': { unit: 'pcs', type: 'ltr', value: 1 },
+            'General': { unit: 'pcs', type: 'unit', value: 1 }
+          };
+
           for (const prod of allProds) {
             const cat = prod.category || 'General';
             let data = categoryData[cat];
@@ -94,10 +111,15 @@ export const getProducts = async (req: AuthRequest, res: Response): Promise<void
               usedImages.add(prod.image);
             }
 
-            if (shouldRename || imageCleared) {
+            const uData = unitMap[cat] || unitMap['General'];
+
+            if (shouldRename || imageCleared || prod.unitType === 'ml' && cat === 'Apparel') {
               prod.name = shouldRename ? newName : prod.name;
               prod.sellingPrice = shouldRename ? newPrice : prod.sellingPrice;
               prod.discount = shouldRename ? 0 : prod.discount;
+              prod.unit = uData.unit;
+              prod.unitType = uData.type as any;
+              prod.unitValue = uData.value;
               await prod.save();
             }
             productMap[prod._id.toString()] = { name: prod.name, price: prod.sellingPrice };
@@ -438,28 +460,18 @@ export const updateProduct = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    await logActivity(req, "UPDATE", "PRODUCT", `Updated SKU: ${product.name}`, (product._id as any).toString(), undefined, undefined, true);
+    const consolidatedMsg = `Inventory Sync: ${product.name} updated (Stock: ${product.stock}, Threshold: ${product.lowStockThreshold}). ${product.stock <= product.lowStockThreshold ? '⚠️ LOW STOCK ALERT' : 'Node Stable.'}`;
 
-    // Consolidated Notification Logic: High Priority (Alarm) > Low Priority (Info)
-    if (product.stock <= product.lowStockThreshold && product.stock >= 0) {
-      await createNotification(
-        req.user?.businessId,
-        `Critical Inventory Alarm: ${product.name} is low on stock (${product.stock} units remaining).`,
-        product.stock === 0 ? "error" : "warning",
-        "businessAdmin",
-        undefined,
-        "alert"
-      );
-    } else {
-      await createNotification(
-        req.user?.businessId,
-        `SKU Configuration Updated: ${product.name} (Stock: ${product.stock}, Threshold: ${product.lowStockThreshold}).`,
-        "info",
-        "businessAdmin",
-        undefined,
-        "product"
-      );
-    }
+    await logActivity(req, "UPDATE", "PRODUCT", consolidatedMsg, (product._id as any).toString());
+
+    await createNotification(
+      req.user?.businessId,
+      consolidatedMsg,
+      product.stock <= product.lowStockThreshold ? (product.stock === 0 ? "error" : "warning") : "success",
+      "businessAdmin",
+      undefined,
+      "product"
+    );
 
     // 📡 Nexus Protocol: Real-time Data Sync Signal
     if (req.user?.businessId) {
@@ -711,6 +723,66 @@ export const deleteCategory = async (req: AuthRequest, res: Response): Promise<v
     await logActivity(req, "DELETE", "PRODUCT", `Deleted/Merged category section: ${categoryName} into General`, "category_sync");
 
     res.status(200).json({ success: true, message: `Category '${categoryName}' has been merged into General.` });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Bulk update products in a category
+ * @route   PUT /api/products/bulk/category
+ */
+export const bulkUpdateCategory = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { Product } = req.tenantModels!;
+    const businessAdminId = getBusinessAdminId(req);
+    const { categoryName, updates } = req.body;
+
+    if (!categoryName) {
+      res.status(400).json({ success: false, message: "Category name is required" });
+      return;
+    }
+
+    // Filter allowed fields for security
+    const allowedFields = ['unit', 'unitType', 'unitValue', 'gstRate', 'lowStockThreshold'];
+    const filteredUpdates: any = {};
+    for (const key of Object.keys(updates)) {
+      if (allowedFields.includes(key)) {
+        filteredUpdates[key] = updates[key];
+      }
+    }
+
+    if (Object.keys(filteredUpdates).length === 0) {
+       res.status(400).json({ success: false, message: "No valid update fields provided." });
+       return;
+    }
+
+    const result = await Product.updateMany(
+      { businessAdminId, category: categoryName, isActive: true },
+      { $set: filteredUpdates }
+    );
+
+    await logActivity(req, "UPDATE", "PRODUCT", `Bulk updated ${result.modifiedCount} items in category: ${categoryName}`, "bulk_sync");
+
+    await createNotification(
+      req.user?.businessId,
+      `Category Synchronized: ${result.modifiedCount} items in '${categoryName}' updated successfully.`,
+      "success",
+      "businessAdmin",
+      undefined,
+      "product"
+    );
+
+    // 📡 Real-time Data Sync
+    if (req.user?.businessId) {
+      getIO()?.to(req.user.businessId.toString()).emit('DATA_SYNC', { type: 'PRODUCT' });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: `${result.modifiedCount} products updated.`,
+      modifiedCount: result.modifiedCount 
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
