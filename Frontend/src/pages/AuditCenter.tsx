@@ -123,19 +123,19 @@ const AuditCenter: React.FC = () => {
             resource: a.resource
         }));
 
-        // Deduplicate by ID to prevent ghost nodes
         const uniqueNodes = new Map();
         [...mappedAlerts, ...mappedAudit].forEach(item => {
             if (!uniqueNodes.has(item.id)) uniqueNodes.set(item.id, item);
         });
 
-        let combined = Array.from(uniqueNodes.values()).map(item => {
-        return Array.from(uniqueNodes.values()).map(item => {
+        const combined = Array.from(uniqueNodes.values()).map(item => {
             let finalTitle = item.title;
             if (item.resource?.toUpperCase().includes('SALE') || item.resource?.toUpperCase().includes('INVOICE')) finalTitle = 'SALE';
             if (item.resource?.toUpperCase().includes('PURCHASE')) finalTitle = 'PURCHASE';
             return { ...item, title: finalTitle };
-        }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        });
+
+        return combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }, [notifications, activities]);
 
     const displayedStream = useMemo(() => {
