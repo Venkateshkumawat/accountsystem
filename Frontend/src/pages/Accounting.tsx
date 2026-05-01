@@ -131,7 +131,7 @@ export default function Accounting() {
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Revenue Trend</h2>
           {chartData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0} debounce={50}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="date" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} dy={10} />
@@ -150,7 +150,7 @@ export default function Accounting() {
           <h2 className="text-lg font-semibold text-slate-800 mb-4 uppercase tracking-tight">Payment Methods</h2>
           {methodData.length > 0 && !loading ? (
             <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0} debounce={50}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} minHeight={0}>
                 <BarChart data={methodData} barSize={20}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                   <XAxis dataKey="name" tick={{ fontFamily: "Inter", fontSize: 10, fill: '#64748b', fontWeight: 700 }} axisLine={false} tickLine={false} dy={10} />

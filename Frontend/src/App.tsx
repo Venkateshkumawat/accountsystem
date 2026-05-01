@@ -4,6 +4,7 @@ import { AppLayout } from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { PermissionRoute } from './components/PermissionGate';
 import { NotificationProvider } from './context/NotificationContext';
+import { MobileAppWrapper } from './components/MobileAppWrapper';
 
 // Dynamic Node Imports
 const Landing = lazy(() => import('./pages/Landing'));
@@ -11,8 +12,6 @@ const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const POS = lazy(() => import('./pages/POS'));
 const B2BSales = lazy(() => import('./pages/B2BSales'));
-
-
 const Purchases = lazy(() => import('./pages/Purchases'));
 const Inventory = lazy(() => import('./pages/Inventory'));
 const Accounting = lazy(() => import('./pages/Accounting'));
@@ -72,117 +71,119 @@ const App = () => {
     <NotificationProvider>
       <div className={`${isSunset ? 'dark' : ''} font-sans text-slate-900 bg-slate-50 min-h-screen selection:bg-indigo-100 selection:text-indigo-600 transition-colors duration-700`}>
         <Router>
-          <Suspense fallback={<Loader />}>
-            <Routes>
-              {/* Public Nodes (Open Access) */}
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/superadmin-login" element={<SuperAdminLogin />} />
+          <MobileAppWrapper>
+            <Suspense fallback={<Loader />}>
+              <Routes>
+                {/* Public Nodes (Open Access) */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/superadmin-login" element={<SuperAdminLogin />} />
 
-              {/* -- SuperAdmin Master Portal (Strict Isolation) -- */}
-              <Route
-                path="/superadmin"
-                element={
-                  <ProtectedRoute allowedRoles={['superadmin']} redirectTo="/dashboard">
-                    <Suspense fallback={<Loader />}><SuperAdminLayout /></Suspense>
+                {/* -- SuperAdmin Master Portal (Strict Isolation) -- */}
+                <Route
+                  path="/superadmin"
+                  element={
+                    <ProtectedRoute allowedRoles={['superadmin']} redirectTo="/dashboard">
+                      <Suspense fallback={<Loader />}><SuperAdminLayout /></Suspense>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<SuperAdminDashboard />} />
+                  <Route path="user-plan" element={<UserPlan />} />
+                  <Route path="accounts" element={<MasterAccount />} />
+                  <Route path="settings" element={<AdminSetting />} />
+                </Route>
+
+                {/* -- Business Operational Nodes (Authenticated Staff/Admin ONLY) -- */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
+                    <AppLayout><Dashboard /></AppLayout>
                   </ProtectedRoute>
-                }
-              >
-                <Route index element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard" element={<SuperAdminDashboard />} />
-                <Route path="user-plan" element={<UserPlan />} />
-                <Route path="accounts" element={<MasterAccount />} />
-                <Route path="settings" element={<AdminSetting />} />
-              </Route>
+                } />
 
-              {/* -- Business Operational Nodes (Authenticated Staff/Admin ONLY) -- */}
-              <Route path="/dashboard" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
-                  <AppLayout><Dashboard /></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/pos" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'cashier']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="POS"><POS /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/pos" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'cashier']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="POS"><POS /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/b2b" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'cashier']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="POS"><B2BSales /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/b2b" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'cashier']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="POS"><B2BSales /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/purchases" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="PURCHASES"><Purchases /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/purchases" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="PURCHASES"><Purchases /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/inventory" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'cashier']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="INVENTORY"><Inventory /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/inventory" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'cashier']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="INVENTORY"><Inventory /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/accounting" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="ACCOUNTING"><Accounting /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/accounting" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="ACCOUNTING"><Accounting /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/gst" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="GST_PORTAL"><GSTPortal /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/gst" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="GST_PORTAL"><GSTPortal /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/parties" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="CUSTOMERS"><Parties /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/parties" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="CUSTOMERS"><Parties /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/staff" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="STAFF"><Staff /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/staff" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="STAFF"><Staff /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
+                <Route path="/reports" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
+                    <AppLayout><PermissionRoute permission="REPORTS"><Reports /></PermissionRoute></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/reports" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant']} redirectTo="/superadmin">
-                  <AppLayout><PermissionRoute permission="REPORTS"><Reports /></PermissionRoute></AppLayout>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/audit-center" element={
-                <ProtectedRoute allowedRoles={['businessAdmin']} redirectTo="/dashboard">
-                  <AppLayout><AuditCenter /></AppLayout>
-                </ProtectedRoute>
-              } />
-
-              {/* Settings (BusinessAdmin ONLY Protocol) */}
-              <Route
-                path="/settings"
-                element={
+                <Route path="/audit-center" element={
                   <ProtectedRoute allowedRoles={['businessAdmin']} redirectTo="/dashboard">
-                    <AppLayout><Settings /></AppLayout>
+                    <AppLayout><AuditCenter /></AppLayout>
                   </ProtectedRoute>
-                }
-              />
+                } />
 
-              {/* Dedicated Finance Auditing */}
-              <Route path="/invoice-view/:id" element={
-                <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
-                  <InvoiceView />
-                </ProtectedRoute>
-              } />
+                {/* Settings (BusinessAdmin ONLY Protocol) */}
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute allowedRoles={['businessAdmin']} redirectTo="/dashboard">
+                      <AppLayout><Settings /></AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-          </Suspense>
+                {/* Dedicated Finance Auditing */}
+                <Route path="/invoice-view/:id" element={
+                  <ProtectedRoute allowedRoles={['businessAdmin', 'manager', 'accountant', 'cashier']} redirectTo="/superadmin">
+                    <InvoiceView />
+                  </ProtectedRoute>
+                } />
+
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Suspense>
+          </MobileAppWrapper>
         </Router>
       </div>
     </NotificationProvider>

@@ -186,6 +186,7 @@
   .text-rose-600 {
     color: black !important;
     font-weight: bold !important;
+    font-size: 12pt;
   }
 
   .bg-slate-900,
@@ -224,4 +225,78 @@ body.modal-open-nexus .sidebar {
   filter: blur(2px) grayscale(0.5);
   opacity: 0.8;
   pointer-events: none;
+}
+
+/* ── Mobile Native Feeling Hardening ── */
+@layer base {
+  html, body {
+    /* Prevent rubber-band scrolling on iOS but maintain smooth scrolling */
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; /* Disables double-tap to zoom */
+    overflow-x: hidden;
+  }
+
+  /* Increase touch targets for mobile accessibility */
+  button, a, input, select {
+    @apply cursor-pointer;
+    touch-action: manipulation;
+  }
+}
+
+/* ── Ripple / Touch Feedback Effect ── */
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.ripple-btn::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 1s;
+}
+
+.ripple-btn:active::after {
+  transform: scale(0, 0);
+  opacity: 0.3;
+  transition: 0s;
+}
+
+/* ── Smooth Navigation Transitions ── */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+.page-transition-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* ── Sidebar Drawer Hardening ── */
+@media (max-width: 1024px) {
+  .sidebar-drawer {
+    box-shadow: 20px 0 50px -12px rgb(0 0 0 / 0.25);
+  }
 }

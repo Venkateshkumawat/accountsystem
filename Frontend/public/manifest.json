@@ -1,0 +1,16 @@
+{
+  "name": "NexusBill",
+  "short_name": "Nexus",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "description": "Premium B2B Fiscal Terminal & Inventory Management System",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

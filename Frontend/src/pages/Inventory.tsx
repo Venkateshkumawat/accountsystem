@@ -452,7 +452,6 @@ export default function Inventory() {
                             <img
                               src={productImg}
                               alt={product.name}
-                              loading="lazy"
                               className="w-full h-full object-contain p-1"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
@@ -529,7 +528,6 @@ export default function Inventory() {
                                   <img
                                     src={productImg}
                                     alt={product.name}
-                                    loading="lazy"
                                     className="w-full h-full object-contain p-1"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).style.display = 'none';

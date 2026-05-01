@@ -221,7 +221,7 @@ export default function Reports() {
             </div>
             <div className="flex-1 w-full min-w-0 relative">
               <ChartWrapper data={salesData?.dailySales} height={240}>
-                <ResponsiveContainer width="100%" height={240} minWidth={0} minHeight={0} debounce={50}>
+                <ResponsiveContainer width="100%" height={240} minWidth={0} minHeight={0}>
                   <AreaChart data={salesData?.dailySales || []}>
                     <defs>
                       <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -477,7 +477,7 @@ export default function Reports() {
           </div>
           <div className="flex-1 w-full min-w-0 h-[220px] relative">
             <ChartWrapper data={salesData?.gstSlabs} height={220}>
-              <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0} debounce={50}>
+              <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie data={salesData?.gstSlabs || []} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="totalTax" nameKey="_id">
                     {(salesData?.gstSlabs || []).map((_e: any, index: number) => <Cell key={index} fill={['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'][index % 5]} />)}
@@ -558,7 +558,7 @@ export default function Reports() {
            </div>
            <div className="flex-1 w-full relative">
               <ChartWrapper data={salesData?.paymentMetrics} height={200}>
-                <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0} debounce={50}>
+                <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0}>
                   <PieChart>
                     <Pie data={salesData?.paymentMetrics || []} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="amount" nameKey="_id">
                         {(salesData?.paymentMetrics || []).map((entry:any, index:number) => {
@@ -592,7 +592,7 @@ export default function Reports() {
            <div className="flex-1 w-full relative overflow-x-auto custom-scrollbar-thin">
               <div style={{ minWidth: (inventoryData?.categoryDistribution?.length || 0) * 55 + 'px', height: '100%' }}>
                 <ChartWrapper data={inventoryData?.categoryDistribution} height={220}>
-                  <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0} debounce={50}>
+                  <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
                     <BarChart data={inventoryData?.categoryDistribution || []} margin={{ left: 5, right: 5, bottom: 25 }}>
                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                        <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fontFamily: "Inter", fontSize: 7, fill: '#94A3B8', fontWeight: 600 }} interval={0} angle={-35} textAnchor="end" />

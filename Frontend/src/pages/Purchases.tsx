@@ -268,7 +268,7 @@ export default function Purchases() {
               </div>
            </div>
            <div className="w-full h-[350px] relative mt-2">
-               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150} debounce={100}>
+               <ResponsiveContainer width="100%" height={350} minWidth={0}>
                  <AreaChart data={chartData}>
                     <defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -285,7 +285,7 @@ export default function Purchases() {
            <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 shadow-sm flex flex-col items-center">
               <h3 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4 w-full text-center">Supplier Distribution</h3>
               <div className="h-[200px] w-full relative min-h-[200px]">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150} debounce={50}>
+                  <ResponsiveContainer width="100%" height={200} minWidth={0}>
                     <PieChart>
                        <Pie data={supplierData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                           {supplierData.map((e: any, i: number) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}

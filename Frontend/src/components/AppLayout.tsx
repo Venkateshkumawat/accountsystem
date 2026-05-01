@@ -30,12 +30,12 @@ const NAV_ITEMS = [
   { label: 'B2B Sales', path: '/b2b', icon: Receipt, roles: ['businessAdmin', 'manager', 'cashier'], permission: 'POS' },
   { label: 'Purchases', path: '/purchases', icon: Archive, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'PURCHASES' },
   { label: 'Inventory', path: '/inventory', icon: Package, roles: ['businessAdmin', 'manager', 'cashier'], permission: 'INVENTORY' },
-  { label: 'Accounting', path: '/accounting', icon: BookOpen, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'ACCOUNTING' },
   { label: 'Parties', path: '/parties', icon: Users, roles: ['businessAdmin', 'manager', 'accountant', 'cashier'], permission: 'CUSTOMERS' },
-  { label: 'Staff Node', path: '/staff', icon: Users, roles: ['businessAdmin', 'manager'], permission: 'STAFF' },
+  { label: 'Accounting', path: '/accounting', icon: BookOpen, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'ACCOUNTING' },
   { label: 'GST Portal', path: '/gst', icon: Shield, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'GST_PORTAL' },
   { label: 'REPORTS', path: '/reports', icon: BarChart2, roles: ['businessAdmin', 'manager', 'accountant'], permission: 'REPORTS' },
   { label: 'Message Center', path: '/audit-center', icon: Shield, roles: ['businessAdmin'], permission: null },
+  { label: 'Staff Node', path: '/staff', icon: Users, roles: ['businessAdmin', 'manager'], permission: 'STAFF' },
   { label: 'Settings', path: '/settings', icon: Cog, roles: ['businessAdmin'], permission: null },
 ];
 
@@ -126,14 +126,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* ── MOBILE BACKDROP ────────────────────────────────────────────────── */}
       {(isSidebarOpen || isMobileSearchOpen) && (
         <div
-          className="fixed inset-0 z-[100] animate-in fade-in duration-300 pointer-events-auto lg:hidden"
+          className="fixed inset-0 z-[100] animate-in fade-in duration-300 pointer-events-auto lg:hidden bg-slate-900/20 backdrop-blur-sm"
           onClick={() => { if (window.innerWidth <= 1024) { setIsSidebarOpen(false); setIsMobileSearchOpen(false); } }}
         />
       )}
 
       {/* ── SIDEBAR ────────────────────────────────────────────────────────── */}
       <aside
-        className={`fixed inset-y-0 left-0 w-[280px] bg-white border-r border-slate-100 z-[200] transition-all duration-300 lg:static
+        className={`fixed inset-y-0 left-0 w-[280px] bg-white border-r border-slate-100 z-[200] transition-all duration-300 lg:static sidebar-drawer
         ${isSidebarOpen ? 'translate-x-0 lg:w-[280px]' : '-translate-x-full lg:w-0 lg:opacity-0 lg:overflow-hidden lg:border-none'}`}
       >
         <div className="h-full flex flex-col overflow-hidden">
@@ -164,7 +164,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </nav>
 
           <div className="p-4 shrink-0 mt-auto border-t border-slate-50">
-            <div className="px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3 transition-all hover:border-indigo-100">
+            <div className="px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3 transition-all hover:border-indigo-100 ripple-btn">
               <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center font-semibold text-xs text-indigo-600 shrink-0">
                 {getInitials(user?.name || 'BB')}
               </div>
@@ -174,7 +174,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all ripple-btn"
                 title="Logout"
               >
                 <LogOut size={16} />
@@ -191,14 +191,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <div className="flex items-center gap-3 flex-1">
               <button
                 onClick={toggleSidebar}
-                className="p-2.5 text-slate-500 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all focus:outline-none active:scale-90"
+                className="p-2.5 text-slate-500 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all focus:outline-none active:scale-90 ripple-btn"
               >
                 <Menu size={20} />
               </button>
 
               <button
                 onClick={() => setIsMobileSearchOpen(true)}
-                className="lg:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
+                className="lg:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-all ripple-btn"
               >
                 <SearchIcon size={18} />
               </button>
@@ -214,7 +214,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </div>
 
             <div className="flex items-center gap-3 lg:gap-5">
-              <Link to="/audit-center" className="p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all relative">
+              <Link to="/audit-center" className="p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all relative ripple-btn">
                 <Bell size={20} />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white animate-in zoom-in-50 duration-300 shadow-sm">
@@ -251,7 +251,7 @@ const SidebarItem = React.memo(({ item, isActive, onClick }: { item: any, isActi
     <Link
       to={item.path}
       onClick={onClick}
-      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative ${isActive
+      className={`flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative ripple-btn ${isActive
           ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
           : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
         }`}
@@ -264,4 +264,3 @@ const SidebarItem = React.memo(({ item, isActive, onClick }: { item: any, isActi
     </Link>
   );
 });
-

@@ -275,7 +275,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="w-full h-[350px] relative mt-2">
-               <ResponsiveContainer width="99%" height="99%" minHeight={150} debounce={100}>
+               <ResponsiveContainer width="100%" height={350} minHeight={150}>
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
                 <XAxis 
