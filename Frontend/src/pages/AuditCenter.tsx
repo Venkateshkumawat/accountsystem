@@ -592,7 +592,8 @@ const AuditCenter: React.FC = () => {
                                 }}
                                 className="px-4 py-2 hover:bg-amber-600 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-amber-400 hover:text-white"
                             >
-                                <Zap size={14} /> Save
+                                <Zap size={14} /> 
+                                {selectedIds.every(id => displayedStream.find(i => i.id === id)?.isBookmarked) ? 'Unsave' : 'Save'}
                             </button>
                             <button 
                                 onClick={() => {
@@ -603,17 +604,19 @@ const AuditCenter: React.FC = () => {
                             >
                                 <CheckCircle size={14} /> Mark Read
                             </button>
-                            <button 
-                                onClick={() => {
-                                    if (confirm(`Delete ${selectedIds.length} messages permanently?`)) {
-                                        batchDelete(selectedIds);
-                                        setSelectedIds([]);
-                                    }
-                                }}
-                                className="px-4 py-2 hover:bg-rose-600 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-rose-400 hover:text-white"
-                            >
-                                <Trash2 size={14} /> Batch Delete
-                            </button>
+                            {!selectedIds.some(id => displayedStream.find(i => i.id === id)?.isBookmarked) && (
+                                <button 
+                                    onClick={() => {
+                                        if (confirm(`Delete ${selectedIds.length} messages permanently?`)) {
+                                            batchDelete(selectedIds);
+                                            setSelectedIds([]);
+                                        }
+                                    }}
+                                    className="px-4 py-2 hover:bg-rose-600 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-rose-400 hover:text-white"
+                                >
+                                    <Trash2 size={14} /> Batch Delete
+                                </button>
+                            )}
                             <button 
                                 onClick={() => setSelectedIds([])}
                                 className="px-4 py-2 hover:bg-slate-800 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest"
