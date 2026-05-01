@@ -431,10 +431,16 @@ const AuditCenter: React.FC = () => {
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
+                                                        if (item.isBookmarked) return;
                                                         if (item.type === 'ALERT') deleteNotification(item.id);
                                                         else deleteAuditNode(item.id);
                                                     }}
-                                                    className="p-2 text-slate-200 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                                                    disabled={item.isBookmarked}
+                                                    className={`p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 ${
+                                                        item.isBookmarked 
+                                                        ? 'text-slate-100 cursor-not-allowed' 
+                                                        : 'text-slate-200 hover:text-rose-500 hover:bg-rose-50'
+                                                    }`}
                                                 >
                                                     <Trash2 size={18} />
                                                 </button>
@@ -491,10 +497,16 @@ const AuditCenter: React.FC = () => {
                                         <button 
                                             onClick={(e) => {
                                                 e.stopPropagation();
+                                                if (item.isBookmarked) return;
                                                 if (item.type === 'ALERT') deleteNotification(item.id);
                                                 else deleteAuditNode(item.id);
                                             }}
-                                            className="p-1 text-slate-300 hover:text-rose-600"
+                                            disabled={item.isBookmarked}
+                                            className={`p-1 transition-all ${
+                                                item.isBookmarked 
+                                                ? 'text-slate-100 cursor-not-allowed' 
+                                                : 'text-slate-300 hover:text-rose-600'
+                                            }`}
                                         >
                                             <Trash2 size={14} />
                                         </button>
