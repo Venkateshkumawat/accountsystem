@@ -61,8 +61,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const playNotificationSound = useCallback(() => {
     if (!soundEnabled) return;
     try {
-      // High-availability industrial chime sound (Mixkit CDN)
-      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+      // Tech-optimized notification chime (Pixabay CDN)
+      const audio = new Audio('https://cdn.pixabay.com/audio/2026/03/02/audio_1d7788374a.mp3');
       audio.volume = volume;
       const playPromise = audio.play();
       if (playPromise !== undefined) {
