@@ -319,14 +319,7 @@ export const getInvoices = async (req: AuthRequest, res: Response): Promise<void
       },
       { $set: { paymentStatus: 'paid' } }
     );
-    await Transaction.updateMany(
-      { 
-        businessAdminId,
-        paymentStatus: 'pending',
-        paymentMethod: { $in: ['cash', 'CASH', 'upi', 'UPI'] }
-      },
-      { $set: { paymentStatus: 'paid' } }
-    );
+
 
     const query: any = { businessAdminId };
     if (status) query.paymentStatus = status;

@@ -1,6 +1,6 @@
 import { AuthRequest } from "../middleware/auth.js";
 
-type Action = "CREATE" | "UPDATE" | "DELETE" | "TRANSACTION";
+type Action = "CREATE" | "UPDATE" | "DELETE" | "TRANSACTION" | "SALE" | "PURCHASE";
 type Resource = "PRODUCT" | "STAFF" | "INVOICE" | "PAYMENT" | "BUSINESS" | "PARTY" | "PURCHASE" | "OFFER";
 
 /**
